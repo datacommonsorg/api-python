@@ -13,14 +13,14 @@
 # limitations under the License.
 
 """Install datacommons."""
-import setuptools
+from setuptools import setup
 
 # Package metadata.
 NAME = 'datacommons'
 DESCRIPTION = 'A library to access Data Commons API.'
 URL = 'https://github.com/google/datacommons'
 EMAIL = 'datacommons@google.com'
-AUTHOR = 'Google LLC'
+AUTHOR = 'Google Inc.'
 REQUIRES_PYTHON = '>=2.7.0'
 VERSION = '0.1'
 
@@ -34,7 +34,7 @@ REQUIRED = [
 PACKAGES = ['datacommons']
 PACKAGE_DIR = {'datacommons':'datacommons'}
 
-setuptools.setup(
+setup(
     name=NAME,
     version=VERSION,
     description=DESCRIPTION,
