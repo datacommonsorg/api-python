@@ -16,7 +16,7 @@
 """
 
 from collections import defaultdict
-import _auth
+import ._auth
 import pandas as pd
 
 
