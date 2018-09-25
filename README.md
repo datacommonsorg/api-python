@@ -8,8 +8,7 @@ Apache 2.0
 
 ## Installation
 
-    git clone https://github.com/google/datacommons
-    pip install -e datacommons
+    pip install git+https://github.com/google/datacommons.git
 
 ## Usage
 
