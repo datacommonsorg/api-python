@@ -20,7 +20,7 @@ NAME = 'datacommons'
 DESCRIPTION = 'A library to access Data Commons API.'
 URL = 'https://github.com/google/datacommons'
 EMAIL = 'datacommons@google.com'
-AUTHOR = 'Google Inc.'
+AUTHOR = 'datacommons.org'
 REQUIRES_PYTHON = '>=2.7.0'
 VERSION = '0.1'
 
@@ -38,6 +38,8 @@ setup(
     name=NAME,
     version=VERSION,
     description=DESCRIPTION,
+    author=AUTHOR,
+    author_email=EMAIL,
     maintainer=AUTHOR,
     maintainer_email=EMAIL,
     python_requires=REQUIRES_PYTHON,
@@ -48,7 +50,6 @@ setup(
     include_package_data=True,
     license='Apache 2.0',
     classifiers=[
-        'Development Status :: 3 - Alpha',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: Apache Software License',
         'Programming Language :: Python',
