@@ -59,8 +59,10 @@ def do_auth(client_id, client_secret, api_root):
         user_agent=USER_AGENT,
         oauth_displayname=OAUTH_DISPLAY_NAME,
         redirect_uri='urn:ietf:wg:oauth:2.0:oob')
-    credentials = authtools.run_flow(flow, storage,
-                                     authtools.argparser.parse_args(args=[]))
+    oauth_flags = authtools.argparser.parse_args(args=[])
+    oauth_flags.noauth_local_webserver = True
+    credentials = authtools.run_flow(flow, storage, oauth_flags)
+
   http = httplib2.Http()
   http = credentials.authorize(http)
 
