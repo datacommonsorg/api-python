@@ -48,7 +48,7 @@ def do_auth(client_id, client_secret, api_root):
   """
 
   # Acquire and store oauth token.
-  storage = authfile.Storage('/tmp/datacommons_{}.dat'.format(client_id))
+  storage = authfile.Storage('datacommons_{}.dat'.format(client_id))
   credentials = storage.get()
 
   if credentials is None or credentials.invalid:
