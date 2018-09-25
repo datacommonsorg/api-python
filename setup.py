@@ -32,6 +32,7 @@ REQUIRED = [
 ]
 
 PACKAGES = ['datacommons']
+PACKAGE_DIR = {'datacommons':'datacommons'}
 
 setuptools.setup(
     name=NAME,
@@ -42,6 +43,7 @@ setuptools.setup(
     python_requires=REQUIRES_PYTHON,
     url=URL,
     packages=PACKAGES,
+    package_dir=PACKAGE_DIR,
     install_requires=REQUIRED,
     include_package_data=True,
     license='Apache 2.0',
@@ -56,4 +58,3 @@ setuptools.setup(
         'Topic :: Software Development',
     ],
 )
-
