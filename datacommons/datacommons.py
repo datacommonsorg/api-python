@@ -16,7 +16,7 @@
 """
 
 from collections import defaultdict
-from ._auth import do_auth
+from . import _auth
 import pandas as pd
 
 
@@ -33,7 +33,7 @@ class Client(object):
                client_id=_CLIENT_ID,
                client_secret=_CLIENT_SECRET,
                api_root=_API_ROOT):
-    self._service = do_auth(client_id, client_secret, api_root)
+    self._service = _auth.do_auth(client_id, client_secret, api_root)
     self._inited = True
 
   def Query(self, datalog_query):
