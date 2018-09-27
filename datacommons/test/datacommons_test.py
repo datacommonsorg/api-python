@@ -61,6 +61,7 @@ class AppTest(unittest.TestCase):
     continent_query = ('SELECT ?name ?area_sq_mi, typeOf ?c Continent, '
                        'name ?c ?name, area ?c ?area, dcid ?c "X123"')
     mock_resource.setup({
+        'options': {'row_count_limit': 100},
         'query': continent_query
     }, {
         'rows': [{
