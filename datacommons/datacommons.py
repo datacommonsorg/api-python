@@ -17,6 +17,7 @@
 
 import collections
 import datetime
+from itertools import product
 from . import _auth
 import pandas as pd
 
@@ -53,7 +54,8 @@ class Client(object):
 
     Returns:
       A pandas.DataFrame with the selected variables in the query as the
-      the column names and each cell containing a list of values.
+      the column names. Entities with multiple values for the queried properties
+      will create multiple rows in the output data frame.
 
     Raises:
       RuntimeError: some problem with executing query (hint in the string)
@@ -81,11 +83,18 @@ class Client(object):
         raise RuntimeError('Response #cells mismatches #header: {}'
                            .format(response))
 
+      # Collect cell values into a single list
+      cell_vals = []
       for key, cell in zip(header, cells):
         if not cell:
-          result_dict[key].append('')
+          cell_vals.append([''])
         else:
-          result_dict[key].append(cell['value'])
+          cell_vals.append(cell['value'])
+
+      # Iterate through the cartesian product adding rows
+      for new_elems in product(*cell_vals):
+        for idx, key in enumerate(header):
+          result_dict[key].append(new_elems[idx])
 
     return pd.DataFrame(result_dict)[header]
 

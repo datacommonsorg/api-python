@@ -74,8 +74,8 @@ class AppTest(unittest.TestCase):
         'header': ['name', 'area_sq_mi']
     })
     expected_df = pd.DataFrame({
-        'name': [['Oceania']],
-        'area_sq_mi': [['3292000']]
+        'name': ['Oceania'],
+        'area_sq_mi': ['3292000']
     })
     expected_df = expected_df[['name', 'area_sq_mi']]
 
