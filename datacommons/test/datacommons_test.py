@@ -66,7 +66,7 @@ class AppTest(unittest.TestCase):
     }, {
         'rows': [{
             'cells': [{
-                'value': ['Oceania']
+                'value': ['Oceania', 'North America']
             }, {
                 'value': ['3292000']
             }]
@@ -74,8 +74,8 @@ class AppTest(unittest.TestCase):
         'header': ['name', 'area_sq_mi']
     })
     expected_df = pd.DataFrame({
-        'name': ['Oceania'],
-        'area_sq_mi': ['3292000']
+        'name': ['Oceania', 'North America'],
+        'area_sq_mi': ['3292000', '3292000']
     })
     expected_df = expected_df[['name', 'area_sq_mi']]
 
