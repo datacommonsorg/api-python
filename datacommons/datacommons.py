@@ -1,17 +1,3 @@
-# Copyright 2017 Google Inc.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
 """Data Commons Public API.
 """
 
@@ -98,6 +84,155 @@ class Client(object):
 
     return pd.DataFrame(result_dict)[header]
 
+  def AddProperty(self,
+                  pd_table,
+                  prop_name,
+                  seed_col_name,
+                  new_col_name,
+                  incoming_prop=False,
+                  outgoing_prop=False,
+                  max_rows=100):
+    """Populate a new column in the existing pandas dataframe with the values
+    of the given property name.
+
+    The existing pandas dataframe should contain entity ids for certain types.
+    Added data would be the property values of entities specified as ids in
+    "seed_col_name".
+
+    Args:
+      pd_table: Pandas dataframe that contains entity information.
+      prop_name: The property to add to the table.
+      seed_col_name: The column name containg entity (ids) that the property
+        should associate to. The "seed_col_name" should always be a column name
+        in the "pd_table"
+      new_col_name: The column name for the new column added to "pd_table"
+      incoming_prop: If set, denotes that "prop_name" is a property that points
+        towards the entities described in the seed column. Either this or
+        "outgoing_prop" must be set.
+      outgoing_prop: If set, denotes that "prop_name" is a property that points
+        away from the entities described in the seed column. Either this or
+        "incoming_prop" must be set.
+      max_rows: The maximum number of rows returned by querying observations.
+        All rows that return no result will be filled with the empty string.
+
+    Returns:
+      A pandas.DataFrame with an additional column added.
+    """
+    assert self._inited, 'Initialization was unsuccessful, cannot execute Query'
+    assert (incoming_prop or outgoing_prop), 'Must specify if property is incoming or outgoing'
+
+    seed_col = pd_table[seed_col_name]
+    seed_type = seed_col[0]
+    dcids = seed_col[1:]
+
+    # Generate the query based on incoming or outgoing property
+    if incoming_prop:
+      query = ('SELECT ?{seed_col_name} ?{new_col_name},'
+               'typeOf ?node {seed_type},'
+               'dcid ?node {dcids},'
+               'dcid ?node ?{seed_col_name},'
+               '{prop_name} ?{new_col_name} ?node ')
+    else:
+      query = ('SELECT ?{seed_col_name} ?{new_col_name},'
+               'typeOf ?node {seed_type},'
+               'dcid ?node {dcids},'
+               'dcid ?node ?{seed_col_name},'
+               '{prop_name} ?node ?{new_col_name}')
+
+    # Get the query and type of the new column then query and merge.
+    query = query.format(prop_name=prop_name,
+                         seed_type=seed_type,
+                         seed_col_name=seed_col_name,
+                         new_col_name=new_col_name,
+                         dcids=' '.join(set(dcids)))
+    new_col_type = self._prop_type[seed_type][prop_name]
+    return self._query_and_merge(pd_table, query, seed_col_name, new_col_name,
+                                 new_col_type,
+                                 max_rows=max_rows)
+
+  # ---------------------------------------------------------------------------
+  # CONVENIENCE FUNCTIONS
+  # ---------------------------------------------------------------------------
+
+  def GetObservations(self,
+                      pd_table,
+                      seed_col_name,
+                      new_col_name,
+                      prop_name,
+                      population_type,
+                      start_time,
+                      end_time,
+                      max_rows=100,
+                      **kwargs):
+    """Adds a column of observations for populations contained in entities
+    denoted by the seed column.
+
+    Args:
+      pd_table: A Pandas dataframe where the observations will be added.
+      seed_col_name: The name of the seed column contained in the Pandas
+        dataframe.
+      new_col_name: The name of the column to be added to the dataframe.
+      prop_name: The observation's property name such as "count".
+      population_type: The type described by the observation's population such
+        as "Person".
+      start_time: The start time for when the observation was taken.
+      end_time: The end time for when the observation was taken.
+      max_rows: The maximum number of rows returned by querying observations.
+        All rows that return no result will be filled with the empty string.
+      **kwargs: Any additional keyword properties defining the population such
+        "income" or "education".
+
+    Returns:
+      A pandas.DataFrame with an additional column populated by observations
+      on the population specified by "population_type", "start_time", "end_time"
+      and any additional keyword arguments with populations contained entities
+      denoted by the "seed_col_name".
+    """
+    assert self._inited, 'Initialization was unsuccessful, cannot execute Query'
+
+    seed_col = pd_table[seed_col_name]
+    seed_type = seed_col[0]
+    dcids = seed_col[1:]
+
+    # Create the query
+    start_epoch = int((datetime.datetime.strptime(start_time, '%Y-%m-%d') -
+                       EPOCH_TIME).total_seconds()) * 1000000
+    end_epoch = int((datetime.datetime.strptime(end_time, '%Y-%m-%d') -
+                     EPOCH_TIME).total_seconds()) * 1000000
+    query = ('SELECT ?{seed_col_name} ?{new_col_name},'
+             'typeOf ?node {seed_type},'
+             'typeOf ?pop Population,'
+             'typeOf ?o Observation,'
+             'dcid ?node {dcids},'
+             'dcid ?node ?{seed_col_name},'
+             'place ?pop ?node,'
+             'populationType ?pop {population_type},'
+             'observedNode ?o ?pop,'
+             'observedNode ?o ?pop,'
+             'startTime ?o {start_time},'
+             'endTime ?o {end_time},'
+             'measuredProperty ?o {prop_name},'
+             '{prop_name}Value ?o ?{new_col_name},').format(
+                 seed_col_name=seed_col_name,
+                 new_col_name=new_col_name,
+                 seed_type=seed_type,
+                 dcids=' '.join(set(dcids)),
+                 population_type=population_type,
+                 prop_name=prop_name,
+                 start_time=start_epoch,
+                 end_time=end_epoch)
+    pv_pairs = sorted(kwargs.items())
+    idx = 0
+    for idx, pv in enumerate(pv_pairs, 1):
+      query += 'p{} ?pop {},'.format(idx, pv[0])
+      query += 'v{} ?pop {},'.format(idx, pv[1])
+    query += 'numConstraints ?pop {}'.format(idx)
+
+    # Query and merge
+    return self._query_and_merge(pd_table, query, seed_col_name, new_col_name,
+                                 'Text',
+                                 max_rows=max_rows)
+
   def GetCities(self, state, max_rows=500):
     """Get a list of city dcids.
 
@@ -117,7 +252,6 @@ class Client(object):
              'name ?state "{}"').format(state)
     type_row = pd.DataFrame(data=[{'city': 'City'}])
     dcid_column = self.Query(query, max_rows)
-    dcid_column['city'] = dcid_column['city'].apply(lambda x: x[0])
     return pd.concat([type_row, dcid_column], ignore_index=True)
 
   def GetStates(self, country, max_rows=500):
@@ -138,96 +272,49 @@ class Client(object):
              'name ?country "{}"').format(country)
     type_row = pd.DataFrame(data=[{'state': 'State'}])
     dcid_column = self.Query(query, max_rows)
-    dcid_column['state'] = dcid_column['state'].apply(lambda x: x[0])
     return pd.concat([type_row, dcid_column], ignore_index=True)
 
-  def AddColumn(self,
-                pd_table,
-                col_name,
-                parent_col_name,
-                prop_name,
-                population_type=None,
-                start_time=None,
-                end_time=None,
-                **kwargs):
-    """Add a new column to an existing pandas dataframe.
+  # ---------------------------------------------------------------------------
+  # UTILITY FUNCTIONS
+  # ---------------------------------------------------------------------------
 
-    The existing pandas dataframe should contain entity ids for certain types.
-    Added data would be a property values of exsting entities.
+  def _query_and_merge(self,
+                       pd_table,
+                       query,
+                       seed_col_name,
+                       new_col_name,
+                       new_col_type,
+                       max_rows=100):
+    """Executes the given query and joins a new column with the result and type
+    data along the values in the seed column.
 
     Args:
-      pd_table: Pandas dataframe that contains entity information.
-      col_name: New column name.
-      parent_col_name: The column name that contains entity (ids) that the added
-        properties belong to.
-      prop_name: The property to add to the table..
-      population_type: If set, the added column is about population statistics,
-        and this is the population type like "Person".
-      **kwargs: keyword properties to define the population.
+      pd_table: A Pandas dataframe where the new data will be added.
+      query: The query to be executed. This query must output a column with the
+        same name as "seed_col_name"
+      seed_col_name: The name of the seed column (i.e. the column to join the
+        new data against).
+      new_col_name: The name of the new column.
+      new_col_type: The type of the entities contained in the new column.
+      max_rows: The maximum number of rows returned by querying observations.
+        All rows that return no result will be filled with the empty string.
 
     Returns:
-      A pandas.DataFrame with an additional column added.
+      A pandas.DataFrame with an additional column containing the result of the
+      query joined with elements in the seed column.
     """
     assert self._inited, 'Initialization was unsuccessful, cannot execute Query'
-    parent_col = pd_table[parent_col_name]
-    parent_type = parent_col[0]
-    dcids = parent_col[1:]
 
-    if population_type:
-      node_type = 'Text'
-      start_epoch = int((datetime.datetime.strptime(start_time, '%Y-%m-%d') -
-                         EPOCH_TIME).total_seconds()) * 1000000
-      end_epoch = int((datetime.datetime.strptime(end_time, '%Y-%m-%d') -
-                       EPOCH_TIME).total_seconds()) * 1000000
-      query = ('SELECT ?dcid ?{col_name},'
-               'typeOf ?node {parent_type},'
-               'typeOf ?pop Population,'
-               'typeOf ?o Observation,'
-               'dcid ?node {dcids},'
-               'dcid ?node ?dcid,'
-               'place ?pop ?node,'
-               'populationType ?pop {population_type},'
-               'observedNode ?o ?pop,'
-               'observedNode ?o ?pop,'
-               'startTime ?o {start_time},'
-               'endTime ?o {end_time},'
-               'measuredProperty ?o {prop_name},'
-               '{prop_name}Value ?o ?{col_name},').format(
-                   col_name=col_name,
-                   parent_type=parent_type,
-                   dcids=' '.join(dcids),
-                   population_type=population_type,
-                   prop_name=prop_name,
-                   start_time=start_epoch,
-                   end_time=end_epoch)
-      pv = collections.OrderedDict(sorted(kwargs.items()))
-      index = 0
-      for p, v in pv.items():
-        index += 1
-        query += 'p{} ?pop {},'.format(index, p)
-        query += 'v{} ?pop {},'.format(index, v)
-      query += 'numConstraints ?pop {}'.format(index)
+    # Run the query and update the data. If the left-joins does not fill a value
+    # for a row, then replace the NaN with an empty string.
+    curr_data = pd_table[1:]
+    query_data = self.Query(query, max_rows=max_rows)
 
-    else:
-      node_type = self._prop_type[parent_type][prop_name]
-      query = ('SELECT ?dcid ?{col_name},'
-               'typeOf ?node {parent_type},'
-               'dcid ?node {dcids},'
-               'dcid ?node ?dcid,'
-               '{prop_name} ?node ?{col_name}').format(
-                   prop_name=prop_name,
-                   parent_type=parent_type,
-                   col_name=col_name,
-                   dcids=' '.join(dcids))
-    type_row = pd.DataFrame(data=[{col_name: node_type}])
-    query_result = self.Query(query)
-    # Only handle non-repeated fields
-    query_result[col_name] = query_result[col_name].apply(
-        lambda x: x[0] if x else '')
-    prop_map = {
-        row['dcid'][0]: row[col_name] for index, row in query_result.iterrows()
-    }
-    result_values = [prop_map.get(dcid, '') for dcid in dcids]
-    result_column = pd.DataFrame(data={col_name: result_values})
-    col_data = pd.concat([type_row, result_column], ignore_index=True)
-    return pd.concat([pd_table, col_data], axis=1)
+    new_data = pd.merge(curr_data, query_data, how='left', on=seed_col_name)
+    new_data[new_col_name] = new_data[new_col_name].fillna('')
+
+    # Create the type row
+    new_type_row = pd_table.loc[0].to_frame().T
+    new_type_row[new_col_name] = new_col_type
+
+    return pd.concat([new_type_row, new_data], ignore_index=True)
