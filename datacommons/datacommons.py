@@ -29,6 +29,12 @@ class Client(object):
     self._prop_type = collections.defaultdict(dict)
     for t in response.get('type_info', []):
       self._prop_type[t['node_type']][t['prop_name']] = t['prop_type']
+
+    self._inv_prop_type = collections.defaultdict(dict)
+    for out_type, prop_map in self._prop_type.items():
+      for prop_name, in_type in prop_map.items():
+        self._inv_prop_type[in_type][prop_name] = out_type
+
     self._inited = True
 
   def Query(self, datalog_query, max_rows=100):
@@ -132,12 +138,14 @@ class Client(object):
                'dcid ?node {dcids},'
                'dcid ?node ?{seed_col_name},'
                '{prop_name} ?{new_col_name} ?node ')
+      new_col_type = self._inv_prop_type[seed_type][prop_name]
     else:
       query = ('SELECT ?{seed_col_name} ?{new_col_name},'
                'typeOf ?node {seed_type},'
                'dcid ?node {dcids},'
                'dcid ?node ?{seed_col_name},'
                '{prop_name} ?node ?{new_col_name}')
+      new_col_type = self._prop_type[seed_type][prop_name]
 
     # Get the query and type of the new column then query and merge.
     query = query.format(prop_name=prop_name,
@@ -145,7 +153,7 @@ class Client(object):
                          seed_col_name=seed_col_name,
                          new_col_name=new_col_name,
                          dcids=' '.join(set(dcids)))
-    new_col_type = self._prop_type[seed_type][prop_name]
+
     return self._query_and_merge(pd_table, query, seed_col_name, new_col_name,
                                  new_col_type,
                                  max_rows=max_rows)
