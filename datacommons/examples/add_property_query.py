@@ -25,19 +25,19 @@ def main():
 
   # Start with all states in the United States and add the state names. This
   # is an outgoing property of State.
-  pd_state = dc.GetStates('United States')
-  pd_state = dc.AddProperty(pd_state, 'name', 'state', 'state_name',
-                            outgoing_prop=True)
+  pd_state = dc.get_states('United States', 'state')
+  pd_state = dc.add_property(pd_state, 'name', 'state', 'state_name',
+                             outgoing=True)
 
   # Add information for counties contained in states in the 'state' column.
   # Getting the county is an incoming property of State. Note that there are
   # roughly 3100 counties in the United States
-  pd_state = dc.AddProperty(pd_state, 'containedInPlace', 'state', 'county',
-                            incoming_prop=True,
-                            max_rows=5000)
-  pd_state = dc.AddProperty(pd_state, 'name', 'county', 'county_name',
-                            outgoing_prop=True,
-                            max_rows=5000)
+  pd_state = dc.add_property(pd_state, 'containedInPlace', 'state', 'county',
+                             incoming=True,
+                             max_rows=5000)
+  pd_state = dc.add_property(pd_state, 'name', 'county', 'county_name',
+                             outgoing=True,
+                             max_rows=5000)
 
   # Print out the final data frame
   with pd.option_context('display.width', 400, 'display.max_rows', 100):

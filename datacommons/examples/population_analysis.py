@@ -22,29 +22,28 @@ import pandas as pd
 def main():
   dc = datacommons.Client()
 
-  city_table = dc.GetCities('California', max_rows=10)
-  city_table = dc.AddColumn(city_table, 'city_name', 'city', 'name')
-  city_table = dc.AddColumn(city_table, 'county', 'city', 'containedInPlace')
-  city_table = dc.AddColumn(city_table, 'county_name', 'county', 'name')
-  with pd.option_context('display.width', 400, 'display.max_rows', 100):
-    print city_table
+  # Build a table with a single US state
+  state_table = dc.get_states('United States', 'state', max_rows=1)
 
-  state_table = dc.GetStates('United States', max_rows=100)
-  state_table = dc.AddColumn(state_table, 'state_name', 'state', 'name')
-  state_table = dc.AddColumn(state_table, 'total_population', 'state', 'count',
-                             'Person', '2012-01-01', '2016-01-01')
-  state_table = dc.AddColumn(
-      state_table,
-      'female_population',
-      'state',
-      'count',
-      'Person',
-      '2012-01-01',
-      '2016-01-01',
-      gender='Female')
+  # Add the state name and the 5 counties contained in that state
+  state_table = dc.add_property(state_table, 'name', 'state', 'state_name',
+                                outgoing=True)
+  state_table = dc.add_property(state_table, 'containedInPlace', 'state',
+                                'county',
+                                incoming=True,
+                                max_rows=5)
+  state_table = dc.add_property(state_table, 'name', 'county', 'county_name',
+                                outgoing=True)
+
+  # Query for the population for each of those states.
+  state_table = dc.get_observations(state_table, 'count', 'county', 'pop_count',
+                                    'Person',
+                                    2012,
+                                    2016,
+                                    max_rows=5)
+
   with pd.option_context('display.width', 400, 'display.max_rows', 100):
     print state_table
-
 
 if __name__ == '__main__':
   main()

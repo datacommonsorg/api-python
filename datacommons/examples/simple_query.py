@@ -33,7 +33,7 @@ def main():
            """)
   print 'Issuing query "{}"'.format(query)
   try:
-    df = dc.Query(query)
+    df = dc.query(query)
   except RuntimeError as e:
     print e
     return
