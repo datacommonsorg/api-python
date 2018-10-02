@@ -31,7 +31,7 @@ def main():
              latitude ?o ?lat,
              longitude ?o ?long
            """)
-  print 'Issuing query "{}"'.format(query)
+  print 'Issuing query...{}'.format(query)
   try:
     df = dc.query(query)
   except RuntimeError as e:

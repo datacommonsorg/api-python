@@ -118,19 +118,20 @@ class Client(object):
 
     return pd.DataFrame(result_dict)[header]
 
-  def add_property(self,
-                   pd_table,
-                   prop_name,
-                   seed_col_name,
-                   new_col_name,
-                   incoming=False,
-                   outgoing=False,
-                   max_rows=100):
-    """Populate a new column with values for the given property.
+  def expand(self,
+             pd_table,
+             prop_name,
+             seed_col_name,
+             new_col_name,
+             incoming=False,
+             outgoing=False,
+             max_rows=100):
+    """Create a new column with values for the given property.
 
     The existing pandas dataframe should include a column containing entity IDs
     for a certain schema.org type. This function populates a new column with
-    property values for the entities.
+    property values for the entities and adds additional rows if a property has
+    repeated values.
 
     Args:
       pd_table: Pandas dataframe that contains entity information.
@@ -145,7 +146,7 @@ class Client(object):
       max_rows: The maximum number of rows returned by the query results.
 
     Returns:
-      A pandas.DataFrame with an additional column added.
+      A pandas.DataFrame with the additional column and rows added.
 
     Raises:
       ValueError: when input argument is not valid.

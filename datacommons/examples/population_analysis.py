@@ -26,14 +26,14 @@ def main():
   state_table = dc.get_states('United States', 'state', max_rows=1)
 
   # Add the state name and the 5 counties contained in that state
-  state_table = dc.add_property(state_table, 'name', 'state', 'state_name',
-                                outgoing=True)
-  state_table = dc.add_property(state_table, 'containedInPlace', 'state',
-                                'county',
-                                incoming=True,
-                                max_rows=5)
-  state_table = dc.add_property(state_table, 'name', 'county', 'county_name',
-                                outgoing=True)
+  state_table = dc.expand(state_table, 'name', 'state', 'state_name',
+                          outgoing=True)
+  state_table = dc.expand(state_table, 'containedInPlace', 'state',
+                          'county',
+                          incoming=True,
+                          max_rows=5)
+  state_table = dc.expand(state_table, 'name', 'county', 'county_name',
+                          outgoing=True)
 
   # Query for the population for each of those states.
   state_table = dc.get_observations(state_table, 'count', 'county', 'pop_count',
