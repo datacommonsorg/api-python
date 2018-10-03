@@ -46,6 +46,20 @@ def _year_epoch_micros(year):
     Timestamp of the start of a year in micro seconds.
   """
   now = datetime.datetime(year=year, month=1, day=1)
+
+  return int((now - _EPOCH_START).total_seconds()) * _MICRO_SECONDS
+
+
+def _date_epoch_micros(date_string):
+  """Get the timestamp of the date string in micro seconds.
+
+  Args:
+    date_string: An string of date
+
+  Returns:
+    Timestamp of the start of a year in micro seconds.
+  """
+  now = datetime.datetime.strptime(date_string, '%Y-%m-%d')
   return int((now - _EPOCH_START).total_seconds()) * _MICRO_SECONDS
 
 
@@ -120,11 +134,10 @@ class Client(object):
 
   def expand(self,
              pd_table,
-             prop_name,
+             arc_name,
              seed_col_name,
              new_col_name,
-             incoming=False,
-             outgoing=False,
+             outgoing=True,
              max_rows=100):
     """Create a new column with values for the given property.
 
@@ -135,12 +148,10 @@ class Client(object):
 
     Args:
       pd_table: Pandas dataframe that contains entity information.
-      prop_name: The property to add to the table.
+      arc_name: The property to add to the table.
       seed_col_name: The column name that contains entity (ids) that the added
         properties belong to.
       new_col_name: New column name.
-      incoming: Set this flag if the property points into the entities denoted
-        by the seed column.
       outgoing: Set this flag if the property points away from the entities
         denoted by the seed column.
       max_rows: The maximum number of rows returned by the query results.
@@ -152,7 +163,6 @@ class Client(object):
       ValueError: when input argument is not valid.
     """
     assert self._inited, 'Initialization was unsuccessful, cannot execute query'
-    assert (incoming or outgoing), 'One of incoming or outgoing must be set.'
 
     try:
       seed_col = pd_table[seed_col_name]
@@ -160,86 +170,82 @@ class Client(object):
       raise ValueError('%s is not a valid seed column name' % seed_col_name)
 
     if new_col_name in pd_table:
-      raise ValueError('%s is already a column name in the data frame'
-                       % new_col_name)
+      raise ValueError(
+          '%s is already a column name in the data frame' % new_col_name)
 
     seed_col_type = seed_col[0]
     assert seed_col_type != 'Text', 'Parent entity should not be Text'
 
     dcids = seed_col[1:]
-    if incoming:
-        # The type for properties pointing into entities in the seed column is
-        # stored in "self._inv_prop_type"
-        if prop_name not in self._inv_prop_type[seed_col_type]:
-          raise ValueError('%s does not have incoming property %s'
-                           % (seed_col_type, prop_name))
-        new_col_type = self._inv_prop_type[seed_col_type][prop_name]
+    if not outgoing:
+      # The type for properties pointing into entities in the seed column is
+      # stored in "self._inv_prop_type"
+      if arc_name not in self._inv_prop_type[seed_col_type]:
+        raise ValueError(
+            '%s does not have incoming property %s' % (seed_col_type, arc_name))
+      new_col_type = self._inv_prop_type[seed_col_type][arc_name]
 
-        # Create the query
-        query = ('SELECT ?{seed_col_name} ?{new_col_name},'
-                 'typeOf ?node {seed_col_type},'
-                 'dcid ?node {dcids},'
-                 'dcid ?node ?{seed_col_name},'
-                 '{prop_name} ?{new_col_name} ?node').format(
-                     prop_name=prop_name,
-                     seed_col_name=seed_col_name,
-                     seed_col_type=seed_col_type,
-                     new_col_name=new_col_name,
-                     dcids=' '.join(dcids))
+      # Create the query
+      query = ('SELECT ?{seed_col_name} ?{new_col_name},'
+               'typeOf ?node {seed_col_type},'
+               'dcid ?node {dcids},'
+               'dcid ?node ?{seed_col_name},'
+               '{arc_name} ?{new_col_name} ?node').format(
+                   arc_name=arc_name,
+                   seed_col_name=seed_col_name,
+                   seed_col_type=seed_col_type,
+                   new_col_name=new_col_name,
+                   dcids=' '.join(dcids))
     else:
-        # The type for properties pointing away from entities in the seed column
-        # is stored in "self._prop_type"
-        if prop_name not in self._prop_type[seed_col_type]:
-          raise ValueError('%s does not have outgoing property %s'
-                           % (seed_col_type, prop_name))
-        new_col_type = self._prop_type[seed_col_type][prop_name]
+      # The type for properties pointing away from entities in the seed column
+      # is stored in "self._prop_type"
+      if arc_name not in self._prop_type[seed_col_type]:
+        raise ValueError(
+            '%s does not have outgoing property %s' % (seed_col_type, arc_name))
+      new_col_type = self._prop_type[seed_col_type][arc_name]
 
-        # Create the query
-        query = ('SELECT ?{seed_col_name} ?{new_col_name},'
-                 'typeOf ?node {seed_col_type},'
-                 'dcid ?node {dcids},'
-                 'dcid ?node ?{seed_col_name},'
-                 '{prop_name} ?node ?{new_col_name}').format(
-                     prop_name=prop_name,
-                     seed_col_name=seed_col_name,
-                     seed_col_type=seed_col_type,
-                     new_col_name=new_col_name,
-                     dcids=' '.join(dcids))
+      # Create the query
+      query = ('SELECT ?{seed_col_name} ?{new_col_name},'
+               'typeOf ?node {seed_col_type},'
+               'dcid ?node {dcids},'
+               'dcid ?node ?{seed_col_name},'
+               '{arc_name} ?node ?{new_col_name}').format(
+                   arc_name=arc_name,
+                   seed_col_name=seed_col_name,
+                   seed_col_type=seed_col_type,
+                   new_col_name=new_col_name,
+                   dcids=' '.join(dcids))
 
     # Run the query and merge the results.
-    return self._query_and_merge(pd_table,
-                                 query,
-                                 seed_col_name,
-                                 new_col_name,
-                                 new_col_type,
-                                 max_rows=max_rows)
+    return self._query_and_merge(
+        pd_table,
+        query,
+        seed_col_name,
+        new_col_name,
+        new_col_type,
+        max_rows=max_rows)
 
-  def get_observations(self,
-                       pd_table,
-                       prop_name,
-                       seed_col_name,
-                       new_col_name,
-                       population_type,
-                       start_year,
-                       end_year,
-                       max_rows=100,
-                       **kwargs):
-    """Create a new column with values for an observation of the given property.
+  # ----------------------- OBSERVATION QUERY FUNCTIONS -----------------------
+
+  def get_populations(self,
+                      pd_table,
+                      seed_col_name,
+                      new_col_name,
+                      population_type,
+                      max_rows=100,
+                      **kwargs):
+    """Create a new column with population dcid.
 
     The existing pandas dataframe should include a column containing entity IDs
-    for a certain schema.org type. This function populates a new column with
-    property values for the entities.
+    for geo entities. This function populates a new column with
+    population dcid corresponding to the geo entity.
 
     Args:
-      pd_table: Pandas dataframe that contains entity information.
-      prop_name: The property to add to the table.
+      pd_table: Pandas dataframe that contains geo entity dcids.
       seed_col_name: The column name that contains entity (ids) that the added
         properties belong to.
       new_col_name: New column name.
-      population_type: If set, the added column is about population statistics,
-        and this is the population type like "Person".
-      start_year: The start year of the observation.
-      end_year: The end year of the observation.
+      population_type: Population type like "Person".
       max_rows: The maximum number of rows returned by the query results.
       **kwargs: keyword properties to define the population.
 
@@ -256,8 +262,8 @@ class Client(object):
       raise ValueError('%s is not a valid seed column name' % seed_col_name)
 
     if new_col_name in pd_table:
-      raise ValueError('%s is already a column name in the data frame'
-                       % new_col_name)
+      raise ValueError(
+          '%s is already a column name in the data frame' % new_col_name)
 
     seed_col_type = seed_col[0]
     assert seed_col_type != 'Text', 'Parent entity should not be Text'
@@ -267,24 +273,16 @@ class Client(object):
     query = ('SELECT ?{seed_col_name} ?{new_col_name},'
              'typeOf ?node {seed_col_type},'
              'typeOf ?pop Population,'
-             'typeOf ?o Observation,'
              'dcid ?node {dcids},'
              'dcid ?node ?{seed_col_name},'
              'place ?pop ?node,'
-             'populationType ?pop {population_type},'
-             'observedNode ?o ?pop,'
-             'startTime ?o {start_time},'
-             'endTime ?o {end_time},'
-             'measuredProperty ?o {prop_name},'
-             '{prop_name}Value ?o ?{new_col_name},').format(
+             'dcid ?pop ?{new_col_name},'
+             'populationType ?pop {population_type},').format(
                  new_col_name=new_col_name,
                  seed_col_name=seed_col_name,
                  seed_col_type=seed_col_type,
                  dcids=' '.join(dcids),
-                 population_type=population_type,
-                 prop_name=prop_name,
-                 start_time=_year_epoch_micros(start_year),
-                 end_time=_year_epoch_micros(end_year))
+                 population_type=population_type)
     pv_pairs = sorted(kwargs.items())
     idx = 0
     for idx, pv in enumerate(pv_pairs, 1):
@@ -293,12 +291,88 @@ class Client(object):
     query += 'numConstraints ?pop {}'.format(idx)
 
     # Run the query and merge the results.
-    return self._query_and_merge(pd_table,
-                                 query,
-                                 seed_col_name,
-                                 new_col_name,
-                                 'Text',
-                                 max_rows=max_rows)
+    return self._query_and_merge(
+        pd_table,
+        query,
+        seed_col_name,
+        new_col_name,
+        'Population',
+        max_rows=max_rows)
+
+  def get_observations(self,
+                       pd_table,
+                       seed_col_name,
+                       new_col_name,
+                       start_date,
+                       end_date,
+                       measured_property,
+                       stats_type,
+                       max_rows=100):
+    """Create a new column with values for an observation of the given property.
+
+    The existing pandas dataframe should include a column containing entity IDs
+    for a certain schema.org type. This function populates a new column with
+    property values for the entities.
+
+    Args:
+      pd_table: Pandas dataframe that contains entity information.
+      seed_col_name: The column that contains the population dcid.
+      new_col_name: New column name.
+      start_year: The start year of the observation.
+      end_year: The end year of the observation.
+      measured_property: observation measured property.
+      stats_type: Statistical type like "Median"
+      max_rows: The maximum number of rows returned by the query results.
+      **kwargs: keyword properties to define the population.
+
+    Returns:
+      A pandas.DataFrame with an additional column added.
+
+    Raises:
+      ValueError: when input argument is not valid.
+    """
+    assert self._inited, 'Initialization was unsuccessful, cannot execute query'
+    try:
+      seed_col = pd_table[seed_col_name]
+    except KeyError:
+      raise ValueError('%s is not a valid seed column name' % seed_col_name)
+
+    if new_col_name in pd_table:
+      raise ValueError(
+          '%s is already a column name in the data frame' % new_col_name)
+
+    seed_col_type = seed_col[0]
+    assert seed_col_type == 'Population', 'Parent entity should be Population'
+
+    # Create the datalog query for the requested observations
+    dcids = seed_col[1:]
+    query = ('SELECT ?{seed_col_name} ?{new_col_name},'
+             'typeOf ?pop Population,'
+             'typeOf ?o Observation,'
+             'dcid ?pop {dcids},'
+             'dcid ?pop ?{seed_col_name},'
+             'observedNode ?o ?pop,'
+             'startTime ?o {start_time},'
+             'endTime ?o {end_time},'
+             'measuredProperty ?o {measured_property},'
+             '{stats_type}Value ?o ?{new_col_name},').format(
+                 new_col_name=new_col_name,
+                 seed_col_name=seed_col_name,
+                 dcids=' '.join(dcids),
+                 measured_property=measured_property,
+                 stats_type=stats_type,
+                 start_time=_date_epoch_micros(start_date),
+                 end_time=_date_epoch_micros(end_date))
+    # Run the query and merge the results.
+    return self._query_and_merge(
+        pd_table,
+        query,
+        seed_col_name,
+        new_col_name,
+        'Observation',
+        max_rows=max_rows)
+
+  # -------------------------- OTHER QUERY FUNCTIONS --------------------------
 
   def get_cities(self, state, new_col_name, max_rows=100):
     """Get a list of city dcids in a given state.
@@ -355,6 +429,8 @@ class Client(object):
 
     return pd.concat([type_row, dcid_column], ignore_index=True)
 
+  # ------------------------ INTERNAL HELPER FUNCTIONS ------------------------
+
   def _query_and_merge(self,
                        pd_table,
                        query,
@@ -363,6 +439,7 @@ class Client(object):
                        new_col_type,
                        max_rows=100):
     """A utility function that executes the given query and joins a new column
+
     with the result and type data along the values in the seed column.
 
     Args:

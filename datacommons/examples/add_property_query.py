@@ -17,8 +17,8 @@ States.
 
 """
 
-import datacommons
 import pandas as pd
+import datacommons
 
 def main():
   dc = datacommons.Client()
@@ -33,11 +33,11 @@ def main():
   # Getting the county is an incoming property of State. Note that there are
   # roughly 3100 counties in the United States
   pd_state = dc.expand(pd_state, 'containedInPlace', 'state', 'county',
-                       incoming=True,
-                       max_rows=5000)
+                       outgoing=False,
+                       max_rows=50)
   pd_state = dc.expand(pd_state, 'name', 'county', 'county_name',
                        outgoing=True,
-                       max_rows=5000)
+                       max_rows=50)
 
   # Print out the final data frame
   with pd.option_context('display.width', 400, 'display.max_rows', 100):
