@@ -208,43 +208,43 @@
 
     </div>
 
-    <div typeof="rdfs:Class" resource="https://schema.datacommons.org/WeatherConditionType">
-      <span property="rdfs:label">WeatherConditionType</span>
+    <div typeof="rdfs:Class" resource="https://schema.datacommons.org/NOAAWeatherConditionType">
+      <span property="rdfs:label">NOAAWeatherConditionType</span>
       <span property="rdfs:comment">An enumeration of weather conditions.</span>
       <link property="rdfs:subClassOf" href="http://schema.org/Enumeration"/>
 
     </div>
-    <div typeof="https://schema.datacommons.org/WeatherConditionType" resource="https://schema.datacommons.org/Fog">
+    <div typeof="https://schema.datacommons.org/NOAAWeatherConditionType" resource="https://schema.datacommons.org/NOAA_Fog">
         <span property="rdfs:label">Fog</span>
         <span property="rdfs:comment">Foggy conditions.</span>
 
     </div>
-    <div typeof="https://schema.datacommons.org/WeatherConditionType" resource="https://schema.datacommons.org/Hail">
+    <div typeof="https://schema.datacommons.org/NOAAWeatherConditionType" resource="https://schema.datacommons.org/NOAA_Hail">
         <span property="rdfs:label">Hail</span>
         <span property="rdfs:comment">Hail.</span>
 
     </div>
-    <div typeof="https://schema.datacommons.org/WeatherConditionType" resource="https://schema.datacommons.org/Rain">
+    <div typeof="https://schema.datacommons.org/NOAAWeatherConditionType" resource="https://schema.datacommons.org/NOAA_Rain">
         <span property="rdfs:label">Rain</span>
         <span property="rdfs:comment">Rainy conditions.</span>
 
     </div>
-    <div typeof="https://schema.datacommons.org/WeatherConditionType" resource="https://schema.datacommons.org/Snow">
+    <div typeof="https://schema.datacommons.org/NOAAWeatherConditionType" resource="https://schema.datacommons.org/NOAA_Snow">
         <span property="rdfs:label">Snow</span>
         <span property="rdfs:comment">Snowy conditions.</span>
 
     </div>
-    <div typeof="https://schema.datacommons.org/WeatherConditionType" resource="https://schema.datacommons.org/Thunder">
+    <div typeof="https://schema.datacommons.org/NOAAWeatherConditionType" resource="https://schema.datacommons.org/NOAA_Thunder">
         <span property="rdfs:label">Thunder</span>
         <span property="rdfs:comment">Thunder.</span>
 
     </div>
-    <div typeof="https://schema.datacommons.org/WeatherConditionType" resource="https://schema.datacommons.org/Tornado">
+    <div typeof="https://schema.datacommons.org/NOAAWeatherConditionType" resource="https://schema.datacommons.org/NOAA_Tornado">
         <span property="rdfs:label">Tornado</span>
         <span property="rdfs:comment">Tornado.</span>
 
     </div>
-    <div typeof="https://schema.datacommons.org/WeatherConditionType" resource="https://schema.datacommons.org/Windy">
+    <div typeof="https://schema.datacommons.org/NOAAWeatherConditionType" resource="https://schema.datacommons.org/NOAA_Windy">
         <span property="rdfs:label">Windy</span>
         <span property="rdfs:comment">Windy conditions.</span>
 
@@ -322,7 +322,7 @@
       <span property="rdfs:label">weatherCondition</span>
       <span property="rdfs:comment">The general description of the weather condition expressed as an enumerative value.</span>
       <link property="http://schema.org/domainIncludes" href="https://schema.datacommons.org/WeatherMeasurement"/>
-      <link property="http://schema.org/rangeIncludes" href="https://schema.datacommons.org/WeatherConditionType"/>
+      <link property="http://schema.org/rangeIncludes" href="https://schema.datacommons.org/NOAAWeatherConditionType"/>
 
     </div>
 
