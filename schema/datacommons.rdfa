@@ -119,7 +119,6 @@
     <div typeof="rdf:Property" resource="https://schema.datacommons.org/location">
       <span property="rdfs:label">location</span>
       <link property="http://schema.org/domainIncludes" href="https://schema.datacommons.org/Measurement"/>
-      <link property="http://schema.org/rangeIncludes" href="http://schema.org/Place"/>
     </div>
 
     <div typeof="rdf:Property" resource="https://schema.datacommons.org/startTime">
@@ -135,36 +134,28 @@
 
     <div typeof="rdf:Property" resource="https://schema.datacommons.org/minValue">
       <span class="h" property="rdfs:label">minValue</span>
-      <span property="rdfs:comment">The minimum value of the statistical data.</span>
       <link property="http://schema.org/domainIncludes" href="https://schema.datacommons.org/Observation"/>
-      <link property="http://schema.org/rangeIncludes" href="http://schema.org/Number"/>
     </div>
 
     <div typeof="rdf:Property" resource="https://schema.datacommons.org/maxValue">
       <span class="h" property="rdfs:label">maxValue</span>
-      <span property="rdfs:comment">The maximum value of the statistical data.</span>
       <link property="http://schema.org/domainIncludes" href="https://schema.datacommons.org/Observation"/>
-      <link property="http://schema.org/rangeIncludes" href="http://schema.org/Number"/>
     </div>
 
     <div typeof="rdf:Property" resource="https://schema.datacommons.org/duration">
       <span class="h" property="rdfs:label">duration</span>
-      <span property="rdfs:comment"></span>
       <link property="http://schema.org/domainIncludes" href="https://schema.datacommons.org/Observation"/>
+      <link property="http://schema.org/domainIncludes" href="https://schema.datacommons.org/WeatherMeasurement"/>
     </div>
 
     <div typeof="rdf:Property" resource="https://schema.datacommons.org/startDate">
       <span property="rdfs:label">startDate</span>
       <link property="http://schema.org/domainIncludes" href="https://schema.datacommons.org/Measurement"/>
-      <link property="http://schema.org/rangeIncludes" href="http://schema.org/Date"/>
-      <link property="http://schema.org/rangeIncludes" href="http://schema.org/DateTime"/>
     </div>
 
     <div typeof="rdf:Property" resource="https://schema.datacommons.org/endDate">
       <span property="rdfs:label">endDate</span>
       <link property="http://schema.org/domainIncludes" href="https://schema.datacommons.org/Measurement"/>
-      <link property="http://schema.org/rangeIncludes" href="http://schema.org/Date"/>
-      <link property="http://schema.org/rangeIncludes" href="http://schema.org/DateTime"/>
     </div>
 
     <!-- CENSUS-RELATED, more to add but as a starter to clarify the enum model... -->
@@ -378,12 +369,6 @@
       <span property="rdfs:comment">The dew point (value or min and max) observed or predicted.</span>
       <link property="http://schema.org/domainIncludes" href="https://schema.datacommons.org/WeatherMeasurement"/>
       <link property="http://schema.org/rangeIncludes" href="https://schema.datacommons.org/TemperatureValue"/>
-    </div>
-
-    <div typeof="rdf:Property" resource="https://schema.datacommons.org/duration">
-      <span property="rdfs:label">duration</span>
-      <link property="http://schema.org/domainIncludes" href="https://schema.datacommons.org/WeatherMeasurement"/>
-      <link property="http://schema.org/rangeIncludes" href="http://schema.org/Duration"/>
     </div>
 
     <div typeof="rdf:Property" resource="https://schema.datacommons.org/humidityPercent">
