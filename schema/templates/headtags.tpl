@@ -4,17 +4,14 @@
     <link rel="stylesheet" type="text/css" href="{{ docsdir }}schemaorg.css" />
     <link rel="stylesheet" type="text/css" href="{{ docsdir }}prettify.css" />
     <script type="text/javascript" src="{{ docsdir }}prettify.js"></script>
-    
     <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js"></script>
-<!-- ##### Generated insert [CSEScript-start] see scripts/genhtmlinserts.sh ##### --> 
-<!-- Enable CSE Search -->
-<script>
-(function() {
-var cx = '013516846811604855281:nj5laplixaa'; // Insert your own Custom Search engine ID here
-var gcse = document.createElement('script'); gcse.type = 'text/javascript'; gcse.async = true;
-gcse.src = 'https://cse.google.com/cse.js?cx=' + cx;
-var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(gcse, s);
-})();
-</script>
-<!-- ##### Generated insert [CSEScript-end] see scripts/genhtmlinserts.sh ##### --> 
+
+    <!-- Google Tag Manager -->
+     <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+     new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+     j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+     'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+     })(window,document,'script','dataLayer','GTM-596VBP2');</script>
+     <!-- End Google Tag Manager -->
+     
 <!-- End headtags.tpl -->
