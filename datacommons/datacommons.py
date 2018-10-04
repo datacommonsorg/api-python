@@ -461,12 +461,6 @@ class Client(object):
     except RuntimeError as e:
       raise RuntimeError('Execute query \n%s\ngot an error:\n%s' % (query, e))
 
-    print(">> MERGING")
-    print(query)
-    print(query_result)
-    print()
-    print(pd_table)
-
     new_data = pd.merge(
         pd_table[1:], query_result, how='left', on=seed_col_name)
     new_data[new_col_name] = new_data[new_col_name].fillna('')
