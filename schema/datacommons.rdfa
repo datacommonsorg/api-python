@@ -13,12 +13,6 @@
 
     <!-- DATACOMMONS BASIC VOCABULARY -->
 
-    <div typeof="rdfs:Class" resource="https://schema.datacommons.org/StatisticalPopulation">
-       <span property="rdfs:label">StatisticalPopulation</span>
-       <span property="rdfs:comment">A StatisticalPopulation, a grouping construct used in DataCommons.org to represent a set of individuals that share some characteristic.</span>
-       <link property="rdfs:subClassOf" href="http://schema.org/Intangible" />
-    </div>
-
     <div typeof="rdf:Property" resource="https://schema.datacommons.org/subPopulation">
       <span property="rdfs:label">subPopulation</span>
       <span property="rdfs:comment">A subPopulation of a StatisticalPopulation is a set of members of that group, possibly all those members.</span>
@@ -33,8 +27,114 @@
       <link property="http://schema.org/domainIncludes" href="https://schema.datacommons.org/StatisticalPopulation" />
     </div>
 
-    <!-- more to add, especially Observation, and populationType, see gdoc -->
+    <div typeof="rdfs:Class" resource="https://schema.datacommons.org/StatisticalPopulation">
+      <span class="h" property="rdfs:label">StatisticalPopulation</span>
+      <span property="rdfs:comment">A description of entities of a given type that satisfy some constraints. For example people between the ages of 18 and 34 living in France.</span>
+      <link property="rdfs:subClassOf" href="http://schema.org/Intangible" />
+    </div>
 
+    <div typeof="rdf:Property" resource="https://schema.datacommons.org/populationType">
+      <span class="h" property="rdfs:label">populationType</span>
+      <span property="rdfs:comment">The schema.org type for the entities in the population. For example, schema.org/Person for people or schema.org/City for municipalities.</span>
+      <link property="http://schema.org/domainIncludes" href="https://schema.datacommons.org/StatisticalPopulation"/>
+      <link property="http://schema.org/rangeIncludes" href="http://schema.org/Class"/>
+    </div>
+
+    <div typeof="rdf:Property" resource="https://schema.datacommons.org/location">
+      <span class="h" property="rdfs:label">location</span>
+      <link property="http://schema.org/domainIncludes" href="https://schema.datacommons.org/StatisticalPopulation"/>
+    </div>
+
+    <div typeof="rdfs:Class" resource="https://schema.datacommons.org/Observation">
+      <span class="h" property="rdfs:label">Observation</span>
+      <span property="rdfs:comment">An Observation represents statistical data about an entity, which could be a StatisticalPopulation.</span>
+      <link property="rdfs:subClassOf" href="http://schema.org/Intangible"/>
+
+    </div>
+    <div typeof="rdf:Property" resource="https://schema.datacommons.org/observedNode">
+      <span class="h" property="rdfs:label">observedNode</span>
+      <span property="rdfs:comment">The StatisticalProperty or Measurement the data is related to.</span>
+      <link property="http://schema.org/domainIncludes" href="https://schema.datacommons.org/Observation"/>
+      <link property="http://schema.org/rangeIncludes" href="http://schema.org/StatisticalPopulation"/>
+      <link property="http://schema.org/rangeIncludes" href="http://schema.org/Measurement"/>
+    </div>
+
+
+    <div typeof="rdf:Property" resource="https://schema.datacommons.org/startTime">
+      <span class="h" property="rdfs:label">startTime</span>
+      <link property="http://schema.org/domainIncludes" href="https://schema.datacommons.org/Observation"/>
+    </div>
+
+    <div typeof="rdf:Property" resource="https://schema.datacommons.org/endTime">
+      <span class="h" property="rdfs:label">endTime</span>
+      <span property="rdfs:comment"></span>
+      <link property="http://schema.org/domainIncludes" href="https://schema.datacommons.org/Observation"/>
+    </div>
+
+    <div typeof="rdf:Property" resource="https://schema.datacommons.org/duration">
+      <span class="h" property="rdfs:label">duration</span>
+      <span property="rdfs:comment"></span>
+      <link property="http://schema.org/domainIncludes" href="https://schema.datacommons.org/Observation"/>
+    </div>
+
+    <div typeof="rdf:Property" resource="https://schema.datacommons.org/measuredProperty">
+      <span class="h" property="rdfs:label">measuredProperty</span>
+      <span property="rdfs:comment">The property being measured. In other words, what the value means.</span>
+      <link property="http://schema.org/domainIncludes" href="https://schema.datacommons.org/Observation"/>
+      <link property="http://schema.org/rangeIncludes" href="http://schema.org/Property"/>
+      <link property="http://schema.org/rangeIncludes" href="http://schema.org/Text"/>
+    </div>
+
+    <div typeof="rdf:Property" resource="https://schema.datacommons.org/unit">
+      <span class="h" property="rdfs:label">unit</span>
+      <span property="rdfs:comment">The units to use when interpreting the value.</span>
+      <link property="http://schema.org/domainIncludes" href="https://schema.datacommons.org/Observation"/>
+      <link property="http://schema.org/rangeIncludes" href="http://schema.org/Text"/>
+    </div>
+
+    <div typeof="rdf:Property" resource="https://schema.datacommons.org/meanValue">
+      <span class="h" property="rdfs:label">meanValue</span>
+      <span property="rdfs:comment">The mean value of the statistical data.</span>
+      <link property="http://schema.org/domainIncludes" href="https://schema.datacommons.org/Observation"/>
+      <link property="http://schema.org/rangeIncludes" href="http://schema.org/Number"/>
+
+    </div>
+    <div typeof="rdf:Property" resource="https://schema.datacommons.org/medianValue">
+      <span class="h" property="rdfs:label">medianValue</span>
+      <span property="rdfs:comment">The median value of the statistical data.</span>
+      <link property="http://schema.org/domainIncludes" href="https://schema.datacommons.org/Observation"/>
+      <link property="http://schema.org/rangeIncludes" href="http://schema.org/Number"/>
+    </div>
+
+    <div typeof="rdf:Property" resource="https://schema.datacommons.org/sumValue">
+      <span class="h" property="rdfs:label">sumValue</span>
+      <span property="rdfs:comment">The sum of the values of the statistical data.</span>
+      <link property="http://schema.org/domainIncludes" href="https://schema.datacommons.org/Observation"/>
+      <link property="http://schema.org/rangeIncludes" href="http://schema.org/Number"/>
+    </div>
+
+    <div typeof="rdf:Property" resource="https://schema.datacommons.org/minValue">
+      <span class="h" property="rdfs:label">minValue</span>
+      <span property="rdfs:comment">The minimum value of the statistical data.</span>
+      <link property="http://schema.org/domainIncludes" href="https://schema.datacommons.org/Observation"/>
+      <link property="http://schema.org/rangeIncludes" href="http://schema.org/Number"/>
+    </div>
+
+    <div typeof="rdf:Property" resource="https://schema.datacommons.org/maxValue">
+      <span class="h" property="rdfs:label">maxValue</span>
+      <span property="rdfs:comment">The maximum value of the statistical data.</span>
+      <link property="http://schema.org/domainIncludes" href="https://schema.datacommons.org/Observation"/>
+      <link property="http://schema.org/rangeIncludes" href="http://schema.org/Number"/>
+    </div>
+
+    <div typeof="rdf:Property" resource="https://schema.datacommons.org/countValue">
+      <span class="h" property="rdfs:label">countValue</span>
+      <span property="rdfs:comment">The count. For example, if requesting the population of a location, the value would be returned as a count.</span>
+      <link property="http://schema.org/domainIncludes" href="https://schema.datacommons.org/Observation"/>
+      <link property="http://schema.org/rangeIncludes" href="http://schema.org/Integer"/>
+    </div>
+
+    <!-- for more to add, see gdoc -->
 
 
     <!-- CENSUS-RELATED, more to add but as a starter to clarify the enum model... -->
