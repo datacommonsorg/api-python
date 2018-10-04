@@ -61,11 +61,12 @@ class AppTest(unittest.TestCase):
     continent_query = ('SELECT ?name ?area_sq_mi, typeOf ?c Continent, '
                        'name ?c ?name, area ?c ?area, dcid ?c "X123"')
     mock_resource.setup({
+        'options': {'row_count_limit': 100},
         'query': continent_query
     }, {
         'rows': [{
             'cells': [{
-                'value': ['Oceania']
+                'value': ['Oceania', 'North America']
             }, {
                 'value': ['3292000']
             }]
@@ -73,8 +74,8 @@ class AppTest(unittest.TestCase):
         'header': ['name', 'area_sq_mi']
     })
     expected_df = pd.DataFrame({
-        'name': [['Oceania']],
-        'area_sq_mi': [['3292000']]
+        'name': ['Oceania', 'North America'],
+        'area_sq_mi': ['3292000', '3292000']
     })
     expected_df = expected_df[['name', 'area_sq_mi']]
 

@@ -15,8 +15,12 @@
 
 """
 
-import datacommons
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+
 import pandas as pd
+import datacommons
 
 
 def main():
@@ -31,15 +35,15 @@ def main():
              latitude ?o ?lat,
              longitude ?o ?long
            """)
-  print 'Issuing query "{}"'.format(query)
+  print('Issuing query "{}"'.format(query))
   try:
-    df = dc.Query(query)
+    df = dc.query(query)
   except RuntimeError as e:
-    print e
+    print(e)
     return
 
   with pd.option_context('display.width', 400, 'display.max_rows', 100):
-    print df
+    print(df)
 
 
 if __name__ == '__main__':
