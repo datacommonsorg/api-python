@@ -275,7 +275,7 @@ class Client(object):
              'typeOf ?pop Population,'
              'dcid ?node {dcids},'
              'dcid ?node ?{seed_col_name},'
-             'place ?pop ?node,'
+             'location ?pop ?node,'
              'dcid ?pop ?{new_col_name},'
              'populationType ?pop {population_type},').format(
                  new_col_name=new_col_name,
@@ -460,6 +460,12 @@ class Client(object):
       query_result = self.query(query, max_rows=max_rows)
     except RuntimeError as e:
       raise RuntimeError('Execute query \n%s\ngot an error:\n%s' % (query, e))
+
+    print(">> MERGING")
+    print(query)
+    print(query_result)
+    print()
+    print(pd_table)
 
     new_data = pd.merge(
         pd_table[1:], query_result, how='left', on=seed_col_name)
