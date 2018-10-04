@@ -13,6 +13,18 @@
 
     <!-- DATACOMMONS BASIC VOCABULARY -->
 
+    <div typeof="rdfs:Class" resource="https://schema.datacommons.org/StatisticalPopulation">
+      <span class="h" property="rdfs:label">StatisticalPopulation</span>
+      <span property="rdfs:comment">A description of entities of a given type that satisfy some constraints. For example people between the ages of 18 and 34 living in France.</span>
+      <link property="rdfs:subClassOf" href="http://schema.org/Intangible" />
+    </div>
+
+    <div typeof="rdfs:Class" resource="https://schema.datacommons.org/Measurement">
+      <span property="rdfs:label">Measurement</span>
+      <span property="rdfs:comment">The size, length, or amount measured. Note the property unitCode or unitText should be used to specify units.</span>
+      <link property="rdfs:subClassOf" href="http://schema.org/QuantitativeValue"/>
+    </div>
+
     <div typeof="rdf:Property" resource="https://schema.datacommons.org/subPopulation">
       <span property="rdfs:label">subPopulation</span>
       <span property="rdfs:comment">A subPopulation of a StatisticalPopulation is a set of members of that group, possibly all those members.</span>
@@ -25,12 +37,6 @@
       <span property="rdfs:comment">A populationMember of a StatisticalPopulation is an individual thing of some kind that falls within the population's scope / definition / membership. The membership of a group is a set; individuals are either members or not, and cannot be members multiple times.</span>
       <link property="http://schema.org/rangeIncludes" href="http://schema.org/Thing" />
       <link property="http://schema.org/domainIncludes" href="https://schema.datacommons.org/StatisticalPopulation" />
-    </div>
-
-    <div typeof="rdfs:Class" resource="https://schema.datacommons.org/StatisticalPopulation">
-      <span class="h" property="rdfs:label">StatisticalPopulation</span>
-      <span property="rdfs:comment">A description of entities of a given type that satisfy some constraints. For example people between the ages of 18 and 34 living in France.</span>
-      <link property="rdfs:subClassOf" href="http://schema.org/Intangible" />
     </div>
 
     <div typeof="rdf:Property" resource="https://schema.datacommons.org/populationType">
@@ -49,32 +55,14 @@
       <span class="h" property="rdfs:label">Observation</span>
       <span property="rdfs:comment">An Observation represents statistical data about an entity, which could be a StatisticalPopulation.</span>
       <link property="rdfs:subClassOf" href="http://schema.org/Intangible"/>
-
     </div>
+
     <div typeof="rdf:Property" resource="https://schema.datacommons.org/observedNode">
       <span class="h" property="rdfs:label">observedNode</span>
       <span property="rdfs:comment">The StatisticalProperty or Measurement the data is related to.</span>
       <link property="http://schema.org/domainIncludes" href="https://schema.datacommons.org/Observation"/>
       <link property="http://schema.org/rangeIncludes" href="http://schema.org/StatisticalPopulation"/>
       <link property="http://schema.org/rangeIncludes" href="http://schema.org/Measurement"/>
-    </div>
-
-
-    <div typeof="rdf:Property" resource="https://schema.datacommons.org/startTime">
-      <span class="h" property="rdfs:label">startTime</span>
-      <link property="http://schema.org/domainIncludes" href="https://schema.datacommons.org/Observation"/>
-    </div>
-
-    <div typeof="rdf:Property" resource="https://schema.datacommons.org/endTime">
-      <span class="h" property="rdfs:label">endTime</span>
-      <span property="rdfs:comment"></span>
-      <link property="http://schema.org/domainIncludes" href="https://schema.datacommons.org/Observation"/>
-    </div>
-
-    <div typeof="rdf:Property" resource="https://schema.datacommons.org/duration">
-      <span class="h" property="rdfs:label">duration</span>
-      <span property="rdfs:comment"></span>
-      <link property="http://schema.org/domainIncludes" href="https://schema.datacommons.org/Observation"/>
     </div>
 
     <div typeof="rdf:Property" resource="https://schema.datacommons.org/measuredProperty">
@@ -113,6 +101,38 @@
       <link property="http://schema.org/rangeIncludes" href="http://schema.org/Number"/>
     </div>
 
+
+    <div typeof="rdf:Property" resource="https://schema.datacommons.org/countValue">
+      <span class="h" property="rdfs:label">countValue</span>
+      <span property="rdfs:comment">The count. For example, if requesting the population of a location, the value would be returned as a count.</span>
+      <link property="http://schema.org/domainIncludes" href="https://schema.datacommons.org/Observation"/>
+      <link property="http://schema.org/rangeIncludes" href="http://schema.org/Integer"/>
+    </div>
+
+    <!-- for more to add, see gdoc -->
+
+
+
+    <!-- same or similar terms as Schema.org, we may omit these -->
+
+
+    <div typeof="rdf:Property" resource="https://schema.datacommons.org/location">
+      <span property="rdfs:label">location</span>
+      <link property="http://schema.org/domainIncludes" href="https://schema.datacommons.org/Measurement"/>
+      <link property="http://schema.org/rangeIncludes" href="http://schema.org/Place"/>
+    </div>
+
+    <div typeof="rdf:Property" resource="https://schema.datacommons.org/startTime">
+      <span class="h" property="rdfs:label">startTime</span>
+      <link property="http://schema.org/domainIncludes" href="https://schema.datacommons.org/Observation"/>
+    </div>
+
+    <div typeof="rdf:Property" resource="https://schema.datacommons.org/endTime">
+      <span class="h" property="rdfs:label">endTime</span>
+      <span property="rdfs:comment"></span>
+      <link property="http://schema.org/domainIncludes" href="https://schema.datacommons.org/Observation"/>
+    </div>
+
     <div typeof="rdf:Property" resource="https://schema.datacommons.org/minValue">
       <span class="h" property="rdfs:label">minValue</span>
       <span property="rdfs:comment">The minimum value of the statistical data.</span>
@@ -127,15 +147,25 @@
       <link property="http://schema.org/rangeIncludes" href="http://schema.org/Number"/>
     </div>
 
-    <div typeof="rdf:Property" resource="https://schema.datacommons.org/countValue">
-      <span class="h" property="rdfs:label">countValue</span>
-      <span property="rdfs:comment">The count. For example, if requesting the population of a location, the value would be returned as a count.</span>
+    <div typeof="rdf:Property" resource="https://schema.datacommons.org/duration">
+      <span class="h" property="rdfs:label">duration</span>
+      <span property="rdfs:comment"></span>
       <link property="http://schema.org/domainIncludes" href="https://schema.datacommons.org/Observation"/>
-      <link property="http://schema.org/rangeIncludes" href="http://schema.org/Integer"/>
     </div>
 
-    <!-- for more to add, see gdoc -->
+    <div typeof="rdf:Property" resource="https://schema.datacommons.org/startDate">
+      <span property="rdfs:label">startDate</span>
+      <link property="http://schema.org/domainIncludes" href="https://schema.datacommons.org/Measurement"/>
+      <link property="http://schema.org/rangeIncludes" href="http://schema.org/Date"/>
+      <link property="http://schema.org/rangeIncludes" href="http://schema.org/DateTime"/>
+    </div>
 
+    <div typeof="rdf:Property" resource="https://schema.datacommons.org/endDate">
+      <span property="rdfs:label">endDate</span>
+      <link property="http://schema.org/domainIncludes" href="https://schema.datacommons.org/Measurement"/>
+      <link property="http://schema.org/rangeIncludes" href="http://schema.org/Date"/>
+      <link property="http://schema.org/rangeIncludes" href="http://schema.org/DateTime"/>
+    </div>
 
     <!-- CENSUS-RELATED, more to add but as a starter to clarify the enum model... -->
 
@@ -193,71 +223,42 @@
       <span property="rdfs:label">VolumeValue</span>
       <span property="rdfs:comment">A measure of volume.</span>
       <link property="rdfs:subClassOf" href="http://schema.org/Quantity"/>
-
     </div>
 
-    <div typeof="rdfs:Class" resource="https://schema.datacommons.org/Measurement">
-      <span property="rdfs:label">Measurement</span>
-      <span property="rdfs:comment">The size, length, or amount measured. Note the property unitCode or unitText should be used to specify units.</span>
-      <link property="rdfs:subClassOf" href="http://schema.org/QuantitativeValue"/>
 
-    </div>
-    <div typeof="rdf:Property" resource="https://schema.datacommons.org/endDate">
-      <span property="rdfs:label">endDate</span>
-      <link property="http://schema.org/domainIncludes" href="https://schema.datacommons.org/Measurement"/>
-      <link property="http://schema.org/rangeIncludes" href="http://schema.org/Date"/>
-      <link property="http://schema.org/rangeIncludes" href="http://schema.org/DateTime"/>
-
-    </div>
-    <div typeof="rdf:Property" resource="https://schema.datacommons.org/location">
-      <span property="rdfs:label">location</span>
-      <link property="http://schema.org/domainIncludes" href="https://schema.datacommons.org/Measurement"/>
-      <link property="http://schema.org/rangeIncludes" href="http://schema.org/Place"/>
-
-    </div>
     <div typeof="rdf:Property" resource="https://schema.datacommons.org/measuredBy">
       <span property="rdfs:label">measuredBy</span>
       <span property="rdfs:comment">The person or organization taking the measurement.</span>
       <link property="http://schema.org/domainIncludes" href="https://schema.datacommons.org/Measurement"/>
       <link property="http://schema.org/rangeIncludes" href="http://schema.org/Organization"/>
       <link property="http://schema.org/rangeIncludes" href="http://schema.org/Person"/>
-
-    </div>
-    <div typeof="rdf:Property" resource="https://schema.datacommons.org/startDate">
-      <span property="rdfs:label">startDate</span>
-      <link property="http://schema.org/domainIncludes" href="https://schema.datacommons.org/Measurement"/>
-      <link property="http://schema.org/rangeIncludes" href="http://schema.org/Date"/>
-      <link property="http://schema.org/rangeIncludes" href="http://schema.org/DateTime"/>
-
     </div>
 
     <div typeof="rdfs:Class" resource="https://schema.datacommons.org/ObservedWeatherMeasurement">
       <span property="rdfs:label">ObservedWeatherMeasurement</span>
       <span property="rdfs:comment">An observation of actual weather conditions at a certain location over a defined time duration.</span>
       <link property="rdfs:subClassOf" href="https://schema.datacommons.org/WeatherMeasurement"/>
-
     </div>
 
     <div typeof="rdfs:Class" resource="https://schema.datacommons.org/PredictedWeatherMeasurement">
       <span property="rdfs:label">PredictedWeatherMeasurement</span>
       <span property="rdfs:comment">A prediction of actual weather conditions at a certain location over a defined time duration.</span>
       <link property="rdfs:subClassOf" href="https://schema.datacommons.org/WeatherMeasurement"/>
-
     </div>
 
     <div typeof="rdfs:Class" resource="https://schema.datacommons.org/PrecipitationMeasurement">
       <span property="rdfs:label">PrecipitationMeasurement</span>
       <span property="rdfs:comment">A measure of predicted or observed precipitation.</span>
       <link property="rdfs:subClassOf" href="https://schema.datacommons.org/Measurement"/>
-
     </div>
+
     <div typeof="rdf:Property" resource="https://schema.datacommons.org/chanceOfPrecipitation">
       <span property="rdfs:label">chanceOfPrecipitation</span>
       <span property="rdfs:comment">The percent chance of precipitation at the location.</span>
       <link property="http://schema.org/domainIncludes" href="https://schema.datacommons.org/PrecipitationMeasurement"/>
       <link property="http://schema.org/rangeIncludes" href="https://schema.datacommons.org/PercentageValue"/>
-
     </div>
+
     <div typeof="rdf:Property" resource="https://schema.datacommons.org/totalPrecipitation">
       <span property="rdfs:label">totalPrecipitation</span>
       <span property="rdfs:comment">The total precipitation for the location over the duration.</span>
@@ -270,160 +271,154 @@
       <span property="rdfs:label">RainMeasurement</span>
       <span property="rdfs:comment">A measure of predicted or observed rain.</span>
       <link property="rdfs:subClassOf" href="https://schema.datacommons.org/PrecipitationMeasurement"/>
-
     </div>
 
     <div typeof="rdfs:Class" resource="https://schema.datacommons.org/SnowMeasurement">
       <span property="rdfs:label">SnowMeasurement</span>
       <span property="rdfs:comment">A measure of predicted or observed snow.</span>
       <link property="rdfs:subClassOf" href="https://schema.datacommons.org/PrecipitationMeasurement"/>
-
     </div>
+
     <div typeof="rdf:Property" resource="https://schema.datacommons.org/baseDepth">
       <span property="rdfs:label">baseDepth</span>
       <span property="rdfs:comment">The depth of snow.</span>
       <link property="http://schema.org/domainIncludes" href="https://schema.datacommons.org/SnowMeasurement"/>
       <link property="http://schema.org/rangeIncludes" href="https://schema.datacommons.org/DepthValue"/>
-
     </div>
 
     <div typeof="rdfs:Class" resource="https://schema.datacommons.org/WindMeasurement">
       <span property="rdfs:label">WindMeasurement</span>
       <span property="rdfs:comment">A measure of predicted or observed wind speed and direction.</span>
       <link property="rdfs:subClassOf" href="https://schema.datacommons.org/WindMeasurement"/>
-
     </div>
+
     <div typeof="rdf:Property" resource="https://schema.datacommons.org/windDirection">
       <span property="rdfs:label">windDirection</span>
       <span property="rdfs:comment">The wind direction.</span>
       <link property="http://schema.org/domainIncludes" href="https://schema.datacommons.org/WindMeasurement"/>
       <link property="http://schema.org/rangeIncludes" href="http://schema.org/Text"/>
-
     </div>
+
     <div typeof="rdf:Property" resource="https://schema.datacommons.org/windSpeed">
       <span property="rdfs:label">windSpeed</span>
       <span property="rdfs:comment">The predicted or observed wind speed.</span>
       <link property="http://schema.org/domainIncludes" href="https://schema.datacommons.org/WindMeasurement"/>
       <link property="http://schema.org/rangeIncludes" href="http://schema.org/VelocityValue"/>
-
     </div>
 
     <div typeof="rdfs:Class" resource="https://schema.datacommons.org/NOAAWeatherConditionType">
       <span property="rdfs:label">NOAAWeatherConditionType</span>
       <span property="rdfs:comment">An enumeration of weather conditions.</span>
       <link property="rdfs:subClassOf" href="http://schema.org/Enumeration"/>
-
     </div>
+
     <div typeof="https://schema.datacommons.org/NOAAWeatherConditionType" resource="https://schema.datacommons.org/NOAA_Fog">
         <span property="rdfs:label">Fog</span>
         <span property="rdfs:comment">Foggy conditions.</span>
-
     </div>
+
     <div typeof="https://schema.datacommons.org/NOAAWeatherConditionType" resource="https://schema.datacommons.org/NOAA_Hail">
         <span property="rdfs:label">Hail</span>
         <span property="rdfs:comment">Hail.</span>
-
     </div>
+
     <div typeof="https://schema.datacommons.org/NOAAWeatherConditionType" resource="https://schema.datacommons.org/NOAA_Rain">
         <span property="rdfs:label">Rain</span>
         <span property="rdfs:comment">Rainy conditions.</span>
-
     </div>
+
     <div typeof="https://schema.datacommons.org/NOAAWeatherConditionType" resource="https://schema.datacommons.org/NOAA_Snow">
         <span property="rdfs:label">Snow</span>
         <span property="rdfs:comment">Snowy conditions.</span>
-
     </div>
+
     <div typeof="https://schema.datacommons.org/NOAAWeatherConditionType" resource="https://schema.datacommons.org/NOAA_Thunder">
         <span property="rdfs:label">Thunder</span>
         <span property="rdfs:comment">Thunder.</span>
-
     </div>
+
     <div typeof="https://schema.datacommons.org/NOAAWeatherConditionType" resource="https://schema.datacommons.org/NOAA_Tornado">
         <span property="rdfs:label">Tornado</span>
         <span property="rdfs:comment">Tornado.</span>
-
     </div>
+
     <div typeof="https://schema.datacommons.org/NOAAWeatherConditionType" resource="https://schema.datacommons.org/NOAA_Windy">
         <span property="rdfs:label">Windy</span>
         <span property="rdfs:comment">Windy conditions.</span>
-
     </div>
 
     <div typeof="rdfs:Class" resource="https://schema.datacommons.org/WeatherStation">
       <span property="rdfs:label">WeatherStation</span>
       <span property="rdfs:comment">A place where weather observations are recorded.</span>
       <link property="rdfs:subClassOf" href="http://schema.org/Place"/>
-
     </div>
 
     <div typeof="rdfs:Class" resource="https://schema.datacommons.org/WeatherMeasurement">
       <span property="rdfs:label">WeatherMeasurement</span>
       <span property="rdfs:comment">An observation or prediction of weather conditions at a certain location over a defined time duration.</span>
       <link property="rdfs:subClassOf" href="https://schema.datacommons.org/Measurement"/>
-
     </div>
+
     <div typeof="rdf:Property" resource="https://schema.datacommons.org/barometricPressure">
       <span property="rdfs:label">barometricPressure</span>
       <span property="rdfs:comment">The barometric pressure (value or min and max) observed or predicted.</span>
       <link property="http://schema.org/domainIncludes" href="https://schema.datacommons.org/WeatherMeasurement"/>
       <link property="http://schema.org/rangeIncludes" href="https://schema.datacommons.org/PercentageValue"/>
-
     </div>
+
     <div typeof="rdf:Property" resource="https://schema.datacommons.org/cloudCoverage">
       <span property="rdfs:label">cloudCoverage</span>
       <span property="rdfs:comment">The observed or predicted percent of the sky covered by clouds.</span>
       <link property="http://schema.org/domainIncludes" href="https://schema.datacommons.org/WeatherMeasurement"/>
       <link property="http://schema.org/rangeIncludes" href="https://schema.datacommons.org/PercentageValue"/>
-
     </div>
+
     <div typeof="rdf:Property" resource="https://schema.datacommons.org/dewPoint">
       <span property="rdfs:label">dewPoint</span>
       <span property="rdfs:comment">The dew point (value or min and max) observed or predicted.</span>
       <link property="http://schema.org/domainIncludes" href="https://schema.datacommons.org/WeatherMeasurement"/>
       <link property="http://schema.org/rangeIncludes" href="https://schema.datacommons.org/TemperatureValue"/>
-
     </div>
+
     <div typeof="rdf:Property" resource="https://schema.datacommons.org/duration">
       <span property="rdfs:label">duration</span>
       <link property="http://schema.org/domainIncludes" href="https://schema.datacommons.org/WeatherMeasurement"/>
       <link property="http://schema.org/rangeIncludes" href="http://schema.org/Duration"/>
-
     </div>
+
     <div typeof="rdf:Property" resource="https://schema.datacommons.org/humidityPercent">
       <span property="rdfs:label">humidityPercent</span>
       <span property="rdfs:comment">The humidity (value or min and max) observed or predicted.</span>
       <link property="http://schema.org/domainIncludes" href="https://schema.datacommons.org/WeatherMeasurement"/>
       <link property="http://schema.org/rangeIncludes" href="https://schema.datacommons.org/PercentageValue"/>
-
    </div>
+
     <div typeof="rdf:Property" resource="https://schema.datacommons.org/precipitation">
       <span property="rdfs:label">precipitation</span>
       <span property="rdfs:comment">The precipitation (value or min and max) observed or predicted.</span>
       <link property="http://schema.org/domainIncludes" href="https://schema.datacommons.org/WeatherMeasurement"/>
       <link property="http://schema.org/rangeIncludes" href="https://schema.datacommons.org/PrecipitationMeasurement"/>
-
     </div>
+
     <div typeof="rdf:Property" resource="https://schema.datacommons.org/temperature">
       <span property="rdfs:label">temperature</span>
       <span property="rdfs:comment">The temperature (value or min and max) observed or predicted.</span>
       <link property="http://schema.org/domainIncludes" href="https://schema.datacommons.org/WeatherMeasurement"/>
       <link property="http://schema.org/rangeIncludes" href="https://schema.datacommons.org/TemperatureValue"/>
-
     </div>
+
     <div typeof="rdf:Property" resource="https://schema.datacommons.org/visibilityRange">
       <span property="rdfs:label">visibilityRange</span>
       <span property="rdfs:comment">The observed or predicted visibility range.</span>
       <link property="http://schema.org/domainIncludes" href="https://schema.datacommons.org/WeatherMeasurement"/>
       <link property="http://schema.org/rangeIncludes" href="https://schema.datacommons.org/DistanceValue"/>
-
     </div>
+
     <div typeof="rdf:Property" resource="https://schema.datacommons.org/weatherCondition">
       <span property="rdfs:label">weatherCondition</span>
       <span property="rdfs:comment">The general description of the weather condition expressed as an enumerative value.</span>
       <link property="http://schema.org/domainIncludes" href="https://schema.datacommons.org/WeatherMeasurement"/>
       <link property="http://schema.org/rangeIncludes" href="https://schema.datacommons.org/NOAAWeatherConditionType"/>
-
     </div>
 
     <div typeof="rdf:Property" resource="https://schema.datacommons.org/windMeasurement">
