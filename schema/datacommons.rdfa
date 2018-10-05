@@ -160,21 +160,195 @@
 
     <!-- CENSUS-RELATED, more to add but as a starter to clarify the enum model... -->
 
+
+    <!-- US CENSUS Citizenship -->
+
+    <div typeof="rdf:Property" resource="https://schema.datacommons.org/citizenship">
+      <link property="http://schema.org/domainIncludes" href="https://schema.datacommons.org/Measurement"/>
+      <link property="http://schema.org/rangeIncludes" href="https://schema.datacommons.org/USC_CitizenStatusEnum" />
+    </div>
+
+    <div typeof="rdfs:Class" resource="https://schema.datacommons.org/USC_CitizenStatusEnum">
+      <span property="rdfs:label">USC_CitizenStatusEnum</span>
+      <span property="rdfs:comment">An enumeration of citizenship status codes, as used in the US census.</span>
+      <link property="rdfs:subClassOf" href="http://schema.org/Enumeration"/>
+    </div>
+
+    <div typeof="https://schema.datacommons.org/USC_CitizenStatusEnum" resource="https://schema.datacommons.org/USC_USCitizenByNaturalization">
+        <span property="rdfs:label">USC_USCitizenByNaturalization</span>
+        <span property="rdfs:comment">USC_USCitizenByNaturalization citizen status, in US Census.</span>
+    </div>
+
+    <div typeof="https://schema.datacommons.org/USC_CitizenStatusEnum" resource="https://schema.datacommons.org/USC_NotAUSCitizen">
+        <span property="rdfs:label">USC_NotAUSCitizen</span>
+        <span property="rdfs:comment">USC_NotAUSCitizen citizen status, in US Census.</span>
+    </div>
+
+    <div typeof="https://schema.datacommons.org/USC_CitizenStatusEnum" resource="https://schema.datacommons.org/USC_USCitizenBornAbroadOfAmericanParent">
+        <span property="rdfs:label">USC_USCitizenBornAbroadOfAmericanParent</span>
+        <span property="rdfs:comment">USC_USCitizenBornAbroadOfAmericanParent citizen status, in US Census.</span>
+    </div>
+
+    <div typeof="https://schema.datacommons.org/USC_CitizenStatusEnum" resource="https://schema.datacommons.org/USC_USCitizenBornInTheUnitedStates">
+        <span property="rdfs:label">USC_USCitizenBornInTheUnitedStates</span>
+        <span property="rdfs:comment">USC_USCitizenBornInTheUnitedStates citizen status, in US Census.</span>
+    </div>
+
+    <div typeof="https://schema.datacommons.org/USC_CitizenStatusEnum" resource="https://schema.datacommons.org/USC_USCitizenBornInPuertoRicoOrUSIslandAreas">
+        <span property="rdfs:label">USC_USCitizenBornInPuertoRicoOrUSIslandAreas</span>
+        <span property="rdfs:comment">USC_USCitizenBornInPuertoRicoOrUSIslandAreas citizen status, in US Census.</span>
+    </div>
+
+
+    <!-- US CENSUS Age -->
+
     <div typeof="rdf:Property" resource="https://schema.datacommons.org/age">
       <span property="rdfs:label">age</span>
       <span property="rdfs:comment">The age of something, expressed numerically or via an enumeration.</span>
+      <link property="http://schema.org/domainIncludes" href="https://schema.datacommons.org/Measurement"/>
       <link property="http://schema.org/rangeIncludes" href="http://schema.org/Number" />
       <link property="http://schema.org/rangeIncludes" href="http://schema.org/QuantitativeValue" />
-      <link property="http://schema.org/rangeIncludes" href="http://schema.org/Enumeration" />
+      <link property="http://schema.org/rangeIncludes" href="https://schema.datacommons.org/USC_AgeEnum" />
     </div>
 
-    <div typeof="rdf:Property" resource="https://schema.datacommons.org/citizenship">
-      <link property="http://schema.org/rangeIncludes" href="https://schema.datacommons.org/USC_Age_Enumeration" />
+    <div typeof="rdfs:Class" resource="https://schema.datacommons.org/USC_AgeEnum">
+      <span property="rdfs:label">USC_AgeEnum</span>
+      <span property="rdfs:comment">An enumeration of age bands, as used in the US census.</span>
+      <link property="rdfs:subClassOf" href="http://schema.org/Enumeration"/>
     </div>
+
+    <div typeof="https://schema.datacommons.org/USC_AgeEnum" resource="https://schema.datacommons.org/USC_18To24Years">
+        <span property="rdfs:label">USC_18To24Years</span>
+        <span property="rdfs:comment">18To24Years age band, in US Census.</span>
+    </div>
+
+    <div typeof="https://schema.datacommons.org/USC_AgeEnum" resource="https://schema.datacommons.org/USC_25To34Years">
+        <span property="rdfs:label">USC_25To34Years</span>
+        <span property="rdfs:comment">25To34Years age band, in US Census.</span>
+    </div>
+
+    <div typeof="https://schema.datacommons.org/USC_AgeEnum" resource="https://schema.datacommons.org/USC_35To44Years">
+        <span property="rdfs:label">USC_35To44Years</span>
+        <span property="rdfs:comment">35To44Years age band, in US Census.</span>
+    </div>
+
+    <div typeof="https://schema.datacommons.org/USC_AgeEnum" resource="https://schema.datacommons.org/USC_45To54Years">
+        <span property="rdfs:label">USC_345To54Years</span>
+        <span property="rdfs:comment">45To54Years age band, in US Census.</span>
+    </div>
+
+    <div typeof="https://schema.datacommons.org/USC_AgeEnum" resource="https://schema.datacommons.org/USC_55To59Years">
+        <span property="rdfs:label">USC_55To59Years</span>
+        <span property="rdfs:comment">55To59Years age band, in US Census.</span>
+    </div>
+
+    <div typeof="https://schema.datacommons.org/USC_AgeEnum" resource="https://schema.datacommons.org/USC_5To17Years">
+        <span property="rdfs:label">USC_5To17Years</span>
+        <span property="rdfs:comment">5To17Years age band, in US Census.</span>
+    </div>
+
+    <div typeof="https://schema.datacommons.org/USC_AgeEnum" resource="https://schema.datacommons.org/USC_60And61Years">
+        <span property="rdfs:label">USC_60And61Years</span>
+        <span property="rdfs:comment">60And61Years age band, in US Census.</span>
+    </div>
+
+    <div typeof="https://schema.datacommons.org/USC_AgeEnum" resource="https://schema.datacommons.org/USC_62To64Years">
+        <span property="rdfs:label">USC_62To64Years</span>
+        <span property="rdfs:comment">62To64Years age band, in US Census.</span>
+    </div>
+
+    <div typeof="https://schema.datacommons.org/USC_AgeEnum" resource="https://schema.datacommons.org/USC_65To74Years">
+        <span property="rdfs:label">USC_65To74Years</span>
+        <span property="rdfs:comment">65To74Years age band, in US Census.</span>
+    </div>
+
+    <div typeof="https://schema.datacommons.org/USC_AgeEnum" resource="https://schema.datacommons.org/USC_75YearsAndOver">
+        <span property="rdfs:label">USC_75YearsAndOver</span>
+        <span property="rdfs:comment">75YearsAndOver age band, in US Census.</span>
+    </div>
+
+    <div typeof="https://schema.datacommons.org/USC_AgeEnum" resource="https://schema.datacommons.org/USC_Under5Years">
+        <span property="rdfs:label">USC_Under5Years</span>
+        <span property="rdfs:comment">Under5Years age band, in US Census.</span>
+    </div>
+
+
+    <!-- US FBI Crime  -->
+
+    <div typeof="rdf:Property" resource="https://schema.datacommons.org/crimeType">
+      <span property="rdfs:label">crimeType</span>
+      <span property="rdfs:comment">A type code for a crime, according to the US FBI.</span>
+      <link property="http://schema.org/domainIncludes" href="https://schema.datacommons.org/Measurement"/>
+      <link property="http://schema.org/rangeIncludes" href="https://schema.datacommons.org/FBI_CrimeTypeEnum" />
+    </div>
+
+    <div typeof="rdfs:Class" resource="https://schema.datacommons.org/FBI_CrimeTypeEnum">
+      <span property="rdfs:label">FBI_CrimeTypeEnum</span>
+      <span property="rdfs:comment">An enumeration of crime types, as used by the US FBI.</span>
+      <link property="rdfs:subClassOf" href="http://schema.org/Enumeration"/>
+    </div>
+
+    <div typeof="https://schema.datacommons.org/FBI_CrimeTypeEnum" resource="https://schema.datacommons.org/FBI_ViolentAggravatedAssault">
+        <span property="rdfs:label">FBI_ViolentAggravatedAssault</span>
+        <span property="rdfs:comment">FBI_ViolentAggravatedAssault crime type, as used by the US FBI.</span>
+    </div>
+
+    <div typeof="https://schema.datacommons.org/FBI_CrimeTypeEnum" resource="https://schema.datacommons.org/FBI_ViolentRobbery">
+        <span property="rdfs:label">FBI_ViolentRobbery</span>
+        <span property="rdfs:comment">FBI_ViolentRobbery crime type, as used by the US FBI.</span>
+    </div>
+
+    <div typeof="https://schema.datacommons.org/FBI_CrimeTypeEnum" resource="https://schema.datacommons.org/FBI_PropertyLarcenyTheft">
+        <span property="rdfs:label">FBI_PropertyLarcenyTheft</span>
+        <span property="rdfs:comment">FBI_PropertyLarcenyTheft crime type, as used by the US FBI.</span>
+    </div>
+
+    <div typeof="https://schema.datacommons.org/FBI_CrimeTypeEnum" resource="https://schema.datacommons.org/FBI_PropertyMotorVehicleTheft">
+        <span property="rdfs:label">FBI_PropertyMotorVehicleTheft</span>
+        <span property="rdfs:comment">FBI_PropertyMotorVehicleTheft crime type, as used by the US FBI.</span>
+    </div>
+
+    <div typeof="https://schema.datacommons.org/FBI_CrimeTypeEnum" resource="https://schema.datacommons.org/FBI_Property">
+        <span property="rdfs:label">FBI_Property</span>
+        <span property="rdfs:comment">FBI_Property crime type, as used by the US FBI.</span>
+    </div>
+
+    <div typeof="https://schema.datacommons.org/FBI_CrimeTypeEnum" resource="https://schema.datacommons.org/FBI_PropertyArson">
+        <span property="rdfs:label">FBI_PropertyArson</span>
+        <span property="rdfs:comment">FBI_PropertyArson crime type, as used by the US FBI.</span>
+    </div>
+
+    <div typeof="https://schema.datacommons.org/FBI_CrimeTypeEnum" resource="https://schema.datacommons.org/FBI_ViolentMurderAndNonNegligentManslaughter">
+        <span property="rdfs:label">FBI_ViolentMurderAndNonNegligentManslaughter</span>
+        <span property="rdfs:comment">FBI_ViolentMurderAndNonNegligentManslaughter crime type, as used by the US FBI.</span>
+    </div>
+
+    <div typeof="https://schema.datacommons.org/FBI_CrimeTypeEnum" resource="https://schema.datacommons.org/FBI_PropertyBurglary">
+        <span property="rdfs:label">FBI_PropertyBurglary</span>
+        <span property="rdfs:comment">FBI_PropertyBurglary crime type, as used by the US FBI.</span>
+    </div>
+
+    <div typeof="https://schema.datacommons.org/FBI_CrimeTypeEnum" resource="https://schema.datacommons.org/FBI_ViolentRape">
+        <span property="rdfs:label">FBI_ViolentRape</span>
+        <span property="rdfs:comment">FBI_ViolentRape crime type, as used by the US FBI.</span>
+    </div>
+
+    <!--
+    FBI/ViolentAggravatedAssault
+    FBI/ViolentRobbery
+    FBI/PropertyLarcenyTheft
+    FBI/PropertyMotorVehicleTheft
+    FBI/Property
+    FBI/PropertyArson
+    FBI/ViolentMurderAndNonNegligentManslaughter
+    FBI/PropertyBurglary
+    FBI/ViolentRape -->
+
 
 
 
     <!-- WEATHER RELATED -->
+    <!-- TODO: distinguish NOAA from other dataset codes more clearly. -->
 
     <div typeof="rdfs:Class" resource="https://schema.datacommons.org/DepthValue">
       <span property="rdfs:label">DepthValue</span>
@@ -297,43 +471,43 @@
       <link property="http://schema.org/rangeIncludes" href="http://schema.org/VelocityValue"/>
     </div>
 
-    <div typeof="rdfs:Class" resource="https://schema.datacommons.org/NOAAWeatherConditionType">
-      <span property="rdfs:label">NOAAWeatherConditionType</span>
+    <div typeof="rdfs:Class" resource="https://schema.datacommons.org/NOAA_WeatherConditionEnum">
+      <span property="rdfs:label">NOAA_WeatherConditionEnum</span>
       <span property="rdfs:comment">An enumeration of weather conditions.</span>
       <link property="rdfs:subClassOf" href="http://schema.org/Enumeration"/>
     </div>
 
-    <div typeof="https://schema.datacommons.org/NOAAWeatherConditionType" resource="https://schema.datacommons.org/NOAA_Fog">
+    <div typeof="https://schema.datacommons.org/NOAA_WeatherConditionEnum" resource="https://schema.datacommons.org/Fog">
         <span property="rdfs:label">Fog</span>
         <span property="rdfs:comment">Foggy conditions.</span>
     </div>
 
-    <div typeof="https://schema.datacommons.org/NOAAWeatherConditionType" resource="https://schema.datacommons.org/NOAA_Hail">
+    <div typeof="https://schema.datacommons.org/NOAA_WeatherConditionEnum" resource="https://schema.datacommons.org/Hail">
         <span property="rdfs:label">Hail</span>
         <span property="rdfs:comment">Hail.</span>
     </div>
 
-    <div typeof="https://schema.datacommons.org/NOAAWeatherConditionType" resource="https://schema.datacommons.org/NOAA_Rain">
+    <div typeof="https://schema.datacommons.org/NOAA_WeatherConditionEnum" resource="https://schema.datacommons.org/Rain">
         <span property="rdfs:label">Rain</span>
         <span property="rdfs:comment">Rainy conditions.</span>
     </div>
 
-    <div typeof="https://schema.datacommons.org/NOAAWeatherConditionType" resource="https://schema.datacommons.org/NOAA_Snow">
+    <div typeof="https://schema.datacommons.org/NOAA_WeatherConditionEnum" resource="https://schema.datacommons.org/Snow">
         <span property="rdfs:label">Snow</span>
         <span property="rdfs:comment">Snowy conditions.</span>
     </div>
 
-    <div typeof="https://schema.datacommons.org/NOAAWeatherConditionType" resource="https://schema.datacommons.org/NOAA_Thunder">
+    <div typeof="https://schema.datacommons.org/NOAA_WeatherConditionEnum" resource="https://schema.datacommons.org/Thunder">
         <span property="rdfs:label">Thunder</span>
         <span property="rdfs:comment">Thunder.</span>
     </div>
 
-    <div typeof="https://schema.datacommons.org/NOAAWeatherConditionType" resource="https://schema.datacommons.org/NOAA_Tornado">
+    <div typeof="https://schema.datacommons.org/NOAA_WeatherConditionEnum" resource="https://schema.datacommons.org/Tornado">
         <span property="rdfs:label">Tornado</span>
         <span property="rdfs:comment">Tornado.</span>
     </div>
 
-    <div typeof="https://schema.datacommons.org/NOAAWeatherConditionType" resource="https://schema.datacommons.org/NOAA_Windy">
+    <div typeof="https://schema.datacommons.org/NOAA_WeatherConditionEnum" resource="https://schema.datacommons.org/Windy">
         <span property="rdfs:label">Windy</span>
         <span property="rdfs:comment">Windy conditions.</span>
     </div>
@@ -403,7 +577,7 @@
       <span property="rdfs:label">weatherCondition</span>
       <span property="rdfs:comment">The general description of the weather condition expressed as an enumerative value.</span>
       <link property="http://schema.org/domainIncludes" href="https://schema.datacommons.org/WeatherMeasurement"/>
-      <link property="http://schema.org/rangeIncludes" href="https://schema.datacommons.org/NOAAWeatherConditionType"/>
+      <link property="http://schema.org/rangeIncludes" href="https://schema.datacommons.org/NOAA_WeatherConditionEnum"/>
     </div>
 
     <div typeof="rdf:Property" resource="https://schema.datacommons.org/windMeasurement">

@@ -42,7 +42,7 @@
 	        {% if home_page == "True" %}
 				<a href="https://github.com/google/datacommons">Github</a>
 	        {% else %}
-				<a href="{{ homedir }}/">Home</a>
+				<a href="https://github.com/google/datacommons">Github</a>
 	        {% endif %}
 			</li>
 		</ul>
