@@ -113,8 +113,8 @@
 
 
 
-    <div typeof="rdfs:Class" resource="https://schema.datacommons.org/CriminalActivity">
-      <span property="rdfs:label">CriminalActivity</span>
+    <div typeof="rdfs:Class" resource="https://schema.datacommons.org/CriminalActivities">
+      <span property="rdfs:label">CriminalActivities</span>
       <span property="rdfs:comment">Activities or behaviors considered crimes by the FBI. This type is used primarily for computing StatisticalPopulations used in querying crime statistics.</span>
       <link property="rdfs:subClassOf" href="http://schema.datacommons.org/Measurement"/>
     </div>
@@ -286,7 +286,7 @@
     <div typeof="rdf:Property" resource="https://schema.datacommons.org/crimeType">
       <span property="rdfs:label">crimeType</span>
       <span property="rdfs:comment">A type code for a crime, according to the US FBI.</span>
-      <link property="http://schema.org/domainIncludes" href="https://schema.datacommons.org/CriminalActivity"/>
+      <link property="http://schema.org/domainIncludes" href="https://schema.datacommons.org/CriminalActivities"/>
       <link property="http://schema.org/rangeIncludes" href="https://schema.datacommons.org/FBI_CrimeTypeEnum" />
     </div>
 
