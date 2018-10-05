@@ -115,8 +115,8 @@
 
     <div typeof="rdfs:Class" resource="https://schema.datacommons.org/CriminalActivities">
       <span property="rdfs:label">CriminalActivities</span>
-      <span property="rdfs:comment">Activities or behaviors considered crimes by the FBI. This type is used primarily for computing StatisticalPopulations used in querying crime statistics.</span>
-      <link property="rdfs:subClassOf" href="http://schema.datacommons.org/Intangible"/>
+      <span property="rdfs:comment">Activities or behaviors considered crimes by the FBI. This type is used primarily for computing [[StatisticalPopulation]]s used in querying crime statistics.</span>
+      <link property="rdfs:subClassOf" href="http://schema.org/Intangible"/>
     </div>
     <!-- same or similar terms as Schema.org, we may omit these -->
 
