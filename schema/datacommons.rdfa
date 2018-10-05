@@ -113,9 +113,59 @@
 
 
 
-   <!-- supporting vocabulary: CriminalActivities -->
-   <!-- TODO. -->
+    <div typeof="rdfs:Class" resource="https://schema.datacommons.org/CriminalActivity">
+      <span property="rdfs:label">CriminalActivity</span>
+      <span property="rdfs:comment">Activities or behaviors considered crimes by the FBI. This type is used primarily for computing StatisticalPopulations used in querying crime statistics.</span>
+      <link property="rdfs:subClassOf" href="http://schema.org/Intangible"/>
+    </div>
+    <div typeof="rdf:Property" resource="https://schema.datacommons.org/crimeType">
+      <span property="rdfs:label">crimeType</span>
+      <span property="rdfs:comment">The type of crime committed.</span>
+      <link property="http://schema.org/domainIncludes" href="https://schema.datacommons.org/CriminalActivity"/>
+      <link property="http://schema.org/rangeIncludes" href="http://schema.datacommons.org/FBI_CrimeTypeEnum"/>
+    </div>
+    <div typeof="rdfs:Class" resource="https://schema.datacommons.org/USC_CrimeTypeEnum">
+      <span property="rdfs:label">USC_CrimeTypeEnum</span>
+      <span property="rdfs:comment">An enumeration of crime type codes, as used by the FBI.</span>
+      <link property="rdfs:subClassOf" href="http://schema.org/Enumeration"/>
+    </div>
 
+    <div typeof="https://schema.datacommons.org/FBIEnum" resource="https://schema.datacommons.org/FBI_ViolentAggravatedAssault">
+        <span property="rdfs:label">FBI_ViolentAggravatedAssault</span>
+        <span property="rdfs:comment">Violent/Aggravated assault crime type as defined by FBI.</span>
+    </div>
+    <div typeof="https://schema.datacommons.org/FBIEnum" resource="https://schema.datacommons.org/FBI_ViolentRobbery">
+        <span property="rdfs:label">FBI_ViolentRobbery</span>
+        <span property="rdfs:comment">Violent robbery crime type as defined by FBI.</span>
+    </div>
+    <div typeof="https://schema.datacommons.org/FBIEnum" resource="https://schema.datacommons.org/FBI_PropertyLarcenyTheft">
+        <span property="rdfs:label">FBI_PropertyLarcenyTheft</span>
+        <span property="rdfs:comment">Property larceny/theft crime type as defined by FBI.</span>
+    </div>
+    <div typeof="https://schema.datacommons.org/FBIEnum" resource="https://schema.datacommons.org/FBI_PropertyMotorVehicleTheft">
+        <span property="rdfs:label">FBI_PropertyMotorVehicleTheft</span>
+        <span property="rdfs:comment">Motor vehicle theft crime type as defined by FBI.</span>
+    </div>
+    <div typeof="https://schema.datacommons.org/FBIEnum" resource="https://schema.datacommons.org/FBI_Property">
+        <span property="rdfs:label">FBI_Property</span>
+        <span property="rdfs:comment">Property crime type as defined by FBI.</span>
+    </div>
+    <div typeof="https://schema.datacommons.org/FBIEnum" resource="https://schema.datacommons.org/FBI_PropertyArson">
+        <span property="rdfs:label">FBI_PropertyArson</span>
+        <span property="rdfs:comment">Property arson crime type as defined by FBI.</span>
+    </div>
+    <div typeof="https://schema.datacommons.org/FBIEnum" resource="https://schema.datacommons.org/FBI_ViolentMurderAndNonNegligentManslaughter">
+        <span property="rdfs:label">FBI_ViolentMurderAndNonNegligentManslaughter</span>
+        <span property="rdfs:comment">Violent murder and non-negligent manslaughter crime type as defined by FBI.</span>
+    </div>
+    <div typeof="https://schema.datacommons.org/FBIEnum" resource="https://schema.datacommons.org/FBI_PropertyBurglary">
+        <span property="rdfs:label">FBI_PropertyBurglary</span>
+        <span property="rdfs:comment">Property burglary crime type as defined by FBI.</span>
+    </div>
+    <div typeof="https://schema.datacommons.org/FBIEnum" resource="https://schema.datacommons.org/FBI_ViolentRape">
+        <span property="rdfs:label">FBI_ViolentRape</span>
+        <span property="rdfs:comment">Violent rape crime type as defined by FBI.</span>
+    </div>
 
     <!-- same or similar terms as Schema.org, we may omit these -->
 
