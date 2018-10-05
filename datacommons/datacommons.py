@@ -227,6 +227,33 @@ class Client(object):
 
   # ----------------------- OBSERVATION QUERY FUNCTIONS -----------------------
 
+
+  def get_instances(self, col_name, instance_type, max_rows=100):
+    """Get a list of instance dcids for a given type.
+
+    Args:
+      col_name: Column name for the returned column.
+      instance_type: String of the instance type.
+      max_rows: Max number of returend rows.
+
+    Returns:
+      A pandas.DataFrame with instance dcids.
+    """
+    assert self._inited, 'Initialization was unsuccessful, cannot execute Query'
+    query = ('SELECT ?{col_name},'
+             'typeOf ?node {instance_type},'
+             'dcid ?node ?{col_name}').format(
+                 col_name=col_name, instance_type=instance_type)
+    type_row = pd.DataFrame(data=[{col_name: instance_type}])
+
+    try:
+      dcid_column = self.query(query, max_rows)
+    except RuntimeError as e:
+      raise RuntimeError('Execute query\n%s\ngot an error:\n%s' % (query, e))
+
+    return pd.concat([type_row, dcid_column], ignore_index=True)
+
+
   def get_populations(self,
                       pd_table,
                       seed_col_name,

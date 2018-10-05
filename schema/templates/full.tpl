@@ -28,9 +28,9 @@ $(document).ready(function(){
             $("#ext_thing_tree").show(500);
         }
      });
-	$("#thing_tree").hide();
+     $("#full_thing_tree").hide();
 	$("#ext_thing_tree").hide();
-    $("#full_thing_tree").show();
+	$("#thing_tree").show();
 });
 </script>
 </head>
@@ -40,27 +40,28 @@ $(document).ready(function(){
 
 <div style="text-align: left; margin-left: 8%; margin-right: 8%">
 
-<h3>Full Hierarchy</h3>
+<h3>DataCommons.org vocabulary</h3>
 
+<p>This is the main vocabulary hierarchy: a collection of types (or "classes"), each of which has one or more parent types.
+  Although a type may have more than one super-type, here we show each type in one branch of the tree only.
+</p>
 <p>
-Schema.org is defined as two hierarchies: one for textual property values, and one for the things that they describe. 
-</p> 
-
-<h4>Thing</h4>
-
-<p>This is the main schema.org hierarchy: a collection of types (or "classes"), each of which has one or more parent types. Although a type may have more than one super-type, here we show each type in one branch of the tree only. There is also a parallel hierarchy for <a href="#datatype_tree">data types</a>.</p>
+    The DataCommons site does not reproduce all the definitions from <a href="http://schema.org/">Schema.org</a>; see the
+    corresponding <a href="https://schema.org/docs/full.html">Full listing</a> page for the larger vocabulary.
+</p>
 
 <br/>
+
 <div>Select vocabulary view:<br/>
     <div>
-        <label><input type="radio" name="viewSel" value="local"> {{local_button}}</label>
-        <label><input type="radio" name="viewSel" value="full"  checked="checked"> {{full_button}}</label>
+        <label><input type="radio" name="viewSel" value="local" checked="checked"> {{local_button}}</label>
+        <label><input type="radio" name="viewSel" value="full"> {{full_button}}</label>
 		{% if ext_button != "" %}
         	<label><input type="radio" name="viewSel" value="ext"> {{ext_button}}</label>
 		{% endif %}
 	</div>
 </div>
-	
+
 
 <div id="thing_tree">
 {{ thing_tree | safe }}
@@ -79,10 +80,8 @@ Schema.org is defined as two hierarchies: one for textual property values, and o
 
 
 
-<p>An <em>experimental</em> <a href="http://d3js.org">D3</a>-compatible <a href="/docs/tree.jsonld">JSON</a> version is also available.</p>
 <br/><br/>
 
 </div>
 </body>
 </html>
-
