@@ -369,7 +369,8 @@ class Client(object):
           '%s is already a column name in the data frame' % new_col_name)
 
     seed_col_type = seed_col[0]
-    assert seed_col_type == 'Population' or seed_col_type == 'City', 'Parent entity should be Population' or 'City'
+    assert seed_col_type == 'Population' or seed_col_type == 'City', \
+        'Parent entity should be Population' or 'City'
 
     # Create the datalog query for the requested observations
     dcids = seed_col[1:]

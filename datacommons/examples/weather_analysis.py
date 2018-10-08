@@ -35,7 +35,7 @@ def main():
   for d in range(1, 13):
     weather_table = dc.get_observations(weather_table,
                                         seed_col_name='city',
-                                        new_col_name=('temp_2010%.2d' % d),
+                                        new_col_name=('temp_2017%.2d' % d),
                                         start_date=('2017-%.2d-01' % d),
                                         end_date=('2017-%.2d-01' % d),
                                         measured_property='temperature',
