@@ -369,12 +369,12 @@ class Client(object):
           '%s is already a column name in the data frame' % new_col_name)
 
     seed_col_type = seed_col[0]
-    assert seed_col_type == 'Population', 'Parent entity should be Population'
+    assert seed_col_type == 'Population' or seed_col_type == 'City', 'Parent entity should be Population' or 'City'
 
     # Create the datalog query for the requested observations
     dcids = seed_col[1:]
     query = ('SELECT ?{seed_col_name} ?{new_col_name},'
-             'typeOf ?pop Population,'
+             'typeOf ?pop {seed_col_type},'
              'typeOf ?o Observation,'
              'dcid ?pop {dcids},'
              'dcid ?pop ?{seed_col_name},'
@@ -383,6 +383,7 @@ class Client(object):
              'endTime ?o {end_time},'
              'measuredProperty ?o {measured_property},'
              '{stats_type}Value ?o ?{new_col_name},').format(
+                 seed_col_type=seed_col_type,
                  new_col_name=new_col_name,
                  seed_col_name=seed_col_name,
                  dcids=' '.join(dcids),
