@@ -10,9 +10,20 @@ Apache 2.0
 
     pip install git+https://github.com/google/datacommons.git
 
+## Development
+
+To build and test, install [bazel](https://bazel.build/), and run:
+
+```
+    $ bazel build //...
+    $ bazel test //...
+```
+
+Changes are submitted to the `dev` branch first.
+
 ## Usage
 
-Refer to `example.py` for simple usage.
+Refer to `datacommons/examples` directory.
 
 TODO(datacommons): Add link to documentation.
 
