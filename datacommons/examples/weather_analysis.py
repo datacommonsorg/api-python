@@ -15,34 +15,36 @@
 
 """
 
-import pandas as pd
 import datacommons
+import pandas as pd
 
 
 def main():
   dc = datacommons.Client()
 
   # Bootstrap with IDs of a few US cities.
-  pd_table = pd.DataFrame({'city' : ['City', 'dc/ve1tlm',
-                                     'dc/0vypck3', 'dc/prehdd2']})
+  pd_table = pd.DataFrame({
+      'city': ['City', 'dc/ve1tlm', 'dc/0vypck3', 'dc/prehdd2']
+  })
 
   # Add names of those cities.
   weather_table = dc.expand(pd_table, 'name', 'city', 'city_name')
   with pd.option_context('display.width', 400, 'display.max_rows', 100):
-    print(weather_table)
+    print weather_table
 
   # Add monthly mean temperature for those cities for all 2017 months.
   for d in range(1, 13):
-    weather_table = dc.get_observations(weather_table,
-                                        seed_col_name='city',
-                                        new_col_name=('temp_2017%.2d' % d),
-                                        start_date=('2017-%.2d-01' % d),
-                                        end_date=('2017-%.2d-01' % d),
-                                        measured_property='temperature',
-                                        stats_type='mean')
+    weather_table = dc.get_observations(
+        weather_table,
+        seed_col_name='city',
+        new_col_name=('temp_2017%.2d' % d),
+        start_date=('2017-%.2d-01' % d),
+        end_date=('2017-%.2d-01' % d),
+        measured_property='temperature',
+        stats_type='mean')
 
   with pd.option_context('display.width', 400, 'display.max_rows', 100):
-    print(weather_table)
+    print weather_table
 
 
 if __name__ == '__main__':

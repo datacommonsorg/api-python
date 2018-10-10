@@ -13,11 +13,11 @@
 # limitations under the License.
 """Examples to use get_intance() API."""
 
+import datacommons
+import pandas as pd
+
 _MAX_ROW = 20
 
-
-import pandas as pd
-import datacommons
 
 def main():
   dc = datacommons.Client()
@@ -33,13 +33,13 @@ def main():
   with pd.option_context('display.width', 400, 'display.max_rows', 20):
     print pd_state
 
-
   # Get a list of cities with their names and timezone.
   pd_city = dc.get_instances('city', 'City', max_rows=_MAX_ROW)
   pd_city = dc.expand(pd_city, 'name', 'city', 'name', outgoing=True)
   pd_city = dc.expand(pd_city, 'timezone', 'city', 'timezone', outgoing=True)
   with pd.option_context('display.width', 400, 'display.max_rows', 20):
     print pd_city
+
 
 if __name__ == '__main__':
   main()

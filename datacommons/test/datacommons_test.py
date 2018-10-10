@@ -11,19 +11,18 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 """Test for DataCommons API."""
 
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-import mock
-import pandas as pd
 import unittest
 
-from pandas.util.testing import assert_frame_equal
 import datacommons
+import mock
+import pandas as pd
+from pandas.util.testing import assert_frame_equal
 
 
 class MockQuery(object):
@@ -101,7 +100,9 @@ class AppTest(unittest.TestCase):
     continent_query = ('SELECT ?name ?area_sq_mi, typeOf ?c Continent, '
                        'name ?c ?name, area ?c ?area, dcid ?c "X123"')
     mock_resource.add_query({
-        'options': {'row_count_limit': 100},
+        'options': {
+            'row_count_limit': 100
+        },
         'query': continent_query
     }, {
         'rows': [{

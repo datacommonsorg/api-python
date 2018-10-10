@@ -11,7 +11,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 """Helper for authenticating with datacommons.org API service.
 
 Based on example in:
@@ -75,5 +74,8 @@ def do_auth(client_id, client_secret, api_root):
       api_root, API_NAME, VERSION)
   logging.info('Calling %s', discovery_url)
   return discovery.build(
-      API_NAME, VERSION, discoveryServiceUrl=discovery_url, http=http,
+      API_NAME,
+      VERSION,
+      discoveryServiceUrl=discovery_url,
+      http=http,
       cache_discovery=False)
