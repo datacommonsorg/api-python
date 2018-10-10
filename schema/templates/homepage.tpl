@@ -24,7 +24,8 @@ many of the terms still being refined and are not proposed for wider adoption. C
 <p>The <a href="/docs/full.html">full view</a> listing shows all defined terms, or you
 can jump directly to a commonly used term. For example, <a href="{{staticPath}}/StatisticalPopulation">StatisticalPopulation</a>,
 <a href="{{staticPath}}/Measurement">Measurement</a>,
-<a href="{{staticPath}}/NOAAWeatherConditionType">NOAAWeatherConditionType</a>,
+<a href="{{staticPath}}/NOAA_WeatherConditionEnum">NOAA_WeatherConditionEnum</a>,
+<a href="{{staticPath}}/USC_CitizenStatusEnum">USC_CitizenStatusEnum</a>,
 <a href="{{staticPath}}/DepthValue">DepthValue</a>, ...
 </p>
 

@@ -14,7 +14,7 @@
     <!-- DATACOMMONS BASIC VOCABULARY -->
 
     <div typeof="rdfs:Class" resource="https://schema.datacommons.org/StatisticalPopulation">
-      <span class="h" property="rdfs:label">StatisticalPopulation</span>
+      <span property="rdfs:label">StatisticalPopulation</span>
       <span property="rdfs:comment">A description of entities of a given type that satisfy some constraints. For example people between the ages of 18 and 34 living in France.</span>
       <link property="rdfs:subClassOf" href="http://schema.org/Intangible" />
     </div>
@@ -40,25 +40,25 @@
     </div>
 
     <div typeof="rdf:Property" resource="https://schema.datacommons.org/populationType">
-      <span class="h" property="rdfs:label">populationType</span>
+      <span property="rdfs:label">populationType</span>
       <span property="rdfs:comment">The schema.org type for the entities in the population. For example, schema.org/Person for people or schema.org/City for municipalities.</span>
       <link property="http://schema.org/domainIncludes" href="https://schema.datacommons.org/StatisticalPopulation"/>
       <link property="http://schema.org/rangeIncludes" href="http://schema.org/Class"/>
     </div>
 
     <div typeof="rdf:Property" resource="https://schema.datacommons.org/location">
-      <span class="h" property="rdfs:label">location</span>
+      <span property="rdfs:label">location</span>
       <link property="http://schema.org/domainIncludes" href="https://schema.datacommons.org/StatisticalPopulation"/>
     </div>
 
     <div typeof="rdfs:Class" resource="https://schema.datacommons.org/Observation">
-      <span class="h" property="rdfs:label">Observation</span>
+      <span property="rdfs:label">Observation</span>
       <span property="rdfs:comment">An Observation represents statistical data about an entity, which could be a StatisticalPopulation.</span>
       <link property="rdfs:subClassOf" href="http://schema.org/Intangible"/>
     </div>
 
     <div typeof="rdf:Property" resource="https://schema.datacommons.org/observedNode">
-      <span class="h" property="rdfs:label">observedNode</span>
+      <span property="rdfs:label">observedNode</span>
       <span property="rdfs:comment">The StatisticalProperty or Measurement the data is related to.</span>
       <link property="http://schema.org/domainIncludes" href="https://schema.datacommons.org/Observation"/>
       <link property="http://schema.org/rangeIncludes" href="http://schema.org/StatisticalPopulation"/>
@@ -66,7 +66,7 @@
     </div>
 
     <div typeof="rdf:Property" resource="https://schema.datacommons.org/measuredProperty">
-      <span class="h" property="rdfs:label">measuredProperty</span>
+      <span property="rdfs:label">measuredProperty</span>
       <span property="rdfs:comment">The property being measured. In other words, what the value means.</span>
       <link property="http://schema.org/domainIncludes" href="https://schema.datacommons.org/Observation"/>
       <link property="http://schema.org/rangeIncludes" href="http://schema.org/Property"/>
@@ -74,28 +74,28 @@
     </div>
 
     <div typeof="rdf:Property" resource="https://schema.datacommons.org/unit">
-      <span class="h" property="rdfs:label">unit</span>
+      <span property="rdfs:label">unit</span>
       <span property="rdfs:comment">The units to use when interpreting the value.</span>
       <link property="http://schema.org/domainIncludes" href="https://schema.datacommons.org/Observation"/>
       <link property="http://schema.org/rangeIncludes" href="http://schema.org/Text"/>
     </div>
 
     <div typeof="rdf:Property" resource="https://schema.datacommons.org/meanValue">
-      <span class="h" property="rdfs:label">meanValue</span>
+      <span property="rdfs:label">meanValue</span>
       <span property="rdfs:comment">The mean value of the statistical data.</span>
       <link property="http://schema.org/domainIncludes" href="https://schema.datacommons.org/Observation"/>
       <link property="http://schema.org/rangeIncludes" href="http://schema.org/Number"/>
 
     </div>
     <div typeof="rdf:Property" resource="https://schema.datacommons.org/medianValue">
-      <span class="h" property="rdfs:label">medianValue</span>
+      <span property="rdfs:label">medianValue</span>
       <span property="rdfs:comment">The median value of the statistical data.</span>
       <link property="http://schema.org/domainIncludes" href="https://schema.datacommons.org/Observation"/>
       <link property="http://schema.org/rangeIncludes" href="http://schema.org/Number"/>
     </div>
 
     <div typeof="rdf:Property" resource="https://schema.datacommons.org/sumValue">
-      <span class="h" property="rdfs:label">sumValue</span>
+      <span property="rdfs:label">sumValue</span>
       <span property="rdfs:comment">The sum of the values of the statistical data.</span>
       <link property="http://schema.org/domainIncludes" href="https://schema.datacommons.org/Observation"/>
       <link property="http://schema.org/rangeIncludes" href="http://schema.org/Number"/>
@@ -103,7 +103,7 @@
 
 
     <div typeof="rdf:Property" resource="https://schema.datacommons.org/countValue">
-      <span class="h" property="rdfs:label">countValue</span>
+      <span property="rdfs:label">countValue</span>
       <span property="rdfs:comment">The count. For example, if requesting the population of a location, the value would be returned as a count.</span>
       <link property="http://schema.org/domainIncludes" href="https://schema.datacommons.org/Observation"/>
       <link property="http://schema.org/rangeIncludes" href="http://schema.org/Integer"/>
@@ -113,37 +113,43 @@
 
 
 
+    <div typeof="rdfs:Class" resource="https://schema.datacommons.org/CriminalActivities">
+      <span property="rdfs:label">CriminalActivities</span>
+      <span property="rdfs:comment">Activities or behaviors considered crimes by the FBI. This type is used primarily for computing StatisticalPopulations used in querying crime statistics.</span>
+      <link property="rdfs:subClassOf" href="http://schema.datacommons.org/Intangible"/>
+    </div>
     <!-- same or similar terms as Schema.org, we may omit these -->
 
 
     <div typeof="rdf:Property" resource="https://schema.datacommons.org/location">
       <span property="rdfs:label">location</span>
+      <span property="rdfs:comment">A location of something, as used in US Census.</span>
       <link property="http://schema.org/domainIncludes" href="https://schema.datacommons.org/Measurement"/>
     </div>
 
     <div typeof="rdf:Property" resource="https://schema.datacommons.org/startTime">
-      <span class="h" property="rdfs:label">startTime</span>
+      <span  property="rdfs:label">startTime</span>
       <link property="http://schema.org/domainIncludes" href="https://schema.datacommons.org/Observation"/>
     </div>
 
     <div typeof="rdf:Property" resource="https://schema.datacommons.org/endTime">
-      <span class="h" property="rdfs:label">endTime</span>
+      <span  property="rdfs:label">endTime</span>
       <span property="rdfs:comment"></span>
       <link property="http://schema.org/domainIncludes" href="https://schema.datacommons.org/Observation"/>
     </div>
 
     <div typeof="rdf:Property" resource="https://schema.datacommons.org/minValue">
-      <span class="h" property="rdfs:label">minValue</span>
+      <span  property="rdfs:label">minValue</span>
       <link property="http://schema.org/domainIncludes" href="https://schema.datacommons.org/Observation"/>
     </div>
 
     <div typeof="rdf:Property" resource="https://schema.datacommons.org/maxValue">
-      <span class="h" property="rdfs:label">maxValue</span>
+      <span property="rdfs:label">maxValue</span>
       <link property="http://schema.org/domainIncludes" href="https://schema.datacommons.org/Observation"/>
     </div>
 
     <div typeof="rdf:Property" resource="https://schema.datacommons.org/duration">
-      <span class="h" property="rdfs:label">duration</span>
+      <span property="rdfs:label">duration</span>
       <link property="http://schema.org/domainIncludes" href="https://schema.datacommons.org/Observation"/>
       <link property="http://schema.org/domainIncludes" href="https://schema.datacommons.org/WeatherMeasurement"/>
     </div>
@@ -158,23 +164,971 @@
       <link property="http://schema.org/domainIncludes" href="https://schema.datacommons.org/Measurement"/>
     </div>
 
-    <!-- CENSUS-RELATED, more to add but as a starter to clarify the enum model... -->
+    <!-- CENSUS-RELATED -->
+
+
+    <!-- US CENSUS Citizenship -->
+
+    <div typeof="rdf:Property" resource="https://schema.datacommons.org/citizenship">
+      <span property="rdfs:label">citizenship</span>
+      <span property="rdfs:comment">A citizenship code, as used in US Census.</span>
+      <link property="http://schema.org/domainIncludes" href="https://schema.datacommons.org/Measurement"/>
+      <link property="http://schema.org/rangeIncludes" href="https://schema.datacommons.org/USC_CitizenStatusEnum" />
+    </div>
+
+    <div typeof="rdfs:Class" resource="https://schema.datacommons.org/USC_CitizenStatusEnum">
+      <span property="rdfs:label">USC_CitizenStatusEnum</span>
+      <span property="rdfs:comment">An enumeration of citizenship status codes, as used in the US census.</span>
+      <link property="rdfs:subClassOf" href="http://schema.org/Enumeration"/>
+    </div>
+
+    <div typeof="https://schema.datacommons.org/USC_CitizenStatusEnum" resource="https://schema.datacommons.org/USC_USCitizenByNaturalization">
+        <span property="rdfs:label">USC_USCitizenByNaturalization</span>
+        <span property="rdfs:comment">USC_USCitizenByNaturalization citizen status, in US Census.</span>
+    </div>
+
+    <div typeof="https://schema.datacommons.org/USC_CitizenStatusEnum" resource="https://schema.datacommons.org/USC_NotAUSCitizen">
+        <span property="rdfs:label">USC_NotAUSCitizen</span>
+        <span property="rdfs:comment">USC_NotAUSCitizen citizen status, in US Census.</span>
+    </div>
+
+    <div typeof="https://schema.datacommons.org/USC_CitizenStatusEnum" resource="https://schema.datacommons.org/USC_USCitizenBornAbroadOfAmericanParent">
+        <span property="rdfs:label">USC_USCitizenBornAbroadOfAmericanParent</span>
+        <span property="rdfs:comment">USC_USCitizenBornAbroadOfAmericanParent citizen status, in US Census.</span>
+    </div>
+
+    <div typeof="https://schema.datacommons.org/USC_CitizenStatusEnum" resource="https://schema.datacommons.org/USC_USCitizenBornInTheUnitedStates">
+        <span property="rdfs:label">USC_USCitizenBornInTheUnitedStates</span>
+        <span property="rdfs:comment">USC_USCitizenBornInTheUnitedStates citizen status, in US Census.</span>
+    </div>
+
+    <div typeof="https://schema.datacommons.org/USC_CitizenStatusEnum" resource="https://schema.datacommons.org/USC_USCitizenBornInPuertoRicoOrUSIslandAreas">
+        <span property="rdfs:label">USC_USCitizenBornInPuertoRicoOrUSIslandAreas</span>
+        <span property="rdfs:comment">USC_USCitizenBornInPuertoRicoOrUSIslandAreas citizen status, in US Census.</span>
+    </div>
+
+
+    <!-- US CENSUS Age -->
 
     <div typeof="rdf:Property" resource="https://schema.datacommons.org/age">
       <span property="rdfs:label">age</span>
       <span property="rdfs:comment">The age of something, expressed numerically or via an enumeration.</span>
+      <link property="http://schema.org/domainIncludes" href="https://schema.datacommons.org/Measurement"/>
       <link property="http://schema.org/rangeIncludes" href="http://schema.org/Number" />
       <link property="http://schema.org/rangeIncludes" href="http://schema.org/QuantitativeValue" />
-      <link property="http://schema.org/rangeIncludes" href="http://schema.org/Enumeration" />
+      <link property="http://schema.org/rangeIncludes" href="https://schema.datacommons.org/USC_AgeEnum" />
     </div>
 
-    <div typeof="rdf:Property" resource="https://schema.datacommons.org/citizenship">
-      <link property="http://schema.org/rangeIncludes" href="https://schema.datacommons.org/USC_Age_Enumeration" />
+    <div typeof="rdfs:Class" resource="https://schema.datacommons.org/USC_AgeEnum">
+      <span property="rdfs:label">USC_AgeEnum</span>
+      <span property="rdfs:comment">An enumeration of age bands, as used in the US census.</span>
+      <link property="rdfs:subClassOf" href="http://schema.org/Enumeration"/>
+    </div>
+
+    <div typeof="https://schema.datacommons.org/USC_AgeEnum" resource="https://schema.datacommons.org/USC_18To24Years">
+        <span property="rdfs:label">USC_18To24Years</span>
+        <span property="rdfs:comment">18To24Years age band, in US Census.</span>
+    </div>
+
+    <div typeof="https://schema.datacommons.org/USC_AgeEnum" resource="https://schema.datacommons.org/USC_25To34Years">
+        <span property="rdfs:label">USC_25To34Years</span>
+        <span property="rdfs:comment">25To34Years age band, in US Census.</span>
+    </div>
+
+    <div typeof="https://schema.datacommons.org/USC_AgeEnum" resource="https://schema.datacommons.org/USC_35To44Years">
+        <span property="rdfs:label">USC_35To44Years</span>
+        <span property="rdfs:comment">35To44Years age band, in US Census.</span>
+    </div>
+
+    <div typeof="https://schema.datacommons.org/USC_AgeEnum" resource="https://schema.datacommons.org/USC_45To54Years">
+        <span property="rdfs:label">USC_345To54Years</span>
+        <span property="rdfs:comment">45To54Years age band, in US Census.</span>
+    </div>
+
+    <div typeof="https://schema.datacommons.org/USC_AgeEnum" resource="https://schema.datacommons.org/USC_55To59Years">
+        <span property="rdfs:label">USC_55To59Years</span>
+        <span property="rdfs:comment">55To59Years age band, in US Census.</span>
+    </div>
+
+    <div typeof="https://schema.datacommons.org/USC_AgeEnum" resource="https://schema.datacommons.org/USC_5To17Years">
+        <span property="rdfs:label">USC_5To17Years</span>
+        <span property="rdfs:comment">5To17Years age band, in US Census.</span>
+    </div>
+
+    <div typeof="https://schema.datacommons.org/USC_AgeEnum" resource="https://schema.datacommons.org/USC_60And61Years">
+        <span property="rdfs:label">USC_60And61Years</span>
+        <span property="rdfs:comment">60And61Years age band, in US Census.</span>
+    </div>
+
+    <div typeof="https://schema.datacommons.org/USC_AgeEnum" resource="https://schema.datacommons.org/USC_62To64Years">
+        <span property="rdfs:label">USC_62To64Years</span>
+        <span property="rdfs:comment">62To64Years age band, in US Census.</span>
+    </div>
+
+    <div typeof="https://schema.datacommons.org/USC_AgeEnum" resource="https://schema.datacommons.org/USC_65To74Years">
+        <span property="rdfs:label">USC_65To74Years</span>
+        <span property="rdfs:comment">65To74Years age band, in US Census.</span>
+    </div>
+
+    <div typeof="https://schema.datacommons.org/USC_AgeEnum" resource="https://schema.datacommons.org/USC_75YearsAndOver">
+        <span property="rdfs:label">USC_75YearsAndOver</span>
+        <span property="rdfs:comment">75YearsAndOver age band, in US Census.</span>
+    </div>
+
+    <div typeof="https://schema.datacommons.org/USC_AgeEnum" resource="https://schema.datacommons.org/USC_Under5Years">
+        <span property="rdfs:label">USC_Under5Years</span>
+        <span property="rdfs:comment">Under5Years age band, in US Census.</span>
     </div>
 
 
+    <!-- US FBI Crime  -->
+
+    <div typeof="rdf:Property" resource="https://schema.datacommons.org/crimeType">
+      <span property="rdfs:label">crimeType</span>
+      <span property="rdfs:comment">A type code for a crime, according to the US FBI.</span>
+      <link property="http://schema.org/domainIncludes" href="https://schema.datacommons.org/CriminalActivities"/>
+      <link property="http://schema.org/rangeIncludes" href="https://schema.datacommons.org/FBI_CrimeTypeEnum" />
+    </div>
+
+    <div typeof="rdfs:Class" resource="https://schema.datacommons.org/FBI_CrimeTypeEnum">
+      <span property="rdfs:label">FBI_CrimeTypeEnum</span>
+      <span property="rdfs:comment">An enumeration of crime types, as used by the US FBI.</span>
+      <link property="rdfs:subClassOf" href="http://schema.org/Enumeration"/>
+    </div>
+
+    <div typeof="https://schema.datacommons.org/FBI_CrimeTypeEnum" resource="https://schema.datacommons.org/FBI_ViolentAggravatedAssault">
+        <span property="rdfs:label">FBI_ViolentAggravatedAssault</span>
+        <span property="rdfs:comment">FBI_ViolentAggravatedAssault crime type, as used by the US FBI.</span>
+    </div>
+
+    <div typeof="https://schema.datacommons.org/FBI_CrimeTypeEnum" resource="https://schema.datacommons.org/FBI_ViolentRobbery">
+        <span property="rdfs:label">FBI_ViolentRobbery</span>
+        <span property="rdfs:comment">FBI_ViolentRobbery crime type, as used by the US FBI.</span>
+    </div>
+
+    <div typeof="https://schema.datacommons.org/FBI_CrimeTypeEnum" resource="https://schema.datacommons.org/FBI_PropertyLarcenyTheft">
+        <span property="rdfs:label">FBI_PropertyLarcenyTheft</span>
+        <span property="rdfs:comment">FBI_PropertyLarcenyTheft crime type, as used by the US FBI.</span>
+    </div>
+
+    <div typeof="https://schema.datacommons.org/FBI_CrimeTypeEnum" resource="https://schema.datacommons.org/FBI_PropertyMotorVehicleTheft">
+        <span property="rdfs:label">FBI_PropertyMotorVehicleTheft</span>
+        <span property="rdfs:comment">FBI_PropertyMotorVehicleTheft crime type, as used by the US FBI.</span>
+    </div>
+
+    <div typeof="https://schema.datacommons.org/FBI_CrimeTypeEnum" resource="https://schema.datacommons.org/FBI_Property">
+        <span property="rdfs:label">FBI_Property</span>
+        <span property="rdfs:comment">FBI_Property crime type, as used by the US FBI.</span>
+    </div>
+
+    <div typeof="https://schema.datacommons.org/FBI_CrimeTypeEnum" resource="https://schema.datacommons.org/FBI_PropertyArson">
+        <span property="rdfs:label">FBI_PropertyArson</span>
+        <span property="rdfs:comment">FBI_PropertyArson crime type, as used by the US FBI.</span>
+    </div>
+
+    <div typeof="https://schema.datacommons.org/FBI_CrimeTypeEnum" resource="https://schema.datacommons.org/FBI_ViolentMurderAndNonNegligentManslaughter">
+        <span property="rdfs:label">FBI_ViolentMurderAndNonNegligentManslaughter</span>
+        <span property="rdfs:comment">FBI_ViolentMurderAndNonNegligentManslaughter crime type, as used by the US FBI.</span>
+    </div>
+
+    <div typeof="https://schema.datacommons.org/FBI_CrimeTypeEnum" resource="https://schema.datacommons.org/FBI_PropertyBurglary">
+        <span property="rdfs:label">FBI_PropertyBurglary</span>
+        <span property="rdfs:comment">FBI_PropertyBurglary crime type, as used by the US FBI.</span>
+    </div>
+
+    <div typeof="https://schema.datacommons.org/FBI_CrimeTypeEnum" resource="https://schema.datacommons.org/FBI_ViolentRape">
+        <span property="rdfs:label">FBI_ViolentRape</span>
+        <span property="rdfs:comment">FBI_ViolentRape crime type, as used by the US FBI.</span>
+    </div>
+
+
+    <!-- US CENSUS Disability -->
+
+
+    <div typeof="rdf:Property" resource="https://schema.datacommons.org/disability">
+      <span property="rdfs:label">disability</span>
+      <span property="rdfs:comment">A disability status code, as used in US Census.</span>
+      <link property="http://schema.org/domainIncludes" href="https://schema.datacommons.org/Measurement"/>
+      <link property="http://schema.org/rangeIncludes" href="https://schema.datacommons.org/USC_DisabilityEnum" />
+    </div>
+
+    <div typeof="rdfs:Class" resource="https://schema.datacommons.org/USC_DisabilityEnum">
+      <span property="rdfs:label">USC_DisabilityEnum</span>
+      <span property="rdfs:comment">An enumeration of disability status codes, as used in the US census. Note: this representation contains only one code.</span>
+      <link property="rdfs:subClassOf" href="http://schema.org/Enumeration"/>
+    </div>
+
+    <div typeof="https://schema.datacommons.org/USC_DisabilityEnum" resource="https://schema.datacommons.org/USC_WithADisability">
+        <span property="rdfs:label">USC_WithADisability</span>
+        <span property="rdfs:comment">USC_WithADisability disability code, as used in the US Census.</span>
+    </div>
+
+
+    <!-- US CENSUS Education -->
+
+    <div typeof="rdf:Property" resource="https://schema.datacommons.org/education">
+      <span property="rdfs:label">education</span>
+      <span property="rdfs:comment">An education code, as used in US Census.</span>
+      <link property="http://schema.org/domainIncludes" href="https://schema.datacommons.org/Measurement"/>
+      <link property="http://schema.org/rangeIncludes" href="https://schema.datacommons.org/USC_EducationEnum" />
+    </div>
+
+    <div typeof="rdfs:Class" resource="https://schema.datacommons.org/USC_EducationEnum">
+      <span property="rdfs:label">USC_EducationEnum</span>
+      <span property="rdfs:comment">An enumeration of education-related codes, as used in the US census.</span>
+      <link property="rdfs:subClassOf" href="http://schema.org/Enumeration"/>
+    </div>
+
+    <div typeof="https://schema.datacommons.org/USC_EducationEnum" resource="https://schema.datacommons.org/USC_NoSchoolingCompleted">
+        <span property="rdfs:label">USC_NoSchoolingCompleted</span>
+        <span property="rdfs:comment">USC_NoSchoolingCompleted education code, as used in the US Census.</span>
+    </div>
+
+    <div typeof="https://schema.datacommons.org/USC_EducationEnum" resource="https://schema.datacommons.org/USC_2NdGrade">
+        <span property="rdfs:label">USC_2NdGrade</span>
+        <span property="rdfs:comment">USC_2NdGrade education code, as used in the US Census.</span>
+    </div>
+
+    <div typeof="https://schema.datacommons.org/USC_EducationEnum" resource="https://schema.datacommons.org/USC_6ThGrade">
+        <span property="rdfs:label">USC_6ThGrade</span>
+        <span property="rdfs:comment">USC_6ThGrade education code, as used in the US Census.</span>
+    </div>
+
+    <div typeof="https://schema.datacommons.org/USC_EducationEnum" resource="https://schema.datacommons.org/USC_ProfessionalSchoolDegree">
+        <span property="rdfs:label">USC_ProfessionalSchoolDegree</span>
+        <span property="rdfs:comment">USC_ProfessionalSchoolDegree education code, as used in the US Census.</span>
+    </div>
+
+    <div typeof="https://schema.datacommons.org/USC_EducationEnum" resource="https://schema.datacommons.org/USC_10ThGrade">
+        <span property="rdfs:label">USC_10ThGrade</span>
+        <span property="rdfs:comment">USC_10ThGrade education code, as used in the US Census.</span>
+    </div>
+
+    <div typeof="https://schema.datacommons.org/USC_EducationEnum" resource="https://schema.datacommons.org/USC_12ThGradeNoDiploma">
+        <span property="rdfs:label">USC_12ThGradeNoDiploma</span>
+        <span property="rdfs:comment">USC_12ThGradeNoDiploma education code, as used in the US Census.</span>
+    </div>
+
+    <div typeof="https://schema.datacommons.org/USC_EducationEnum" resource="https://schema.datacommons.org/USC_GedOrAlternativeCredential">
+        <span property="rdfs:label">USC_GedOrAlternativeCredential</span>
+        <span property="rdfs:comment">USC_GedOrAlternativeCredential education code, as used in the US Census.</span>
+    </div>
+
+    <div typeof="https://schema.datacommons.org/USC_EducationEnum" resource="https://schema.datacommons.org/USC_DoctorateDegree">
+        <span property="rdfs:label">USC_DoctorateDegree</span>
+        <span property="rdfs:comment">USC_DoctorateDegree education code, as used in the US Census.</span>
+    </div>
+
+    <div typeof="https://schema.datacommons.org/USC_EducationEnum" resource="https://schema.datacommons.org/USC_Kindergarten">
+        <span property="rdfs:label">USC_Kindergarten</span>
+        <span property="rdfs:comment">USC_Kindergarten education code, as used in the US Census.</span>
+    </div>
+
+    <div typeof="https://schema.datacommons.org/USC_EducationEnum" resource="https://schema.datacommons.org/USC_RegularHighSchoolDiploma">
+        <span property="rdfs:label">USC_RegularHighSchoolDiploma</span>
+        <span property="rdfs:comment">USC_RegularHighSchoolDiploma education code, as used in the US Census.</span>
+    </div>
+
+    <div typeof="https://schema.datacommons.org/USC_EducationEnum" resource="https://schema.datacommons.org/USC_8ThGrade">
+        <span property="rdfs:label">USC_8ThGrade</span>
+        <span property="rdfs:comment">USC_8ThGrade education code, as used in the US Census.</span>
+    </div>
+
+    <div typeof="https://schema.datacommons.org/USC_EducationEnum" resource="https://schema.datacommons.org/USC_9ThGrade">
+        <span property="rdfs:label">USC_9ThGrade</span>
+        <span property="rdfs:comment">USC_9ThGrade education code, as used in the US Census.</span>
+    </div>
+
+    <div typeof="https://schema.datacommons.org/USC_EducationEnum" resource="https://schema.datacommons.org/USC_MasterDegree">
+        <span property="rdfs:label">USC_MasterDegree</span>
+        <span property="rdfs:comment">USC_MasterDegree education code, as used in the US Census.</span>
+    </div>
+
+    <div typeof="https://schema.datacommons.org/USC_EducationEnum" resource="https://schema.datacommons.org/USC_11ThGrade">
+        <span property="rdfs:label">USC_11ThGrade</span>
+        <span property="rdfs:comment">USC_11ThGrade education code, as used in the US Census.</span>
+    </div>
+
+    <div typeof="https://schema.datacommons.org/USC_EducationEnum" resource="https://schema.datacommons.org/USC_1StGrade">
+        <span property="rdfs:label">USC_1StGrade</span>
+        <span property="rdfs:comment">USC_1StGrade education code, as used in the US Census.</span>
+    </div>
+
+    <div typeof="https://schema.datacommons.org/USC_EducationEnum" resource="https://schema.datacommons.org/USC_7ThGrade">
+        <span property="rdfs:label">USC_7ThGrade</span>
+        <span property="rdfs:comment">USC_7ThGrade education code, as used in the US Census.</span>
+    </div>
+
+    <div typeof="https://schema.datacommons.org/USC_EducationEnum" resource="https://schema.datacommons.org/USC_AssociateDegree">
+        <span property="rdfs:label">USC_AssociateDegree</span>
+        <span property="rdfs:comment">USC_AssociateDegree education code, as used in the US Census.</span>
+    </div>
+
+    <div typeof="https://schema.datacommons.org/USC_EducationEnum" resource="https://schema.datacommons.org/USC_NurserySchool">
+        <span property="rdfs:label">USC_NurserySchool</span>
+        <span property="rdfs:comment">USC_NurserySchool education code, as used in the US Census.</span>
+    </div>
+
+    <div typeof="https://schema.datacommons.org/USC_EducationEnum" resource="https://schema.datacommons.org/USC_BachelorDegree">
+        <span property="rdfs:label">USC_BachelorDegree</span>
+        <span property="rdfs:comment">USC_BachelorDegree education code, as used in the US Census.</span>
+    </div>
+
+    <div typeof="https://schema.datacommons.org/USC_EducationEnum" resource="https://schema.datacommons.org/USC_3RdGrade">
+        <span property="rdfs:label">USC_3RdGrade</span>
+        <span property="rdfs:comment">USC_3RdGrade education code, as used in the US Census.</span>
+    </div>
+
+    <div typeof="https://schema.datacommons.org/USC_EducationEnum" resource="https://schema.datacommons.org/USC_5ThGrade">
+        <span property="rdfs:label">USC_5ThGrade</span>
+        <span property="rdfs:comment">USC_5ThGrade education code, as used in the US Census.</span>
+    </div>
+
+    <div typeof="https://schema.datacommons.org/USC_EducationEnum" resource="https://schema.datacommons.org/USC_4ThGrade">
+        <span property="rdfs:label">USC_4ThGrade</span>
+        <span property="rdfs:comment">USC_4ThGrade education code, as used in the US Census.</span>
+    </div>
+
+    <div typeof="https://schema.datacommons.org/USC_EducationEnum" resource="https://schema.datacommons.org/USC_SomeCollege1OrMoreYearsNoDegree">
+        <span property="rdfs:label">USC_SomeCollege1OrMoreYearsNoDegree</span>
+        <span property="rdfs:comment">USC_SomeCollege1OrMoreYearsNoDegree education code, as used in the US Census.</span>
+    </div>
+
+    <div typeof="https://schema.datacommons.org/USC_EducationEnum" resource="https://schema.datacommons.org/USC_SomeCollegeLessThan1Year">
+        <span property="rdfs:label">USC_SomeCollegeLessThan1Year</span>
+        <span property="rdfs:comment">USC_SomeCollegeLessThan1Year education code, as used in the US Census.</span>
+    </div>
+
+    <!-- US CENSUS Employment -->
+
+    <div typeof="rdf:Property" resource="https://schema.datacommons.org/employment">
+      <span property="rdfs:label">employment</span>
+      <span property="rdfs:comment">An employment code, as used in US Census.</span>
+      <link property="http://schema.org/domainIncludes" href="https://schema.datacommons.org/Measurement"/>
+      <link property="http://schema.org/rangeIncludes" href="https://schema.datacommons.org/USC_EmploymentEnum" />
+    </div>
+
+    <div typeof="rdfs:Class" resource="https://schema.datacommons.org/USC_EmploymentEnum">
+      <span property="rdfs:label">USC_EmploymentEnum</span>
+      <span property="rdfs:comment">An enumeration of employment-related codes, as used in the US census.</span>
+      <link property="rdfs:subClassOf" href="http://schema.org/Enumeration"/>
+    </div>
+
+    <div typeof="https://schema.datacommons.org/USC_EmploymentEnum" resource="https://schema.datacommons.org/NotInLaborForce">
+        <span property="rdfs:label">NotInLaborForce</span>
+        <span property="rdfs:comment">NotInLaborForce employment code, as used in the US Census.</span>
+    </div>
+
+    <div typeof="https://schema.datacommons.org/USC_EmploymentEnum" resource="https://schema.datacommons.org/InLaborForce">
+        <span property="rdfs:label">InLaborForce</span>
+        <span property="rdfs:comment">InLaborForce employment code, as used in the US Census.</span>
+    </div>
+
+    <!-- US CENSUS Gender -->
+
+    <div typeof="rdf:Property" resource="https://schema.datacommons.org/gender">
+      <span property="rdfs:label">gender</span>
+      <span property="rdfs:comment">A gender code, as used in US Census. Note, the property definition reflects binary classification from the USC dataset, see issue tracker for discussion of representational issues.</span>
+      <link property="http://schema.org/domainIncludes" href="https://schema.datacommons.org/Measurement"/>
+      <link property="http://schema.org/rangeIncludes" href="https://schema.datacommons.org/USC_GenderEnum" />
+    </div>
+
+    <div typeof="rdfs:Class" resource="https://schema.datacommons.org/USC_GenderEnum">
+      <span property="rdfs:label">USC_GenderEnum</span>
+      <span property="rdfs:comment">An enumeration of gender codes, as used in the US census.</span>
+      <link property="rdfs:subClassOf" href="http://schema.org/Enumeration"/>
+    </div>
+
+    <div typeof="https://schema.datacommons.org/USC_GenderEnum" resource="https://schema.datacommons.org/USC_Female">
+        <span property="rdfs:label">USC_Female</span>
+        <span property="rdfs:comment">USC_Female gender code, as used in the US Census.</span>
+    </div>
+
+    <div typeof="https://schema.datacommons.org/USC_GenderEnum" resource="https://schema.datacommons.org/USC_Male">
+        <span property="rdfs:label">USC_Male</span>
+        <span property="rdfs:comment">USC_Male gender code, as used in the US Census.</span>
+    </div>
+
+    <!-- US CENSUS Income -->
+
+    <div typeof="rdf:Property" resource="https://schema.datacommons.org/income">
+      <span property="rdfs:label">income</span>
+      <span property="rdfs:comment">An income code, as used in US Census.</span>
+      <link property="http://schema.org/domainIncludes" href="https://schema.datacommons.org/Measurement"/>
+      <link property="http://schema.org/rangeIncludes" href="https://schema.datacommons.org/USC_IncomeEnum" />
+    </div>
+
+    <div typeof="rdfs:Class" resource="https://schema.datacommons.org/USC_IncomeEnum">
+      <span property="rdfs:label">USC_IncomeEnum</span>
+      <span property="rdfs:comment">An enumeration of income-band codes, as used in the US census.</span>
+      <link property="rdfs:subClassOf" href="http://schema.org/Enumeration"/>
+    </div>
+
+    <div typeof="https://schema.datacommons.org/USC_IncomeEnum" resource="https://schema.datacommons.org/USC_15000To19999">
+       <span property="rdfs:label">USC_15000To19999</span>
+       <span property="rdfs:comment">USC_15000To19999 gender code, as used in the US Census.</span>
+    </div>
+
+    <div typeof="https://schema.datacommons.org/USC_IncomeEnum" resource="https://schema.datacommons.org/USC_100000To124999">
+       <span property="rdfs:label">USC_100000To124999</span>
+       <span property="rdfs:comment">USC_100000To124999 gender code, as used in the US Census.</span>
+    </div>
+
+    <div typeof="https://schema.datacommons.org/USC_IncomeEnum" resource="https://schema.datacommons.org/USC_25000To29999">
+       <span property="rdfs:label">USC_25000To29999</span>
+       <span property="rdfs:comment">USC_25000To29999 gender code, as used in the US Census.</span>
+    </div>
+
+    <div typeof="https://schema.datacommons.org/USC_IncomeEnum" resource="https://schema.datacommons.org/USC_50000To59999">
+       <span property="rdfs:label">USC_50000To59999</span>
+       <span property="rdfs:comment">USC_50000To59999 gender code, as used in the US Census.</span>
+    </div>
+
+    <div typeof="https://schema.datacommons.org/USC_IncomeEnum" resource="https://schema.datacommons.org/USC_150000To199999">
+       <span property="rdfs:label">USC_150000To199999</span>
+       <span property="rdfs:comment">USC_150000To199999 gender code, as used in the US Census.</span>
+    </div>
+
+    <div typeof="https://schema.datacommons.org/USC_IncomeEnum" resource="https://schema.datacommons.org/USC_LessThan10000">
+       <span property="rdfs:label">USC_LessThan10000</span>
+       <span property="rdfs:comment">USC_LessThan10000 gender code, as used in the US Census.</span>
+    </div>
+
+    <div typeof="https://schema.datacommons.org/USC_IncomeEnum" resource="https://schema.datacommons.org/USC_125000To149999">
+       <span property="rdfs:label">USC_125000To149999</span>
+       <span property="rdfs:comment">USC_125000To149999 gender code, as used in the US Census.</span>
+    </div>
+
+    <div typeof="https://schema.datacommons.org/USC_IncomeEnum" resource="https://schema.datacommons.org/USC_10000To14999">
+       <span property="rdfs:label">USC_10000To14999</span>
+       <span property="rdfs:comment">USC_10000To14999 gender code, as used in the US Census.</span>
+    </div>
+
+    <div typeof="https://schema.datacommons.org/USC_IncomeEnum" resource="https://schema.datacommons.org/USC_75000To99999">
+       <span property="rdfs:label">USC_75000To99999</span>
+       <span property="rdfs:comment">USC_75000To99999 gender code, as used in the US Census.</span>
+    </div>
+
+    <div typeof="https://schema.datacommons.org/USC_IncomeEnum" resource="https://schema.datacommons.org/USC_40000To44999">
+       <span property="rdfs:label">USC_40000To44999</span>
+       <span property="rdfs:comment">USC_40000To44999 gender code, as used in the US Census.</span>
+    </div>
+
+    <div typeof="https://schema.datacommons.org/USC_IncomeEnum" resource="https://schema.datacommons.org/USC_200000OrMore">
+       <span property="rdfs:label">USC_200000OrMore</span>
+       <span property="rdfs:comment">USC_200000OrMore gender code, as used in the US Census.</span>
+    </div>
+
+    <div typeof="https://schema.datacommons.org/USC_IncomeEnum" resource="https://schema.datacommons.org/USC_60000To74999">
+       <span property="rdfs:label">USC_60000To74999</span>
+       <span property="rdfs:comment">USC_60000To74999 gender code, as used in the US Census.</span>
+    </div>
+
+    <div typeof="https://schema.datacommons.org/USC_IncomeEnum" resource="https://schema.datacommons.org/USC_35000To39999">
+       <span property="rdfs:label">USC_35000To39999</span>
+       <span property="rdfs:comment">USC_35000To39999 gender code, as used in the US Census.</span>
+    </div>
+
+    <div typeof="https://schema.datacommons.org/USC_IncomeEnum" resource="https://schema.datacommons.org/USC_45000To49999">
+       <span property="rdfs:label">USC_45000To49999</span>
+       <span property="rdfs:comment">USC_45000To49999 gender code, as used in the US Census.</span>
+    </div>
+
+    <div typeof="https://schema.datacommons.org/USC_IncomeEnum" resource="https://schema.datacommons.org/USC_30000To34999">
+       <span property="rdfs:label">USC_30000To34999</span>
+       <span property="rdfs:comment">USC_30000To34999 gender code, as used in the US Census.</span>
+    </div>
+
+    <div typeof="https://schema.datacommons.org/USC_IncomeEnum" resource="https://schema.datacommons.org/USC_20000To24999">
+       <span property="rdfs:label">USC_20000To24999</span>
+       <span property="rdfs:comment">USC_20000To24999 gender code, as used in the US Census.</span>
+    </div>
+
+
+   <!-- US Census Insurance -->
+
+   <div typeof="rdf:Property" resource="https://schema.datacommons.org/insurance">
+     <span property="rdfs:label">insurance</span>
+     <span property="rdfs:comment">indictates an insurance status code, as used in US Census.</span>
+     <link property="http://schema.org/domainIncludes" href="https://schema.datacommons.org/Measurement"/>
+     <link property="http://schema.org/rangeIncludes" href="https://schema.datacommons.org/USC_InsuranceEnum" />
+   </div>
+
+   <div typeof="rdfs:Class" resource="https://schema.datacommons.org/USC_InsuranceEnum">
+     <span property="rdfs:label">USC_InsuranceEnum</span>
+     <span property="rdfs:comment">An enumeration of insurance status codes, as used in the US census.</span>
+     <link property="rdfs:subClassOf" href="http://schema.org/Enumeration"/>
+   </div>
+
+   <div typeof="https://schema.datacommons.org/USC_InsuranceEnum" resource="https://schema.datacommons.org/USC_Uninsured">
+     <span property="rdfs:label">USC_Uninsured</span>
+     <span property="rdfs:comment">USC_Uninsured insurance code, as used in the US Census.</span>
+   </div>
+
+    <div typeof="https://schema.datacommons.org/USC_InsuranceEnum" resource="https://schema.datacommons.org/USC_Insured">
+      <span property="rdfs:label">USC_Insured</span>
+      <span property="rdfs:comment">USC_Insured insurance code, as used in the US Census.</span>
+    </div>
+
+
+   <!-- US Census Marital Status -->
+
+   <div typeof="rdf:Property" resource="https://schema.datacommons.org/maritalStatus">
+     <span property="rdfs:label">maritalStatus</span>
+     <span property="rdfs:comment">indictates a maritalStatus status code, as used in US Census.</span>
+     <link property="http://schema.org/domainIncludes" href="https://schema.datacommons.org/Measurement"/>
+     <link property="http://schema.org/rangeIncludes" href="https://schema.datacommons.org/USC_MaritalStatusEnum" />
+   </div>
+
+   <div typeof="rdfs:Class" resource="https://schema.datacommons.org/USC_MaritalStatusEnum">
+     <span property="rdfs:label">USC_MaritalStatusEnum</span>
+     <span property="rdfs:comment">An enumeration of maritalStatus status codes, as used in the US census.</span>
+     <link property="rdfs:subClassOf" href="http://schema.org/Enumeration"/>
+   </div>
+
+   <div typeof="https://schema.datacommons.org/USC_MaritalStatusEnum" resource="https://schema.datacommons.org/USC_NeverMarried">
+     <span property="rdfs:label">USC_NeverMarried</span>
+     <span property="rdfs:comment">USC_NeverMarried maritalStatus code, as used in the US Census.</span>
+   </div>
+
+   <div typeof="https://schema.datacommons.org/USC_MaritalStatusEnum" resource="https://schema.datacommons.org/USC_NowMarriedExceptSeparated">
+     <span property="rdfs:label">USC_NowMarriedExceptSeparated</span>
+     <span property="rdfs:comment">USC_NowMarriedExceptSeparated maritalStatus code, as used in the US Census.</span>
+   </div>
+
+   <div typeof="https://schema.datacommons.org/USC_MaritalStatusEnum" resource="https://schema.datacommons.org/USC_Divorced">
+     <span property="rdfs:label">USC_Divorced</span>
+     <span property="rdfs:comment">USC_Divorced maritalStatus code, as used in the US Census.</span>
+   </div>
+
+   <div typeof="https://schema.datacommons.org/USC_MaritalStatusEnum" resource="https://schema.datacommons.org/USC_Widowed">
+     <span property="rdfs:label">USC_Widowed</span>
+     <span property="rdfs:comment">USC_Widowed maritalStatus code, as used in the US Census.</span>
+   </div>
+
+   <div typeof="https://schema.datacommons.org/USC_MaritalStatusEnum" resource="https://schema.datacommons.org/USC_Separated">
+     <span property="rdfs:label">USC_Separated</span>
+     <span property="rdfs:comment">USC_Separated maritalStatus code, as used in the US Census.</span>
+   </div>
+
+
+   <!-- US Census Occupation -->
+
+    <div typeof="rdf:Property" resource="https://schema.datacommons.org/occupation">
+      <span property="rdfs:label">occupation</span>
+      <span property="rdfs:comment">indictates an occupation code, as used in US Census.</span>
+      <link property="http://schema.org/domainIncludes" href="https://schema.datacommons.org/Measurement"/>
+      <link property="http://schema.org/rangeIncludes" href="https://schema.datacommons.org/USC_OccupationEnum" />
+    </div>
+
+    <div typeof="rdfs:Class" resource="https://schema.datacommons.org/USC_OccupationEnum">
+      <span property="rdfs:label">USC_OccupationEnum</span>
+      <span property="rdfs:comment">An enumeration of occupation codes, as used in the US census.</span>
+      <link property="rdfs:subClassOf" href="http://schema.org/Enumeration"/>
+    </div>
+
+   <div typeof="https://schema.datacommons.org/USC_OccupationEnum" resource="https://schema.datacommons.org/USC_ServiceOccupations_FoodPreparationAndServingRelatedOccupations">
+       <span property="rdfs:label">USC_ServiceOccupations_FoodPreparationAndServingRelatedOccupations</span>
+       <span property="rdfs:comment">USC_ServiceOccupations_FoodPreparationAndServingRelatedOccupations occupation code, as used in the US Census.</span>
+   </div>
+
+   <div typeof="https://schema.datacommons.org/USC_OccupationEnum" resource="https://schema.datacommons.org/USC_SalesAndOfficeOccupations_SalesAndRelatedOccupations">
+       <span property="rdfs:label">USC_SalesAndOfficeOccupations_SalesAndRelatedOccupations</span>
+       <span property="rdfs:comment">USC_SalesAndOfficeOccupations_SalesAndRelatedOccupations occupation code, as used in the US Census.</span>
+   </div>
+
+   <div typeof="https://schema.datacommons.org/USC_OccupationEnum" resource="https://schema.datacommons.org/USC_ServiceOccupations_BuildingAndGroundsCleaningAndMaintenanceOccupations">
+       <span property="rdfs:label">USC_ServiceOccupations_BuildingAndGroundsCleaningAndMaintenanceOccupations</span>
+       <span property="rdfs:comment">USC_ServiceOccupations_BuildingAndGroundsCleaningAndMaintenanceOccupations occupation code, as used in the US Census.</span>
+   </div>
+
+   <div typeof="https://schema.datacommons.org/USC_OccupationEnum" resource="https://schema.datacommons.org/USC_ManagementBusinessScienceAndArtsOccupations_HealthcarePractitionersAndTechnicalOccupations">
+       <span property="rdfs:label">USC_ManagementBusinessScienceAndArtsOccupations_HealthcarePractitionersAndTechnicalOccupations</span>
+       <span property="rdfs:comment">USC_ManagementBusinessScienceAndArtsOccupations_HealthcarePractitionersAndTechnicalOccupations occupation code, as used in the US Census.</span>
+   </div>
+
+   <div typeof="https://schema.datacommons.org/USC_OccupationEnum" resource="https://schema.datacommons.org/USC_ServiceOccupations_PersonalCareAndServiceOccupations">
+       <span property="rdfs:label">USC_ServiceOccupations_PersonalCareAndServiceOccupations</span>
+       <span property="rdfs:comment">USC_ServiceOccupations_PersonalCareAndServiceOccupations occupation code, as used in the US Census.</span>
+   </div>
+
+   <div typeof="https://schema.datacommons.org/USC_OccupationEnum" resource="https://schema.datacommons.org/USC_ProductionTransportationAndMaterialMovingOccupations_MaterialMovingOccupations">
+       <span property="rdfs:label">USC_ProductionTransportationAndMaterialMovingOccupations_MaterialMovingOccupations</span>
+       <span property="rdfs:comment">USC_ProductionTransportationAndMaterialMovingOccupations_MaterialMovingOccupations occupation code, as used in the US Census.</span>
+   </div>
+
+   <div typeof="https://schema.datacommons.org/USC_OccupationEnum" resource="https://schema.datacommons.org/USC_ProductionTransportationAndMaterialMovingOccupations">
+       <span property="rdfs:label">USC_ProductionTransportationAndMaterialMovingOccupations</span>
+       <span property="rdfs:comment">USC_ProductionTransportationAndMaterialMovingOccupations occupation code, as used in the US Census.</span>
+   </div>
+
+   <div typeof="https://schema.datacommons.org/USC_OccupationEnum" resource="https://schema.datacommons.org/USC_NaturalResourcesConstructionAndMaintenanceOccupations_ConstructionAndExtractionOccupations">
+       <span property="rdfs:label">USC_NaturalResourcesConstructionAndMaintenanceOccupations_ConstructionAndExtractionOccupations</span>
+       <span property="rdfs:comment">USC_NaturalResourcesConstructionAndMaintenanceOccupations_ConstructionAndExtractionOccupations occupation code, as used in the US Census.</span>
+   </div>
+
+   <div typeof="https://schema.datacommons.org/USC_OccupationEnum" resource="https://schema.datacommons.org/USC_ProductionTransportationAndMaterialMovingOccupations_TransportationOccupations">
+       <span property="rdfs:label">USC_ProductionTransportationAndMaterialMovingOccupations_TransportationOccupations</span>
+       <span property="rdfs:comment">USC_ProductionTransportationAndMaterialMovingOccupations_TransportationOccupations occupation code, as used in the US Census.</span>
+   </div>
+
+   <div typeof="https://schema.datacommons.org/USC_OccupationEnum" resource="https://schema.datacommons.org/USC_ProductionTransportationAndMaterialMovingOccupations_ProductionOccupations">
+       <span property="rdfs:label">USC_ProductionTransportationAndMaterialMovingOccupations_ProductionOccupations</span>
+       <span property="rdfs:comment">USC_ProductionTransportationAndMaterialMovingOccupations_ProductionOccupations occupation code, as used in the US Census.</span>
+   </div>
+
+   <div typeof="https://schema.datacommons.org/USC_OccupationEnum" resource="https://schema.datacommons.org/USC_ServiceOccupations">
+       <span property="rdfs:label">USC_ServiceOccupations</span>
+       <span property="rdfs:comment">USC_ServiceOccupations occupation code, as used in the US Census.</span>
+   </div>
+
+   <div typeof="https://schema.datacommons.org/USC_OccupationEnum" resource="https://schema.datacommons.org/USC_NaturalResourcesConstructionAndMaintenanceOccupations">
+       <span property="rdfs:label">USC_NaturalResourcesConstructionAndMaintenanceOccupations</span>
+       <span property="rdfs:comment">USC_NaturalResourcesConstructionAndMaintenanceOccupations occupation code, as used in the US Census.</span>
+   </div>
+
+   <div typeof="https://schema.datacommons.org/USC_OccupationEnum" resource="https://schema.datacommons.org/USC_NaturalResourcesConstructionAndMaintenanceOccupations_InstallationMaintenanceAndRepairOccupations">
+       <span property="rdfs:label">USC_NaturalResourcesConstructionAndMaintenanceOccupations_InstallationMaintenanceAndRepairOccupations</span>
+       <span property="rdfs:comment">USC_NaturalResourcesConstructionAndMaintenanceOccupations_InstallationMaintenanceAndRepairOccupations occupation code, as used in the US Census.</span>
+   </div>
+
+   <div typeof="https://schema.datacommons.org/USC_OccupationEnum" resource="https://schema.datacommons.org/USC_NaturalResourcesConstructionAndMaintenanceOccupations_FarmingFishingAndForestryOccupations">
+       <span property="rdfs:label">USC_NaturalResourcesConstructionAndMaintenanceOccupations_FarmingFishingAndForestryOccupations</span>
+       <span property="rdfs:comment">USC_NaturalResourcesConstructionAndMaintenanceOccupations_FarmingFishingAndForestryOccupations occupation code, as used in the US Census.</span>
+   </div>
+
+   <div typeof="https://schema.datacommons.org/USC_OccupationEnum" resource="https://schema.datacommons.org/USC_ServiceOccupations_ProtectiveServiceOccupations">
+       <span property="rdfs:label">USC_ServiceOccupations_ProtectiveServiceOccupations</span>
+       <span property="rdfs:comment">USC_ServiceOccupations_ProtectiveServiceOccupations occupation code, as used in the US Census.</span>
+   </div>
+
+   <div typeof="https://schema.datacommons.org/USC_OccupationEnum" resource="https://schema.datacommons.org/USC_ManagementBusinessScienceAndArtsOccupations">
+       <span property="rdfs:label">USC_ManagementBusinessScienceAndArtsOccupations</span>
+       <span property="rdfs:comment">USC_ManagementBusinessScienceAndArtsOccupations occupation code, as used in the US Census.</span>
+   </div>
+
+   <div typeof="https://schema.datacommons.org/USC_OccupationEnum" resource="https://schema.datacommons.org/USC_SalesAndOfficeOccupations_OfficeAndAdministrativeSupportOccupations">
+       <span property="rdfs:label">USC_SalesAndOfficeOccupations_OfficeAndAdministrativeSupportOccupations</span>
+       <span property="rdfs:comment">USC_SalesAndOfficeOccupations_OfficeAndAdministrativeSupportOccupations occupation code, as used in the US Census.</span>
+   </div>
+
+   <div typeof="https://schema.datacommons.org/USC_OccupationEnum" resource="https://schema.datacommons.org/USC_ManagementBusinessScienceAndArtsOccupations_ManagementBusinessAndFinancialOccupations">
+       <span property="rdfs:label">USC_ManagementBusinessScienceAndArtsOccupations_ManagementBusinessAndFinancialOccupations</span>
+       <span property="rdfs:comment">USC_ManagementBusinessScienceAndArtsOccupations_ManagementBusinessAndFinancialOccupations occupation code, as used in the US Census.</span>
+   </div>
+
+   <div typeof="https://schema.datacommons.org/USC_OccupationEnum" resource="https://schema.datacommons.org/USC_ManagementBusinessScienceAndArtsOccupations_ComputerEngineeringAndScienceOccupations">
+       <span property="rdfs:label">USC_ManagementBusinessScienceAndArtsOccupations_ComputerEngineeringAndScienceOccupations</span>
+       <span property="rdfs:comment">USC_ManagementBusinessScienceAndArtsOccupations_ComputerEngineeringAndScienceOccupations occupation code, as used in the US Census.</span>
+   </div>
+
+   <div typeof="https://schema.datacommons.org/USC_OccupationEnum" resource="https://schema.datacommons.org/USC_SalesAndOfficeOccupations">
+       <span property="rdfs:label">USC_SalesAndOfficeOccupations</span>
+       <span property="rdfs:comment">USC_SalesAndOfficeOccupations occupation code, as used in the US Census.</span>
+   </div>
+
+   <div typeof="https://schema.datacommons.org/USC_OccupationEnum" resource="https://schema.datacommons.org/USC_ManagementBusinessScienceAndArtsOccupations_EducationLegalCommunityServiceArtsAndMediaOccupations">
+       <span property="rdfs:label">USC_ManagementBusinessScienceAndArtsOccupations_EducationLegalCommunityServiceArtsAndMediaOccupations</span>
+       <span property="rdfs:comment">USC_ManagementBusinessScienceAndArtsOccupations_EducationLegalCommunityServiceArtsAndMediaOccupations occupation code, as used in the US Census.</span>
+   </div>
+
+   <div typeof="https://schema.datacommons.org/USC_OccupationEnum" resource="https://schema.datacommons.org/USC_ServiceOccupations_HealthcareSupportOccupations">
+       <span property="rdfs:label">USC_ServiceOccupations_HealthcareSupportOccupations</span>
+       <span property="rdfs:comment">USC_ServiceOccupations_HealthcareSupportOccupations occupation code, as used in the US Census.</span>
+   </div>
+
+   <!-- US Census Party Affiliation -->
+
+
+    <div typeof="rdf:Property" resource="https://schema.datacommons.org/partyAffiliation">
+     <span property="rdfs:label">partyAffiliation</span>
+     <span property="rdfs:comment">indictates a partyAffiliation code, as used in US Census.</span>
+     <link property="http://schema.org/domainIncludes" href="https://schema.datacommons.org/Measurement"/>
+     <link property="http://schema.org/rangeIncludes" href="https://schema.datacommons.org/USC_PartyAffiliationEnum" />
+    </div>
+
+    <div typeof="rdfs:Class" resource="https://schema.datacommons.org/USC_PartyAffiliationEnum">
+     <span property="rdfs:label">USC_PartyAffiliationEnum</span>
+     <span property="rdfs:comment">An enumeration of party affiliation codes, as used in the US census.</span>
+     <link property="rdfs:subClassOf" href="http://schema.org/Enumeration"/>
+    </div>
+
+    <div typeof="https://schema.datacommons.org/USC_PartyAffiliationEnum" resource="https://schema.datacommons.org/US_ConstitutionParty">
+        <span property="rdfs:label">US_ConstitutionParty</span>
+        <span property="rdfs:comment">US_ConstitutionParty party affilation code, as used in the US Census.</span>
+    </div>
+
+    <div typeof="https://schema.datacommons.org/USC_PartyAffiliationEnum" resource="https://schema.datacommons.org/US_DemocraticParty">
+        <span property="rdfs:label">US_DemocraticParty</span>
+        <span property="rdfs:comment">US_DemocraticParty party affilation code, as used in the US Census.</span>
+    </div>
+
+    <div typeof="https://schema.datacommons.org/USC_PartyAffiliationEnum" resource="https://schema.datacommons.org/US_PeaceandFreedomParty">
+        <span property="rdfs:label">US_PeaceandFreedomParty</span>
+        <span property="rdfs:comment">US_PeaceandFreedomParty party affilation code, as used in the US Census.</span>
+    </div>
+
+    <div typeof="https://schema.datacommons.org/USC_PartyAffiliationEnum" resource="https://schema.datacommons.org/US_RepublicanParty">
+        <span property="rdfs:label">US_RepublicanParty</span>
+        <span property="rdfs:comment">US_RepublicanParty party affilation code, as used in the US Census.</span>
+    </div>
+
+    <div typeof="https://schema.datacommons.org/USC_PartyAffiliationEnum" resource="https://schema.datacommons.org/US_GreenParty">
+        <span property="rdfs:label">US_GreenParty</span>
+        <span property="rdfs:comment">US_GreenParty party affilation code, as used in the US Census.</span>
+    </div>
+
+    <div typeof="https://schema.datacommons.org/USC_PartyAffiliationEnum" resource="https://schema.datacommons.org/US_OtherParty">
+        <span property="rdfs:label">US_OtherParty</span>
+        <span property="rdfs:comment">US_OtherParty party affilation code, as used in the US Census.</span>
+    </div>
+
+    <div typeof="https://schema.datacommons.org/USC_PartyAffiliationEnum" resource="https://schema.datacommons.org/US_IndependenceParty">
+        <span property="rdfs:label">US_IndependenceParty</span>
+        <span property="rdfs:comment">US_IndependenceParty party affilation code, as used in the US Census.</span>
+    </div>
+
+    <div typeof="https://schema.datacommons.org/USC_PartyAffiliationEnum" resource="https://schema.datacommons.org/US_LibertarianParty">
+        <span property="rdfs:label">US_LibertarianParty</span>
+        <span property="rdfs:comment">US_LibertarianParty party affilation code, as used in the US Census.</span>
+    </div>
+
+    <div typeof="https://schema.datacommons.org/USC_PartyAffiliationEnum" resource="https://schema.datacommons.org/US_Unaffiliated">
+        <span property="rdfs:label">US_Unaffiliated</span>
+        <span property="rdfs:comment">US_Unaffiliated party affilation code, as used in the US Census.</span>
+    </div>
+
+    <div typeof="https://schema.datacommons.org/USC_PartyAffiliationEnum" resource="https://schema.datacommons.org/US_AmericanIndependentParty">
+        <span property="rdfs:label">US_AmericanIndependentParty</span>
+        <span property="rdfs:comment">US_AmericanIndependentParty party affilation code, as used in the US Census.</span>
+    </div>
+
+    <div typeof="https://schema.datacommons.org/USC_PartyAffiliationEnum" resource="https://schema.datacommons.org/US_MinorParty">
+        <span property="rdfs:label">US_MinorParty</span>
+        <span property="rdfs:comment">US_MinorParty party affilation code, as used in the US Census.</span>
+    </div>
+
+    <div typeof="https://schema.datacommons.org/USC_PartyAffiliationEnum" resource="https://schema.datacommons.org/US_WomensEqualityParty">
+        <span property="rdfs:label">US_WomensEqualityParty</span>
+        <span property="rdfs:comment">US_WomensEqualityParty party affilation code, as used in the US Census.</span>
+    </div>
+
+    <div typeof="https://schema.datacommons.org/USC_PartyAffiliationEnum" resource="https://schema.datacommons.org/US_WorkingFamiliesParty">
+        <span property="rdfs:label">US_WorkingFamiliesParty</span>
+        <span property="rdfs:comment">US_WorkingFamiliesParty party affilation code, as used in the US Census.</span>
+    </div>
+
+    <div typeof="https://schema.datacommons.org/USC_PartyAffiliationEnum" resource="https://schema.datacommons.org/US_ReformParty">
+        <span property="rdfs:label">US_ReformParty</span>
+        <span property="rdfs:comment">US_ReformParty party affilation code, as used in the US Census.</span>
+    </div>
+
+    <div typeof="https://schema.datacommons.org/USC_PartyAffiliationEnum" resource="https://schema.datacommons.org/US_ConservativeParty">
+        <span property="rdfs:label">US_ConservativeParty</span>
+        <span property="rdfs:comment">US_ConservativeParty party affilation code, as used in the US Census.</span>
+    </div>
+
+    <div typeof="https://schema.datacommons.org/USC_PartyAffiliationEnum" resource="https://schema.datacommons.org/US_GreenLibertarianParty">
+        <span property="rdfs:label">US_GreenLibertarianParty</span>
+        <span property="rdfs:comment">US_GreenLibertarianParty party affilation code, as used in the US Census.</span>
+    </div>
+
+
+    <!-- US Census Poverty status -->
+
+    <div typeof="rdf:Property" resource="https://schema.datacommons.org/povertyStatus">
+     <span property="rdfs:label">povertyStatus</span>
+     <span property="rdfs:comment">indictates a povertyStatus code, as used in US Census.</span>
+     <link property="http://schema.org/domainIncludes" href="https://schema.datacommons.org/Measurement"/>
+     <link property="http://schema.org/rangeIncludes" href="https://schema.datacommons.org/USC_PovertyStatusEnum" />
+    </div>
+
+    <div typeof="rdfs:Class" resource="https://schema.datacommons.org/USC_PovertyStatusEnum">
+     <span property="rdfs:label">USC_PovertyStatusEnum</span>
+     <span property="rdfs:comment">An enumeration of poverty status codes, as used in the US census.</span>
+     <link property="rdfs:subClassOf" href="http://schema.org/Enumeration"/>
+    </div>
+
+    <div typeof="https://schema.datacommons.org/USC_PovertyStatusEnum" resource="https://schema.datacommons.org/USC_IncomeInThePast12MonthsAtOrAbovePovertyLevel">
+        <span property="rdfs:label">USC_IncomeInThePast12MonthsAtOrAbovePovertyLevel</span>
+        <span property="rdfs:comment">USC_IncomeInThePast12MonthsAtOrAbovePovertyLevel party affilation code, as used in the US Census.</span>
+    </div>
+
+    <div typeof="https://schema.datacommons.org/USC_PovertyStatusEnum" resource="https://schema.datacommons.org/USC_IncomeInThePast12MonthsBelowPovertyLevel">
+        <span property="rdfs:label">USC_IncomeInThePast12MonthsBelowPovertyLevel</span>
+        <span property="rdfs:comment">USC_IncomeInThePast12MonthsBelowPovertyLevel party affilation code, as used in the US Census.</span>
+    </div>
+
+
+    <!-- US Census race status -->
+
+    <div typeof="rdf:Property" resource="https://schema.datacommons.org/race">
+     <span property="rdfs:label">race</span>
+     <span property="rdfs:comment">indictates a race code, as used in US Census.</span>
+     <link property="http://schema.org/domainIncludes" href="https://schema.datacommons.org/Measurement"/>
+     <link property="http://schema.org/rangeIncludes" href="https://schema.datacommons.org/USC_RaceCodeEnum" />
+    </div>
+
+    <div typeof="rdfs:Class" resource="https://schema.datacommons.org/USC_RaceCodeEnum">
+     <span property="rdfs:label">USC_RaceCodeEnum</span>
+     <span property="rdfs:comment">An enumeration of race codes, as used in the US census.</span>
+     <link property="rdfs:subClassOf" href="http://schema.org/Enumeration"/>
+    </div>
+
+    <div typeof="https://schema.datacommons.org/USC_RaceCodeEnum" resource="https://schema.datacommons.org/USC_BlackOrAfricanAmericanAlone">
+     <span property="rdfs:label">USC_BlackOrAfricanAmericanAlone</span>
+     <span property="rdfs:comment">USC_BlackOrAfricanAmericanAlone race code, as used in the US Census.</span>
+   </div>
+
+    <div typeof="https://schema.datacommons.org/USC_RaceCodeEnum" resource="https://schema.datacommons.org/USC_SomeOtherRaceAlone">
+     <span property="rdfs:label">USC_SomeOtherRaceAlone</span>
+     <span property="rdfs:comment">USC_SomeOtherRaceAlone race code, as used in the US Census.</span>
+    </div>
+
+    <div typeof="https://schema.datacommons.org/USC_RaceCodeEnum" resource="https://schema.datacommons.org/USC_WhiteAlone">
+     <span property="rdfs:label">USC_WhiteAlone</span>
+     <span property="rdfs:comment">USC_WhiteAlone race code, as used in the US Census.</span>
+    </div>
+
+    <div typeof="https://schema.datacommons.org/USC_RaceCodeEnum" resource="https://schema.datacommons.org/USC_AmericanIndianAndAlaskaNativeAlone">
+     <span property="rdfs:label">USC_AmericanIndianAndAlaskaNativeAlone</span>
+     <span property="rdfs:comment">USC_AmericanIndianAndAlaskaNativeAlone race code, as used in the US Census.</span>
+    </div>
+
+    <div typeof="https://schema.datacommons.org/USC_RaceCodeEnum" resource="https://schema.datacommons.org/USC_NativeHawaiianAndOtherPacificIslanderAlone">
+     <span property="rdfs:label">USC_NativeHawaiianAndOtherPacificIslanderAlone</span>
+     <span property="rdfs:comment">USC_NativeHawaiianAndOtherPacificIslanderAlone race code, as used in the US Census.</span>
+    </div>
+
+    <div typeof="https://schema.datacommons.org/USC_RaceCodeEnum" resource="https://schema.datacommons.org/USC_TwoOrMoreRaces">
+     <span property="rdfs:label">USC_TwoOrMoreRaces</span>
+     <span property="rdfs:comment">USC_TwoOrMoreRaces race code, as used in the US Census.</span>
+    </div>
+
+    <div typeof="https://schema.datacommons.org/USC_RaceCodeEnum" resource="https://schema.datacommons.org/USC_AsianAlone">
+     <span property="rdfs:label">USC_AsianAlone</span>
+     <span property="rdfs:comment">USC_AsianAlone race code, as used in the US Census.</span>
+    </div>
+
+
+    <!--  US Census School Enrollment -->
+
+    <div typeof="rdf:Property" resource="https://schema.datacommons.org/schoolEnrollment">
+     <span property="rdfs:label">schoolEnrollment</span>
+     <span property="rdfs:comment">indictates a school enrollment code, as used in US Census.</span>
+     <link property="http://schema.org/domainIncludes" href="https://schema.datacommons.org/Measurement"/>
+     <link property="http://schema.org/rangeIncludes" href="https://schema.datacommons.org/USC_SchoolEnrollmentEnum" />
+    </div>
+
+    <div typeof="rdfs:Class" resource="https://schema.datacommons.org/USC_SchoolEnrollmentEnum">
+     <span property="rdfs:label">USC_SchoolEnrollmentEnum</span>
+     <span property="rdfs:comment">An enumeration of school enrollment codes, as used in the US census.</span>
+     <link property="rdfs:subClassOf" href="http://schema.org/Enumeration"/>
+    </div>
+
+    <div typeof="https://schema.datacommons.org/USC_SchoolEnrollmentEnum" resource="https://schema.datacommons.org/USC_EnrolledInSchool_GraduateOrProfessionalSchool">
+      <span property="rdfs:label">USC_EnrolledInSchool_GraduateOrProfessionalSchool</span>
+      <span property="rdfs:comment">USC_EnrolledInSchool_GraduateOrProfessionalSchool school enrollment code, as used in the US Census.</span>
+    </div>
+
+
+    <div typeof="https://schema.datacommons.org/USC_SchoolEnrollmentEnum" resource="https://schema.datacommons.org/USC_EnrolledInSchool_EnrolledInGrade5ToGrade8">
+      <span property="rdfs:label">USC_EnrolledInSchool_EnrolledInGrade5ToGrade8</span>
+      <span property="rdfs:comment">USC_EnrolledInSchool_EnrolledInGrade5ToGrade8 school enrollment code, as used in the US Census.</span>
+    </div>
+
+
+    <div typeof="https://schema.datacommons.org/USC_SchoolEnrollmentEnum" resource="https://schema.datacommons.org/USC_EnrolledInSchool_EnrolledInGrade1ToGrade4">
+      <span property="rdfs:label">USC_EnrolledInSchool_EnrolledInGrade1ToGrade4</span>
+      <span property="rdfs:comment">USC_EnrolledInSchool_EnrolledInGrade1ToGrade4 school enrollment code, as used in the US Census.</span>
+    </div>
+
+
+    <div typeof="https://schema.datacommons.org/USC_SchoolEnrollmentEnum" resource="https://schema.datacommons.org/USC_EnrolledInSchool_EnrolledInNurserySchoolPreschool">
+      <span property="rdfs:label">USC_EnrolledInSchool_EnrolledInNurserySchoolPreschool</span>
+      <span property="rdfs:comment">USC_EnrolledInSchool_EnrolledInNurserySchoolPreschool school enrollment code, as used in the US Census.</span>
+    </div>
+
+
+    <div typeof="https://schema.datacommons.org/USC_SchoolEnrollmentEnum" resource="https://schema.datacommons.org/USC_EnrolledInSchool">
+      <span property="rdfs:label">USC_EnrolledInSchool</span>
+      <span property="rdfs:comment">USC_EnrolledInSchool school enrollment code, as used in the US Census.</span>
+    </div>
+
+
+    <div typeof="https://schema.datacommons.org/USC_SchoolEnrollmentEnum" resource="https://schema.datacommons.org/USC_EnrolledInSchool_EnrolledInGrade9ToGrade12">
+      <span property="rdfs:label">USC_EnrolledInSchool_EnrolledInGrade9ToGrade12</span>
+      <span property="rdfs:comment">USC_EnrolledInSchool_EnrolledInGrade9ToGrade12 school enrollment code, as used in the US Census.</span>
+    </div>
+
+
+    <div typeof="https://schema.datacommons.org/USC_SchoolEnrollmentEnum" resource="https://schema.datacommons.org/USC_EnrolledInSchool_EnrolledInKindergarten">
+      <span property="rdfs:label">USC_EnrolledInSchool_EnrolledInKindergarten</span>
+      <span property="rdfs:comment">USC_EnrolledInSchool_EnrolledInKindergarten school enrollment code, as used in the US Census.</span>
+    </div>
+
+
+    <div typeof="https://schema.datacommons.org/USC_SchoolEnrollmentEnum" resource="https://schema.datacommons.org/USC_NotEnrolledInSchool">
+      <span property="rdfs:label">USC_NotEnrolledInSchool</span>
+      <span property="rdfs:comment">USC_NotEnrolledInSchool school enrollment code, as used in the US Census.</span>
+    </div>
+
+
+    <div typeof="https://schema.datacommons.org/USC_SchoolEnrollmentEnum" resource="https://schema.datacommons.org/USC_EnrolledInSchool_EnrolledInCollegeUndergraduateYears">
+      <span property="rdfs:label">USC_EnrolledInSchool_EnrolledInCollegeUndergraduateYears</span>
+      <span property="rdfs:comment">USC_EnrolledInSchool_EnrolledInCollegeUndergraduateYears school enrollment code, as used in the US Census.</span>
+    </div>
+
+
+
+    <!-- US Census Veterans -->
+
+    <div typeof="rdf:Property" resource="https://schema.datacommons.org/veteran">
+     <span property="rdfs:label">veteran</span>
+     <span property="rdfs:comment">indictates a veteran status code, as used in US Census.</span>
+     <link property="http://schema.org/domainIncludes" href="https://schema.datacommons.org/Measurement"/>
+     <link property="http://schema.org/rangeIncludes" href="https://schema.datacommons.org/USC_VeteranStatusEnum" />
+    </div>
+
+    <div typeof="rdfs:Class" resource="https://schema.datacommons.org/USC_VeteranStatusEnum">
+     <span property="rdfs:label">USC_VeteranStatusEnum</span>
+     <span property="rdfs:comment">An enumeration of veteran status codes, as used in the US census.</span>
+     <link property="rdfs:subClassOf" href="http://schema.org/Enumeration"/>
+    </div>
+
+    <div typeof="https://schema.datacommons.org/USC_VeteranStatusEnum" resource="https://schema.datacommons.org/USC_Nonveteran">
+      <span property="rdfs:label">USC_Nonveteran</span>
+      <span property="rdfs:comment">USC_Nonveteran school enrollment code, as used in the US Census.</span>
+    </div>
+
+    <div typeof="https://schema.datacommons.org/USC_VeteranStatusEnum" resource="https://schema.datacommons.org/USC_Veteran">
+      <span property="rdfs:label">USC_Veteran</span>
+      <span property="rdfs:comment">USC_Veteran school enrollment code, as used in the US Census.</span>
+    </div>
+
+
+    <!-- US Census voter status -->
+
+    <div typeof="rdf:Property" resource="https://schema.datacommons.org/voterStatus">
+     <span property="rdfs:label">voterStatus</span>
+     <span property="rdfs:comment">indictates a voter Status code, as used in US Census.</span>
+     <link property="http://schema.org/domainIncludes" href="https://schema.datacommons.org/Measurement"/>
+     <link property="http://schema.org/rangeIncludes" href="https://schema.datacommons.org/USC_VoterStatusEnum" />
+    </div>
+
+    <div typeof="rdfs:Class" resource="https://schema.datacommons.org/USC_VoterStatusEnum">
+     <span property="rdfs:label">USC_VoterStatusEnum</span>
+     <span property="rdfs:comment">An enumeration of voter status codes, as used in the US census. Note: this representation contains only one code.</span>
+     <link property="rdfs:subClassOf" href="http://schema.org/Enumeration"/>
+    </div>
+
+    <div typeof="https://schema.datacommons.org/USC_VoterStatusEnum" resource="https://schema.datacommons.org/USC_Registered">
+      <span property="rdfs:label">USC_Registered</span>
+      <span property="rdfs:comment">USC_Registered voter status code, as used in the US Census.</span>
+    </div>
 
     <!-- WEATHER RELATED -->
+    <!-- TODO: distinguish NOAA from other dataset codes more clearly. -->
 
     <div typeof="rdfs:Class" resource="https://schema.datacommons.org/DepthValue">
       <span property="rdfs:label">DepthValue</span>
@@ -297,43 +1251,43 @@
       <link property="http://schema.org/rangeIncludes" href="http://schema.org/VelocityValue"/>
     </div>
 
-    <div typeof="rdfs:Class" resource="https://schema.datacommons.org/NOAAWeatherConditionType">
-      <span property="rdfs:label">NOAAWeatherConditionType</span>
+    <div typeof="rdfs:Class" resource="https://schema.datacommons.org/NOAA_WeatherConditionEnum">
+      <span property="rdfs:label">NOAA_WeatherConditionEnum</span>
       <span property="rdfs:comment">An enumeration of weather conditions.</span>
       <link property="rdfs:subClassOf" href="http://schema.org/Enumeration"/>
     </div>
 
-    <div typeof="https://schema.datacommons.org/NOAAWeatherConditionType" resource="https://schema.datacommons.org/NOAA_Fog">
+    <div typeof="https://schema.datacommons.org/NOAA_WeatherConditionEnum" resource="https://schema.datacommons.org/Fog">
         <span property="rdfs:label">Fog</span>
         <span property="rdfs:comment">Foggy conditions.</span>
     </div>
 
-    <div typeof="https://schema.datacommons.org/NOAAWeatherConditionType" resource="https://schema.datacommons.org/NOAA_Hail">
+    <div typeof="https://schema.datacommons.org/NOAA_WeatherConditionEnum" resource="https://schema.datacommons.org/Hail">
         <span property="rdfs:label">Hail</span>
         <span property="rdfs:comment">Hail.</span>
     </div>
 
-    <div typeof="https://schema.datacommons.org/NOAAWeatherConditionType" resource="https://schema.datacommons.org/NOAA_Rain">
+    <div typeof="https://schema.datacommons.org/NOAA_WeatherConditionEnum" resource="https://schema.datacommons.org/Rain">
         <span property="rdfs:label">Rain</span>
         <span property="rdfs:comment">Rainy conditions.</span>
     </div>
 
-    <div typeof="https://schema.datacommons.org/NOAAWeatherConditionType" resource="https://schema.datacommons.org/NOAA_Snow">
+    <div typeof="https://schema.datacommons.org/NOAA_WeatherConditionEnum" resource="https://schema.datacommons.org/Snow">
         <span property="rdfs:label">Snow</span>
         <span property="rdfs:comment">Snowy conditions.</span>
     </div>
 
-    <div typeof="https://schema.datacommons.org/NOAAWeatherConditionType" resource="https://schema.datacommons.org/NOAA_Thunder">
+    <div typeof="https://schema.datacommons.org/NOAA_WeatherConditionEnum" resource="https://schema.datacommons.org/Thunder">
         <span property="rdfs:label">Thunder</span>
         <span property="rdfs:comment">Thunder.</span>
     </div>
 
-    <div typeof="https://schema.datacommons.org/NOAAWeatherConditionType" resource="https://schema.datacommons.org/NOAA_Tornado">
+    <div typeof="https://schema.datacommons.org/NOAA_WeatherConditionEnum" resource="https://schema.datacommons.org/Tornado">
         <span property="rdfs:label">Tornado</span>
         <span property="rdfs:comment">Tornado.</span>
     </div>
 
-    <div typeof="https://schema.datacommons.org/NOAAWeatherConditionType" resource="https://schema.datacommons.org/NOAA_Windy">
+    <div typeof="https://schema.datacommons.org/NOAA_WeatherConditionEnum" resource="https://schema.datacommons.org/Windy">
         <span property="rdfs:label">Windy</span>
         <span property="rdfs:comment">Windy conditions.</span>
     </div>
@@ -403,7 +1357,7 @@
       <span property="rdfs:label">weatherCondition</span>
       <span property="rdfs:comment">The general description of the weather condition expressed as an enumerative value.</span>
       <link property="http://schema.org/domainIncludes" href="https://schema.datacommons.org/WeatherMeasurement"/>
-      <link property="http://schema.org/rangeIncludes" href="https://schema.datacommons.org/NOAAWeatherConditionType"/>
+      <link property="http://schema.org/rangeIncludes" href="https://schema.datacommons.org/NOAA_WeatherConditionEnum"/>
     </div>
 
     <div typeof="rdf:Property" resource="https://schema.datacommons.org/windMeasurement">
