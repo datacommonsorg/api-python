@@ -14,13 +14,16 @@
 
 """Test for DataCommons API."""
 
-from datacommons import Client
-from datacommons import _auth
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+
 import mock
 import pandas as pd
 import unittest
 
 from pandas.util.testing import assert_frame_equal
+import datacommons
 
 
 class MockQuery(object):
@@ -77,10 +80,10 @@ class AppTest(unittest.TestCase):
   def test_query(self):
     # Setup handler mocks.
     mock_resource = MockResource()
-    _auth.do_auth = mock.Mock(return_value=mock_resource)
+    datacommons._auth.do_auth = mock.Mock(return_value=mock_resource)
 
     # Initialize, and validate.
-    dc = Client()
+    dc = datacommons.Client()
     self.assertEqual(True, dc._inited)
     self.assertEqual({
         'State': {
