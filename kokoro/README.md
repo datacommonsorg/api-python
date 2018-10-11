@@ -1,6 +1,6 @@
 # Data Commons presubmit tests and continuous integration
 
-![Kokoro Ubuntu](https://storage.googleapis.com/datacommons-ci/dev.svg)
+![Kokoro Ubuntu](https://storage.googleapis.com/datacommons-ci/status.svg)
 
 Data Commons is tested continuously with
 [Kokoro](https://www.cloudbees.com/sites/default/files/2016-jenkins-world-jenkins_inside_google.pdf)
