@@ -464,7 +464,7 @@ class Client(object):
                        max_rows=100):
     """A utility function that executes the given query and adds a new column.
 
-    It seends an request to the API server to execute the given query and joins
+    It sends an request to the API server to execute the given query and joins
     a new column with the result and type data along with the values in the seed
     column.
 
