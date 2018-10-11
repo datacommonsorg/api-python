@@ -32,7 +32,7 @@ REQUIRED = [
 ]
 
 PACKAGES = ['datacommons']
-PACKAGE_DIR = {'datacommons':'datacommons'}
+PACKAGE_DIR = {'datacommons': 'datacommons'}
 
 setup(
     name=NAME,

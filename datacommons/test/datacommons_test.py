@@ -11,15 +11,17 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 """Test for DataCommons API."""
 
-from datacommons import Client
-from datacommons import _auth
-import mock
-import pandas as pd
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+
 import unittest
 
+import datacommons
+import mock
+import pandas as pd
 from pandas.util.testing import assert_frame_equal
 
 
@@ -77,10 +79,10 @@ class AppTest(unittest.TestCase):
   def test_query(self):
     # Setup handler mocks.
     mock_resource = MockResource()
-    _auth.do_auth = mock.Mock(return_value=mock_resource)
+    datacommons._auth.do_auth = mock.Mock(return_value=mock_resource)
 
     # Initialize, and validate.
-    dc = Client()
+    dc = datacommons.Client()
     self.assertEqual(True, dc._inited)
     self.assertEqual({
         'State': {
@@ -98,7 +100,9 @@ class AppTest(unittest.TestCase):
     continent_query = ('SELECT ?name ?area_sq_mi, typeOf ?c Continent, '
                        'name ?c ?name, area ?c ?area, dcid ?c "X123"')
     mock_resource.add_query({
-        'options': {'row_count_limit': 100},
+        'options': {
+            'row_count_limit': 100
+        },
         'query': continent_query
     }, {
         'rows': [{

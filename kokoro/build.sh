@@ -11,6 +11,33 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""Data Commons module."""
 
-from .datacommons import Client
+#!/bin/bash
+
+# Fail on any error.
+set -e
+
+# Display commands to stderr.
+set -x
+
+PLATFORM=`uname | tr '[:upper:]' '[:lower:]'`
+if [[ $PLATFORM != 'linux' ]]; then
+  echo "This can run only on linux!"
+  exit -1;
+fi
+
+echo "bazel binary: $(which bazel)"
+bazel version
+
+echo "python binary: $(which python)"
+python --version
+
+# Change to repo root
+cd github/datacommons
+
+# Build and test.
+echo "Building..."
+time bazel build //... || exit 1
+
+echo "Testing..."
+time bazel test //... || exit 1
