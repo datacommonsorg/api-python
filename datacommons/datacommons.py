@@ -25,6 +25,8 @@ from itertools import product
 from . import _auth
 import pandas as pd
 
+_PLACES = ('City', 'County', 'State', 'Country', 'Continent')
+
 _CLIENT_ID = ('66054275879-a0nalqfe2p9shlv4jpra5jekfkfnr8ug.apps.googleusercontent.com')
 _CLIENT_SECRET = 'fuJy7JtECndEXgtQA46hHqqa'
 _API_ROOT = 'https://datcom-api.appspot.com'
@@ -434,7 +436,7 @@ class Client(object):
       max_rows: max number of returend results.
 
     Returns:
-      A pandas.DataFrame with state dcids
+      A pandas.DataFrame with state dcids.
     """
     assert self._inited, 'Initialization was unsuccessful, cannot execute Query'
     query = ('SELECT ?{new_col_name},'
@@ -451,6 +453,52 @@ class Client(object):
       raise RuntimeError('Execute query %s got an error:\n%s' % (query, e))
 
     return pd.concat([type_row, dcid_column], ignore_index=True)
+
+
+  def get_contained_places(self,
+                           place_type,
+                           place_name,
+                           contained_place_type,
+                           col_name,
+                           max_rows=100):
+    """Get a list of places that are contained in a higher level geo places.
+
+    Args:
+      place_type: A string of the given place type, like "Country".
+      place_name: The name of the give place name.
+      contained_place_type: A string of the contained place type.
+      col_name: Column name for the returned state column.
+      max_rows: max number of returend results.
+
+    Returns:
+      A pandas.DataFrame with dcids of the contained place.
+    """
+    assert self._inited, 'Initialization was unsuccessful, cannot execute Query'
+    assert place_type in _PLACES and contained_place_type in _PLACES, (
+        'Input place types are not supported')
+    place_type_ind = _PLACES.index(place_type)
+    contained_place_type_ind = _PLACES.index(contained_place_type)
+    assert contained_place_type_ind < place_type_ind, (
+        'place_type should be of higher level than contained_place_type')
+    query = ('SELECT ?{col_name},'
+             'typeOf ?node_{contained_place_type} {contained_place_type},'
+             'dcid ?node_{contained_place_type} ?{col_name},').format(
+                 col_name=col_name,
+                 contained_place_type=contained_place_type)
+    for i in range(contained_place_type_ind, place_type_ind):
+      query += 'containedInPlace ?node_{child} ?node_{parent},'.format(
+          child=_PLACES[i], parent=_PLACES[i+1])
+    query += 'name ?node_{place_type} "{place_name}"'.format(
+        place_type=place_type, place_name=place_name)
+    type_row = pd.DataFrame(data=[{col_name: contained_place_type}])
+
+    try:
+      dcid_column = self.query(query, max_rows)
+    except RuntimeError as e:
+      raise RuntimeError('Execute query %s got an error:\n%s' % (query, e))
+
+    return pd.concat([type_row, dcid_column], ignore_index=True)
+
 
   # ------------------------ INTERNAL HELPER FUNCTIONS ------------------------
 
