@@ -25,10 +25,9 @@ from itertools import product
 from . import _auth
 import pandas as pd
 
-_CLIENT_ID = ('381568890662-ff9evnle0lj0oqttr67p2h6882d9ensr'
-              '.apps.googleusercontent.com')
-_CLIENT_SECRET = '77HJA4S5m48Z98UKkW_o-jAY'
-_API_ROOT = 'https://datcom-api-sandbox.appspot.com'
+_CLIENT_ID = ('66054275879-a0nalqfe2p9shlv4jpra5jekfkfnr8ug.apps.googleusercontent.com')
+_CLIENT_SECRET = 'fuJy7JtECndEXgtQA46hHqqa'
+_API_ROOT = 'https://datcom-api.appspot.com'
 
 _MICRO_SECONDS = 1000000
 _EPOCH_START = datetime.datetime(year=1970, month=1, day=1)
