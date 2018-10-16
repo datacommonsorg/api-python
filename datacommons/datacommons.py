@@ -482,7 +482,7 @@ class Client(object):
     place_type_ind = _PLACES.index(place_type)
     container_type_ind = _PLACES.index(container_type)
     assert container_type_ind > place_type_ind, (
-        'Asked place should be of lower level type of the container')
+        'Requested place type should be of a lower level than the container')
 
     # Do the actual query.
     query = ('SELECT ?{col_name},'
