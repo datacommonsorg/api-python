@@ -25,6 +25,8 @@ from itertools import product
 from . import _auth
 import pandas as pd
 
+_PLACES = ('City', 'County', 'State', 'Country', 'Continent')
+
 _CLIENT_ID = ('66054275879-a0nalqfe2p9shlv4jpra5jekfkfnr8ug.apps.googleusercontent.com')
 _CLIENT_SECRET = 'fuJy7JtECndEXgtQA46hHqqa'
 _API_ROOT = 'https://datcom-api.appspot.com'
@@ -434,7 +436,7 @@ class Client(object):
       max_rows: max number of returend results.
 
     Returns:
-      A pandas.DataFrame with state dcids
+      A pandas.DataFrame with state dcids.
     """
     assert self._inited, 'Initialization was unsuccessful, cannot execute Query'
     query = ('SELECT ?{new_col_name},'
@@ -451,6 +453,56 @@ class Client(object):
       raise RuntimeError('Execute query %s got an error:\n%s' % (query, e))
 
     return pd.concat([type_row, dcid_column], ignore_index=True)
+
+
+  def get_places_in(self, place_type, container_dcid, col_name, max_rows=100):
+    """Get a list of places that are contained in a higher level geo places.
+
+    Args:
+      place_type: The place type, like "City".
+      container_dcid: The dcid of the container place.
+      col_name: Column name for the returned state column.
+      max_rows: max number of returend results.
+
+    Returns:
+      A pandas.DataFrame with dcids of the contained place.
+    """
+    assert self._inited, 'Initialization was unsuccessful, cannot execute Query'
+    assert place_type in _PLACES, 'Input place types are not supported'
+
+    # Get the type of the container place.
+    type_query = 'SELECT ?type, dcid ?node {dcid}, subType ?node ?type'.format(
+        dcid=container_dcid)
+    query_result = self.query(type_query)
+    assert query_result['type'].count() == 1, (
+        'Type of the container dcid not found')
+    container_type = query_result['type'][0]
+
+    # Sanity check the type information.
+    place_type_ind = _PLACES.index(place_type)
+    container_type_ind = _PLACES.index(container_type)
+    assert container_type_ind > place_type_ind, (
+        'Requested place type should be of a lower level than the container')
+
+    # Do the actual query.
+    query = ('SELECT ?{col_name},'
+             'typeOf ?node_{place_type} {place_type},'
+             'dcid ?node_{place_type} ?{col_name},').format(
+                 col_name=col_name,
+                 place_type=place_type)
+    for i in range(place_type_ind, container_type_ind):
+      query += 'containedInPlace ?node_{child} ?node_{parent},'.format(
+          child=_PLACES[i], parent=_PLACES[i+1])
+    query += 'dcid ?node_{container_type} "{container_dcid}"'.format(
+        container_type=container_type, container_dcid=container_dcid)
+    try:
+      dcid_column = self.query(query, max_rows)
+    except RuntimeError as e:
+      raise RuntimeError('Execute query %s got an error:\n%s' % (query, e))
+
+    type_row = pd.DataFrame(data=[{col_name: place_type}])
+    return pd.concat([type_row, dcid_column], ignore_index=True)
+
 
   # ------------------------ INTERNAL HELPER FUNCTIONS ------------------------
 
