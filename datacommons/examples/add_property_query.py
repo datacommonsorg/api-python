@@ -26,10 +26,9 @@ def main():
 
   # Start with all states in the United States and add the state names. This
   # is an outgoing property of State.
-  pd_state = dc.get_contained_places(
-      place_type='Country',
-      place_name='United States',
-      contained_place_type='State',
+  pd_state = dc.get_places_in(
+      place_type='State',
+      container_dcid='dc/2sffw13',  # United States
       col_name='state')
   pd_state = dc.expand(pd_state, 'name', 'state', 'state_name', outgoing=True)
 
@@ -51,10 +50,9 @@ def main():
     print pd_state
 
 
-  pd_city = dc.get_contained_places(
-      place_type='State',
-      place_name='California',
-      contained_place_type='City',
+  pd_city = dc.get_places_in(
+      place_type='City',
+      container_dcid='dc/b72vdv',  # California
       col_name='city')
   pd_city = dc.expand(pd_city, 'name', 'city', 'city_name', outgoing=True)
   with pd.option_context('display.width', 400, 'display.max_rows', 100):
