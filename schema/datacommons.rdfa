@@ -1367,5 +1367,11 @@
       <link property="http://schema.org/rangeIncludes" href="https://schema.datacommons.org/WindMeasurement"/>
     </div>
 
+    <div typeof="rdfs:Class" resource="https://schema.datacommons.org/County">
+      <span property="rdfs:label">County</span>
+      <span property="rdfs:comment">In the United States, a county is a political and geographic subdivision of a state. In some cases, counties are coterminous with localities.</span>
+      <link property="rdfs:subClassOf" href="http://schema.org/AdministrativeArea"/>
+    </div>
+
 </body>
 </html>
