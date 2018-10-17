@@ -1,0 +1,13 @@
+package(default_visibility = ["//visibility:public"])
+load("@requirements//:requirements.bzl", "requirement")
+
+py_library(
+    name = "datacommons",
+    srcs = glob(["*.py"]),
+    deps = [
+        requirement("google-api-python-client"),
+        requirement("httplib2"),
+        requirement("oauth2client"),
+        requirement("pandas"),
+    ]
+)
