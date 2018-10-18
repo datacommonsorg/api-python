@@ -1373,5 +1373,18 @@
       <link property="rdfs:subClassOf" href="http://schema.org/AdministrativeArea"/>
     </div>
 
+    <div typeof="rdf:Property" resource="https://schema.datacommons.org/dcid">
+      <span property="rdfs:label">dcid</span>
+      <span property="rdfs:comment">The unique identifier for the entity in dataCommons.</span>
+      <link property="http://schema.org/domainIncludes" href="https://schema.org/Thing"/>
+      <link property="http://schema.org/rangeIncludes" href="https://schema.org/Text"/>
+    </div>
+    <div typeof="rdf:Property" resource="https://schema.datacommons.org/provenance">
+      <span property="rdfs:label">provenance</span>
+      <span property="rdfs:comment">The source for the data. Provenance is labeled per triple.</span>
+      <link property="http://schema.org/domainIncludes" href="https://schema.org/Thing"/>
+      <link property="http://schema.org/rangeIncludes" href="https://schema.org/Text"/>
+    </div>
+
 </body>
 </html>
