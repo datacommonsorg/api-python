@@ -45,6 +45,7 @@ def main():
   with pd.option_context('display.width', 400, 'display.max_rows', 100):
     print(df)
 
+  dc.save_dataframe(df, 'simple_query_result')
 
 if __name__ == '__main__':
   main()
