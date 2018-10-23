@@ -1398,7 +1398,7 @@
       <link property="http://schema.org/domainIncludes" href="https://schema.org/Thing"/>
       <link property="http://schema.org/rangeIncludes" href="https://schema.org/Text"/>
     </div>
-    <div typeof="rdf:Property" resource="https://schema.datacommons.org/wikidataId">
+    <div typeof="rdf:Property" resource="https://schema.datacommons.org/geonamesId">
       <span property="rdfs:label">geonamesId</span>
       <span property="rdfs:comment">The unique identifier for the entity in <a href="http://www.geonames.org/">GeoNames</a>.</span>
       <link property="http://schema.org/domainIncludes" href="https://schema.org/Thing"/>
