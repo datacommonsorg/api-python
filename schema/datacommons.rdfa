@@ -1372,10 +1372,41 @@
       <span property="rdfs:comment">In the United States, a county is a political and geographic subdivision of a state. In some cases, counties are coterminous with localities.</span>
       <link property="rdfs:subClassOf" href="http://schema.org/AdministrativeArea"/>
     </div>
+    <div typeof="rdf:Property" resource="https://schema.datacommons.org/area">
+      <span property="rdfs:label">area</span>
+      <span property="rdfs:comment">The land area of a AdministrativeArea.</span>
+      <link property="http://schema.org/domainIncludes" href="https://schema.org/AdministrativeArea"/>
+      <link property="http://schema.org/rangeIncludes" href="https://schema.org/Number"/>
+      <link property="http://schema.org/rangeIncludes" href="https://schema.org/QuantitativeValue"/>
+    </div>
+    <div typeof="rdf:Property" resource="https://schema.datacommons.org/timezone">
+      <span property="rdfs:label">timezone</span>
+      <span property="rdfs:comment">The current timezone for the location.</span>
+      <link property="http://schema.org/domainIncludes" href="https://schema.org/AdministrativeArea"/>
+      <link property="http://schema.org/rangeIncludes" href="https://schema.org/Text"/>
+    </div>
 
     <div typeof="rdf:Property" resource="https://schema.datacommons.org/dcid">
       <span property="rdfs:label">dcid</span>
       <span property="rdfs:comment">The unique identifier for the entity in dataCommons.</span>
+      <link property="http://schema.org/domainIncludes" href="https://schema.org/Thing"/>
+      <link property="http://schema.org/rangeIncludes" href="https://schema.org/Text"/>
+    </div>
+    <div typeof="rdf:Property" resource="https://schema.datacommons.org/freebaseId">
+      <span property="rdfs:label">freebaseId</span>
+      <span property="rdfs:comment">The unique identifier for the entity in Freebase.</span>
+      <link property="http://schema.org/domainIncludes" href="https://schema.org/Thing"/>
+      <link property="http://schema.org/rangeIncludes" href="https://schema.org/Text"/>
+    </div>
+    <div typeof="rdf:Property" resource="https://schema.datacommons.org/wikidataId">
+      <span property="rdfs:label">geonamesId</span>
+      <span property="rdfs:comment">The unique identifier for the entity in <a href="http://www.geonames.org/">GeoNames</a>.</span>
+      <link property="http://schema.org/domainIncludes" href="https://schema.org/Thing"/>
+      <link property="http://schema.org/rangeIncludes" href="https://schema.org/Text"/>
+    </div>
+    <div typeof="rdf:Property" resource="https://schema.datacommons.org/wikidataId">
+      <span property="rdfs:label">wikidataId</span>
+      <span property="rdfs:comment">The unique identifier for the entity in <a href="https://www.wikidata.org/">Wikidata</a>.</span>
       <link property="http://schema.org/domainIncludes" href="https://schema.org/Thing"/>
       <link property="http://schema.org/rangeIncludes" href="https://schema.org/Text"/>
     </div>
