@@ -21,6 +21,7 @@ from __future__ import print_function
 
 from collections import defaultdict
 import datetime
+import json
 from itertools import product
 from . import _auth
 import pandas as pd
@@ -396,6 +397,28 @@ class Client(object):
         new_col_name,
         'Observation',
         max_rows=max_rows)
+
+  # -------------------------- CACHING FUNCTIONS --------------------------
+
+  def save_dataframe(self, pd_dataframe, file_name):
+    """Saves pandas dataframe for later retrieving.
+
+    Args:
+      pd_dataframe: A pandas.DataFrame.
+      file_name: The saved file name.
+
+    Raises:
+      RuntimeError: when failed to save the dataframe.
+    """
+    assert self._inited, 'Initialization was unsuccessful, cannot execute Query'
+    data = json.dumps(pd_dataframe.to_json())
+    try:
+      self._service.save_dataframe(body={
+          'data': data,
+          'object_name': file_name
+      }).execute()
+    except Exception as e:  # pylint: disable=broad-except
+      raise RuntimeError('Failed to save dataframe: {}'.format(e))
 
   # -------------------------- OTHER QUERY FUNCTIONS --------------------------
 
