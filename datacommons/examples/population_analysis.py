@@ -15,8 +15,8 @@
 
 """
 
-import pandas as pd
 import datacommons
+import pandas as pd
 
 
 def main():
@@ -45,7 +45,7 @@ def main():
       population_type='Person',
       max_rows=100)
   with pd.option_context('display.width', 400, 'display.max_rows', 100):
-    print(state_table)
+    print state_table
 
   state_table = dc.get_populations(
       state_table,
@@ -55,7 +55,7 @@ def main():
       max_rows=100,
       age='USC/18To24Years')
   with pd.option_context('display.width', 400, 'display.max_rows', 100):
-    print(state_table)
+    print state_table
 
   state_table = dc.get_populations(
       state_table,
@@ -65,7 +65,7 @@ def main():
       max_rows=100,
       gender='Male')
   with pd.option_context('display.width', 400, 'display.max_rows', 100):
-    print(state_table)
+    print state_table
 
   state_table = dc.get_observations(
       state_table,
@@ -77,7 +77,7 @@ def main():
       stats_type='count')
 
   with pd.option_context('display.width', 400, 'display.max_rows', 100):
-    print(state_table)
+    print state_table
 
 
 if __name__ == '__main__':

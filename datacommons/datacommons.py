@@ -15,22 +15,21 @@
 
 """
 
-
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
 from collections import defaultdict
-from collections import OrderedDict
 import datetime
 from itertools import product
 from . import _auth
 import pandas as pd
 
-_CLIENT_ID = ('381568890662-ff9evnle0lj0oqttr67p2h6882d9ensr'
-              '.apps.googleusercontent.com')
-_CLIENT_SECRET = '77HJA4S5m48Z98UKkW_o-jAY'
-_API_ROOT = 'https://datcom-api-sandbox.appspot.com'
+_PLACES = ('City', 'County', 'State', 'Country', 'Continent')
+
+_CLIENT_ID = ('66054275879-a0nalqfe2p9shlv4jpra5jekfkfnr8ug.apps.googleusercontent.com')
+_CLIENT_SECRET = 'fuJy7JtECndEXgtQA46hHqqa'
+_API_ROOT = 'https://datcom-api.appspot.com'
 
 _MICRO_SECONDS = 1000000
 _EPOCH_START = datetime.datetime(year=1970, month=1, day=1)
@@ -227,7 +226,6 @@ class Client(object):
 
   # ----------------------- OBSERVATION QUERY FUNCTIONS -----------------------
 
-
   def get_instances(self, col_name, instance_type, max_rows=100):
     """Get a list of instance dcids for a given type.
 
@@ -252,7 +250,6 @@ class Client(object):
       raise RuntimeError('Execute query\n%s\ngot an error:\n%s' % (query, e))
 
     return pd.concat([type_row, dcid_column], ignore_index=True)
-
 
   def get_populations(self,
                       pd_table,
@@ -345,12 +342,11 @@ class Client(object):
       pd_table: Pandas dataframe that contains entity information.
       seed_col_name: The column that contains the population dcid.
       new_col_name: New column name.
-      start_year: The start year of the observation.
-      end_year: The end year of the observation.
+      start_date: The start date of the observation (in 'YYY-mm-dd' form).
+      end_date: The end date of the observation (in 'YYY-mm-dd' form).
       measured_property: observation measured property.
       stats_type: Statistical type like "Median"
       max_rows: The maximum number of rows returned by the query results.
-      **kwargs: keyword properties to define the population.
 
     Returns:
       A pandas.DataFrame with an additional column added.
@@ -369,12 +365,13 @@ class Client(object):
           '%s is already a column name in the data frame' % new_col_name)
 
     seed_col_type = seed_col[0]
-    assert seed_col_type == 'Population', 'Parent entity should be Population'
+    assert seed_col_type == 'Population' or seed_col_type == 'City', (
+        'Parent entity should be Population' or 'City')
 
     # Create the datalog query for the requested observations
     dcids = seed_col[1:]
     query = ('SELECT ?{seed_col_name} ?{new_col_name},'
-             'typeOf ?pop Population,'
+             'typeOf ?pop {seed_col_type},'
              'typeOf ?o Observation,'
              'dcid ?pop {dcids},'
              'dcid ?pop ?{seed_col_name},'
@@ -383,6 +380,7 @@ class Client(object):
              'endTime ?o {end_time},'
              'measuredProperty ?o {measured_property},'
              '{stats_type}Value ?o ?{new_col_name},').format(
+                 seed_col_type=seed_col_type,
                  new_col_name=new_col_name,
                  seed_col_name=seed_col_name,
                  dcids=' '.join(dcids),
@@ -438,7 +436,7 @@ class Client(object):
       max_rows: max number of returend results.
 
     Returns:
-      A pandas.DataFrame with state dcids
+      A pandas.DataFrame with state dcids.
     """
     assert self._inited, 'Initialization was unsuccessful, cannot execute Query'
     query = ('SELECT ?{new_col_name},'
@@ -456,6 +454,56 @@ class Client(object):
 
     return pd.concat([type_row, dcid_column], ignore_index=True)
 
+
+  def get_places_in(self, place_type, container_dcid, col_name, max_rows=100):
+    """Get a list of places that are contained in a higher level geo places.
+
+    Args:
+      place_type: The place type, like "City".
+      container_dcid: The dcid of the container place.
+      col_name: Column name for the returned state column.
+      max_rows: max number of returend results.
+
+    Returns:
+      A pandas.DataFrame with dcids of the contained place.
+    """
+    assert self._inited, 'Initialization was unsuccessful, cannot execute Query'
+    assert place_type in _PLACES, 'Input place types are not supported'
+
+    # Get the type of the container place.
+    type_query = 'SELECT ?type, dcid ?node {dcid}, subType ?node ?type'.format(
+        dcid=container_dcid)
+    query_result = self.query(type_query)
+    assert query_result['type'].count() == 1, (
+        'Type of the container dcid not found')
+    container_type = query_result['type'][0]
+
+    # Sanity check the type information.
+    place_type_ind = _PLACES.index(place_type)
+    container_type_ind = _PLACES.index(container_type)
+    assert container_type_ind > place_type_ind, (
+        'Requested place type should be of a lower level than the container')
+
+    # Do the actual query.
+    query = ('SELECT ?{col_name},'
+             'typeOf ?node_{place_type} {place_type},'
+             'dcid ?node_{place_type} ?{col_name},').format(
+                 col_name=col_name,
+                 place_type=place_type)
+    for i in range(place_type_ind, container_type_ind):
+      query += 'containedInPlace ?node_{child} ?node_{parent},'.format(
+          child=_PLACES[i], parent=_PLACES[i+1])
+    query += 'dcid ?node_{container_type} "{container_dcid}"'.format(
+        container_type=container_type, container_dcid=container_dcid)
+    try:
+      dcid_column = self.query(query, max_rows)
+    except RuntimeError as e:
+      raise RuntimeError('Execute query %s got an error:\n%s' % (query, e))
+
+    type_row = pd.DataFrame(data=[{col_name: place_type}])
+    return pd.concat([type_row, dcid_column], ignore_index=True)
+
+
   # ------------------------ INTERNAL HELPER FUNCTIONS ------------------------
 
   def _query_and_merge(self,
@@ -465,16 +513,18 @@ class Client(object):
                        new_col_name,
                        new_col_type,
                        max_rows=100):
-    """A utility function that executes the given query and joins a new column
+    """A utility function that executes the given query and adds a new column.
 
-    with the result and type data along the values in the seed column.
+    It sends an request to the API server to execute the given query and joins
+    a new column with the result and type data along with the values in the seed
+    column.
 
     Args:
       pd_table: A Pandas dataframe where the new data will be added.
       query: The query to be executed. This query must output a column with the
-        same name as "seed_col_name"
-      seed_col_type: The name of the seed column (i.e. the column to join the
-        new data against).
+             same name as "seed_col_name"
+      seed_col_name: The name of the seed column (i.e. the column to join the
+                     new data against).
       new_col_name: The name of the new column.
       new_col_type: The type of the entities contained in the new column.
       max_rows: The maximum number of rows returned by the query results.

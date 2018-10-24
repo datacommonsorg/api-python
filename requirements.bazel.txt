@@ -1,0 +1,6 @@
+google-api-python-client
+httplib2
+mock
+numpy
+oauth2client
+pandas

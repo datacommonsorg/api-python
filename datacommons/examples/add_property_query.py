@@ -11,37 +11,52 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""Example query that calls AddProperty on properties in the incoming and
-outgoing direction by building a table of all counties contained in the United
-States.
+"""Example query demonstrating expand API.
 
+Adds properties in the incoming and outgoing direction by building a table of
+all counties contained in the United States.
 """
 
-import pandas as pd
 import datacommons
+import pandas as pd
+
 
 def main():
   dc = datacommons.Client()
 
   # Start with all states in the United States and add the state names. This
   # is an outgoing property of State.
-  pd_state = dc.get_states('United States', 'state')
-  pd_state = dc.expand(pd_state, 'name', 'state', 'state_name',
-                       outgoing=True)
+  pd_state = dc.get_places_in(
+      place_type='State',
+      container_dcid='dc/2sffw13',  # United States
+      col_name='state')
+  pd_state = dc.expand(pd_state, 'name', 'state', 'state_name', outgoing=True)
 
   # Add information for counties contained in states in the 'state' column.
   # Getting the county is an incoming property of State. Note that there are
   # roughly 3100 counties in the United States
-  pd_state = dc.expand(pd_state, 'containedInPlace', 'state', 'county',
-                       outgoing=False,
-                       max_rows=50)
-  pd_state = dc.expand(pd_state, 'name', 'county', 'county_name',
-                       outgoing=True,
-                       max_rows=50)
+  pd_state = dc.expand(
+      pd_state,
+      'containedInPlace',
+      'state',
+      'county',
+      outgoing=False,
+      max_rows=50)
+  pd_state = dc.expand(
+      pd_state, 'name', 'county', 'county_name', outgoing=True, max_rows=50)
 
   # Print out the final data frame
   with pd.option_context('display.width', 400, 'display.max_rows', 100):
     print pd_state
+
+
+  pd_city = dc.get_places_in(
+      place_type='City',
+      container_dcid='dc/b72vdv',  # California
+      col_name='city')
+  pd_city = dc.expand(pd_city, 'name', 'city', 'city_name', outgoing=True)
+  with pd.option_context('display.width', 400, 'display.max_rows', 100):
+    print pd_city
 
 if __name__ == '__main__':
   main()

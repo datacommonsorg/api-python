@@ -25,14 +25,15 @@ REQUIRES_PYTHON = '>=2.7.0'
 VERSION = '0.1'
 
 REQUIRED = [
-    'numpy',
-    'pandas',
     'google-api-python-client',
+    'httplib2',
+    'numpy',
     'oauth2client',
+    'pandas',
 ]
 
 PACKAGES = ['datacommons']
-PACKAGE_DIR = {'datacommons':'datacommons'}
+PACKAGE_DIR = {'datacommons': 'datacommons'}
 
 setup(
     name=NAME,
