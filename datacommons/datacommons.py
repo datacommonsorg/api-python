@@ -503,7 +503,6 @@ class Client(object):
     type_row = pd.DataFrame(data=[{col_name: place_type}])
     return pd.concat([type_row, dcid_column], ignore_index=True)
 
-
   # ------------------------ INTERNAL HELPER FUNCTIONS ------------------------
 
   def _query_and_merge(self,

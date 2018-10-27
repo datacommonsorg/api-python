@@ -30,6 +30,7 @@ REQUIRED = [
     'numpy',
     'oauth2client',
     'pandas',
+    'matplotlib',
 ]
 
 PACKAGES = ['datacommons']
