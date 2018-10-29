@@ -368,7 +368,12 @@ def histogram(pd_table,
 
   # Plot the data
   ax = _init_axis(ax, title, xlabel, ylabel, xscale, yscale)
-  hist = [ax.hist(pd_table[c], **kwargs) for c in pd_cols]
+  hist = []
+  for c in pd_cols:
+    n, bins, patches = ax.hist(pd_table[c], **kwargs)
+    hist.append((n, bins, patches))
+    if 'bins' in kwargs:
+      kwargs['bins'] = bins
   if pd_labels:
     ax.legend(pd_labels)
   else:
