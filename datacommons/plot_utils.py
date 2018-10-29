@@ -204,10 +204,11 @@ def get_categorical_data(dc_client,
         **kwargs)
 
   # Query for observations
-  # print(pd_table.head(5))
   obs_cols = []
   for pop_col in pop_cols:
     obs_col_name = "{}/{}/{}".format(pop_col, measured_property, end_date)
+    if len(kwargs) > 0:
+      obs_col_name += "/" + "/".join(kwargs.values())
     obs_cols.append(obs_col_name)
     pd_table = dc_client.get_observations(
         pd_table=pd_table,
@@ -264,7 +265,6 @@ def plot(pd_table,
   """
   if any(c not in pd_table for c in pd_cols):
     raise ValueError("Table does not contain all columns in {}".format(pd_cols))
-  pd_cols = set(pd_cols)
   pd_table = pd_table.loc[1:]
 
   # Plot the data
@@ -317,7 +317,6 @@ def scatter(pd_table,
   if pd_xcol not in pd_table or any(c not in pd_table for c in pd_ycols):
     raise ValueError(
         "Table does not contain all columns in {}, {}".format(pd_xcol, pd_ycols))
-  pd_ycols = set(pd_ycols)
   pd_table = pd_table.loc[1:]
 
   # Plot the data
@@ -364,12 +363,12 @@ def histogram(pd_table,
   """
   if any(c not in pd_table for c in pd_cols):
     raise ValueError("Table does not contain all columns in {}".format(pd_cols))
-  pd_cols = set(pd_cols)
   pd_table = pd_table.loc[1:]
+  pd_table[pd_cols] = pd_table[pd_cols].apply(pd.to_numeric, errors='coerce')
 
   # Plot the data
   ax = _init_axis(ax, title, xlabel, ylabel, xscale, yscale)
-  hist = [ax.hist(pd_table[col], **kwargs) for col in pd_cols]
+  hist = [ax.hist(pd_table[c], **kwargs) for c in pd_cols]
   if pd_labels:
     ax.legend(pd_labels)
   else:
