@@ -121,8 +121,6 @@ _ENUM_TYPES = {
 
 # Matplotlib plotting constants
 _DEFAULT_SCALE = "linear"
-_DEFAULT_CMAP = "tab20"
-_DEFAULT_ALPHA = 0.75
 
 # ----------------------- PLOTTING DATA QUERY FUNCTIONS -----------------------
 
