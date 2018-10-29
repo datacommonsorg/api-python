@@ -361,7 +361,7 @@ def histogram(pd_table,
   """
   if any(c not in pd_table for c in pd_cols):
     raise ValueError("Table does not contain all columns in {}".format(pd_cols))
-  pd_table = pd_table.loc[1:]
+  pd_table = pd_table.loc[1:].copy()
   pd_table[pd_cols] = pd_table[pd_cols].apply(pd.to_numeric, errors='coerce')
 
   # Plot the data
