@@ -181,9 +181,10 @@ def get_categorical_data(dc_client,
         **kwargs)
 
   # Query for observations
+  # print(pd_table.head(5))
   obs_cols = []
   for pop_col in pop_cols:
-    obs_col_name = "{}_{}".format(pop_col, end_date)
+    obs_col_name = "{}/{}/{}".format(pop_col, measured_property, end_date)
     obs_cols.append(obs_col_name)
     pd_table = dc_client.get_observations(
         pd_table=pd_table,
