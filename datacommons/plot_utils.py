@@ -123,7 +123,6 @@ _ENUM_TYPES = {
 _DEFAULT_SCALE = "linear"
 _DEFAULT_CMAP = "tab20"
 _DEFAULT_ALPHA = 0.75
-_DEFAULT_ROTATION = 90
 
 # ----------------------- PLOTTING DATA QUERY FUNCTIONS -----------------------
 
@@ -233,24 +232,24 @@ def get_timeseries_data():
 # ---------------------------- PLOTTING FUNCTIONS -----------------------------
 
 def plot(pd_table,
-         cols,
-         figsize=(6, 4),
-         title="",
-         xlabel="",
-         ylabel="",
+         pd_cols,
+         pd_labels=None,
+         ax=None,
+         title=None,
+         xlabel=None,
+         ylabel=None,
          xscale=_DEFAULT_SCALE,
          yscale=_DEFAULT_SCALE,
-         alpha=_DEFAULT_ALPHA,
-         cmap=None,
-         legend=True):
-  """ Plots a time-series with values in cols along a single axis.
+         **kwargs):
+  """ Plots a time-series with values in pd_cols along a single axis.
 
   Args:
     pd_table: A Pandas dataframe with numerical values along "cols". The table
       is indexed by date time.
-    cols: A list of column names to plot on the time-series. Each entry must be
-      a name of a column in "pd_table".
-    figsize: The size of the figure as a tuple (width, height)
+    pd_labels: An arraylike of string labels for each series plotted by columns
+      specified in "pd_cols"
+    ax: The pyplot axis to plot the histogram on. If ax is None then the default
+      axis is used.
     title: The title of the plot
     xlabel: The x-axis label of the plot
     ylabel: The y-axis label of the plot
@@ -258,69 +257,51 @@ def plot(pd_table,
       in the Matplotlib library.
     yscale: The scale of the y-axis. This takes values specified by plt.yscale
       in the Matplotlib library.
-    alpha: The alpha value for lines along the plot
-    cmap: The colormap object for plotting the table's data. By default this is
-      set to "tab20b".
-    legend: Set to show the plot's legend.
+    **kwargs: Any keyword arguments passed into matplotlib.pyplot.plot
 
   Returns:
-    A matplotlib pyplot object containing the plotted data.
+    A list of Line2D objects returned by calling matplotlib.pyplot.plot
   """
-  if any(c not in pd_table for c in cols):
-    raise ValueError("Table does not contain all columns in {}".format(cols))
-  cols = set(cols)
+  if any(c not in pd_table for c in pd_cols):
+    raise ValueError("Table does not contain all columns in {}".format(pd_cols))
+  pd_cols = set(pd_cols)
   pd_table = pd_table.loc[1:]
 
-  # Get the colormap
-  colors = mpl.cm.get_cmap(_DEFAULT_CMAP)
-  if isinstance(cmap, str):
-    colors = mpl.cm.get_cmap(cmap)
-  elif cmap:
-    colors = cmap
-
   # Plot the data
-  plt.figure(figsize=figsize)
-  main_axis = _init_axis(title, xlabel, ylabel, xscale, yscale)
-  axes, norm = [], mpl.colors.Normalize(vmin=0, vmax=len(cols))
-  for idx, col_name in enumerate(cols):
-    color_idx = norm(idx)
-    new_ax = pd_table[col_name].plot(ax=main_axis,
-                                     color=colors(color_idx),
-                                     alpha=alpha,
-                                     label=col_name)
-    axes.append(new_ax)
-
-  # Set the legend if specified
-  if legend:
-    handles = sum(ax.get_legend_handle_labels()[0] for a in axes)
-    labels = sum(ax.get_legend_handle_labels()[1] for a in axes)
-    plt.legend(handles, legends)
-  return plt
+  ax = _init_axis(ax, title, xlabel, ylabel, xscale, yscale)
+  plots = [ax.plot(pd_table.index, pd_table[c], **kwargs) for c in pd_cols]
+  if pd_labels:
+    ax.legend(pd_labels)
+  else:
+    ax.legend(pd_cols)
+  return plots
 
 def scatter(pd_table,
-            x_col,
-            y_cols,
-            figsize=(6, 4),
-            title="",
-            xlabel="",
-            ylabel="",
+            pd_xcol,
+            pd_ycols,
+            pd_labels=None,
+            ax=None,
+            title=None,
+            xlabel=None,
+            ylabel=None,
             xscale=_DEFAULT_SCALE,
             yscale=_DEFAULT_SCALE,
-            alpha=_DEFAULT_ALPHA,
-            cmap=None,
-            legend=True):
+            **kwargs):
   """ Plots a scatterplot with the specified arguments.
 
-  The scatterplot plots data fixing x to be values specified in the "x_col"
-  column and varying y to be values specified by columns in "y_col"
+  The scatterplot plots data fixing x to be values specified in the "pd_xcol"
+  column and varying y to be values specified by columns in "pd_ycols"
 
   Args:
     pd_table: A Pandas dataframe with numerical values along "cols". The table
       is indexed by date time.
-    x_col: The column name to sample x-values from
-    y_cols: A list of column names to sample y-values from. Each y column is
+    pd_xcol: The column name to sample x-values from
+    pd_ycols: A list of column names to sample y-values from. Each y column is
       plotted with the x column as a different color.
-    figsize: The size of the figure as a tuple (width, height)
+    pd_labels: An arraylike of string labels for each series plotted by columns
+      specified in "pd_ycols"
+    ax: The pyplot axis to plot the histogram on. If ax is None then the default
+      axis is used.
     title: The title of the plot
     xlabel: The x-axis label of the plot
     ylabel: The y-axis label of the plot
@@ -328,134 +309,81 @@ def scatter(pd_table,
       in the Matplotlib library.
     yscale: The scale of the y-axis. This takes values specified by plt.yscale
       in the Matplotlib library.
-    alpha: The alpha value for lines along the plot
-    cmap: The colormap object for plotting the table's data. By default this is
-      set to "tab20b".
-    legend: Set to show the plot's legend.
+    **kwargs: Any keyword arguments passed into matplotlib.pyplot.scatter
 
   Returns:
-    A matplotlib pyplot object containing the plotted data.
+    A list of PathCollections returned by calling matplotlib.pyplot.scatter
   """
-  if x_col not in pd_table or any(c not in pd_table for c in y_cols):
+  if pd_xcol not in pd_table or any(c not in pd_table for c in pd_ycols):
     raise ValueError(
-        "Table does not contain all columns in {}, {}".format(x_col, y_cols))
-  y_cols = set(y_cols)
+        "Table does not contain all columns in {}, {}".format(pd_xcol, pd_ycols))
+  pd_ycols = set(pd_ycols)
   pd_table = pd_table.loc[1:]
 
-  # Get the colormap
-  colors = mpl.cm.get_cmap(_DEFAULT_CMAP)
-  if isinstance(cmap, str):
-    colors = mpl.cm.get_cmap(cmap)
-  elif cmap:
-    colors = cmap
-
   # Plot the data
-  plt.figure(figsize=figsize)
-  main_axis = _init_axis(title, xlabel, ylabel, xscale, yscale)
-  norm = mpl.colors.Normalize(vmin=0, vmax=len(y_cols))
-  for idx, y_col_name in enumerate(y_cols):
-    color_idx = norm(idx)
-    main_axis.scatter(pd_table[x_col],
-                      pd_table[y_col_name],
-                      color=colors(color_idx),
-                      alpha=alpha)
-
-  # Set the legend if specified
-  if legend:
-    handles = []
-    for idx, y_col_name in enumerate(y_cols):
-      color_idx = norm(idx)
-      handles.append(mpatches.Patch(color=colors(color_idx), label=y_col_name))
-    plt.legend(handles=handles)
-  return plt
+  ax = _init_axis(ax, title, xlabel, ylabel, xscale, yscale)
+  sc = [ax.scatter(pd_table[pd_xcol], pd_table[y], **kwargs) for y in pd_ycols]
+  if pd_labels:
+    ax.legend(pd_labels)
+  else:
+    ax.legend(pd_ycols)
+  return sc
 
 def histogram(pd_table,
-              series_col,
-              data_cols,
-              figsize=(6, 4),
-              title="",
-              ylabel="",
+              pd_cols,
+              pd_labels=None,
+              ax=None,
+              title=None,
+              xlabel=None,
+              ylabel=None,
+              xscale=_DEFAULT_SCALE,
               yscale=_DEFAULT_SCALE,
-              alpha=_DEFAULT_ALPHA,
-              cmap=None,
-              legend=True):
-  """ Plots a histogram with the specified arguments.
+              **kwargs):
+  """ Plots a histogram using values in each column specified in "pd_cols"
 
-  For each row in "series_col", the histogram will plot a set of bars specified
-  by the "data_cols".
+  Each column in "pd_cols" is plotted as a separate curve in the histogram.
 
   Args:
-    pd_table: A Pandas dataframe with numerical values along "cols". The table
-      is indexed by date time.
-    series_col: The column name specifying each data series
-    data_cols: A list of column names to sample each histogram bin from.
-    figsize: The size of the figure as a tuple (width, height)
+    pd_table: A Pandas dataframe with numerical values along "pd_cols"
+    pd_cols: Column names specifying each histogram curve
+    pd_labels: An arraylike of string labels for each series plotted by columns
+      specified in "pd_cols"
+    ax: The pyplot axis to plot the histogram on. If ax is None then the default
+      axis is used.
     title: The title of the plot
+    xlabel: The x-axis label of the plot
     ylabel: The y-axis label of the plot
+    xscale: The scale of the x-axis. This takes values specified by plt.xscale
+      in the Matplotlib library.
     yscale: The scale of the y-axis. This takes values specified by plt.yscale
       in the Matplotlib library.
-    alpha: The alpha value for lines along the plot
-    cmap: The colormap object for plotting the table's data. By default this is
-      set to "tab20b".
-    legend: Set to show the plot's legend.
+    **kwargs: Any keyword arguments passed into matplotlib.pyplot.hist
 
   Returns:
-    A matplotlib pyplot object containing the plotted data.
+    A list of tuples returned by calling matplotlib.pyplot.hist
   """
-  if series_col not in pd_table or any(c not in pd_table for c in data_cols):
-    raise ValueError("Table does not contain all columns in {}, {}".format(
-        series_col, data_cols))
-  data_cols = set(data_cols)
+  if any(c not in pd_table for c in pd_cols):
+    raise ValueError("Table does not contain all columns in {}".format(pd_cols))
+  pd_cols = set(pd_cols)
   pd_table = pd_table.loc[1:]
 
-  # Get the colormap
-  colors = mpl.cm.get_cmap(_DEFAULT_CMAP)
-  if isinstance(cmap, str):
-    colors = mpl.cm.get_cmap(cmap)
-  elif cmap:
-    colors = cmap
-
-  # Create the data and position maps
-  data_vals, data_pos, data_widths = {}, {}, {}
-  width = 2                     # The width of each set of bars + spacing
-  set_width = 1.5              # The width of each set of bars
-  bar_width = set_width / len(pd_table[series_col]) # The width of a single bar
-  for series_idx, name in enumerate(pd_table[series_col]):
-    pd_row = pd_table.loc[pd_table[series_col] == name].squeeze()
-    data_vals[name] = pd_row[data_cols]
-    data_pos[name] = [data_idx * width + series_idx * bar_width for data_idx in range(len(data_cols))]
-    data_widths[name] = [bar_width for data_idx in range(len(data_cols))]
-
   # Plot the data
-  plt.figure(figsize=figsize)
-  ax = _init_axis(title, "", ylabel, _DEFAULT_SCALE, yscale)
-  norm = mpl.colors.Normalize(vmin=0, vmax=len(pd_table[series_col]))
-  for idx, name in enumerate(pd_table[series_col]):
-    color_idx = norm(idx)
-    ax.bar(data_pos[name],
-           data_vals[name].values,
-           data_widths[name],
-           color=colors(color_idx),
-           alpha=alpha)
-
-  # Set the legend
-  tick_pos = [data_idx * width + (set_width / 2) for data_idx in range(len(data_cols))]
-  plt.xticks(tick_pos, data_cols, rotation=_DEFAULT_ROTATION)
-  if legend:
-    handles = []
-    for idx, name in enumerate(pd_table[series_col]):
-      color_idx = norm(idx)
-      handles.append(mpatches.Patch(color=colors(color_idx), label=name))
-    plt.legend(handles=handles)
-  return plt
-
+  ax = _init_axis(ax, title, xlabel, ylabel, xscale, yscale)
+  hist = [ax.hist(pd_table[col], **kwargs) for col in pd_cols]
+  if pd_labels:
+    ax.legend(pd_labels)
+  else:
+    ax.legend(pd_cols)
+  return hist
 
 # ------------------------- INTERNAL HELPER FUNCTIONS -------------------------
 
-def _init_axis(title, xlabel, ylabel, xscale, yscale):
+def _init_axis(ax, title, xlabel, ylabel, xscale, yscale):
   """ Initializes a matplotlib plot object with the set parameters.
 
   Args:
+    ax: The axis of a matplotlib pyplot object. If ax is None, then the current
+      axis is used.
     title: The title of the plot
     xlabel: The x-axis label of the plot
     ylabel: The y-axis label of the plot
@@ -467,7 +395,8 @@ def _init_axis(title, xlabel, ylabel, xscale, yscale):
   Returns:
     A matplotlib instance with the specified parameters set.
   """
-  ax = plt.gca()
+  if ax is None:
+    ax = plt.gca()
   ax.set_title(title)
   ax.set_xlabel(xlabel)
   ax.set_ylabel(ylabel)

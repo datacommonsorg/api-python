@@ -35,8 +35,8 @@ def main():
       pd_table=pd_states,
       seed_col_name='states',
       population_type='CriminalActivities',
-      start_date='2017-01-01',
-      end_date='2017-01-01',
+      start_date='2016-01-01',
+      end_date='2016-01-01',
       measured_property='count',
       stats_type='count',
       free_prop_name='crimeType',
@@ -52,27 +52,27 @@ def main():
       stats_type='median')
 
   columns = [
-      'count_FBI_Property_2017-01-01_2017-01-01',
-      'count_FBI_PropertyArson_2017-01-01_2017-01-01',
-      'count_FBI_PropertyBurglary_2017-01-01_2017-01-01',
-      'count_FBI_PropertyLarcenyTheft_2017-01-01_2017-01-01',
-      'count_FBI_PropertyMotorVehicleTheft_2017-01-01_2017-01-01'
+      'FBI_PropertyArson/count/2016-01-01',
+      'FBI_PropertyBurglary/count/2016-01-01',
+      'FBI_PropertyLarcenyTheft/count/2016-01-01',
+      'FBI_PropertyMotorVehicleTheft/count/2016-01-01',
   ]
 
   # Generate the scatter plot.
+  plt.figure(figsize=(12, 10))
   scatter_plt = dc_plt.scatter(
       pd_table=pd_states,
-      x_col='age_Person_2012-01-01_2016-01-01',
-      y_cols=columns,
-      figsize=(12, 10),
+      pd_xcol='Person/age/2016-01-01',
+      pd_ycols=columns,
+      pd_labels=['Arson', 'Burglary', 'Larceny Theft', 'Motor Vehicle Theft'],
       title='Crime',
       xlabel='Median Age',
       ylabel='Crime Occurences',
-      xscale='log')
+      alpha=0.85)
 
   with pd.option_context('display.width', 400, 'display.max_rows', 100):
     print pd_states.head(10)
-    scatter_plt.show()
+    plt.show()
 
 if __name__ == '__main__':
   main()
