@@ -27,7 +27,7 @@ def main():
 
   # Start with a few states in the United States
   pd_states = dc.get_states('United States', 'State', max_rows=3)
-  pd_states = dc.expand(pd_states, 'name', 'State', 'Name')
+  pd_states = dc.expand(pd_states, 'name', 'State', 'StateName')
 
   # Query for the populations
   age_vals = ['USC_18To24Years', 'USC_25To34Years']
@@ -37,21 +37,16 @@ def main():
                                  new_col_name=age_cols,
                                  population_type='Person',
                                  age=age_vals)
-  with pd.option_context('display.width', 400, 'display.max_rows', 100):
-    print pd_states
 
   # Query for the time series observations
   time_pd = dc.get_date_ranged_observations(pd_states,
       seed_col_name=age_cols,
-      label_col_name='Name',
+      label_col_name='StateName',
       start_range=('2006-01-01', '2010-01-01'),
       end_range=('2012-01-01', '2016-01-01'),
       range_freq='1YS',
       measured_property='count',
       stats_type='count')
-  with pd.option_context('display.width', 400, 'display.max_rows', 100):
-    print ""
-    print time_pd
 
   # Plot the time-series
   data_cols = [
@@ -62,10 +57,16 @@ def main():
       "25To34Years/count/Arkansas",
       "25To34Years/count/Arizona"
   ]
-  plot = dc_plt.plot(pd_table=time_pd,
-                     pd_time_col='endTime',
-                     pd_data_cols=data_cols)
-  plt.show()
+  pd_data, plot = dc_plt.plot(pd_table=time_pd,
+                              pd_time_col='endTime',
+                              pd_data_cols=data_cols)
+
+  with pd.option_context('display.width', 400, 'display.max_rows', 100):
+    print "Raw data"
+    print time_pd
+    print "\nFormatted data"
+    print pd_data
+    plt.show()
 
 if __name__ == '__main__':
   main()

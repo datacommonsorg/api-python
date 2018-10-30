@@ -28,6 +28,7 @@ def plot(pd_table,
          pd_time_col,
          pd_data_cols,
          pd_labels=None,
+         pd_reserve_cols=[],
          ax=None,
          title="",
          xlabel="",
@@ -42,7 +43,9 @@ def plot(pd_table,
       is indexed by date time.
     pd_time_col: The column containing the time axis.
     pd_labels: An arraylike of string labels for each series plotted by columns
-      specified in "pd_data_cols"
+      specified in "pd_data_cols".
+    pd_reserve_cols: A list of columns that are guaranteed to be in the returned
+      dataframe.
     ax: The pyplot axis to plot the histogram on. If ax is None then the default
       axis is used.
     title: The title of the plot
@@ -55,7 +58,8 @@ def plot(pd_table,
     **kwargs: Any keyword arguments passed into matplotlib.pyplot.plot
 
   Returns:
-    A list of Line2D objects returned by calling matplotlib.pyplot.plot
+    The dataframe used to generate the time-series plot and a list of Line2D
+    objects returned by calling matplotlib.pyplot.plot
   """
   if pd_time_col not in pd_table:
     raise ValueError(
@@ -65,11 +69,13 @@ def plot(pd_table,
         "Table does not contain all columns in {}".format(pd_data_cols))
 
   # Format the data and set the pd_time_col as the table's index
-  pd_table = pd_table.loc[1:].copy()
+  columns = [pd_time_col] + pd_reserve_cols + pd_data_cols
+  pd_table = pd_table.loc[1:, columns].copy()
   pd_table[pd_data_cols] = pd_table[pd_data_cols].apply(pd.to_numeric,
                                                         errors='coerce')
   pd_table[pd_time_col] = pd.to_datetime(pd_table[pd_time_col])
-  pd_table.set_index(pd_time_col, inplace=True)
+  pd_table = pd_table.set_index(pd_time_col)
+  pd_table = pd_table.dropna()
 
   # Plot the data
   ax = _init_axis(ax, title, xlabel, ylabel, xscale, yscale)
@@ -78,12 +84,13 @@ def plot(pd_table,
     ax.legend(pd_labels)
   else:
     ax.legend(pd_data_cols)
-  return plots
+  return pd_table, plots
 
 def scatter(pd_table,
             pd_xcol,
             pd_ycols,
             pd_labels=None,
+            pd_reserve_cols=[],
             ax=None,
             title="",
             xlabel="",
@@ -104,6 +111,8 @@ def scatter(pd_table,
       plotted with the x column as a different color.
     pd_labels: An arraylike of string labels for each series plotted by columns
       specified in "pd_ycols"
+    pd_reserve_cols: A list of columns that are guaranteed to be in the returned
+      dataframe.
     ax: The pyplot axis to plot the histogram on. If ax is None then the default
       axis is used.
     title: The title of the plot
@@ -116,13 +125,18 @@ def scatter(pd_table,
     **kwargs: Any keyword arguments passed into matplotlib.pyplot.scatter
 
   Returns:
-    A list of PathCollections returned by calling matplotlib.pyplot.scatter
+    The dataframe used to generate the scatter plot and a list of
+    PathCollections returned by calling matplotlib.pyplot.scatter
   """
   if pd_xcol not in pd_table or any(c not in pd_table for c in pd_ycols):
     raise ValueError(
         "Table does not contain all columns in {}, {}".format(pd_xcol, pd_ycols))
-  pd_table = pd_table.loc[1:].copy()
-  pd_table[pd_cols] = pd_table[pd_cols].apply(pd.to_numeric, errors='coerce')
+  columns = pd_reserve_cols + [pd_xcol] + pd_ycols
+  pd_table = pd_table.loc[1:, columns].copy()
+  pd_table[pd_xcol] = pd_table[pd_xcol].apply(pd.to_numeric, errors='coerce')
+  pd_table[pd_ycols] = pd_table[pd_ycols].apply(pd.to_numeric, errors='coerce')
+  pd_table = pd_table.dropna()
+  pd_table = pd_table.reset_index()
 
   # Plot the data
   ax = _init_axis(ax, title, xlabel, ylabel, xscale, yscale)
@@ -131,11 +145,12 @@ def scatter(pd_table,
     ax.legend(pd_labels)
   else:
     ax.legend(pd_ycols)
-  return sc
+  return pd_table, sc
 
 def histogram(pd_table,
               pd_cols,
               pd_labels=None,
+              pd_reserve_cols=[],
               ax=None,
               title="",
               xlabel="",
@@ -152,6 +167,8 @@ def histogram(pd_table,
     pd_cols: Column names specifying each histogram curve
     pd_labels: An arraylike of string labels for each series plotted by columns
       specified in "pd_cols"
+    pd_reserve_cols: A list of columns that are guaranteed to be in the returned
+      dataframe.
     ax: The pyplot axis to plot the histogram on. If ax is None then the default
       axis is used.
     title: The title of the plot
@@ -164,12 +181,15 @@ def histogram(pd_table,
     **kwargs: Any keyword arguments passed into matplotlib.pyplot.hist
 
   Returns:
-    A list of tuples returned by calling matplotlib.pyplot.hist
+    The dataframe used to generate the histogram and a list of tuples returned
+    by calling matplotlib.pyplot.hist
   """
   if any(c not in pd_table for c in pd_cols):
     raise ValueError("Table does not contain all columns in {}".format(pd_cols))
-  pd_table = pd_table.loc[1:].copy()
+  pd_table = pd_table.loc[1:, pd_reserve_cols + pd_cols].copy()
   pd_table[pd_cols] = pd_table[pd_cols].apply(pd.to_numeric, errors='coerce')
+  pd_table = pd_table.dropna()
+  pd_table = pd_table.reset_index()
 
   # Plot the data
   ax = _init_axis(ax, title, xlabel, ylabel, xscale, yscale)
@@ -183,7 +203,7 @@ def histogram(pd_table,
     ax.legend(pd_labels)
   else:
     ax.legend(pd_cols)
-  return hist
+  return pd_table, hist
 
 # ------------------------- INTERNAL HELPER FUNCTIONS -------------------------
 

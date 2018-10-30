@@ -298,10 +298,10 @@ class Client(object):
                    dcids=' '.join(seed_col[1:]),
                    population_type=population_type)
       v_idx = 0
-      for v_idx, v in enumerate(v_prod):
-        query += 'p{} ?pop {},'.format(v_idx + 1, p_vals[v_idx])
-        query += 'v{} ?pop {},'.format(v_idx + 1, v)
-      query += 'numConstraints ?pop {}'.format(v_idx + 1)
+      for v_idx, v in enumerate(v_prod, 1):
+        query += 'p{} ?pop {},'.format(v_idx, p_vals[v_idx - 1])
+        query += 'v{} ?pop {},'.format(v_idx, v)
+      query += 'numConstraints ?pop {}'.format(v_idx)
 
       # Run the query and merge the results
       pd_table = self._query_and_merge(
@@ -317,8 +317,8 @@ class Client(object):
                        pd_table,
                        seed_col_name,
                        new_col_name,
-                       start_time,
-                       end_time,
+                       start_date,
+                       end_date,
                        measured_property,
                        stats_type,
                        max_rows=100):
@@ -332,8 +332,8 @@ class Client(object):
       pd_table: Pandas dataframe that contains entity information.
       seed_col_name: The column that contains the population dcid.
       new_col_name: New column name.
-      start_time: The start date of the observation (in 'YYY-mm-dd' form).
-      end_time: The end date of the observation (in 'YYY-mm-dd' form).
+      start_date: The start date of the observation (in 'YYY-mm-dd' form).
+      end_date: The end date of the observation (in 'YYY-mm-dd' form).
       measured_property: observation measured property.
       stats_type: Statistical type like "Median"
       max_rows: The maximum number of rows returned by the query results.
@@ -375,8 +375,8 @@ class Client(object):
                'dcid ?pop {dcids},'
                'dcid ?pop ?{seed_col_name},'
                'observedNode ?o ?pop,'
-               'startTime ?o {start_time},'
-               'endTime ?o {end_time},'
+               'startTime ?o {start_date},'
+               'endTime ?o {end_date},'
                'measuredProperty ?o {measured_property},'
                '{stats_type}Value ?o ?{new_col_name},').format(
                    seed_col_type=seed_col_type,
@@ -385,8 +385,8 @@ class Client(object):
                    dcids=' '.join(seed_col[1:]),
                    measured_property=measured_property,
                    stats_type=stats_type,
-                   start_time=_date_epoch_micros(start_time),
-                   end_time=_date_epoch_micros(end_time))
+                   start_date=_date_epoch_micros(start_date),
+                   end_date=_date_epoch_micros(end_date))
       pd_table = self._query_and_merge(
           pd_table=pd_table,
           query=query,
@@ -458,8 +458,8 @@ class Client(object):
         pd_table = self.get_observations(pd_table,
                                          seed_col_name=s_col_name,
                                          new_col_name=n_col_name,
-                                         start_time=s_time,
-                                         end_time=e_time,
+                                         start_date=s_time,
+                                         end_date=e_time,
                                          measured_property=measured_property,
                                          stats_type=stats_type,
                                          max_rows=max_rows)
