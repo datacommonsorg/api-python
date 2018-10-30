@@ -271,8 +271,8 @@ class Client(object):
     if isinstance(new_col_name, str):
       new_col_name = [new_col_name]
     if any(name in pd_table for name in new_col_name):
-      raise ValueError(
-          '{} is already a column name in the data frame'.format(new_col_name))
+      raise ValueError('A name in {} is already a column in the data frame'
+          .format(new_col_name))
 
     seed_col = pd_table[seed_col_name]
     seed_col_type = seed_col[0]
@@ -309,8 +309,6 @@ class Client(object):
           new_col_name=new_col_name[prod_idx],
           new_col_type='Population',
           max_rows=max_rows)
-
-    # Run the query and merge the results.
     return pd_table
 
   def get_observations(self,
@@ -345,47 +343,56 @@ class Client(object):
       ValueError: when input argument is not valid.
     """
     assert self._inited, 'Initialization was unsuccessful, cannot execute query'
-    try:
-      seed_col = pd_table[seed_col_name]
-    except KeyError:
-      raise ValueError('%s is not a valid seed column name' % seed_col_name)
-
-    if new_col_name in pd_table:
+    if isinstance(seed_col_name, str):
+      seed_col_name = [seed_col_name]
+    if any(name not in pd_table for name in seed_col_name):
+      raise ValueError('A seed column in {} is not contained in the table'
+          .format(seed_col_name))
+    if isinstance(new_col_name, str):
+      new_col_name = [new_col_name]
+    if any(name in pd_table for name in new_col_name):
+      raise ValueError('A name in {} is already a column in the data frame'
+          .format(new_col_name))
+    if len(seed_col_name) != len(new_col_name):
       raise ValueError(
-          '%s is already a column name in the data frame' % new_col_name)
+          'The number of seed columns {} and new column names {} mismatch. '
+          'Each seed column will create a new column'
+              .format(seed_col_name, new_col_name))
 
-    seed_col_type = seed_col[0]
-    assert seed_col_type == 'Population' or seed_col_type == 'City', (
-        'Parent entity should be Population' or 'City')
+    # Query observations for each seed column
+    for s_col_name, n_col_name in zip(seed_col_name, new_col_name):
+      seed_col = pd_table[s_col_name]
+      seed_col_type = seed_col[0]
+      assert seed_col_type == 'Population' or seed_col_type == 'City', (
+          'Parent entity should be Population or City')
 
-    # Create the datalog query for the requested observations
-    dcids = seed_col[1:]
-    query = ('SELECT ?{seed_col_name} ?{new_col_name},'
-             'typeOf ?pop {seed_col_type},'
-             'typeOf ?o Observation,'
-             'dcid ?pop {dcids},'
-             'dcid ?pop ?{seed_col_name},'
-             'observedNode ?o ?pop,'
-             'startTime ?o {start_time},'
-             'endTime ?o {end_time},'
-             'measuredProperty ?o {measured_property},'
-             '{stats_type}Value ?o ?{new_col_name},').format(
-                 seed_col_type=seed_col_type,
-                 new_col_name=new_col_name,
-                 seed_col_name=seed_col_name,
-                 dcids=' '.join(dcids),
-                 measured_property=measured_property,
-                 stats_type=stats_type,
-                 start_time=_date_epoch_micros(start_date),
-                 end_time=_date_epoch_micros(end_date))
-    # Run the query and merge the results.
-    return self._query_and_merge(
-        pd_table,
-        query,
-        seed_col_name,
-        new_col_name,
-        'Observation',
-        max_rows=max_rows)
+      # Query for the observation and merge into the dataframe
+      query = ('SELECT ?{seed_col_name} ?{new_col_name},'
+               'typeOf ?pop {seed_col_type},'
+               'typeOf ?o Observation,'
+               'dcid ?pop {dcids},'
+               'dcid ?pop ?{seed_col_name},'
+               'observedNode ?o ?pop,'
+               'startTime ?o {start_time},'
+               'endTime ?o {end_time},'
+               'measuredProperty ?o {measured_property},'
+               '{stats_type}Value ?o ?{new_col_name},').format(
+                   seed_col_type=seed_col_type,
+                   new_col_name=n_col_name,
+                   seed_col_name=s_col_name,
+                   dcids=' '.join(seed_col[1:]),
+                   measured_property=measured_property,
+                   stats_type=stats_type,
+                   start_time=_date_epoch_micros(start_date),
+                   end_time=_date_epoch_micros(end_date))
+      pd_table = self._query_and_merge(
+          pd_table=pd_table,
+          query=query,
+          seed_col_name=s_col_name,
+          new_col_name=n_col_name,
+          new_col_type='Observation',
+          max_rows=max_rows)
+    return pd_table
 
   # -------------------------- OTHER QUERY FUNCTIONS --------------------------
 
