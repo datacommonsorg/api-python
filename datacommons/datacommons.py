@@ -23,6 +23,7 @@ from collections import defaultdict
 import datetime
 from itertools import product
 from . import _auth
+from . import _constants
 import pandas as pd
 
 _PLACES = ('City', 'County', 'State', 'Country', 'Continent')
@@ -400,7 +401,12 @@ class Client(object):
       A pandas.DataFrame with instance dcids.
     """
     assert self._inited, 'Initialization was unsuccessful, cannot execute Query'
-    # TODO(antaresc): implement querying for enumeration types
+
+    # Check if querying for an enumeration type
+    if instance_type in _constants.ENUM_TYPES:
+      col = [instance_type] + _constant.ENUM_TYPES[instance_type]
+      return pd.DataFrame({new_col_name : col})
+
     query = ('SELECT ?{new_col_name},'
              'typeOf ?node {instance_type},'
              'dcid ?node ?{new_col_name}').format(
