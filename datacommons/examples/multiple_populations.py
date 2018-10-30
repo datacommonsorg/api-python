@@ -37,7 +37,6 @@ def main():
       seed_col_name='state',
       new_col_name=pop_cols,
       population_type='Person',
-      max_rows=100,
       age=age_vals)
   with pd.option_context('display.width', 400, 'display.max_rows', 100):
     print state_table

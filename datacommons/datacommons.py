@@ -35,6 +35,8 @@ _API_ROOT = 'https://datcom-api.appspot.com'
 _MICRO_SECONDS = 1000000
 _EPOCH_START = datetime.datetime(year=1970, month=1, day=1)
 
+_TIME_FORMAT = '%Y-%m-%d'
+
 
 def _year_epoch_micros(year):
   """Get the timestamp of the start of a year in micro seconds.
@@ -315,8 +317,8 @@ class Client(object):
                        pd_table,
                        seed_col_name,
                        new_col_name,
-                       start_date,
-                       end_date,
+                       start_time,
+                       end_time,
                        measured_property,
                        stats_type,
                        max_rows=100):
@@ -330,8 +332,8 @@ class Client(object):
       pd_table: Pandas dataframe that contains entity information.
       seed_col_name: The column that contains the population dcid.
       new_col_name: New column name.
-      start_date: The start date of the observation (in 'YYY-mm-dd' form).
-      end_date: The end date of the observation (in 'YYY-mm-dd' form).
+      start_time: The start date of the observation (in 'YYY-mm-dd' form).
+      end_time: The end date of the observation (in 'YYY-mm-dd' form).
       measured_property: observation measured property.
       stats_type: Statistical type like "Median"
       max_rows: The maximum number of rows returned by the query results.
@@ -383,8 +385,8 @@ class Client(object):
                    dcids=' '.join(seed_col[1:]),
                    measured_property=measured_property,
                    stats_type=stats_type,
-                   start_time=_date_epoch_micros(start_date),
-                   end_time=_date_epoch_micros(end_date))
+                   start_time=_date_epoch_micros(start_time),
+                   end_time=_date_epoch_micros(end_time))
       pd_table = self._query_and_merge(
           pd_table=pd_table,
           query=query,
@@ -393,6 +395,99 @@ class Client(object):
           new_col_type='Observation',
           max_rows=max_rows)
     return pd_table
+
+  def get_date_ranged_observations(self,
+                                   pd_table,
+                                   seed_col_name,
+                                   label_col_name,
+                                   start_range,
+                                   end_range,
+                                   range_freq,
+                                   measured_property,
+                                   stats_type,
+                                   max_rows=100):
+    """ Comment.
+
+    Args:
+      pd_table:
+      seed_col_name:
+      label_col_name:
+      start_range: A (start time, end time) tuple representing the first time
+        period to query an observation for.
+      end_range: A (start time, end time) tuple representing the last time
+        period to query an observation for.
+      range_freq: A pandas offset alias string denoting how often each time
+        period occurs when querying for the observation. See the following link
+        https://pandas.pydata.org/pandas-docs/stable/timeseries.html#offset-aliases
+      measured_property:
+      stats_type:
+      max_rows:
+
+    Returns:
+    """
+    assert self._inited, 'Initialization was unsuccessful, cannot execute query'
+    if isinstance(seed_col_name, str):
+      seed_col_name = [seed_col_name]
+    if any(name not in pd_table for name in seed_col_name):
+      raise ValueError('A seed column in {} is not contained in the table.'
+          .format(seed_col_name))
+    if isinstance(label_col_name, str):
+      label_col_name = [label_col_name]
+    if any(name not in pd_table for name in label_col_name):
+      raise ValueError('A label column in {} is not contained in the table.'
+          .format(label_col_name))
+
+    # Generate sequence of start, end time pairs
+    start_times = pd.date_range(start=start_range[0],
+                                end=end_range[0],
+                                freq=range_freq)
+    end_times = pd.date_range(start=start_range[1],
+                              end=end_range[1],
+                              freq=range_freq)
+
+    # Query observations for each time period
+    seed_col_observations = {}
+    for s_col_name in seed_col_name:
+      seed_col_observations[s_col_name] = []
+      for start, end in zip(start_times, end_times):
+        s_time = start.strftime(_TIME_FORMAT)
+        e_time = end.strftime(_TIME_FORMAT)
+        n_col_name = "{}/{}/{}".format(s_col_name, measured_property, e_time)
+
+        # Query for the observation and link new col names to the seed col name
+        pd_table = self.get_observations(pd_table,
+                                         seed_col_name=s_col_name,
+                                         new_col_name=n_col_name,
+                                         start_time=s_time,
+                                         end_time=e_time,
+                                         measured_property=measured_property,
+                                         stats_type=stats_type,
+                                         max_rows=max_rows)
+        seed_col_observations[s_col_name].append(n_col_name)
+
+    # Create a new dataframe with columns of start and end times
+    pd_data = pd_table.loc[1:]
+    new_cols = ['startTime', 'endTime']
+    new_data = pd.DataFrame({'startTime' : start_times, 'endTime' : end_times},
+                            columns=new_cols)
+    new_data['startTime'] = new_data['startTime'].dt.strftime(_TIME_FORMAT)
+    new_data['endTime'] = new_data['endTime'].dt.strftime(_TIME_FORMAT)
+    new_type = {k : ['Time'] for k in new_cols}
+
+    # Add all the observations queried
+    for s_col_name in seed_col_name:
+      for row_idx, row in pd_data.iterrows():
+        n_col_name = "{}/{}/{}".format(s_col_name,
+                                       measured_property,
+                                       "/".join(row[label_col_name].values))
+        obs_cols = seed_col_observations[s_col_name]
+        new_cols.append(n_col_name)
+        new_data[n_col_name] = row[obs_cols].values
+        new_type[n_col_name] = ['Observation']
+
+    # Create the type row and return the concat result
+    new_type_df = pd.DataFrame(new_type, columns=new_cols)
+    return pd.concat([new_type_df, new_data], ignore_index=True)
 
   # -------------------------- OTHER QUERY FUNCTIONS --------------------------
 
