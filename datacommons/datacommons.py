@@ -226,31 +226,6 @@ class Client(object):
 
   # ----------------------- OBSERVATION QUERY FUNCTIONS -----------------------
 
-  def get_instances(self, col_name, instance_type, max_rows=100):
-    """Get a list of instance dcids for a given type.
-
-    Args:
-      col_name: Column name for the returned column.
-      instance_type: String of the instance type.
-      max_rows: Max number of returend rows.
-
-    Returns:
-      A pandas.DataFrame with instance dcids.
-    """
-    assert self._inited, 'Initialization was unsuccessful, cannot execute Query'
-    query = ('SELECT ?{col_name},'
-             'typeOf ?node {instance_type},'
-             'dcid ?node ?{col_name}').format(
-                 col_name=col_name, instance_type=instance_type)
-    type_row = pd.DataFrame(data=[{col_name: instance_type}])
-
-    try:
-      dcid_column = self.query(query, max_rows)
-    except RuntimeError as e:
-      raise RuntimeError('Execute query\n%s\ngot an error:\n%s' % (query, e))
-
-    return pd.concat([type_row, dcid_column], ignore_index=True)
-
   def get_populations(self,
                       pd_table,
                       seed_col_name,
@@ -258,17 +233,26 @@ class Client(object):
                       population_type,
                       max_rows=100,
                       **kwargs):
-    """Create a new column with population dcid.
+    """Create a new column or multiple new columns with population dcids.
 
     The existing pandas dataframe should include a column containing entity IDs
-    for geo entities. This function populates a new column with
-    population dcid corresponding to the geo entity.
+    for geo entities. This function populates a new column with population dcid
+    corresponding to the geo entity.
+
+    Multiple new columns will be created if a population property is specified
+    using a list in kwargs. For example, providing the argument
+    veteran=['USC_Nonveteran', 'USC_Veteran'] will query for populations
+    corresponding to each veteran status. Providing multiple lists in **kwargs
+    will query a population for each element of the cartesian product of all
+    lists.
 
     Args:
       pd_table: Pandas dataframe that contains geo entity dcids.
       seed_col_name: The column name that contains entity (ids) that the added
         properties belong to.
-      new_col_name: New column name.
+      new_col_name: A string or a list of strings representing the new column
+        names. The size of the string list should match the number of new
+        new columns that will be added.
       population_type: Population type like "Person".
       max_rows: The maximum number of rows returned by the query results.
       **kwargs: keyword properties to define the population.
@@ -280,48 +264,53 @@ class Client(object):
       ValueError: when input argument is not valid.
     """
     assert self._inited, 'Initialization was unsuccessful, cannot execute query'
-    try:
-      seed_col = pd_table[seed_col_name]
-    except KeyError:
-      raise ValueError('%s is not a valid seed column name' % seed_col_name)
-
-    if new_col_name in pd_table:
+    if seed_col_name not in pd_table:
       raise ValueError(
-          '%s is already a column name in the data frame' % new_col_name)
+          'Seed column {} is not contained in the table'.format(seed_col_name))
+    if isinstance(new_col_name, str):
+      new_col_name = [new_col_name]
+    if any(name in pd_table for name in new_col_name):
+      raise ValueError(
+          '{} is already a column name in the data frame'.format(new_col_name))
 
+    seed_col = pd_table[seed_col_name]
     seed_col_type = seed_col[0]
     assert seed_col_type != 'Text', 'Parent entity should not be Text'
 
-    # Create the datalog query for the requested observations
-    dcids = seed_col[1:]
-    query = ('SELECT ?{seed_col_name} ?{new_col_name},'
-             'typeOf ?node {seed_col_type},'
-             'typeOf ?pop Population,'
-             'dcid ?node {dcids},'
-             'dcid ?node ?{seed_col_name},'
-             'location ?pop ?node,'
-             'dcid ?pop ?{new_col_name},'
-             'populationType ?pop {population_type},').format(
-                 new_col_name=new_col_name,
-                 seed_col_name=seed_col_name,
-                 seed_col_type=seed_col_type,
-                 dcids=' '.join(dcids),
-                 population_type=population_type)
-    pv_pairs = sorted(kwargs.items())
-    idx = 0
-    for idx, pv in enumerate(pv_pairs, 1):
-      query += 'p{} ?pop {},'.format(idx, pv[0])
-      query += 'v{} ?pop {},'.format(idx, pv[1])
-    query += 'numConstraints ?pop {}'.format(idx)
+    # Query the population for the product of all pv pairs specified in kwargs
+    p_vals = [k for k, _ in sorted(kwargs.items())]
+    v_vals = [v if isinstance(v, list) else [v] for _, v in sorted(kwargs.items())]
+    for prod_idx, v_prod in enumerate(product(*v_vals)):
+      query = ('SELECT ?{seed_col_name} ?{new_col_name},'
+               'typeOf ?node {seed_col_type},'
+               'typeOf ?pop Population,'
+               'dcid ?node {dcids},'
+               'dcid ?node ?{seed_col_name},'
+               'location ?pop ?node,'
+               'dcid ?pop ?{new_col_name},'
+               'populationType ?pop {population_type},').format(
+                   new_col_name=new_col_name[prod_idx],
+                   seed_col_name=seed_col_name,
+                   seed_col_type=seed_col_type,
+                   dcids=' '.join(seed_col[1:]),
+                   population_type=population_type)
+      v_idx = 0
+      for v_idx, v in enumerate(v_prod):
+        query += 'p{} ?pop {},'.format(v_idx + 1, p_vals[v_idx])
+        query += 'v{} ?pop {},'.format(v_idx + 1, v)
+      query += 'numConstraints ?pop {}'.format(v_idx + 1)
+
+      # Run the query and merge the results
+      pd_table = self._query_and_merge(
+          pd_table=pd_table,
+          query=query,
+          seed_col_name=seed_col_name,
+          new_col_name=new_col_name[prod_idx],
+          new_col_type='Population',
+          max_rows=max_rows)
 
     # Run the query and merge the results.
-    return self._query_and_merge(
-        pd_table,
-        query,
-        seed_col_name,
-        new_col_name,
-        'Population',
-        max_rows=max_rows)
+    return pd_table
 
   def get_observations(self,
                        pd_table,
@@ -398,6 +387,32 @@ class Client(object):
         max_rows=max_rows)
 
   # -------------------------- OTHER QUERY FUNCTIONS --------------------------
+
+  def get_instances(self, instance_type, new_col_name, max_rows=100):
+    """Get a list of instance dcids for a given type.
+
+    Args:
+      new_col_name: Column name for the returned column.
+      instance_type: String of the instance type.
+      max_rows: Max number of returend rows.
+
+    Returns:
+      A pandas.DataFrame with instance dcids.
+    """
+    assert self._inited, 'Initialization was unsuccessful, cannot execute Query'
+    # TODO(antaresc): implement querying for enumeration types
+    query = ('SELECT ?{new_col_name},'
+             'typeOf ?node {instance_type},'
+             'dcid ?node ?{new_col_name}').format(
+                 new_col_name=new_col_name, instance_type=instance_type)
+    type_row = pd.DataFrame(data=[{new_col_name: instance_type}])
+
+    try:
+      dcid_column = self.query(query, max_rows)
+    except RuntimeError as e:
+      raise RuntimeError('Execute query\n%s\ngot an error:\n%s' % (query, e))
+
+    return pd.concat([type_row, dcid_column], ignore_index=True)
 
   def get_cities(self, state, new_col_name, max_rows=100):
     """Get a list of city dcids in a given state.

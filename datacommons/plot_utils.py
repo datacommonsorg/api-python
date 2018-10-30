@@ -263,7 +263,8 @@ def plot(pd_table,
   """
   if any(c not in pd_table for c in pd_cols):
     raise ValueError("Table does not contain all columns in {}".format(pd_cols))
-  pd_table = pd_table.loc[1:]
+  pd_table = pd_table.loc[1:].copy()
+  pd_table[pd_cols] = pd_table[pd_cols].apply(pd.to_numeric, errors='coerce')
 
   # Plot the data
   ax = _init_axis(ax, title, xlabel, ylabel, xscale, yscale)
@@ -315,7 +316,8 @@ def scatter(pd_table,
   if pd_xcol not in pd_table or any(c not in pd_table for c in pd_ycols):
     raise ValueError(
         "Table does not contain all columns in {}, {}".format(pd_xcol, pd_ycols))
-  pd_table = pd_table.loc[1:]
+  pd_table = pd_table.loc[1:].copy()
+  pd_table[pd_cols] = pd_table[pd_cols].apply(pd.to_numeric, errors='coerce')
 
   # Plot the data
   ax = _init_axis(ax, title, xlabel, ylabel, xscale, yscale)
