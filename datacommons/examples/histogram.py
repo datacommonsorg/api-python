@@ -60,7 +60,7 @@ def main():
                                    title='Median Income in US Cities by Gender',
                                    xlabel='Median Income',
                                    ylabel='Number of US Cities',
-                                   bins=25,
+                                   bins=50,
                                    alpha=0.85)
 
   with pd.option_context('display.width', 400, 'display.max_rows', 100):

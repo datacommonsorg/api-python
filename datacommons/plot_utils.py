@@ -19,6 +19,7 @@ import matplotlib.patches as mpatches
 import matplotlib as mpl
 
 import pandas as pd
+import numpy as np
 
 _DEFAULT_SCALE = "linear"           # Default matplotlib axis scale for plotting
 
@@ -188,17 +189,15 @@ def histogram(pd_table,
     raise ValueError("Table does not contain all columns in {}".format(pd_cols))
   pd_table = pd_table.loc[1:, pd_reserve_cols + pd_cols].copy()
   pd_table[pd_cols] = pd_table[pd_cols].apply(pd.to_numeric, errors='coerce')
-  pd_table = pd_table.dropna()
-  pd_table = pd_table.reset_index()
+
+  # Fix the bins to account for all histogram series
+  if 'bins' in kwargs:
+    data_tuple = tuple(pd_table[c].dropna().values for c in pd_cols)
+    kwargs['bins'] = np.histogram(np.hstack(data_tuple), bins=kwargs['bins'])[1]
 
   # Plot the data
   ax = _init_axis(ax, title, xlabel, ylabel, xscale, yscale)
-  hist = []
-  for c in pd_cols:
-    n, bins, patches = ax.hist(pd_table[c], **kwargs)
-    hist.append((n, bins, patches))
-    if 'bins' in kwargs:
-      kwargs['bins'] = bins
+  hist = [ax.hist(pd_table[c].dropna(), **kwargs) for c in pd_cols]
   if pd_labels:
     ax.legend(pd_labels)
   else:
