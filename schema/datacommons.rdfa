@@ -1381,7 +1381,7 @@
     </div>
     <div typeof="rdf:Property" resource="https://schema.datacommons.org/timezone">
       <span property="rdfs:label">timezone</span>
-      <span property="rdfs:comment">The current timezone for the location.</span>
+      <span property="rdfs:comment">The timezone for the location.</span>
       <link property="http://schema.org/domainIncludes" href="https://schema.org/AdministrativeArea"/>
       <link property="http://schema.org/rangeIncludes" href="https://schema.org/Text"/>
     </div>
