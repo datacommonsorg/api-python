@@ -538,12 +538,17 @@ class Client(object):
 
   # -------------------------- OTHER QUERY FUNCTIONS --------------------------
 
-  def get_instances(self, instance_type, new_col_name, max_rows=100):
+  def get_instances(self,
+                    instance_type,
+                    new_col_name,
+                    sub_type=None,
+                    max_rows=100):
     """Get a list of instance dcids for a given type.
 
     Args:
       new_col_name: Column name for the returned column.
       instance_type: String of the instance type.
+      sub_type: The sub_type of the instance. 
       max_rows: Max number of returend rows.
 
     Returns:
@@ -554,7 +559,13 @@ class Client(object):
              'typeOf ?node {instance_type},'
              'dcid ?node ?{new_col_name}').format(
                  new_col_name=new_col_name, instance_type=instance_type)
-    type_row = pd.DataFrame(data=[{new_col_name: instance_type}])
+    if sub_type is not None:
+      if isinstance(sub_type, str):
+        sub_type = [sub_type]
+      query += ', subType ?node {sub_type}'.format(sub_type=' '.join(sub_type))
+      type_row = pd.DataFrame(data=[{new_col_name: sub_type}])
+    else:
+      type_row = pd.DataFrame(data=[{new_col_name: instance_type}])
 
     try:
       dcid_column = self.query(query, max_rows)
