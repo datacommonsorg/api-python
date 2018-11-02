@@ -548,7 +548,7 @@ class Client(object):
     Args:
       new_col_name: Column name for the returned column.
       instance_type: String of the instance type.
-      sub_type: The sub_type of the instance. 
+      sub_type: The sub_type of the instance.
       max_rows: Max number of returend rows.
 
     Returns:
