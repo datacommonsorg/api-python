@@ -1,0 +1,28 @@
+Node: Connecticut
+typeOf: State
+placeIndex: Connecticut, USA
+sourceId: SourceCDCGov
+provenance: https://data.cdc.gov/NNDSS/NNDSS-Table-III-Tuberculosis/u3yt-gdfa
+curatorId: belwadi@google.com
+
+Node: CTTBPopulation
+typeOf: Population
+populationType: Person
+disease: Tuberculosis
+location: #%Connecticut
+sourceId: SourceCDCGov
+provenance: https://data.cdc.gov/NNDSS/NNDSS-Table-III-Tuberculosis/u3yt-gdfa
+curatorId: belwadi@google.com
+
+
+Node: CTTBCount
+observedNode: #%CTTBPopulation
+typeOf: Observation
+measuredProperty: count
+countValue: 10
+startTime: 1514764800000000
+endTime: 1519862400000000
+sourceId: SourceCDCGov
+provenance: https://data.cdc.gov/NNDSS/NNDSS-Table-III-Tuberculosis/u3yt-gdfa
+curatorId: belwadi@google.com
+
