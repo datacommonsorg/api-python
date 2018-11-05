@@ -17,8 +17,8 @@ curatorId: belwadi@google.com
 Node: 2015-CA-0668000-AgeAdjPrv-LPA-Obs
 observedNode: #%2015-CA-0668000-AgeAdjPrv-LPA-Pop
 typeOf: Observation
-measuredProperty: count
-measuredValue: 19.8
+measuredProperty: percentAgeAdjPrv
+percentValue: 19.8
 startTime: 1420070400000000
 endTime: 1420070400000000
 duration: P1Y
@@ -38,8 +38,8 @@ curatorId: belwadi@google.com
 Node: 2015-CA-0668000-CrdPrv-LPA-Obs
 observedNode: #%2015-CA-0668000-CrdPrv-LPA-Pop
 typeOf: Observation
-measuredProperty: count
-measuredValue: 19.6
+measuredProperty: percentCrdPrv
+percentValue: 19.6
 startTime: 1420070400000000
 endTime: 1420070400000000
 duration: P1Y
