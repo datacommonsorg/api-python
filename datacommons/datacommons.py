@@ -178,8 +178,13 @@ class Client(object):
     seed_col_type = seed_col[0]
     assert seed_col_type != 'Text', 'Parent entity should not be Text'
 
-    dcids = seed_col[1:]
-    if not outgoing:
+    dcids = ' '.join(seed_col[1:]).strip()
+    if not dcids:
+      # All entries in the seed column were empty strings. The new column should
+      # contain no entries.
+      pd_table[new_col_name] = ""
+      return pd_table
+    elif not outgoing:
       # The type for properties pointing into entities in the seed column is
       # stored in "self._inv_prop_type"
       if arc_name not in self._inv_prop_type[seed_col_type]:
@@ -197,7 +202,7 @@ class Client(object):
                    seed_col_name=seed_col_name,
                    seed_col_type=seed_col_type,
                    new_col_name=new_col_name,
-                   dcids=' '.join(dcids))
+                   dcids=dcids)
     else:
       # The type for properties pointing away from entities in the seed column
       # is stored in "self._prop_type"
@@ -216,7 +221,7 @@ class Client(object):
                    seed_col_name=seed_col_name,
                    seed_col_type=seed_col_type,
                    new_col_name=new_col_name,
-                   dcids=' '.join(dcids))
+                   dcids=dcids)
 
     # Run the query and merge the results.
     return self._query_and_merge(
@@ -284,33 +289,37 @@ class Client(object):
     p_vals = [k for k, _ in sorted(kwargs.items())]
     v_vals = [v if isinstance(v, list) else [v] for _, v in sorted(kwargs.items())]
     for prod_idx, v_prod in enumerate(product(*v_vals)):
-      query = ('SELECT ?{seed_col_name} ?{new_col_name},'
-               'typeOf ?node {seed_col_type},'
-               'typeOf ?pop Population,'
-               'dcid ?node {dcids},'
-               'dcid ?node ?{seed_col_name},'
-               'location ?pop ?node,'
-               'dcid ?pop ?{new_col_name},'
-               'populationType ?pop {population_type},').format(
-                   new_col_name=new_col_name[prod_idx],
-                   seed_col_name=seed_col_name,
-                   seed_col_type=seed_col_type,
-                   dcids=' '.join(seed_col[1:]),
-                   population_type=population_type)
-      v_idx = 0
-      for v_idx, v in enumerate(v_prod, 1):
-        query += 'p{} ?pop {},'.format(v_idx, p_vals[v_idx - 1])
-        query += 'v{} ?pop {},'.format(v_idx, v)
-      query += 'numConstraints ?pop {}'.format(v_idx)
+      dcids = ' '.join(seed_col[1:]).strip()
+      if not dcids:
+        pd_table[new_col_name[prod_idx]] = ""
+      else:
+        query = ('SELECT ?{seed_col_name} ?{new_col_name},'
+                 'typeOf ?node {seed_col_type},'
+                 'typeOf ?pop Population,'
+                 'dcid ?node {dcids},'
+                 'dcid ?node ?{seed_col_name},'
+                 'location ?pop ?node,'
+                 'dcid ?pop ?{new_col_name},'
+                 'populationType ?pop {population_type},').format(
+                     new_col_name=new_col_name[prod_idx],
+                     seed_col_name=seed_col_name,
+                     seed_col_type=seed_col_type,
+                     dcids=dcids,
+                     population_type=population_type)
+        v_idx = 0
+        for v_idx, v in enumerate(v_prod, 1):
+          query += 'p{} ?pop {},'.format(v_idx, p_vals[v_idx - 1])
+          query += 'v{} ?pop {},'.format(v_idx, v)
+        query += 'numConstraints ?pop {}'.format(v_idx)
 
-      # Run the query and merge the results
-      pd_table = self._query_and_merge(
-          pd_table=pd_table,
-          query=query,
-          seed_col_name=seed_col_name,
-          new_col_name=new_col_name[prod_idx],
-          new_col_type='Population',
-          max_rows=max_rows)
+        # Run the query and merge the results
+        pd_table = self._query_and_merge(
+            pd_table=pd_table,
+            query=query,
+            seed_col_name=seed_col_name,
+            new_col_name=new_col_name[prod_idx],
+            new_col_type='Population',
+            max_rows=max_rows)
     return pd_table
 
   def get_observations(self,
@@ -369,31 +378,35 @@ class Client(object):
           'Parent entity should be Population or City')
 
       # Query for the observation and merge into the dataframe
-      query = ('SELECT ?{seed_col_name} ?{new_col_name},'
-               'typeOf ?pop {seed_col_type},'
-               'typeOf ?o Observation,'
-               'dcid ?pop {dcids},'
-               'dcid ?pop ?{seed_col_name},'
-               'observedNode ?o ?pop,'
-               'startTime ?o {start_date},'
-               'endTime ?o {end_date},'
-               'measuredProperty ?o {measured_property},'
-               '{stats_type}Value ?o ?{new_col_name},').format(
-                   seed_col_type=seed_col_type,
-                   new_col_name=n_col_name,
-                   seed_col_name=s_col_name,
-                   dcids=' '.join(seed_col[1:]),
-                   measured_property=measured_property,
-                   stats_type=stats_type,
-                   start_date=_date_epoch_micros(start_date),
-                   end_date=_date_epoch_micros(end_date))
-      pd_table = self._query_and_merge(
-          pd_table=pd_table,
-          query=query,
-          seed_col_name=s_col_name,
-          new_col_name=n_col_name,
-          new_col_type='Observation',
-          max_rows=max_rows)
+      dcids = ' '.join(seed_col[1:]).strip()
+      if not dcids:
+        pd_table[n_col_name] = ""
+      else:
+        query = ('SELECT ?{seed_col_name} ?{new_col_name},'
+                 'typeOf ?pop {seed_col_type},'
+                 'typeOf ?o Observation,'
+                 'dcid ?pop {dcids},'
+                 'dcid ?pop ?{seed_col_name},'
+                 'observedNode ?o ?pop,'
+                 'startTime ?o {start_date},'
+                 'endTime ?o {end_date},'
+                 'measuredProperty ?o {measured_property},'
+                 '{stats_type}Value ?o ?{new_col_name},').format(
+                     seed_col_type=seed_col_type,
+                     new_col_name=n_col_name,
+                     seed_col_name=s_col_name,
+                     dcids=dcids,
+                     measured_property=measured_property,
+                     stats_type=stats_type,
+                     start_date=_date_epoch_micros(start_date),
+                     end_date=_date_epoch_micros(end_date))
+        pd_table = self._query_and_merge(
+            pd_table=pd_table,
+            query=query,
+            seed_col_name=s_col_name,
+            new_col_name=n_col_name,
+            new_col_type='Observation',
+            max_rows=max_rows)
     return pd_table
 
   def get_date_ranged_observations(self,
@@ -562,7 +575,8 @@ class Client(object):
     if sub_type is not None:
       if isinstance(sub_type, str):
         sub_type = [sub_type]
-      query += ', subType ?node {sub_type}'.format(sub_type=' '.join(sub_type))
+      query += ', subType ?node {sub_type}'.format(
+          sub_type=' '.join(sub_type).strip())
       type_row = pd.DataFrame(data=[{new_col_name: sub_type}])
     else:
       type_row = pd.DataFrame(data=[{new_col_name: instance_type}])
