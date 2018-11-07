@@ -178,39 +178,43 @@ class Client(object):
     seed_col_type = seed_col[0]
     assert seed_col_type != 'Text', 'Parent entity should not be Text'
 
-    # The type for properties pointing into entities in the seed column is
-    # stored in "self._inv_prop_type"
-    if arc_name not in self._inv_prop_type[seed_col_type]:
-      raise ValueError(
-          '%s does not have incoming property %s' % (seed_col_type, arc_name))
-    new_col_type = self._inv_prop_type[seed_col_type][arc_name]
+    # Determine the new column type
+    if outgoing:
+      if arc_name not in self._prop_type[seed_col_type]:
+        raise ValueError(
+            '%s does not have outgoing property %s' % (seed_col_type, arc_name))
+      new_col_type = self._prop_type[seed_col_type][arc_name]
+    else:
+      if arc_name not in self._inv_prop_type[seed_col_type]:
+        raise ValueError(
+            '%s does not have incoming property %s' % (seed_col_type, arc_name))
+      new_col_type = self._inv_prop_type[seed_col_type][arc_name]
+
 
     dcids = ' '.join(seed_col[1:]).strip()
     if not dcids:
-      # All entries in the seed column were empty strings. The new column should
+      # All entries in the seed column are empty strings. The new column should
       # contain no entries.
       pd_table[new_col_name] = ""
       pd_table[new_col_name][0] = new_col_type
       return pd_table
-    elif not outgoing:
-      # Create the query
+    elif outgoing:
       query = ('SELECT ?{seed_col_name} ?{new_col_name},'
                'typeOf ?node {seed_col_type},'
                'dcid ?node {dcids},'
                'dcid ?node ?{seed_col_name},'
-               '{arc_name} ?{new_col_name} ?node').format(
+               '{arc_name} ?node ?{new_col_name}').format(
                    arc_name=arc_name,
                    seed_col_name=seed_col_name,
                    seed_col_type=seed_col_type,
                    new_col_name=new_col_name,
                    dcids=dcids)
     else:
-      # Create the query
       query = ('SELECT ?{seed_col_name} ?{new_col_name},'
                'typeOf ?node {seed_col_type},'
                'dcid ?node {dcids},'
                'dcid ?node ?{seed_col_name},'
-               '{arc_name} ?node ?{new_col_name}').format(
+               '{arc_name} ?{new_col_name} ?node').format(
                    arc_name=arc_name,
                    seed_col_name=seed_col_name,
                    seed_col_type=seed_col_type,
