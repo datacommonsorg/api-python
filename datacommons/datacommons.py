@@ -164,47 +164,36 @@ class Client(object):
     """
     assert self._inited, 'Initialization was unsuccessful, cannot execute query'
 
-    try:
-      seed_col = pd_table[seed_col_name]
-    except KeyError:
+    if seed_col_name not in pd_table:
       raise ValueError('%s is not a valid seed column name' % seed_col_name)
-
     if new_col_name in pd_table:
       raise ValueError(
           '%s is already a column name in the data frame' % new_col_name)
 
+    seed_col = pd_table[seed_col_name]
     seed_col_type = seed_col[0]
     assert seed_col_type != 'Text', 'Parent entity should not be Text'
 
-    dcids = seed_col[1:]
-    if not outgoing:
-      # The type for properties pointing into entities in the seed column is
-      # stored in "self._inv_prop_type"
+    # Determine the new column type
+    if outgoing:
+      if arc_name not in self._prop_type[seed_col_type]:
+        raise ValueError(
+            '%s does not have outgoing property %s' % (seed_col_type, arc_name))
+      new_col_type = self._prop_type[seed_col_type][arc_name]
+    else:
       if arc_name not in self._inv_prop_type[seed_col_type]:
         raise ValueError(
             '%s does not have incoming property %s' % (seed_col_type, arc_name))
       new_col_type = self._inv_prop_type[seed_col_type][arc_name]
 
-      # Create the query
-      query = ('SELECT ?{seed_col_name} ?{new_col_name},'
-               'typeOf ?node {seed_col_type},'
-               'dcid ?node {dcids},'
-               'dcid ?node ?{seed_col_name},'
-               '{arc_name} ?{new_col_name} ?node').format(
-                   arc_name=arc_name,
-                   seed_col_name=seed_col_name,
-                   seed_col_type=seed_col_type,
-                   new_col_name=new_col_name,
-                   dcids=' '.join(dcids))
-    else:
-      # The type for properties pointing away from entities in the seed column
-      # is stored in "self._prop_type"
-      if arc_name not in self._prop_type[seed_col_type]:
-        raise ValueError(
-            '%s does not have outgoing property %s' % (seed_col_type, arc_name))
-      new_col_type = self._prop_type[seed_col_type][arc_name]
-
-      # Create the query
+    dcids = ' '.join(seed_col[1:]).strip()
+    if not dcids:
+      # All entries in the seed column are empty strings. The new column should
+      # contain no entries.
+      pd_table[new_col_name] = ""
+      pd_table[new_col_name][0] = new_col_type
+      return pd_table
+    if outgoing:
       query = ('SELECT ?{seed_col_name} ?{new_col_name},'
                'typeOf ?node {seed_col_type},'
                'dcid ?node {dcids},'
@@ -214,7 +203,18 @@ class Client(object):
                    seed_col_name=seed_col_name,
                    seed_col_type=seed_col_type,
                    new_col_name=new_col_name,
-                   dcids=' '.join(dcids))
+                   dcids=dcids)
+    else:
+      query = ('SELECT ?{seed_col_name} ?{new_col_name},'
+               'typeOf ?node {seed_col_type},'
+               'dcid ?node {dcids},'
+               'dcid ?node ?{seed_col_name},'
+               '{arc_name} ?{new_col_name} ?node').format(
+                   arc_name=arc_name,
+                   seed_col_name=seed_col_name,
+                   seed_col_type=seed_col_type,
+                   new_col_name=new_col_name,
+                   dcids=dcids)
 
     # Run the query and merge the results.
     return self._query_and_merge(
@@ -281,20 +281,22 @@ class Client(object):
       ValueError: when input argument is not valid.
     """
     assert self._inited, 'Initialization was unsuccessful, cannot execute query'
-    try:
-      seed_col = pd_table[seed_col_name]
-    except KeyError:
+    if seed_col_name not in pd_table:
       raise ValueError('%s is not a valid seed column name' % seed_col_name)
-
     if new_col_name in pd_table:
       raise ValueError(
           '%s is already a column name in the data frame' % new_col_name)
 
+    seed_col = pd_table[seed_col_name]
     seed_col_type = seed_col[0]
     assert seed_col_type != 'Text', 'Parent entity should not be Text'
 
     # Create the datalog query for the requested observations
-    dcids = seed_col[1:]
+    dcids = ' '.join(seed_col[1:]).strip()
+    if not dcids:
+      pd_table[new_col_name] = ""
+      pd_table[new_col_name][0] = 'Population'
+      return pd_table
     query = ('SELECT ?{seed_col_name} ?{new_col_name},'
              'typeOf ?node {seed_col_type},'
              'typeOf ?pop Population,'
@@ -306,7 +308,7 @@ class Client(object):
                  new_col_name=new_col_name,
                  seed_col_name=seed_col_name,
                  seed_col_type=seed_col_type,
-                 dcids=' '.join(dcids),
+                 dcids=dcids,
                  population_type=population_type)
     pv_pairs = sorted(kwargs.items())
     idx = 0
@@ -356,21 +358,23 @@ class Client(object):
       ValueError: when input argument is not valid.
     """
     assert self._inited, 'Initialization was unsuccessful, cannot execute query'
-    try:
-      seed_col = pd_table[seed_col_name]
-    except KeyError:
+    if seed_col_name not in pd_table:
       raise ValueError('%s is not a valid seed column name' % seed_col_name)
-
     if new_col_name in pd_table:
       raise ValueError(
           '%s is already a column name in the data frame' % new_col_name)
 
+    seed_col = pd_table[seed_col_name]
     seed_col_type = seed_col[0]
     assert seed_col_type == 'Population' or seed_col_type == 'City', (
         'Parent entity should be Population' or 'City')
 
     # Create the datalog query for the requested observations
-    dcids = seed_col[1:]
+    dcids = ' '.join(seed_col[1:]).strip()
+    if not dcids:
+      pd_table[new_col_name] = ""
+      pd_table[new_col_name][0] = 'Observation'
+      return pd_table
     query = ('SELECT ?{seed_col_name} ?{new_col_name},'
              'typeOf ?pop {seed_col_type},'
              'typeOf ?o Observation,'
@@ -384,7 +388,7 @@ class Client(object):
                  seed_col_type=seed_col_type,
                  new_col_name=new_col_name,
                  seed_col_name=seed_col_name,
-                 dcids=' '.join(dcids),
+                 dcids=dcids,
                  measured_property=measured_property,
                  stats_type=stats_type,
                  start_time=_date_epoch_micros(start_date),
