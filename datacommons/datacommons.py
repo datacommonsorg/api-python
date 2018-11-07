@@ -227,31 +227,6 @@ class Client(object):
 
   # ----------------------- OBSERVATION QUERY FUNCTIONS -----------------------
 
-  def get_instances(self, col_name, instance_type, max_rows=100):
-    """Get a list of instance dcids for a given type.
-
-    Args:
-      col_name: Column name for the returned column.
-      instance_type: String of the instance type.
-      max_rows: Max number of returend rows.
-
-    Returns:
-      A pandas.DataFrame with instance dcids.
-    """
-    assert self._inited, 'Initialization was unsuccessful, cannot execute Query'
-    query = ('SELECT ?{col_name},'
-             'typeOf ?node {instance_type},'
-             'dcid ?node ?{col_name}').format(
-                 col_name=col_name, instance_type=instance_type)
-    type_row = pd.DataFrame(data=[{col_name: instance_type}])
-
-    try:
-      dcid_column = self.query(query, max_rows)
-    except RuntimeError as e:
-      raise RuntimeError('Execute query\n%s\ngot an error:\n%s' % (query, e))
-
-    return pd.concat([type_row, dcid_column], ignore_index=True)
-
   def get_populations(self,
                       pd_table,
                       seed_col_name,
@@ -450,6 +425,41 @@ class Client(object):
       raise RuntimeError('Failed to save dataframe: {}'.format(e))
 
   # -------------------------- OTHER QUERY FUNCTIONS --------------------------
+
+  def get_instances(self,
+                    instance_type,
+                    new_col_name,
+                    sub_type=None,
+                    max_rows=100):
+    """Get a list of instance dcids for a given type.
+    Args:
+      new_col_name: Column name for the returned column.
+      instance_type: String of the instance type.
+      sub_type: The sub_type of the instance.
+      max_rows: Max number of returend rows.
+    Returns:
+      A pandas.DataFrame with instance dcids.
+    """
+    assert self._inited, 'Initialization was unsuccessful, cannot execute Query'
+    query = ('SELECT ?{new_col_name},'
+             'typeOf ?node {instance_type},'
+             'dcid ?node ?{new_col_name}').format(
+                 new_col_name=new_col_name, instance_type=instance_type)
+    if sub_type is not None:
+      if isinstance(sub_type, str):
+        sub_type = [sub_type]
+      query += ', subType ?node {sub_type}'.format(
+          sub_type=' '.join(sub_type).strip())
+      type_row = pd.DataFrame(data=[{new_col_name: sub_type}])
+    else:
+      type_row = pd.DataFrame(data=[{new_col_name: instance_type}])
+
+    try:
+      dcid_column = self.query(query, max_rows)
+    except RuntimeError as e:
+      raise RuntimeError('Execute query\n%s\ngot an error:\n%s' % (query, e))
+
+    return pd.concat([type_row, dcid_column], ignore_index=True)
 
   def get_cities(self, state, new_col_name, max_rows=100):
     """Get a list of city dcids in a given state.
