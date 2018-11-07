@@ -178,20 +178,21 @@ class Client(object):
     seed_col_type = seed_col[0]
     assert seed_col_type != 'Text', 'Parent entity should not be Text'
 
+    # The type for properties pointing into entities in the seed column is
+    # stored in "self._inv_prop_type"
+    if arc_name not in self._inv_prop_type[seed_col_type]:
+      raise ValueError(
+          '%s does not have incoming property %s' % (seed_col_type, arc_name))
+    new_col_type = self._inv_prop_type[seed_col_type][arc_name]
+
     dcids = ' '.join(seed_col[1:]).strip()
     if not dcids:
       # All entries in the seed column were empty strings. The new column should
       # contain no entries.
       pd_table[new_col_name] = ""
+      pd_table[new_col_name][0] = new_col_type
       return pd_table
     elif not outgoing:
-      # The type for properties pointing into entities in the seed column is
-      # stored in "self._inv_prop_type"
-      if arc_name not in self._inv_prop_type[seed_col_type]:
-        raise ValueError(
-            '%s does not have incoming property %s' % (seed_col_type, arc_name))
-      new_col_type = self._inv_prop_type[seed_col_type][arc_name]
-
       # Create the query
       query = ('SELECT ?{seed_col_name} ?{new_col_name},'
                'typeOf ?node {seed_col_type},'
@@ -204,13 +205,6 @@ class Client(object):
                    new_col_name=new_col_name,
                    dcids=dcids)
     else:
-      # The type for properties pointing away from entities in the seed column
-      # is stored in "self._prop_type"
-      if arc_name not in self._prop_type[seed_col_type]:
-        raise ValueError(
-            '%s does not have outgoing property %s' % (seed_col_type, arc_name))
-      new_col_type = self._prop_type[seed_col_type][arc_name]
-
       # Create the query
       query = ('SELECT ?{seed_col_name} ?{new_col_name},'
                'typeOf ?node {seed_col_type},'
@@ -292,6 +286,7 @@ class Client(object):
       dcids = ' '.join(seed_col[1:]).strip()
       if not dcids:
         pd_table[new_col_name[prod_idx]] = ""
+        pd_table[new_col_name[prod_idx]][0] = 'Population'
       else:
         query = ('SELECT ?{seed_col_name} ?{new_col_name},'
                  'typeOf ?node {seed_col_type},'
@@ -381,6 +376,7 @@ class Client(object):
       dcids = ' '.join(seed_col[1:]).strip()
       if not dcids:
         pd_table[n_col_name] = ""
+        pd_table[n_col_name][0] = 'Observation'
       else:
         query = ('SELECT ?{seed_col_name} ?{new_col_name},'
                  'typeOf ?pop {seed_col_type},'
