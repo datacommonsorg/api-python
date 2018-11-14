@@ -1420,6 +1420,19 @@
       <link property="http://schema.org/domainIncludes" href="https://schema.org/Thing"/>
       <link property="http://schema.org/rangeIncludes" href="https://schema.org/Text"/>
     </div>
+    <div typeof="rdf:Property" resource="https://schema.datacommons.org/fipsId">
+      <span property="rdfs:label">fipsId</span>
+      <span property="rdfs:comment">
+      Federal Information Processing Series, issued by the American National 
+      Standards Institute codes (ANSI codes). These are standardized numeric or
+      alphabetic codes to ensure uniform identification of geographic entities
+      through all federal government agencies. <br>
+      Example: "06" for California.<br>
+      Reference: <a href = "https://www.census.gov/geo/reference/ansi.html"> ANSI</a>.
+      </span>
+      <link property="http://schema.org/domainIncludes" href="https://schema.org/Thing"/>
+      <link property="http://schema.org/rangeIncludes" href="https://schema.org/Text"/>
+    </div>    
     <div typeof="rdf:Property" resource="https://schema.datacommons.org/provenance">
       <span property="rdfs:label">provenance</span>
       <span property="rdfs:comment">The source for the data. Provenance is labeled per triple.</span>
