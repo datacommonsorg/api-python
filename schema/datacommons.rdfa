@@ -1410,6 +1410,16 @@
       <link property="http://schema.org/domainIncludes" href="https://schema.org/Thing"/>
       <link property="http://schema.org/rangeIncludes" href="https://schema.org/Text"/>
     </div>
+    <div typeof="rdf:Property" resource="https://schema.datacommons.org/gnisId">
+      <span property="rdfs:label">gnisId</span>
+      <span property="rdfs:comment">The Geographic Names Information System (GNIS) is the Federal and national 
+      standard for geographic nomenclature, issued by the U.S. Geological Survey.
+      <br>
+      Example: "1779778"
+      <br> Reference: <a href="https://geonames.usgs.gov/domestic/index.html">GNIS</a>. </span>
+      <link property="http://schema.org/domainIncludes" href="https://schema.org/Thing"/>
+      <link property="http://schema.org/rangeIncludes" href="https://schema.org/Text"/>
+    </div>
     <div typeof="rdf:Property" resource="https://schema.datacommons.org/provenance">
       <span property="rdfs:label">provenance</span>
       <span property="rdfs:comment">The source for the data. Provenance is labeled per triple.</span>
