@@ -442,12 +442,13 @@ class Client(object):
     assert self._inited, 'Initialization was unsuccessful, cannot execute Query'
     data = json.dumps(pd_dataframe.to_json())
     try:
-      self._service.save_dataframe(body={
+      response = self._service.save_dataframe(body={
           'data': data,
-          'object_name': file_name
+          'file_name': file_name
       }).execute()
     except Exception as e:  # pylint: disable=broad-except
       raise RuntimeError('Failed to save dataframe: {}'.format(e))
+    return response['file_name']
 
   # -------------------------- OTHER QUERY FUNCTIONS --------------------------
 
