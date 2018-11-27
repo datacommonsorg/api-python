@@ -608,10 +608,9 @@ class Client(object):
     except RuntimeError as e:
       raise RuntimeError('Execute query \n%s\ngot an error:\n%s' % (query, e))
 
-    print(query_result)
-
-    query_result = query_result.rename(index=str, columns={seed_col_var: seed_col_name, new_col_var: new_col_name})
-    print(query_result)
+    query_result = query_result.rename(
+        index=str,
+        columns={seed_col_var: seed_col_name, new_col_var: new_col_name})
 
     new_data = pd.merge(
         pd_table[1:], query_result, how='left', on=seed_col_name)
