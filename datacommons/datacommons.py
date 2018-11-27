@@ -193,27 +193,30 @@ class Client(object):
       pd_table[new_col_name] = ""
       pd_table[new_col_name][0] = new_col_type
       return pd_table
+
+    seed_col_var = seed_col_name.replace(' ', '_')
+    new_col_var = new_col_name.replace(' ', '_')
     if outgoing:
-      query = ('SELECT ?{seed_col_name} ?{new_col_name},'
+      query = ('SELECT ?{seed_col_var} ?{new_col_var},'
                'typeOf ?node {seed_col_type},'
                'dcid ?node {dcids},'
-               'dcid ?node ?{seed_col_name},'
-               '{arc_name} ?node ?{new_col_name}').format(
+               'dcid ?node ?{seed_col_var},'
+               '{arc_name} ?node ?{new_col_var}').format(
                    arc_name=arc_name,
-                   seed_col_name=seed_col_name,
+                   seed_col_var=seed_col_var,
                    seed_col_type=seed_col_type,
-                   new_col_name=new_col_name,
+                   new_col_var=new_col_var,
                    dcids=dcids)
     else:
-      query = ('SELECT ?{seed_col_name} ?{new_col_name},'
+      query = ('SELECT ?{seed_col_var} ?{new_col_var},'
                'typeOf ?node {seed_col_type},'
                'dcid ?node {dcids},'
-               'dcid ?node ?{seed_col_name},'
-               '{arc_name} ?{new_col_name} ?node').format(
+               'dcid ?node ?{seed_col_var},'
+               '{arc_name} ?{new_col_var} ?node').format(
                    arc_name=arc_name,
-                   seed_col_name=seed_col_name,
+                   seed_col_var=seed_col_var,
                    seed_col_type=seed_col_type,
-                   new_col_name=new_col_name,
+                   new_col_var=new_col_var,
                    dcids=dcids)
 
     # Run the query and merge the results.
@@ -222,6 +225,8 @@ class Client(object):
         query,
         seed_col_name,
         new_col_name,
+        seed_col_var,
+        new_col_var,
         new_col_type,
         max_rows=max_rows)
 
@@ -297,16 +302,19 @@ class Client(object):
       pd_table[new_col_name] = ""
       pd_table[new_col_name][0] = 'Population'
       return pd_table
-    query = ('SELECT ?{seed_col_name} ?{new_col_name},'
+
+    seed_col_var = seed_col_name.replace(' ', '_')
+    new_col_var = new_col_name.replace(' ', '_')
+    query = ('SELECT ?{seed_col_var} ?{new_col_var},'
              'typeOf ?node {seed_col_type},'
              'typeOf ?pop Population,'
              'dcid ?node {dcids},'
-             'dcid ?node ?{seed_col_name},'
+             'dcid ?node ?{seed_col_var},'
              'location ?pop ?node,'
-             'dcid ?pop ?{new_col_name},'
+             'dcid ?pop ?{new_col_var},'
              'populationType ?pop {population_type},').format(
-                 new_col_name=new_col_name,
-                 seed_col_name=seed_col_name,
+                 new_col_var=new_col_var,
+                 seed_col_var=seed_col_var,
                  seed_col_type=seed_col_type,
                  dcids=dcids,
                  population_type=population_type)
@@ -323,6 +331,8 @@ class Client(object):
         query,
         seed_col_name,
         new_col_name,
+        seed_col_var,
+        new_col_var,
         'Population',
         max_rows=max_rows)
 
@@ -375,19 +385,22 @@ class Client(object):
       pd_table[new_col_name] = ""
       pd_table[new_col_name][0] = 'Observation'
       return pd_table
-    query = ('SELECT ?{seed_col_name} ?{new_col_name},'
+
+    seed_col_var = seed_col_name.replace(' ', '_')
+    new_col_var = new_col_name.replace(' ', '_')
+    query = ('SELECT ?{seed_col_var} ?{new_col_var},'
              'typeOf ?pop {seed_col_type},'
              'typeOf ?o Observation,'
              'dcid ?pop {dcids},'
-             'dcid ?pop ?{seed_col_name},'
+             'dcid ?pop ?{seed_col_var},'
              'observedNode ?o ?pop,'
              'startTime ?o {start_time},'
              'endTime ?o {end_time},'
              'measuredProperty ?o {measured_property},'
-             '{stats_type}Value ?o ?{new_col_name},').format(
+             '{stats_type}Value ?o ?{new_col_var},').format(
                  seed_col_type=seed_col_type,
-                 new_col_name=new_col_name,
-                 seed_col_name=seed_col_name,
+                 new_col_var=new_col_var,
+                 seed_col_var=seed_col_var,
                  dcids=dcids,
                  measured_property=measured_property,
                  stats_type=stats_type,
@@ -399,6 +412,8 @@ class Client(object):
         query,
         seed_col_name,
         new_col_name,
+        seed_col_var,
+        new_col_var,
         'Observation',
         max_rows=max_rows)
 
@@ -564,6 +579,8 @@ class Client(object):
                        query,
                        seed_col_name,
                        new_col_name,
+                       seed_col_var,
+                       new_col_var,
                        new_col_type,
                        max_rows=100):
     """A utility function that executes the given query and adds a new column.
@@ -590,6 +607,10 @@ class Client(object):
       query_result = self.query(query, max_rows=max_rows)
     except RuntimeError as e:
       raise RuntimeError('Execute query \n%s\ngot an error:\n%s' % (query, e))
+
+    query_result = query_result.rename(
+        index=str,
+        columns={seed_col_var: seed_col_name, new_col_var: new_col_name})
 
     new_data = pd.merge(
         pd_table[1:], query_result, how='left', on=seed_col_name)
