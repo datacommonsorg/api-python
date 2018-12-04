@@ -14,6 +14,7 @@
 """Example analysis with DataCommons Python API.
 
 """
+from __future__ import print_function
 
 import datacommons
 import pandas as pd
@@ -30,7 +31,7 @@ def main():
   # Add names of those cities.
   weather_table = dc.expand(pd_table, 'name', 'city', 'city_name')
   with pd.option_context('display.width', 400, 'display.max_rows', 100):
-    print weather_table
+    print(weather_table)
 
   # Add monthly mean temperature for those cities for all 2017 months.
   for d in range(1, 13):
@@ -44,7 +45,7 @@ def main():
         stats_type='mean')
 
   with pd.option_context('display.width', 400, 'display.max_rows', 100):
-    print weather_table
+    print(weather_table)
 
 
 if __name__ == '__main__':

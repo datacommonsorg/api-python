@@ -16,6 +16,7 @@
 Adds properties in the incoming and outgoing direction by building a table of
 all counties contained in the United States.
 """
+from __future__ import print_function
 
 import datacommons
 import pandas as pd
@@ -47,7 +48,7 @@ def main():
 
   # Print out the final data frame
   with pd.option_context('display.width', 400, 'display.max_rows', 100):
-    print pd_state
+    print(pd_state)
 
 
   pd_city = dc.get_places_in(
@@ -56,7 +57,7 @@ def main():
       col_name='city')
   pd_city = dc.expand(pd_city, 'name', 'city', 'city_name', outgoing=True)
   with pd.option_context('display.width', 400, 'display.max_rows', 100):
-    print pd_city
+    print(pd_city)
 
 if __name__ == '__main__':
   main()
