@@ -1381,7 +1381,7 @@
     </div>
     <div typeof="rdf:Property" resource="https://schema.datacommons.org/timezone">
       <span property="rdfs:label">timezone</span>
-      <span property="rdfs:comment">The current timezone for the location.</span>
+      <span property="rdfs:comment">The timezone for the location.</span>
       <link property="http://schema.org/domainIncludes" href="https://schema.org/AdministrativeArea"/>
       <link property="http://schema.org/rangeIncludes" href="https://schema.org/Text"/>
     </div>
@@ -1410,6 +1410,29 @@
       <link property="http://schema.org/domainIncludes" href="https://schema.org/Thing"/>
       <link property="http://schema.org/rangeIncludes" href="https://schema.org/Text"/>
     </div>
+    <div typeof="rdf:Property" resource="https://schema.datacommons.org/gnisId">
+      <span property="rdfs:label">gnisId</span>
+      <span property="rdfs:comment">The Geographic Names Information System (GNIS) is the Federal and national 
+      standard for geographic nomenclature, issued by the U.S. Geological Survey.
+      <br>
+      Example: "1779778"
+      <br> Reference: <a href="https://geonames.usgs.gov/domestic/index.html">GNIS</a>. </span>
+      <link property="http://schema.org/domainIncludes" href="https://schema.org/Thing"/>
+      <link property="http://schema.org/rangeIncludes" href="https://schema.org/Text"/>
+    </div>
+    <div typeof="rdf:Property" resource="https://schema.datacommons.org/fipsId">
+      <span property="rdfs:label">fipsId</span>
+      <span property="rdfs:comment">
+      Federal Information Processing Series, issued by the American National 
+      Standards Institute codes (ANSI codes). These are standardized numeric or
+      alphabetic codes to ensure uniform identification of geographic entities
+      through all federal government agencies. <br>
+      Example: "06" for California.<br>
+      Reference: <a href = "https://www.census.gov/geo/reference/ansi.html"> ANSI</a>.
+      </span>
+      <link property="http://schema.org/domainIncludes" href="https://schema.org/Thing"/>
+      <link property="http://schema.org/rangeIncludes" href="https://schema.org/Text"/>
+    </div>    
     <div typeof="rdf:Property" resource="https://schema.datacommons.org/provenance">
       <span property="rdfs:label">provenance</span>
       <span property="rdfs:comment">The source for the data. Provenance is labeled per triple.</span>

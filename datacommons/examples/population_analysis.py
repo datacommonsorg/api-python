@@ -27,7 +27,7 @@ def main():
 
   # Add the state name and the 5 counties contained in that state
   state_table = dc.expand(
-      state_table, 'name', 'state', 'state_name', outgoing=True)
+      state_table, 'name', 'state', 'state name', outgoing=True)
   state_table = dc.expand(
       state_table,
       'containedInPlace',
@@ -36,12 +36,12 @@ def main():
       outgoing=False,
       max_rows=3)
   state_table = dc.expand(
-      state_table, 'name', 'county', 'county_name', outgoing=True)
+      state_table, 'name', 'county', 'county name', outgoing=True)
 
   state_table = dc.get_populations(
       state_table,
       seed_col_name='county',
-      new_col_name='county_population',
+      new_col_name='county population',
       population_type='Person',
       max_rows=100)
   with pd.option_context('display.width', 400, 'display.max_rows', 100):
@@ -60,7 +60,7 @@ def main():
   state_table = dc.get_populations(
       state_table,
       seed_col_name='county',
-      new_col_name='county_male_population',
+      new_col_name='county male population',
       population_type='Person',
       max_rows=100,
       gender='Male')
@@ -69,8 +69,8 @@ def main():
 
   state_table = dc.get_observations(
       state_table,
-      seed_col_name='county_population',
-      new_col_name='county_person_count',
+      seed_col_name='county population',
+      new_col_name='county person count',
       start_date='2012-01-01',
       end_date='2016-01-01',
       measured_property='count',

@@ -45,6 +45,11 @@ def main():
   with pd.option_context('display.width', 400, 'display.max_rows', 100):
     print(df)
 
+  saved_file_name = dc.save_dataframe(df, 'test_df')
+  print(saved_file_name)
+  saved_df = dc.read_dataframe(saved_file_name)
+  assert df.equals(saved_df)
+
 
 if __name__ == '__main__':
   main()

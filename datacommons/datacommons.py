@@ -21,6 +21,7 @@ from __future__ import print_function
 
 from collections import defaultdict
 import datetime
+import json
 from itertools import product
 from . import _auth
 import pandas as pd
@@ -163,57 +164,60 @@ class Client(object):
     """
     assert self._inited, 'Initialization was unsuccessful, cannot execute query'
 
-    try:
-      seed_col = pd_table[seed_col_name]
-    except KeyError:
+    if seed_col_name not in pd_table:
       raise ValueError('%s is not a valid seed column name' % seed_col_name)
-
     if new_col_name in pd_table:
       raise ValueError(
           '%s is already a column name in the data frame' % new_col_name)
 
+    seed_col = pd_table[seed_col_name]
     seed_col_type = seed_col[0]
     assert seed_col_type != 'Text', 'Parent entity should not be Text'
 
-    dcids = seed_col[1:]
-    if not outgoing:
-      # The type for properties pointing into entities in the seed column is
-      # stored in "self._inv_prop_type"
+    # Determine the new column type
+    if outgoing:
+      if arc_name not in self._prop_type[seed_col_type]:
+        raise ValueError(
+            '%s does not have outgoing property %s' % (seed_col_type, arc_name))
+      new_col_type = self._prop_type[seed_col_type][arc_name]
+    else:
       if arc_name not in self._inv_prop_type[seed_col_type]:
         raise ValueError(
             '%s does not have incoming property %s' % (seed_col_type, arc_name))
       new_col_type = self._inv_prop_type[seed_col_type][arc_name]
 
-      # Create the query
-      query = ('SELECT ?{seed_col_name} ?{new_col_name},'
-               'typeOf ?node {seed_col_type},'
-               'dcid ?node {dcids},'
-               'dcid ?node ?{seed_col_name},'
-               '{arc_name} ?{new_col_name} ?node').format(
-                   arc_name=arc_name,
-                   seed_col_name=seed_col_name,
-                   seed_col_type=seed_col_type,
-                   new_col_name=new_col_name,
-                   dcids=' '.join(dcids))
-    else:
-      # The type for properties pointing away from entities in the seed column
-      # is stored in "self._prop_type"
-      if arc_name not in self._prop_type[seed_col_type]:
-        raise ValueError(
-            '%s does not have outgoing property %s' % (seed_col_type, arc_name))
-      new_col_type = self._prop_type[seed_col_type][arc_name]
+    dcids = ' '.join(seed_col[1:]).strip()
+    if not dcids:
+      # All entries in the seed column are empty strings. The new column should
+      # contain no entries.
+      pd_table[new_col_name] = ""
+      pd_table[new_col_name][0] = new_col_type
+      return pd_table
 
-      # Create the query
-      query = ('SELECT ?{seed_col_name} ?{new_col_name},'
+    seed_col_var = seed_col_name.replace(' ', '_')
+    new_col_var = new_col_name.replace(' ', '_')
+    if outgoing:
+      query = ('SELECT ?{seed_col_var} ?{new_col_var},'
                'typeOf ?node {seed_col_type},'
                'dcid ?node {dcids},'
-               'dcid ?node ?{seed_col_name},'
-               '{arc_name} ?node ?{new_col_name}').format(
+               'dcid ?node ?{seed_col_var},'
+               '{arc_name} ?node ?{new_col_var}').format(
                    arc_name=arc_name,
-                   seed_col_name=seed_col_name,
+                   seed_col_var=seed_col_var,
                    seed_col_type=seed_col_type,
-                   new_col_name=new_col_name,
-                   dcids=' '.join(dcids))
+                   new_col_var=new_col_var,
+                   dcids=dcids)
+    else:
+      query = ('SELECT ?{seed_col_var} ?{new_col_var},'
+               'typeOf ?node {seed_col_type},'
+               'dcid ?node {dcids},'
+               'dcid ?node ?{seed_col_var},'
+               '{arc_name} ?{new_col_var} ?node').format(
+                   arc_name=arc_name,
+                   seed_col_var=seed_col_var,
+                   seed_col_type=seed_col_type,
+                   new_col_var=new_col_var,
+                   dcids=dcids)
 
     # Run the query and merge the results.
     return self._query_and_merge(
@@ -221,6 +225,8 @@ class Client(object):
         query,
         seed_col_name,
         new_col_name,
+        seed_col_var,
+        new_col_var,
         new_col_type,
         max_rows=max_rows)
 
@@ -280,32 +286,37 @@ class Client(object):
       ValueError: when input argument is not valid.
     """
     assert self._inited, 'Initialization was unsuccessful, cannot execute query'
-    try:
-      seed_col = pd_table[seed_col_name]
-    except KeyError:
+    if seed_col_name not in pd_table:
       raise ValueError('%s is not a valid seed column name' % seed_col_name)
-
     if new_col_name in pd_table:
       raise ValueError(
           '%s is already a column name in the data frame' % new_col_name)
 
+    seed_col = pd_table[seed_col_name]
     seed_col_type = seed_col[0]
     assert seed_col_type != 'Text', 'Parent entity should not be Text'
 
     # Create the datalog query for the requested observations
-    dcids = seed_col[1:]
-    query = ('SELECT ?{seed_col_name} ?{new_col_name},'
+    dcids = ' '.join(seed_col[1:]).strip()
+    if not dcids:
+      pd_table[new_col_name] = ""
+      pd_table[new_col_name][0] = 'Population'
+      return pd_table
+
+    seed_col_var = seed_col_name.replace(' ', '_')
+    new_col_var = new_col_name.replace(' ', '_')
+    query = ('SELECT ?{seed_col_var} ?{new_col_var},'
              'typeOf ?node {seed_col_type},'
              'typeOf ?pop Population,'
              'dcid ?node {dcids},'
-             'dcid ?node ?{seed_col_name},'
+             'dcid ?node ?{seed_col_var},'
              'location ?pop ?node,'
-             'dcid ?pop ?{new_col_name},'
+             'dcid ?pop ?{new_col_var},'
              'populationType ?pop {population_type},').format(
-                 new_col_name=new_col_name,
-                 seed_col_name=seed_col_name,
+                 new_col_var=new_col_var,
+                 seed_col_var=seed_col_var,
                  seed_col_type=seed_col_type,
-                 dcids=' '.join(dcids),
+                 dcids=dcids,
                  population_type=population_type)
     pv_pairs = sorted(kwargs.items())
     idx = 0
@@ -320,6 +331,8 @@ class Client(object):
         query,
         seed_col_name,
         new_col_name,
+        seed_col_var,
+        new_col_var,
         'Population',
         max_rows=max_rows)
 
@@ -355,35 +368,40 @@ class Client(object):
       ValueError: when input argument is not valid.
     """
     assert self._inited, 'Initialization was unsuccessful, cannot execute query'
-    try:
-      seed_col = pd_table[seed_col_name]
-    except KeyError:
+    if seed_col_name not in pd_table:
       raise ValueError('%s is not a valid seed column name' % seed_col_name)
-
     if new_col_name in pd_table:
       raise ValueError(
           '%s is already a column name in the data frame' % new_col_name)
 
+    seed_col = pd_table[seed_col_name]
     seed_col_type = seed_col[0]
     assert seed_col_type == 'Population' or seed_col_type == 'City', (
         'Parent entity should be Population' or 'City')
 
     # Create the datalog query for the requested observations
-    dcids = seed_col[1:]
-    query = ('SELECT ?{seed_col_name} ?{new_col_name},'
+    dcids = ' '.join(seed_col[1:]).strip()
+    if not dcids:
+      pd_table[new_col_name] = ""
+      pd_table[new_col_name][0] = 'Observation'
+      return pd_table
+
+    seed_col_var = seed_col_name.replace(' ', '_')
+    new_col_var = new_col_name.replace(' ', '_')
+    query = ('SELECT ?{seed_col_var} ?{new_col_var},'
              'typeOf ?pop {seed_col_type},'
              'typeOf ?o Observation,'
              'dcid ?pop {dcids},'
-             'dcid ?pop ?{seed_col_name},'
+             'dcid ?pop ?{seed_col_var},'
              'observedNode ?o ?pop,'
              'startTime ?o {start_time},'
              'endTime ?o {end_time},'
              'measuredProperty ?o {measured_property},'
-             '{stats_type}Value ?o ?{new_col_name},').format(
+             '{stats_type}Value ?o ?{new_col_var},').format(
                  seed_col_type=seed_col_type,
-                 new_col_name=new_col_name,
-                 seed_col_name=seed_col_name,
-                 dcids=' '.join(dcids),
+                 new_col_var=new_col_var,
+                 seed_col_var=seed_col_var,
+                 dcids=dcids,
                  measured_property=measured_property,
                  stats_type=stats_type,
                  start_time=_date_epoch_micros(start_date),
@@ -394,8 +412,58 @@ class Client(object):
         query,
         seed_col_name,
         new_col_name,
+        seed_col_var,
+        new_col_var,
         'Observation',
         max_rows=max_rows)
+
+  # -------------------------- CACHING FUNCTIONS --------------------------
+
+  def read_dataframe(self, file_name):
+    """Read a previously saved pandas dataframe.
+
+      User can only read previously saved data file with the same authentication
+      email.
+
+    Args:
+      file_name: The saved file name.
+
+    Returns:
+      A pandas dataframe.
+
+    Raises:
+      RuntimeError: when failed to read the dataframe.
+    """
+    assert self._inited, 'Initialization was unsuccessful, cannot execute Query'
+    try:
+      response = self._service.read_dataframe(file_name=file_name).execute()
+    except Exception as e:  # pylint: disable=broad-except
+      raise RuntimeError('Failed to read dataframe: {}'.format(e))
+    return pd.read_json(json.loads(response['data']), dtype=False)
+
+  def save_dataframe(self, pd_dataframe, file_name):
+    """Saves pandas dataframe for later retrieving.
+
+      Each aunthentication email has its own scope for saved dataframe. Write
+      with same file_name overwrites previously saved dataframe.
+
+    Args:
+      pd_dataframe: A pandas.DataFrame.
+      file_name: The saved file name.
+
+    Raises:
+      RuntimeError: when failed to save the dataframe.
+    """
+    assert self._inited, 'Initialization was unsuccessful, cannot execute Query'
+    data = json.dumps(pd_dataframe.to_json())
+    try:
+      response = self._service.save_dataframe(body={
+          'data': data,
+          'file_name': file_name
+      }).execute()
+    except Exception as e:  # pylint: disable=broad-except
+      raise RuntimeError('Failed to save dataframe: {}'.format(e))
+    return response['file_name']
 
   # -------------------------- OTHER QUERY FUNCTIONS --------------------------
 
@@ -511,6 +579,8 @@ class Client(object):
                        query,
                        seed_col_name,
                        new_col_name,
+                       seed_col_var,
+                       new_col_var,
                        new_col_type,
                        max_rows=100):
     """A utility function that executes the given query and adds a new column.
@@ -537,6 +607,10 @@ class Client(object):
       query_result = self.query(query, max_rows=max_rows)
     except RuntimeError as e:
       raise RuntimeError('Execute query \n%s\ngot an error:\n%s' % (query, e))
+
+    query_result = query_result.rename(
+        index=str,
+        columns={seed_col_var: seed_col_name, new_col_var: new_col_name})
 
     new_data = pd.merge(
         pd_table[1:], query_result, how='left', on=seed_col_name)
