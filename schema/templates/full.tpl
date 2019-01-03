@@ -42,7 +42,7 @@ $(document).ready(function(){
 
 <h3>DataCommons.org vocabulary</h3>
 
-<p>This is the main vocabulary hierarchy: a collection of types (or "classes"), each of which has one or more parent types.
+<p>TThis is the main vocabulary hierarchy: a collection of types (or "classes"), each of which has one or more parent types.
   Although a type may have more than one super-type, here we show each type in one branch of the tree only.
 </p>
 <p>
