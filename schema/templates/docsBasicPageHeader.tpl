@@ -6,7 +6,7 @@
                     <div class="wrapper">
                         <div id="sitename">
                             <h1>
-                                <a href="../">schema.datacommons.org</a>
+                                <a href="../">schema.dataCommons.org</a>
                             </h1>
                         </div>
                     </div>
@@ -20,7 +20,7 @@
                         <a href="http://github.com/google/datacommons">Github</a>
                     </li>
                     <li>
-                        <a href="https://schema-datacommons.appspot.com">Schemas</a>
+                        <a href="schemas.html">Schemas</a>
                     </li>
                     <li>
                         <a href="https://datacommons.org/">Home</a>
