@@ -539,10 +539,10 @@ class Client(object):
     assert place_type in _PLACES, 'Input place types are not supported'
 
     # Get the type of the container place.
-    type_query = 'SELECT ?type,'
-                 'typeOf ?node Place,'
-                 'dcid ?node {dcid},'
-                 'subType ?node ?type'.format(dcid=container_dcid)
+    type_query = ('SELECT ?type,'
+                  'typeOf ?node Place,'
+                  'dcid ?node {dcid},'
+                  'subType ?node ?type').format(dcid=container_dcid)
     query_result = self.query(type_query)
     assert query_result['type'].count() == 1, (
         'Type of the container dcid not found')
