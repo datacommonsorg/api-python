@@ -130,7 +130,7 @@ class Client(object):
         for idx, key in enumerate(header):
           result_dict[key].append(values[idx])
 
-    return pd.DataFrame(result_dict)[header]
+    return pd.DataFrame(result_dict)[header].drop_duplicates()
 
   def expand(self,
              pd_table,
@@ -177,9 +177,11 @@ class Client(object):
     # Determine the new column type
     if outgoing:
       if arc_name not in self._prop_type[seed_col_type]:
-        raise ValueError(
-            '%s does not have outgoing property %s' % (seed_col_type, arc_name))
-      new_col_type = self._prop_type[seed_col_type][arc_name]
+        new_col_type = 'Text'
+        # raise ValueError(
+        #     '%s does not have outgoing property %s' % (seed_col_type, arc_name))
+      else:
+        new_col_type = self._prop_type[seed_col_type][arc_name]
     else:
       if arc_name not in self._inv_prop_type[seed_col_type]:
         raise ValueError(
@@ -300,14 +302,14 @@ class Client(object):
     dcids = ' '.join(seed_col[1:]).strip()
     if not dcids:
       pd_table[new_col_name] = ""
-      pd_table[new_col_name][0] = 'Population'
+      pd_table[new_col_name][0] = 'StatisticalPopulation'
       return pd_table
 
     seed_col_var = seed_col_name.replace(' ', '_')
     new_col_var = new_col_name.replace(' ', '_')
     query = ('SELECT ?{seed_col_var} ?{new_col_var},'
              'typeOf ?node {seed_col_type},'
-             'typeOf ?pop Population,'
+             'typeOf ?pop StatisticalPopulation,'
              'dcid ?node {dcids},'
              'dcid ?node ?{seed_col_var},'
              'location ?pop ?node,'
@@ -333,7 +335,7 @@ class Client(object):
         new_col_name,
         seed_col_var,
         new_col_var,
-        'Population',
+        'StatisticalPopulation',
         max_rows=max_rows)
 
   def get_observations(self,
@@ -343,7 +345,7 @@ class Client(object):
                        start_date,
                        end_date,
                        measured_property,
-                       stats_type,
+                       stats_type=None,
                        max_rows=100):
     """Create a new column with values for an observation of the given property.
 
@@ -376,8 +378,8 @@ class Client(object):
 
     seed_col = pd_table[seed_col_name]
     seed_col_type = seed_col[0]
-    assert seed_col_type == 'Population' or seed_col_type == 'City', (
-        'Parent entity should be Population' or 'City')
+    assert seed_col_type == 'StatisticalPopulation' or seed_col_type == 'City', (
+        'Parent entity should be StatisticalPopulation' or 'City')
 
     # Create the datalog query for the requested observations
     dcids = ' '.join(seed_col[1:]).strip()
@@ -386,6 +388,8 @@ class Client(object):
       pd_table[new_col_name][0] = 'Observation'
       return pd_table
 
+    if stats_type is None:
+      stats_type = 'measured'
     seed_col_var = seed_col_name.replace(' ', '_')
     new_col_var = new_col_name.replace(' ', '_')
     query = ('SELECT ?{seed_col_var} ?{new_col_var},'
