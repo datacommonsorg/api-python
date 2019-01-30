@@ -265,6 +265,7 @@ class Client(object):
                       new_col_name,
                       population_type,
                       max_rows=100,
+                      location_property='location',
                       **kwargs):
     """Create a new column with population dcid.
 
@@ -307,35 +308,20 @@ class Client(object):
 
     seed_col_var = seed_col_name.replace(' ', '_')
     new_col_var = new_col_name.replace(' ', '_')
-    if 'geo_property' in kwargs:
-        query = ('SELECT ?{seed_col_var} ?{new_col_var},'
-                 'typeOf ?node {seed_col_type},'
-                 'typeOf ?pop StatisticalPopulation,'
-                 'dcid ?node {dcids},'
-                 'dcid ?node ?{seed_col_var},'
-                 '{geo_prop} ?pop ?node,'
-                 'dcid ?pop ?{new_col_var},'
-                 'populationType ?pop {population_type},').format(
-                     new_col_var=new_col_var,
-                     seed_col_var=seed_col_var,
-                     seed_col_type=seed_col_type,
-                     dcids=dcids,
-                     population_type=population_type,
-                     geo_prop=kwargs['geo_property'])
-    else:
-        query = ('SELECT ?{seed_col_var} ?{new_col_var},'
-                 'typeOf ?node {seed_col_type},'
-                 'typeOf ?pop StatisticalPopulation,'
-                 'dcid ?node {dcids},'
-                 'dcid ?node ?{seed_col_var},'
-                 'location ?pop ?node,'
-                 'dcid ?pop ?{new_col_var},'
-                 'populationType ?pop {population_type},').format(
-                     new_col_var=new_col_var,
-                     seed_col_var=seed_col_var,
-                     seed_col_type=seed_col_type,
-                     dcids=dcids,
-                     population_type=population_type)
+    query = ('SELECT ?{seed_col_var} ?{new_col_var},'
+             'typeOf ?node {seed_col_type},'
+             'typeOf ?pop StatisticalPopulation,'
+             'dcid ?node {dcids},'
+             'dcid ?node ?{seed_col_var},'
+             '{location_property} ?pop ?node,'
+             'dcid ?pop ?{new_col_var},'
+             'populationType ?pop {population_type},').format(
+                 new_col_var=new_col_var,
+                 seed_col_var=seed_col_var,
+                 seed_col_type=seed_col_type,
+                 dcids=dcids,
+                 population_type=population_type,
+                 location_property=location_property)
     pv_pairs = sorted(kwargs.items())
     idx = 0
     for idx, pv in enumerate(pv_pairs, 1):
