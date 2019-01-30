@@ -265,6 +265,7 @@ class Client(object):
                       new_col_name,
                       population_type,
                       max_rows=100,
+                      location_property='location',
                       **kwargs):
     """Create a new column with population dcid.
 
@@ -312,14 +313,15 @@ class Client(object):
              'typeOf ?pop StatisticalPopulation,'
              'dcid ?node {dcids},'
              'dcid ?node ?{seed_col_var},'
-             'location ?pop ?node,'
+             '{location_property} ?pop ?node,'
              'dcid ?pop ?{new_col_var},'
              'populationType ?pop {population_type},').format(
                  new_col_var=new_col_var,
                  seed_col_var=seed_col_var,
                  seed_col_type=seed_col_type,
                  dcids=dcids,
-                 population_type=population_type)
+                 population_type=population_type,
+                 location_property=location_property)
     pv_pairs = sorted(kwargs.items())
     idx = 0
     for idx, pv in enumerate(pv_pairs, 1):
