@@ -26,7 +26,13 @@ from itertools import product
 from . import _auth
 import pandas as pd
 
-_PLACES = ('City', 'County', 'State', 'Country', 'Continent')
+_PLACES = {
+  'City': 'County',
+  'CensusTract': 'County',
+  'County': 'State',
+  'State': 'Country',
+  'Country': 'Continent'
+}
 
 _CLIENT_ID = ('66054275879-a0nalqfe2p9shlv4jpra5jekfkfnr8ug.apps.googleusercontent.com')
 _CLIENT_SECRET = 'fuJy7JtECndEXgtQA46hHqqa'
@@ -543,6 +549,7 @@ class Client(object):
     """
     assert self._inited, 'Initialization was unsuccessful, cannot execute Query'
     assert place_type in _PLACES, 'Input place types are not supported'
+    place_type_orig = place_type
 
     # Get the type of the container place.
     type_query = ('SELECT ?type,'
@@ -554,29 +561,31 @@ class Client(object):
         'Type of the container dcid not found')
     container_type = query_result['type'][0]
 
-    # Sanity check the type information.
-    place_type_ind = _PLACES.index(place_type)
-    container_type_ind = _PLACES.index(container_type)
-    assert container_type_ind > place_type_ind, (
-        'Requested place type should be of a lower level than the container')
-
     # Do the actual query.
     query = ('SELECT ?{col_name},'
              'typeOf ?node_{place_type} {place_type},'
              'dcid ?node_{place_type} ?{col_name},').format(
                  col_name=col_name,
                  place_type=place_type)
-    for i in range(place_type_ind, container_type_ind):
+    # Maximum 4 levels of containedIn relation for places.
+    for i in range(4):
+      parent_type = _PLACES[place_type]
       query += 'containedInPlace ?node_{child} ?node_{parent},'.format(
-          child=_PLACES[i], parent=_PLACES[i+1])
+          child=place_type, parent=parent_type)
+      if parent_type == container_type:
+        break
+      else:
+        place_type = parent_type
+    if parent_type != container_type:
+      raise ValueError('%s is not contained in %s' % (place_type_orig, container_type))
     query += 'dcid ?node_{container_type} "{container_dcid}"'.format(
         container_type=container_type, container_dcid=container_dcid)
     try:
       dcid_column = self.query(query, max_rows)
     except RuntimeError as e:
       raise RuntimeError('Execute query %s got an error:\n%s' % (query, e))
-
-    type_row = pd.DataFrame(data=[{col_name: place_type}])
+    
+    type_row = pd.DataFrame(data=[{col_name: place_type_orig}])
     return pd.concat([type_row, dcid_column], ignore_index=True)
 
 
