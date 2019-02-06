@@ -567,6 +567,7 @@ class Client(object):
              'dcid ?node_{place_type} ?{col_name},').format(
                  col_name=col_name,
                  place_type=place_type)
+    # Maximum 4 levels of containedIn relation for places.
     for i in range(4):
       parent_type = _PLACES[place_type]
       query += 'containedInPlace ?node_{child} ?node_{parent},'.format(
