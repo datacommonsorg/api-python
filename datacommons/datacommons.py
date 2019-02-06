@@ -549,6 +549,7 @@ class Client(object):
     """
     assert self._inited, 'Initialization was unsuccessful, cannot execute Query'
     assert place_type in _PLACES, 'Input place types are not supported'
+    place_type_orig = place_type
 
     # Get the type of the container place.
     type_query = ('SELECT ?type,'
@@ -559,7 +560,6 @@ class Client(object):
     assert query_result['type'].count() == 1, (
         'Type of the container dcid not found')
     container_type = query_result['type'][0]
-    type_row = pd.DataFrame(data=[{col_name: place_type}])
 
     # Do the actual query.
     query = ('SELECT ?{col_name},'
@@ -575,6 +575,8 @@ class Client(object):
         break
       else:
         place_type = parent_type
+    if parent_type != container_type:
+      raise ValueError('%s is not contained in %s' % (place_type_orig, container_type))
     query += 'dcid ?node_{container_type} "{container_dcid}"'.format(
         container_type=container_type, container_dcid=container_dcid)
     try:
@@ -582,6 +584,7 @@ class Client(object):
     except RuntimeError as e:
       raise RuntimeError('Execute query %s got an error:\n%s' % (query, e))
     
+    type_row = pd.DataFrame(data=[{col_name: place_type_orig}])
     return pd.concat([type_row, dcid_column], ignore_index=True)
 
 
