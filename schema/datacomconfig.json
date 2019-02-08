@@ -9,42 +9,47 @@
     "vocaburl": "https://schema.datacommons.org/",
     "atticurl": "https://attic.schema.datacommons.org/",
     "dataFeedVar": [
-        {"SCHEMAORGLOC": "https://raw.githubusercontent.com/schemaorg/schemaorg/master"},
-        {"DATACOMMLOC": "https://raw.githubusercontent.com/RichardWallis/datacommons/appupdate/schema"},
-        {"GITDATACOMMLOC": "https://raw.githubusercontent.com/schemaorg/schemaorg/master"}
+        {"DATACOMMLOC": "https://raw.githubusercontent.com/google/datacommons/master/schema"},
+        {"SCHEMAORGLOC": "https://raw.githubusercontent.com/schemaorg/schemaorg/v3.4-release"}
     ],
     "dataFeedElement": [
         {
             "@type": "DataDownload",
+            "fileContent": "docs",
             "contentLocation": "[[DATACOMMLOC]]/docs",
             "contentFile": [
                 "favicon.ico",
                 "prettify.css",
                 "prettify.js",
                 "schemaorg.css"
-            ],
-            "fileContent": "docs"
+            ]
         },
         {
             "@type": "DataDownload",
+            "fileContent": "terms",
             "contentLocation": "[[DATACOMMLOC]]",
-            "contentFile": "datacommons.rdfa",
-            "fileContent": "terms"
+            "contentFile": "datacommons.rdfa"
         },
         {
             "@type": "DataDownload",
-            "contentLocation": "[[DATACOMMLOC]]/templates",
-            "fileContent": "templates"
+            "fileContent": "examples",
+            "contentLocation": "[[SCHEMAORGLOC]]",
+            "contentFile": "examples.txt"
         },
         {
             "@type": "DataDownload",
+            "fileContent": "templates",
+            "contentLocation": "[[DATACOMMLOC]]/templates"
+        },
+        {
+            "@type": "DataDownload",
+            "fileContent": "terms",
             "addPrefix": "schema",
             "addVocaburl": "http://schema.org/",
             "contentFile": [
                 "[[SCHEMAORGLOC]]/data/schema.rdfa",
                 "[[SCHEMAORGLOC]]/data/ext/meta/meta.rdfa"
-            ],
-            "fileContent": "terms"
+            ]
         }
     ]
 }
