@@ -1,0 +1,60 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <title></title>
+  <meta name="Generator" content="Cocoa HTML Writer">
+  <meta name="CocoaVersion" content="1671.2">
+  <style type="text/css">
+    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 18.0px Helvetica}
+    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica; min-height: 14.0px}
+    p.p3 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica}
+    li.li4 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Courier}
+    li.li5 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica; color: #000000}
+    li.li6 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica; color: #000000; background-color: #ffffff}
+    span.s1 {font: 12.0px Helvetica}
+    span.s2 {color: #000000}
+    span.s3 {font: 12.0px Courier; font-variant-ligatures: no-common-ligatures; background-color: #ffffff}
+    span.s4 {font: 12.0px Courier; background-color: #ffffff}
+    span.s5 {background-color: #ffffff}
+    ol.ol1 {list-style-type: decimal}
+  </style>
+</head>
+<body>
+<p class="p1">[Temporary] Schema/Datacommons Deployment instructions</p>
+<p class="p2"><br></p>
+<p class="p3">These assume that the version of SDOAPP in use is in schemaorg branch ‘<b>vocabindi2</b>’ , and the data files for datacommons/schema are in repository ‘<b>https://github.com/RichardWallis/datacommons/tree/appupdate</b>’.</p>
+<p class="p2"><br></p>
+<ol class="ol1">
+  <li class="li4"><span class="s1">Checkout SDOAPP - branch vocabindi2<br>
+</span>git clone https://github.com/schemaorg/schemaorg.git<br>
+git checkout vocabindi2<br>
+</li>
+  <li class="li4"><span class="s1">Get Datacommons deployment files<br>
+</span>curl -O https://raw.githubusercontent.com/RichardWallis/datacommons/appupdate/schema/datacomschema.yaml<span class="s1"><br>
+</span>curl -O https://raw.githubusercontent.com/RichardWallis/datacommons/appupdate/schema/test-datacomschema.yaml<br>
+</li>
+  <li class="li5"><span class="s2">Deploy to an app engine:<br>
+Note: change project name from sdo-rjwtest to appropriate one.<br>
+Note Change —version=2 to one that is not used in target project<br>
+<br>
+If using files in Richard/Wallis/datacommons repo branch appupdate:<br>
+</span><span class="s3">scripts/appdeploy.sh --no-promote --project sdo-rjwtest<span class="Apple-converted-space">  </span>--version=2 </span><span class="s4">test-datacomschema.yaml<br>
+<br>
+</span><span class="s5">When appupdate branch has been merged in to datacommons:<br>
+</span><span class="s3">scripts/appdeploy.sh --no-promote --project sdo-rjwtest<span class="Apple-converted-space">  </span>--version=2 </span><span class="s4">datacomschema.yaml<br>
+</span><span class="s5"><br>
+</span></li>
+  <li class="li6">Migrate traffic to version 2 (or whichever version label is chosen)<br>
+</li>
+  <li class="li6">To see which configuration files are in use:<br>
+* In console/App Engine/ Versions select Config&gt;View for the version<br>
+* Scroll to env_variables <br>
+* Copy value of CONFIGFILE<br>
+* Paste into browser to view<br>
+* DATACOMMLOC value is root location for Datacommons config files<br>
+* SCHEMAORGLOC value is root location of Schema.org config files referenced in displays</li>
+</ol>
+</body>
+</html>
