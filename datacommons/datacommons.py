@@ -423,7 +423,7 @@ class Client(object):
       response = self._service.read_dataframe(file_name=file_name).execute()
     except Exception as e:  # pylint: disable=broad-except
       raise RuntimeError('Failed to read dataframe: {}'.format(e))
-    return pd.read_json(json.loads(response['data']), dtype=False)
+    return pd.read_json(json.loads(response['data']), dtype=False, orient='split')
 
   def save_dataframe(self, pd_dataframe, file_name):
     """Saves pandas dataframe for later retrieving.
@@ -439,7 +439,7 @@ class Client(object):
       RuntimeError: when failed to save the dataframe.
     """
     assert self._inited, 'Initialization was unsuccessful, cannot execute Query'
-    data = json.dumps(pd_dataframe.to_json())
+    data = json.dumps(pd_dataframe.to_json(index=False, orient='split'))
     try:
       response = self._service.save_dataframe(body={
           'data': data,
