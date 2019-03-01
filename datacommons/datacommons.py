@@ -20,7 +20,6 @@ from __future__ import division
 from __future__ import print_function
 
 from collections import defaultdict
-import datetime
 import json
 from itertools import product
 from . import _auth
@@ -34,39 +33,13 @@ _PLACES = {
   'Country': 'Continent'
 }
 
+_PARENT_TYPES = {
+  'containedInPlace': 'Place'
+}
+
 _CLIENT_ID = ('66054275879-a0nalqfe2p9shlv4jpra5jekfkfnr8ug.apps.googleusercontent.com')
 _CLIENT_SECRET = 'fuJy7JtECndEXgtQA46hHqqa'
 _API_ROOT = 'https://datcom-api.appspot.com'
-
-_MICRO_SECONDS = 1000000
-_EPOCH_START = datetime.datetime(year=1970, month=1, day=1)
-
-
-def _year_epoch_micros(year):
-  """Get the timestamp of the start of a year in micro seconds.
-
-  Args:
-    year: An integer number of the year.
-
-  Returns:
-    Timestamp of the start of a year in micro seconds.
-  """
-  now = datetime.datetime(year=year, month=1, day=1)
-
-  return int((now - _EPOCH_START).total_seconds()) * _MICRO_SECONDS
-
-
-def _date_epoch_micros(date_string):
-  """Get the timestamp of the date string in micro seconds.
-
-  Args:
-    date_string: An string of date
-
-  Returns:
-    Timestamp of the start of a year in micro seconds.
-  """
-  now = datetime.datetime.strptime(date_string, '%Y-%m-%d')
-  return int((now - _EPOCH_START).total_seconds()) * _MICRO_SECONDS
 
 
 class Client(object):
@@ -189,11 +162,13 @@ class Client(object):
       else:
         new_col_type = self._prop_type[seed_col_type][arc_name]
     else:
-      if arc_name not in self._inv_prop_type[seed_col_type]:
+      if arc_name in self._inv_prop_type[seed_col_type]:
+        new_col_type = self._inv_prop_type[seed_col_type][arc_name]
+      elif arc_name in _PARENT_TYPES:
+        new_col_type = _PARENT_TYPES[arc_name]
+      else:
         raise ValueError(
             '%s does not have incoming property %s' % (seed_col_type, arc_name))
-      new_col_type = self._inv_prop_type[seed_col_type][arc_name]
-
     dcids = ' '.join(seed_col[1:]).strip()
     if not dcids:
       # All entries in the seed column are empty strings. The new column should
@@ -350,8 +325,7 @@ class Client(object):
                        pd_table,
                        seed_col_name,
                        new_col_name,
-                       start_date,
-                       end_date,
+                       observation_date,
                        measured_property,
                        stats_type=None,
                        max_rows=100):
@@ -406,8 +380,7 @@ class Client(object):
              'dcid ?pop {dcids},'
              'dcid ?pop ?{seed_col_var},'
              'observedNode ?o ?pop,'
-             'startTime ?o {start_time},'
-             'endTime ?o {end_time},'
+             'observationDate ?o {observation_date},'
              'measuredProperty ?o {measured_property},'
              '{stats_type}Value ?o ?{new_col_var},').format(
                  seed_col_type=seed_col_type,
@@ -416,8 +389,7 @@ class Client(object):
                  dcids=dcids,
                  measured_property=measured_property,
                  stats_type=stats_type,
-                 start_time=_date_epoch_micros(start_date),
-                 end_time=_date_epoch_micros(end_date))
+                 observation_date=observation_date)
     # Run the query and merge the results.
     return self._query_and_merge(
         pd_table,
@@ -584,7 +556,7 @@ class Client(object):
       dcid_column = self.query(query, max_rows)
     except RuntimeError as e:
       raise RuntimeError('Execute query %s got an error:\n%s' % (query, e))
-    
+
     type_row = pd.DataFrame(data=[{col_name: place_type_orig}])
     return pd.concat([type_row, dcid_column], ignore_index=True)
 

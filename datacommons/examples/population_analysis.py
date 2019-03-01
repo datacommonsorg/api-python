@@ -71,10 +71,8 @@ def main():
       state_table,
       seed_col_name='county population',
       new_col_name='county person count',
-      start_date='2012-01-01',
-      end_date='2016-01-01',
-      measured_property='count',
-      stats_type='count')
+      observation_date='2016',
+      measured_property='count')
 
   with pd.option_context('display.width', 400, 'display.max_rows', 100):
     print state_table
