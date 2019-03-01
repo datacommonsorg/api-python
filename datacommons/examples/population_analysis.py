@@ -20,7 +20,11 @@ import pandas as pd
 
 
 def main():
-  dc = datacommons.Client()
+  dc = datacommons.Client(
+    client_id='381568890662-ff9evnle0lj0oqttr67p2h6882d9ensr.apps.googleusercontent.com',
+    client_secret='77HJA4S5m48Z98UKkW_o-jAY',
+    api_root='https://datcom-api-sandbox.appspot.com',
+  )
 
   # Build a table with a single US state
   state_table = dc.get_states('United States', 'state', max_rows=1)
@@ -71,10 +75,8 @@ def main():
       state_table,
       seed_col_name='county population',
       new_col_name='county person count',
-      start_date='2012-01-01',
-      end_date='2016-01-01',
-      measured_property='count',
-      stats_type='count')
+      observation_date='2016',
+      measured_property='count')
 
   with pd.option_context('display.width', 400, 'display.max_rows', 100):
     print state_table
