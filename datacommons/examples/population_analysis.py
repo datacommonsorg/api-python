@@ -20,11 +20,7 @@ import pandas as pd
 
 
 def main():
-  dc = datacommons.Client(
-    client_id='381568890662-ff9evnle0lj0oqttr67p2h6882d9ensr.apps.googleusercontent.com',
-    client_secret='77HJA4S5m48Z98UKkW_o-jAY',
-    api_root='https://datcom-api-sandbox.appspot.com',
-  )
+  dc = datacommons.Client()
 
   # Build a table with a single US state
   state_table = dc.get_states('United States', 'state', max_rows=1)
