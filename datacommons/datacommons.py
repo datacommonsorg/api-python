@@ -372,6 +372,7 @@ class Client(object):
 
     if stats_type is None:
       stats_type = 'measured'
+
     seed_col_var = seed_col_name.replace(' ', '_')
     new_col_var = new_col_name.replace(' ', '_')
     query = ('SELECT ?{seed_col_var} ?{new_col_var},'
@@ -390,6 +391,15 @@ class Client(object):
                  measured_property=measured_property,
                  stats_type=stats_type,
                  observation_date=observation_date)
+
+    measurementMethod = None
+    if measured_property == 'prevalence':
+      measurementMethod = 'CDC_CrudePrevalence'
+    elif measured_property == 'unemploymentRate':
+      measurementMethod = 'BLSSeasonallyUnadjusted'
+    if measurementMethod:
+      query += 'measurementMethod ?o {}'.format(measurementMethod)
+
     # Run the query and merge the results.
     return self._query_and_merge(
         pd_table,
