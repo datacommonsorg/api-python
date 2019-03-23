@@ -11,6 +11,6 @@ env.bak/
 venv.bak/
 .pyc
 .profraw
-.dat
+*.dat
 .DS_Store
 ._*
