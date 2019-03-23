@@ -30,7 +30,7 @@ def main():
   query = ("""
            SELECT ?id ?lat ?long,
              typeOf ?o City,
-             name ?o 'San Luis Obispo',
+             name ?o "San Luis Obispo",
              dcid ?o ?id,
              latitude ?o ?lat,
              longitude ?o ?long

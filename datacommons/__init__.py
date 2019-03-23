@@ -14,3 +14,5 @@
 """Data Commons module."""
 
 from .datacommons import Client
+from .bio import BioExtension
+# from .constants import Constants

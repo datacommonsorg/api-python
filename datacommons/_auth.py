@@ -49,7 +49,6 @@ def do_auth(client_id, client_secret, api_root):
   Returns:
     A service connections that can be used to issue calls on.
   """
-
   # Acquire and store oauth token.
   storage = authfile.Storage('datacommons_{}.dat'.format(client_id))
   credentials = storage.get()
