@@ -32,6 +32,10 @@ from collections import defaultdict, OrderedDict
 
 import pandas as pd
 
+_PARENT_TYPES = {
+  'containedInPlace': 'Place'
+}
+
 _CLIENT_ID = ('381568890662-ff9evnle0lj0oqttr67p2h6882d9ensr.apps.googleusercontent.com')
 _CLIENT_SECRET = '77HJA4S5m48Z98UKkW_o-jAY'
 _API_ROOT = 'https://datcom-api-sandbox.appspot.com'
@@ -70,8 +74,55 @@ class BioExtension(object):
         self._col_type = {}
         self._dataframe = pd.DataFrame()
 
-    def expand(self):
-        pass
+    def expand(self, arc_name, seed_col_name, new_col_name, outgoing=True, max_rows=100):
+        """ TODO Comment """
+        assert self._inited, 'Initialization was unsuccessful, cannot execute query'
+
+        if new_col_name in self._dataframe:
+            col_names = ', '.join(['"{}"'.format(col) for col in self._dataframe])
+            msg = '"{}" is currently a column name. Please choose one that does not include {}'.format(col_names)
+            raise ValueError(msg)
+
+        # Get the seed column information
+        seed_col = self._resolve_parameter(seed_col_name)
+        seed_col_type = self._col_type[seed_col_name]
+        assert seed_col_type != 'Text', 'Parent entity should not be Text'
+
+        # Determine the new column type
+        if outgoing:
+            new_col_type = 'Text'
+            if arc_name in self._prop_type[seed_col_type]:
+                new_col_type = self._prop_type[seed_col_type][arc_name]
+        else:
+            if arc_name in self._inv_prop_type[seed_col_type]:
+                new_col_type = self._inv_prop_type[seed_col_type][arc_name]
+            elif arc_name in _PARENT_TYPES:
+                new_col_type = _PARENT_TYPES[arc_name]
+            else:
+                raise ValueError('{} does not have incoming property {}'.format(seed_col_type, arc_name))
+
+        # Get list of DCIDs
+        dcids = ' '.join(seed_col).strip()
+        if not dcids:
+            self._dataframe[new_col_name] = ''
+            self._col_type[new_col_name] = new_col_type
+            return
+
+        # Construct the query
+        seed_col_var = '?{}'.format(seed_col_name.replace(' ', '_'))
+        new_col_var = '?{}'.format(new_col_name.replace(' ', '_'))
+        constraints = [
+            'typeOf ?node {}'.format(seed_col_type),
+            'dcid ?node {}'.format(dcids),
+            'dcid ?node {}'.format(seed_col_var),
+        ]
+        if outgoing:
+            constraints.append('{} ?node {}'.format(arc_name, new_col_var))
+        else:
+            constraints.append('{} {} ?node'.format(arc_name, new_col_var))
+
+        # Add the data to the frame
+        self._add_data([new_col_var], [new_col_name], [new_col_type], constraints, max_rows, seed_col_var=seed_col_var, seed_col_name=seed_col_name)
 
     def get_experiments(self,
                         assay_category=None,
