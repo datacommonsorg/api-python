@@ -306,7 +306,7 @@ class BioExtension(object):
 
         # Compose the filters to create the final row filter
         row_filter = None
-        if chrom_filter or range_filters:
+        if chrom_filter or range_filter:
             def row_filter(row):
                 if chrom_filter and not chrom_filter(row):
                     return False
