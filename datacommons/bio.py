@@ -297,13 +297,12 @@ class BioExtension(object):
         ]
 
         # Create a filter function based on passed in parameters
-        chrom_filter, range_filters = None, []
+        chrom_filter, range_filter = None, None
         if chromosome is not None:
             chrom_filter = lambda row: row['Chromosome'] in chromosome
         if start_pos is not None and end_pos is not None:
-            for s, e in zip(start_pos, end_pos):
-                filter = lambda row: row['Start'] >= s and row['End'] <= e
-                range_filters.append(filter)
+            def range_filter(row):
+                return any(row['Start'] >= s and row['End'] <= e for s, e in zip(start_pos, end_pos))
 
         # Compose the filters to create the final row filter
         row_filter = None
@@ -311,8 +310,8 @@ class BioExtension(object):
             def row_filter(row):
                 if chrom_filter and not chrom_filter(row):
                     return False
-                if range_filters:
-                    return any(range_check(row) for range_check in range_filters)
+                if range_filter and not range_filter(row):
+                    return False
                 return True
 
         # Add the query contents to the data frame
