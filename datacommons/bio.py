@@ -183,7 +183,7 @@ class BioExtension(object):
         # Add the query contents to the data frame
         self._add_data(new_col_var, new_col_name, new_col_type, constraints, max_rows)
 
-    def get_bed_files(self, experiment=None, lab_name=None, max_rows=100):
+    def get_bed_files(self, experiment=None, max_rows=100):
         """ Adds a column of BedFile dcids into the current data frame.
 
         Args:
@@ -223,12 +223,15 @@ class BioExtension(object):
                 'dcid ?experimentNode {}'.format(' '.join(experiment)),
                 'dcid ?experimentNode ?experiment',
             ]
-        if lab_name is not None:
-            names = self._format_arg_range(lab_name)
-            constraints += [
-                'lab ?bedFileNode ?labNode',
-                'name ?labNode {}'.format(names)
-            ]
+        # TODO(antaresc): Fix this when query has been repaired
+        # - The issue is that you have to specify the type when you query for
+        #   by lab since lab is defined for EncodeExperiment and EncodeBedFile
+        # if lab_name is not None:
+        #     names = self._format_arg_range(lab_name)
+        #     constraints += [
+        #         'lab ?bedFile ?labNode',
+        #         'name ?labNode {}'.format(names)
+        #     ]
 
         # Add the query contents to the data frame
         self._add_data(new_col_var, new_col_name, new_col_type, constraints, max_rows, seed_col_var=seed_col_var, seed_col_name=seed_col_name)
@@ -315,35 +318,35 @@ class BioExtension(object):
         # Add the query contents to the data frame
         self._add_data(new_col_var, new_col_name, new_col_type, constraints, max_rows, seed_col_var='?bedFile', seed_col_name='BedFile', row_filter=row_filter)
 
-    def pandas(self, include_dcids=False, col_names=None):
+    def pandas(self, col_names=None):
         """ Returns a copy of the data in this view as a Pandas DataFrame.
 
         Args:
-          include_dcids: Include the DCID columns corresponding to each data
-            column in the output.
           col_names: An optional list specifying which columns to extract.
         """
+        if col_names:
+            return self._dataframe[col_names].copy()
         return self._dataframe.copy()
 
-    def csv(self, include_dcids=False, col_names=None):
+    def csv(self, col_names=None):
         """ Returns the data in this view as a CSV string.
 
         Args:
-          include_dcids: Include the DCID columns corresponding to each data
-            column in the output.
           col_names: An optional list specifying which columns to extract.
         """
+        if col_names:
+            return self._dataframe[col_names].to_csv(index=False)
         return self._dataframe.to_csv(index=False)
 
-    def tsv(self, include_dcids=False, col_names=None):
+    def tsv(self, col_names=None):
         """ Returns the data in this view as a TSV string.
 
         Args:
-          include_dcids: Include the DCID columns corresponding to each data
-            column in the output.
           col_names: An optional list specifying which columns to extract.
         """
-        return self._dataframe.to_tsv(index=false, sep='\t')
+        if col_names:
+            return self._dataframe[col_names].to_csv(index=false, sep='\t')
+        return self._dataframe.to_csv(index=false, sep='\t')
 
     # --------------------------- HELPER FUNCTIONS ----------------------------
 
