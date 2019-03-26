@@ -215,7 +215,7 @@ class BioExtension(object):
         # Construct the query
         new_col_var = ['?bedFile']
         new_col_name = ['BedFile']
-        new_col_type = ['BedFile']
+        new_col_type = ['EncodeBedFile']
         constraints = []
         if experiment is not None:
             constraints += [
