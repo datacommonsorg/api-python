@@ -359,7 +359,6 @@ class BioExtension(object):
           RuntimeError: some problem with executing query (hint in the string)
         """
         assert self._inited, 'Initialization was unsuccessful, cannot execute Query'
-        print(query)
 
         # Send the query to the DataCommons query service
         try:
