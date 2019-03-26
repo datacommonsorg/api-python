@@ -183,7 +183,7 @@ class BioExtension(object):
         # Add the query contents to the data frame
         self._add_data(new_col_var, new_col_name, new_col_type, constraints, max_rows)
 
-    def get_bed_files(self, experiment=None, lab_name=None, max_rows=100):
+    def get_bed_files(self, experiment=None, max_rows=100):
         """ Adds a column of BedFile dcids into the current data frame.
 
         Args:
@@ -209,8 +209,8 @@ class BioExtension(object):
                 seed_col_var = '?experiment'
                 seed_col_name = 'Experiment'
             experiment = self._resolve_parameter(experiment)
-        if lab_name:
-            lab_name = self._resolve_parameter(lab_name)
+        # if lab_name:
+        #     lab_name = self._resolve_parameter(lab_name)
 
         # Construct the query
         new_col_var = ['?bedFile']
