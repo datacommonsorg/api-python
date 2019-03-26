@@ -108,7 +108,7 @@ class BioExtension(object):
         ]
         if assay_category:
             assays = self._format_arg_range(assay_category)
-            constraints.append('assaySlim ?experimentNode {}'.format(assays))
+            constraints.append('assaySlims ?experimentNode {}'.format(assays))
         if assay_target:
             pass # TODO(antaresc): implement
         if assembly:
@@ -118,6 +118,7 @@ class BioExtension(object):
             classes = self._format_arg_range(bio_class)
             terms = self._format_arg_range(bio_term)
             constraints += [
+                'biosampleOntology ?experimentNode ?biosample',
                 'classification ?biosample {}'.format(classes),
                 'termName ?biosample {}'.format(terms)
             ]
@@ -165,13 +166,13 @@ class BioExtension(object):
         new_col_name = ['BedFile']
         new_col_type = ['BedFile']
         constraints = []
-        if experiment:
+        if experiment is not None:
             constraints += [
                 'experiment ?bedFile ?experimentNode',
                 'dcid ?experimentNode {}'.format(' '.join(experiment)),
                 'dcid ?experimentNode ?experiment',
             ]
-        if lab_name:
+        if lab_name is not None:
             names = self._format_arg_range(lab_name)
             constraints += [
                 'lab ?bedFileNode ?labNode',
@@ -251,10 +252,14 @@ class BioExtension(object):
                 range_filters.append(filter)
 
         # Compose the filters to create the final row filter
-        def row_filter(row):
-            if chrom_filter is not None and not chrom_filter(row):
-                return False
-            return any(range_check(row) for range_check in range_filters)
+        row_filter = None
+        if chrom_filter or range_filters:
+            def row_filter(row):
+                if chrom_filter and not chrom_filter(row):
+                    return False
+                if range_filters:
+                    return any(range_check(row) for range_check in range_filters)
+                return True
 
         # Add the query contents to the data frame
         self._add_data(new_col_var, new_col_name, new_col_type, constraints, max_rows, seed_col_var='?bedFile', seed_col_name='BedFile', row_filter=row_filter)
@@ -317,15 +322,6 @@ class BioExtension(object):
         raw_result = self._query(query, max_rows)
         new_data = raw_result.rename(index=str, columns=name_map)
 
-        # Filter row if a filter is provided
-        if row_filter:
-            new_data = new_data.apply(row_filter, axis=1)
-
-        # Merge the current dataframe with the result dataframe if specified
-        if seed_col_var:
-            new_data = self._dataframe.merge(
-                new_data, how='left', on=seed_col_name)
-
         # Update the type map and convert the column types
         for col in type_map:
             self._col_type[col] = type_map[col]
@@ -333,6 +329,15 @@ class BioExtension(object):
                 new_data[col] = pd.to_numeric(new_data[col])
             else:
                 new_data[col] = new_data[col].fillna('')
+
+        # Filter row if a filter is provided
+        if row_filter:
+            new_data = new_data[new_data.apply(row_filter, axis=1)]
+
+        # Merge the current dataframe with the result dataframe if specified
+        if seed_col_var:
+            new_data = self._dataframe.merge(
+                new_data, how='left', on=seed_col_name)
 
         # Reset the index and update the dataframe
         new_data.reset_index(drop=True, inplace=True)
