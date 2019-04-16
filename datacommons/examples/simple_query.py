@@ -27,14 +27,14 @@ def main():
   dc = datacommons.Client()
 
   # Get lat/long of a city.
-  query = ("""
+  query = ('''
            SELECT ?id ?lat ?long,
              typeOf ?o City,
-             name ?o 'San Luis Obispo',
+             name ?o "San Luis Obispo",
              dcid ?o ?id,
              latitude ?o ?lat,
              longitude ?o ?long
-           """)
+           ''')
   print('Issuing query "{}"'.format(query))
   try:
     df = dc.query(query)
