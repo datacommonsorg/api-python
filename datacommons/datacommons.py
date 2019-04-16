@@ -94,21 +94,14 @@ class Client(object):
       if len(cells) != len(header):
         raise RuntimeError(
             'Response #cells mismatches #header: {}'.format(response))
-      cell_values = []
       for key, cell in zip(header, cells):
         if not cell:
-          cell_values.append([''])
+          result_dict[key].append('')
         else:
           try:
-            cell_values.append(cell['value'])
+            result_dict[key].append(cell['string_value'])
           except KeyError:
             raise RuntimeError('No value in cell: {}'.format(row))
-
-      # Iterate through the cartesian product to flatten the query results.
-      for values in product(*cell_values):
-        for idx, key in enumerate(header):
-          result_dict[key].append(values[idx])
-
     return pd.DataFrame(result_dict)[header].drop_duplicates()
 
   def expand(self,
