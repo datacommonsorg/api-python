@@ -87,6 +87,7 @@ class Client(object):
       raise RuntimeError('Failed to execute query: %s' % e)
 
     header = response.get('header', [])
+    header = [h.lstrip('?') for h in header]
     rows = response.get('rows', [])
     result_dict = {header: [] for header in header}
     for row in rows:
@@ -374,7 +375,7 @@ class Client(object):
              'dcid ?pop {dcids},'
              'dcid ?pop ?{seed_col_var},'
              'observedNode ?o ?pop,'
-             'observationDate ?o {observation_date},'
+             'observationDate ?o "{observation_date}",'
              'measuredProperty ?o {measured_property},'
              '{stats_type}Value ?o ?{new_col_var},').format(
                  seed_col_type=seed_col_type,
