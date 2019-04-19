@@ -40,6 +40,8 @@ _CLIENT_ID = ('381568890662-ff9evnle0lj0oqttr67p2h6882d9ensr.apps.googleusercont
 _CLIENT_SECRET = '77HJA4S5m48Z98UKkW_o-jAY'
 _API_ROOT = 'https://datcom-api-sandbox.appspot.com'
 
+_DB_PATH = '/span/global/datacommons:dc-v3-staging7'
+
 class BioExtension(object):
     """ The DataCommons Bio API extension.
 
@@ -219,7 +221,7 @@ class BioExtension(object):
         constraints = []
         if experiment is not None:
             constraints += [
-                'experiment ?bedFile ?experimentNode',
+                'fromExperiment ?bedFile ?experimentNode',
                 'dcid ?experimentNode {}'.format(' '.join(experiment)),
                 'dcid ?experimentNode ?experiment',
             ]
@@ -287,7 +289,7 @@ class BioExtension(object):
         constraints = [
             'dcid ?bedFileNode {}'.format(dcids),
             'dcid ?bedFileNode ?bedFile',
-            'bedFile ?bedLineNode ?bedFileNode',
+            'fromBedFile ?bedLineNode ?bedFileNode',
             'chromosome ?bedLineNode ?chrom',
             'chromosomeStart ?bedLineNode ?chromStart',
             'chromosomeEnd ?bedLineNode ?chromEnd',
@@ -418,7 +420,8 @@ class BioExtension(object):
             response = self._service.query_table(body={
                 'query': query,
                 'options': {
-                    'row_count_limit': max_rows
+                    'row_count_limit': max_rows,
+                    'db': _DB_PATH
                 }
             }).execute()
         except Exception as e:
