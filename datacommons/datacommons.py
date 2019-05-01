@@ -215,7 +215,7 @@ class Client(object):
     Args:
       col_name: Column name for the returned column.
       instance_type: String of the instance type.
-      max_rows: Max number of returend rows.
+      max_rows: Max number of returned rows.
 
     Returns:
       A pandas.DataFrame with instance dcids.
@@ -246,12 +246,12 @@ class Client(object):
 
     The existing pandas dataframe should include a column containing entity IDs
     for geo entities. This function populates a new column with
-    population dcid corresponding to the geo entity.
+    population dcids corresponding to the geo entities.
 
     Args:
       pd_table: Pandas dataframe that contains geo entity dcids.
       seed_col_name: The column name that contains entity (ids) that the added
-        properties belong to.
+        populations belong to.
       new_col_name: New column name.
       population_type: Population type like "Person".
       max_rows: The maximum number of rows returned by the query results.
@@ -325,13 +325,14 @@ class Client(object):
                        max_rows=100):
     """Create a new column with values for an observation of the given property.
 
-    The existing pandas dataframe should include a column containing entity IDs
-    for a certain schema.org type. This function populates a new column with
-    property values for the entities.
+    The existing pandas dataframe should include a column containing population
+    dcids. This function populates a new column with observations of the
+    populations' measured property. A column containing geo ids of type City
+    can be used instead of population dcids.
 
     Args:
       pd_table: Pandas dataframe that contains entity information.
-      seed_col_name: The column that contains the population dcid.
+      seed_col_name: The column that contains the population dcid or city geo id.
       new_col_name: New column name.
       start_date: The start date of the observation (in 'YYY-mm-dd' form).
       end_date: The end date of the observation (in 'YYY-mm-dd' form).
@@ -459,9 +460,9 @@ class Client(object):
     """Get a list of city dcids in a given state.
 
     Args:
-      state: Name of the state name.
+      state: Name of the state.
       new_col_name: Column name for the returned city column.
-      max_rows: Max number of returend rows.
+      max_rows: Max number of returned rows.
 
     Returns:
       A pandas.DataFrame with city dcids.
@@ -487,9 +488,9 @@ class Client(object):
     """Get a list of state dcids.
 
     Args:
-      country: A string of the country states contained in.
+      country: Name of the country that states are contained in.
       new_col_name: Column name for the returned state column.
-      max_rows: max number of returend results.
+      max_rows: Max number of returned results.
 
     Returns:
       A pandas.DataFrame with state dcids.
@@ -512,13 +513,13 @@ class Client(object):
 
 
   def get_places_in(self, place_type, container_dcid, col_name, max_rows=100):
-    """Get a list of places that are contained in a higher level geo places.
+    """Get a list of places that are contained in a higher level geo place.
 
     Args:
       place_type: The place type, like "City".
       container_dcid: The dcid of the container place.
-      col_name: Column name for the returned state column.
-      max_rows: max number of returend results.
+      col_name: Column name for the returned places column.
+      max_rows: Max number of returned results.
 
     Returns:
       A pandas.DataFrame with dcids of the contained place.
@@ -585,7 +586,7 @@ class Client(object):
     Args:
       pd_table: A Pandas dataframe where the new data will be added.
       query: The query to be executed. This query must output a column with the
-             same name as "seed_col_name"
+             same name as "seed_col_name".
       seed_col_name: The name of the seed column (i.e. the column to join the
                      new data against).
       new_col_name: The name of the new column.
