@@ -11,8 +11,11 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""Data Commons Public API.
+""" DataCommons base public API.
 
+Contains Client which connects to the DataCommons knowledge graph, DCNode which
+wraps a node in the graph, and DCFrame which provides a tabular view of graph
+data.
 """
 
 from __future__ import absolute_import
@@ -20,35 +23,42 @@ from __future__ import division
 from __future__ import print_function
 
 from collections import defaultdict
-import json
-from itertools import product
 from . import _auth
+from . import utils
+import json
 import pandas as pd
 
-_PLACES = {
-  'City': 'County',
-  'CensusTract': 'County',
-  'County': 'State',
-  'State': 'Country',
-  'Country': 'Continent'
-}
+# Database paths
+_BIG_QUERY_PATH = 'google.com:datcom-store-dev.dc_store_v3'
+
+# Standard API Server target
+_CLIENT_ID = '66054275879-a0nalqfe2p9shlv4jpra5jekfkfnr8ug.apps.googleusercontent.com'
+_CLIENT_SECRET = 'fuJy7JtECndEXgtQA46hHqqa'
+_API_ROOT = 'https://datcom-api.appspot.com'
+
+# Sandbox API Server target
+_SANDBOX_CLIENT_ID = '381568890662-ff9evnle0lj0oqttr67p2h6882d9ensr.apps.googleusercontent.com'
+_SANDBOX_CLIENT_SECRET = '77HJA4S5m48Z98UKkW_o-jAY'
+_SANDBOX_API_ROOT = 'https://datcom-api-sandbox.appspot.com'
 
 _PARENT_TYPES = {
   'containedInPlace': 'Place'
 }
 
-_CLIENT_ID = ('66054275879-a0nalqfe2p9shlv4jpra5jekfkfnr8ug.apps.googleusercontent.com')
-_CLIENT_SECRET = 'fuJy7JtECndEXgtQA46hHqqa'
-_API_ROOT = 'https://datcom-api.appspot.com'
-
 
 class Client(object):
-  """Provides Data Commons API."""
+  """ The basic DataCommons query client.
+
+  The Client supports querying for property types and performing arbitrary
+  datalog queries.
+  """
 
   def __init__(self,
-               client_id=_CLIENT_ID,
-               client_secret=_CLIENT_SECRET,
-               api_root=_API_ROOT):
+               db_path=_BIG_QUERY_PATH,
+               client_id=_SANDBOX_CLIENT_ID,
+               client_secret=_SANDBOX_CLIENT_SECRET,
+               api_root=_SANDBOX_API_ROOT):
+    self._db_path = db_path
     self._service = _auth.do_auth(client_id, client_secret, api_root)
     response = self._service.get_prop_type(body={}).execute()
     self._prop_type = defaultdict(dict)
@@ -59,15 +69,37 @@ class Client(object):
         self._inv_prop_type[t['prop_type']][t['prop_name']] = t['node_type']
     self._inited = True
 
-  def query(self, datalog_query, max_rows=100):
-    """Performs a query returns results as a table.
+  def property_type(self, ent_type, property, outgoing=True):
+    """Returns the type pointed to by the given property and entity type.
 
     Args:
-      datalog_query: string representing datalog query in [TODO(shanth): link]
-      max_rows: max number of returned rows.
+      ent_type: The entity type
+      property: The property relating the given entity type to another.
+      outgoing: Whether or not the property points away or towards the given
+        entity. By default this is set to true.
 
     Returns:
-      A pandas.DataFrame with the selected variables in the query as the
+      The type of the second enity contained in a triple formed from the given
+      entity type and property. Returns none if no such property, entity type
+      combination exists.
+    """
+    if outgoing and property in self._prop_type:
+      return self._prop_type[ent_type][property]
+    elif not outgoing and property in self._inv_prop_type:
+      return self._inv_prop_type[ent_type][property]
+    elif not outgoing and property in _PAREN_TYPES:
+      return _PARENT_TYPES[property]
+    return None
+
+  def query(self, datalog_query, rows=100):
+    """ Returns a Pandas DataFrame with the results of the given datalog query.
+
+    Args:
+      datalog_query: String representing datalog query in [TODO(shanth): link]
+      rows: Max number of returned rows. Set rows to -1 to return all results.
+
+    Returns:
+      A Pandas.DataFrame with the selected variables in the query as the
       the column names. If the query returns multiple values for a property then
       the result is flattened into multiple rows.
 
@@ -76,540 +108,365 @@ class Client(object):
     """
     assert self._inited, 'Initialization was unsuccessful, cannot execute Query'
 
-    try:
-      response = self._service.query(body={
-          'query': datalog_query,
-          'options': {
-              'row_count_limit': max_rows
-          }
-      }).execute()
-    except Exception as e:  # pylint: disable=broad-except
-      raise RuntimeError('Failed to execute query: %s' % e)
+    # Append the options
+    options = {}
+    if self._db_path:
+      options['db'] = self._db_path
+    if rows >= 0:
+      options['row_count_limit'] = mad_rows
 
+    # Send the query to the DataCommons query service
+    try:
+        response = self._service.query_table(body={
+            'query': datalog_query,
+            'options': options
+        }).execute()
+    except Exception as e:
+        msg = 'Failed to execute query:\n  Query: {}\n  Error: {}'.format(query, e)
+        raise RuntimeError(msg)
+
+    # Format and return the result as a DCFrame
     header = response.get('header', [])
     header = [h.lstrip('?') for h in header]
     rows = response.get('rows', [])
-    result_dict = {header: [] for header in header}
+    result_dict = OrderedDict([(header, []) for header in header])
     for row in rows:
-      cells = row.get('cells', [])
-      if len(cells) != len(header):
-        raise RuntimeError(
-            'Response #cells mismatches #header: {}'.format(response))
-      for key, cell in zip(header, cells):
-        if not cell:
-          result_dict[key].append('')
-        else:
-          try:
-            result_dict[key].append(cell['string_value'])
-          except KeyError:
-            raise RuntimeError('No value in cell: {}'.format(row))
-    return pd.DataFrame(result_dict)[header].drop_duplicates()
+        for col in row['cols']:
+            result_dict[col['key']].append(col['value'])
 
-  def expand(self,
-             pd_table,
-             arc_name,
-             seed_col_name,
-             new_col_name,
-             outgoing=True,
-             max_rows=100):
-    """Create a new column with values for the given property.
+    # Create the Pandas DataFrame
+    return pd.DataFrame(result_dict).drop_duplicates()
 
-    The existing pandas dataframe should include a column containing entity IDs
-    for a certain schema.org type. This function populates a new column with
-    property values for the entities and adds additional rows if a property has
-    repeated values.
+
+class DCNode(object):
+  """ Wraps a node found in the DataCommons knowledge graph. Supports the
+  following functionalities.
+
+  - Querying for properties that have this node as either a subject or object.
+  - Querying for values in triples containing this node and a given property.
+  - Querying for all triples containing this node.
+  """
+  def __init__(self,
+               dcid,
+               db_path=_BIG_QUERY_PATH,
+               client_id=_CLIENT_ID,
+               client_secret=_CLIENT_SECRET,
+               api_root=_API_ROOT):
+    self._client = Client(db_path=db_path,
+                          client_id=client_id,
+                          client_secret=client_secret,
+                          api_root=api_root)
+    self._dcid = dcid
+
+  def get_properties(self, outgoing=True):
+    """ Returns a list of properties associated with this node.
 
     Args:
-      pd_table: Pandas dataframe that contains entity information.
-      arc_name: The property to add to the table.
-      seed_col_name: The column name that contains entity (ids) that the added
-        properties belong to.
-      new_col_name: New column name.
-      outgoing: Set this flag if the property points away from the entities
-        denoted by the seed column.
-      max_rows: The maximum number of rows returned by the query results.
+      outgoing: whether or not the node is a subject or object.
+    """
+    pass
+
+  def get_property_values(self, property, outgoing=True):
+    """ Returns a list of values mapped to this node with the given property.
+
+    Args:
+      outgoing: whether or not the node is a subject or object.
+    """
+    pass
+
+  def get_triples(self):
+    """ Returns a list of triples where this node is either a subject or object.
+
+    Args:
+      outgoing: whether or not the node is a subject or object.
+    """
+    pass
+
+
+class DCFrame(object):
+  """ Provides a tabular view of the DataCommons knowledge graph. """
+
+  def __init__(self,
+               file_name=None,
+               datalog_query=None,
+               labels=None,
+               select=None,
+               process=None,
+               type_hint=None,
+               db_path=_BIG_QUERY_PATH,
+               client_id=_CLIENT_ID,
+               client_secret=_CLIENT_SECRET,
+               api_root=_API_ROOT):
+    """ Initializes the DCFrame.
+
+    A DCFrame can also be initialized by providing the file name of a cached
+    frame or a datalog query. When a datalog query is provided, the results
+    of the query are stored in the frame with selected variables set as the
+    column names. Additional fields such as labels, select, process, etc. can
+    be provided to manipuate the results of the datalog query before it is
+    wrapped by the DCFrame.
+
+    Args:
+      file_name: File name of a cached DCTable.
+      datalog_query: Query object representing datalog query [TODO(shanth): link]
+      labels: A map from the query variables to column names in the DCFrame.
+      select: A function that takes in a row and returns true if the row in the
+        result should be added to the final DCFrame. If labels is provided,
+        access the columns using the mapped labels.
+      process: A function that takes in a Pandas DataFrame. Can be used for
+        post processing the results such as converting columns to certain types.
+      type_hint: A map from column names to the type that the column contains.
+      db_path: The path for the database to query.
+      client_id: The API client id
+      client_secret: The API client secret
+      api_root: The API root url
+
+    Raises:
+      RuntimeError: some problem with executing query (hint in the string)
+    """
+    self._client = Client(db_path=db_path,
+                          client_id=client_id,
+                          client_secret=client_secret,
+                          api_root=api_root)
+    self._dataframe = pd.DataFrame()
+    self._col_types = {}
+
+    # Read the dataframe from cache if a file name is provided or initialize
+    # from a datalog query if the query is provided
+    if file_name:
+      try:
+        response = self._client._service.read_dataframe(
+            file_name=file_name
+        ).execute()
+      except Exception as e:  # pylint: disable=broad-except
+        raise RuntimeError('Failed to read "{}": {}'.format(file_name, e))
+
+      # Inflate the json string.
+      data = json.loads(response['data'])
+      self._dataframe = pd.read_json(data['dataframe'])
+      self._col_types = data['col_types']
+    elif datalog_query:
+      type_check = not bool(type_hint)
+      variables = query.variables()
+      var_types = query.var_types()
+      rows = query.limit()
+      pd_frame = self._client.query(datalog_query, rows=rows)
+
+      # If type hints are provided, they have to be provided for all variables
+      if type_hint:
+        for var in variables:
+          if var not in type_hint:
+            raise RuntimeError('Type hint not provided for query variable {}'.format(var))
+
+      # Processing is run the order of renaming via labels, row filtering via
+      # select, and table manipulation via process
+      if labels:
+        pd_frame = pd_frame.rename(index=str, columns=labels)
+      if select:
+        pd_frame = pd_frame[pd_frame.apply(select, axis=1)]
+      if process:
+        pd_frame = process(pd_frame)
+      self._dataframe = pd_frame
+
+      # Set the column types and remap if the column labels are provided
+      if type_hint:
+        self._col_types = type_hint
+      else:
+        self._col_types = var_types
+      if labels:
+        types = {labels[col] : self._col_types[col] for col in self._col_types}
+        self._col_types = types
+
+  def columns(self):
+    """ Returns the set of column names for this frame.
 
     Returns:
-      A pandas.DataFrame with the additional column and rows added.
+      Set of column names for this frame.
+    """
+    return {col for col in self._dataframe}
+
+  def pandas(self, col_names=None):
+    """ Returns a copy of the data in this view as a Pandas DataFrame.
+
+    Args:
+      col_names: An optional list specifying which columns to extract.
+
+    Returns: A deep copy of the underlying Pandas DataFrame.
+    """
+    if col_names:
+        return self._dataframe[col_names].copy()
+    return self._dataframe.copy()
+
+  def csv(self, col_names=None):
+    """ Returns the data in this view as a CSV string.
+
+    Args:
+      col_names: An optional list specifying which columns to extract.
+
+    Returns:
+      The DataFrame exported as a CSV string.
+    """
+    if col_names:
+        return self._dataframe[col_names].to_csv(index=False)
+    return self._dataframe.to_csv(index=False)
+
+  def tsv(self, col_names=None):
+    """ Returns the data in this view as a TSV string.
+
+    Args:
+      col_names: An optional list specifying which columns to extract.
+
+    Returns:
+      The DataFrame exported as a TSV string.
+    """
+    if col_names:
+        return self._dataframe[col_names].to_csv(index=false, sep='\t')
+    return self._dataframe.to_csv(index=false, sep='\t')
+
+  def add_column(self, col_name, col_type, col_vals):
+    """ Adds a column containing the given values of the given type.
+
+    Args:
+      col_name: The name of the column
+      col_type: The type of the column
+      col_vals: The values in the given column
+    """
+    self._col_types[col_name] = col_type
+    self._dataframe[col_name] = col_vals
+
+  def expand(self, property, seed_col_name, new_col_name, outgoing=True, rows=100):
+    """ Creates a new column containing values for the given property.
+
+    For each entity in the given seed column, queries for entities related to
+    the seed entity via the given property. Results are stored in a new column
+    under the provided name. The seed column should contain only DCIDs.
+
+    Args:
+      property: The property to add to the table.
+      seed_col_name: The column name that contains dcids that the added
+        properties belong to.
+      new_col_name: The new column name.
+      outgoing: Set this flag if the seed property points away from the entities
+        denoted by the seed column. That is the seed column serve as subjects
+        in triples formed with the given property.
+      rows: The maximum number of rows returned by the query results.
 
     Raises:
       ValueError: when input argument is not valid.
     """
-    assert self._inited, 'Initialization was unsuccessful, cannot execute query'
-
-    if seed_col_name not in pd_table:
-      raise ValueError('%s is not a valid seed column name' % seed_col_name)
-    if new_col_name in pd_table:
+    if seed_col_name not in self._dataframe:
       raise ValueError(
-          '%s is already a column name in the data frame' % new_col_name)
+          'Expand error: {} is not a valid seed column.'.format(seed_col_name))
+    if new_col_name in self._dataframe:
+      raise ValueError(
+          'Expand error: {} is already a column.'.format(new_col_name))
 
-    seed_col = pd_table[seed_col_name]
-    seed_col_type = seed_col[0]
-    assert seed_col_type != 'Text', 'Parent entity should not be Text'
+    # Get the seed column information
+    seed_col = self._dataframe[seed_col_name]
+    seed_col_type = self._col_type[seed_col_name]
+    if seed_col_type == 'Text':
+      raise ValueError(
+          'Expand error: {} must contain DCIDs'.format(seed_col_name))
 
     # Determine the new column type
-    if outgoing:
-      if arc_name not in self._prop_type[seed_col_type]:
-        new_col_type = 'Text'
-        # raise ValueError(
-        #     '%s does not have outgoing property %s' % (seed_col_type, arc_name))
-      else:
-        new_col_type = self._prop_type[seed_col_type][arc_name]
-    else:
-      if arc_name in self._inv_prop_type[seed_col_type]:
-        new_col_type = self._inv_prop_type[seed_col_type][arc_name]
-      elif arc_name in _PARENT_TYPES:
-        new_col_type = _PARENT_TYPES[arc_name]
-      else:
-        raise ValueError(
-            '%s does not have incoming property %s' % (seed_col_type, arc_name))
-    dcids = ' '.join(seed_col[1:]).strip()
+    new_col_type = self._client.property_type(seed_col_type, property, outgoing=outgoing)
+    if new_col_type is None and outgoing:
+      new_col_type = 'Text'
+    elif new_col_type is None:
+      raise ValueError(
+          'Expand error: {} does not have incoming property {}'.format(seed_col_type, property))
+
+    # Get the list of DCIDs to query for
+    dcids = ' '.join(seed_col).strip()
     if not dcids:
       # All entries in the seed column are empty strings. The new column should
       # contain no entries.
-      pd_table[new_col_name] = ""
-      pd_table[new_col_name][0] = new_col_type
-      return pd_table
+      self._dataframe[new_col_name] = ''
+      self._col_type[new_col_name] = new_col_type
+      return
 
-    seed_col_var = seed_col_name.replace(' ', '_')
-    new_col_var = new_col_name.replace(' ', '_')
+    # Construct the query
+    seed_col_var = '?' + seed_col_name.replace(' ', '_')
+    new_col_var = '?' + new_col_name.replace(' ', '_')
+    labels = {seed_col_var: seed_col_name, new_col_var: new_col_name}
+    type_hint = {seed_col_var: seed_col_type, new_col_var: new_col_type}
+
+    query = utils.DatalogQuery()
+    query.add_variable(seed_col_var)
+    query.add_variable(new_col_var)
+    query.add_constraint('?node', 'typeOf', seed_col_type)
+    query.add_constraint('?node', 'dcid', dcids)
+    query.add_constraint('?node', 'dcid', seed_col_var)
     if outgoing:
-      query = ('SELECT ?{seed_col_var} ?{new_col_var},'
-               'typeOf ?node {seed_col_type},'
-               'dcid ?node {dcids},'
-               'dcid ?node ?{seed_col_var},'
-               '{arc_name} ?node ?{new_col_var}').format(
-                   arc_name=arc_name,
-                   seed_col_var=seed_col_var,
-                   seed_col_type=seed_col_type,
-                   new_col_var=new_col_var,
-                   dcids=dcids)
+      query.add_constraint('?node', property, new_col_var)
     else:
-      query = ('SELECT ?{seed_col_var} ?{new_col_var},'
-               'typeOf ?node {seed_col_type},'
-               'dcid ?node {dcids},'
-               'dcid ?node ?{seed_col_var},'
-               '{arc_name} ?{new_col_var} ?node').format(
-                   arc_name=arc_name,
-                   seed_col_var=seed_col_var,
-                   seed_col_type=seed_col_type,
-                   new_col_var=new_col_var,
-                   dcids=dcids)
+      query.add_constraint(new_col_var, property, '?node')
 
-    # Run the query and merge the results.
-    return self._query_and_merge(
-        pd_table,
-        query,
-        seed_col_name,
-        new_col_name,
-        seed_col_var,
-        new_col_var,
-        new_col_type,
-        max_rows=max_rows)
+    # Create a new DCFrame and merge it in
+    new_frame = DCFrame(datalog_query=query, rows=rows, labels=labels)
+    self.merge(new_frame)
 
-  # ----------------------- OBSERVATION QUERY FUNCTIONS -----------------------
-
-  def get_instances(self, col_name, instance_type, max_rows=100):
-    """Get a list of instance dcids for a given type.
+  def merge(self, frame, how='left'):
+    """ Joins the given frame into the current frame along shared column names.
 
     Args:
-      col_name: Column name for the returned column.
-      instance_type: String of the instance type.
-      max_rows: Max number of returned rows.
-
-    Returns:
-      A pandas.DataFrame with instance dcids.
-    """
-    assert self._inited, 'Initialization was unsuccessful, cannot execute Query'
-    query = ('SELECT ?{col_name},'
-             'typeOf ?node {instance_type},'
-             'dcid ?node ?{col_name}').format(
-                 col_name=col_name, instance_type=instance_type)
-    type_row = pd.DataFrame(data=[{col_name: instance_type}])
-
-    try:
-      dcid_column = self.query(query, max_rows)
-    except RuntimeError as e:
-      raise RuntimeError('Execute query\n%s\ngot an error:\n%s' % (query, e))
-
-    return pd.concat([type_row, dcid_column], ignore_index=True)
-
-  def get_populations(self,
-                      pd_table,
-                      seed_col_name,
-                      new_col_name,
-                      population_type,
-                      max_rows=100,
-                      location_property='location',
-                      **kwargs):
-    """Create a new column with population dcid.
-
-    The existing pandas dataframe should include a column containing entity IDs
-    for geo entities. This function populates a new column with
-    population dcids corresponding to the geo entities.
-
-    Args:
-      pd_table: Pandas dataframe that contains geo entity dcids.
-      seed_col_name: The column name that contains entity (ids) that the added
-        populations belong to.
-      new_col_name: New column name.
-      population_type: Population type like "Person".
-      max_rows: The maximum number of rows returned by the query results.
-      **kwargs: keyword properties to define the population.
-
-    Returns:
-      A pandas.DataFrame with an additional column added.
+      frame: The DCFrame to merge in.
+      how: Optional argument specifying the joins type to perform. Valid types
+        include 'left', 'right', 'inner', and 'outer'
 
     Raises:
-      ValueError: when input argument is not valid.
+      ValueError: if the given arguments are not valid. This may include either
+        the given or current DCFrame does not contain the columns specified.
     """
-    assert self._inited, 'Initialization was unsuccessful, cannot execute query'
-    if seed_col_name not in pd_table:
-      raise ValueError('%s is not a valid seed column name' % seed_col_name)
-    if new_col_name in pd_table:
+    merge_on = self.columns.intersection(frame.columns)
+
+    # Verify that the two frame have at least one column in common
+    if len(merge_on) == 0:
+      curr_cols = ', '.join(['"{}"'.format(col) for col in self.columns])
+      given_cols = ', '.join(['"{}"'.format(col) for col in frame.columns])
       raise ValueError(
-          '%s is already a column name in the data frame' % new_col_name)
+          'Merge error: current and given frame do not share columns.\n  Current: {}\n  Given: {}'.format(curr_cols, given_cols))
 
-    seed_col = pd_table[seed_col_name]
-    seed_col_type = seed_col[0]
-    assert seed_col_type != 'Text', 'Parent entity should not be Text'
+    # Verify that columns being merged have the same type
+    for col in merge_on:
+      if self._col_type[col] != frame._col_type[col]:
+        raise ValueError(
+            'Merge error: columns type mismatch for {}.\n  Current: {}\n  Given: {}'.format(col, self._col_type[col], frame._col_type[col]))
 
-    # Create the datalog query for the requested observations
-    dcids = ' '.join(seed_col[1:]).strip()
-    if not dcids:
-      pd_table[new_col_name] = ""
-      pd_table[new_col_name][0] = 'StatisticalPopulation'
-      return pd_table
+    # Merge dataframe, column types, and property maps
+    self._dataframe = self._dataframe.merge(frame, how=how, left_on=merge_on, right_on=merge_on)
+    self._col_type.update(frame._col_type)
 
-    seed_col_var = seed_col_name.replace(' ', '_')
-    new_col_var = new_col_name.replace(' ', '_')
-    query = ('SELECT ?{seed_col_var} ?{new_col_var},'
-             'typeOf ?node {seed_col_type},'
-             'typeOf ?pop StatisticalPopulation,'
-             'dcid ?node {dcids},'
-             'dcid ?node ?{seed_col_var},'
-             '{location_property} ?pop ?node,'
-             'dcid ?pop ?{new_col_var},'
-             'populationType ?pop {population_type},').format(
-                 new_col_var=new_col_var,
-                 seed_col_var=seed_col_var,
-                 seed_col_type=seed_col_type,
-                 dcids=dcids,
-                 population_type=population_type,
-                 location_property=location_property)
-    pv_pairs = sorted(kwargs.items())
-    idx = 0
-    for idx, pv in enumerate(pv_pairs, 1):
-      query += 'p{} ?pop {},'.format(idx, pv[0])
-      query += 'v{} ?pop {},'.format(idx, pv[1])
-    query += 'numConstraints ?pop {}'.format(idx)
+  def clear(self):
+    """ Clears all the data stored in this extension. """
+    self._col_type = {}
+    self._dataframe = pd.DataFrame()
 
-    # Run the query and merge the results.
-    return self._query_and_merge(
-        pd_table,
-        query,
-        seed_col_name,
-        new_col_name,
-        seed_col_var,
-        new_col_var,
-        'StatisticalPopulation',
-        max_rows=max_rows)
-
-  def get_observations(self,
-                       pd_table,
-                       seed_col_name,
-                       new_col_name,
-                       observation_date,
-                       measured_property,
-                       stats_type=None,
-                       max_rows=100):
-    """Create a new column with values for an observation of the given property.
-
-    The existing pandas dataframe should include a column containing population
-    dcids. This function populates a new column with observations of the
-    populations' measured property. A column containing geo ids of type City
-    can be used instead of population dcids.
+  def save(self, file_name):
+    """ Saves the current DCFrame to the DataCommons cache with given file name.
 
     Args:
-      pd_table: Pandas dataframe that contains entity information.
-      seed_col_name: The column that contains the population dcid or city geo id.
-      new_col_name: New column name.
-      start_date: The start date of the observation (in 'YYY-mm-dd' form).
-      end_date: The end date of the observation (in 'YYY-mm-dd' form).
-      measured_property: observation measured property.
-      stats_type: Statistical type like "Median"
-      max_rows: The maximum number of rows returned by the query results.
+      file_name: The name used to store the current DCFrame.
 
     Returns:
-      A pandas.DataFrame with an additional column added.
-
-    Raises:
-      ValueError: when input argument is not valid.
-    """
-    assert self._inited, 'Initialization was unsuccessful, cannot execute query'
-    if seed_col_name not in pd_table:
-      raise ValueError('%s is not a valid seed column name' % seed_col_name)
-    if new_col_name in pd_table:
-      raise ValueError(
-          '%s is already a column name in the data frame' % new_col_name)
-
-    seed_col = pd_table[seed_col_name]
-    seed_col_type = seed_col[0]
-    assert seed_col_type == 'StatisticalPopulation' or seed_col_type == 'City', (
-        'Parent entity should be StatisticalPopulation' or 'City')
-
-    # Create the datalog query for the requested observations
-    dcids = ' '.join(seed_col[1:]).strip()
-    if not dcids:
-      pd_table[new_col_name] = ""
-      pd_table[new_col_name][0] = 'Observation'
-      return pd_table
-
-    if stats_type is None:
-      stats_type = 'measured'
-
-    seed_col_var = seed_col_name.replace(' ', '_')
-    new_col_var = new_col_name.replace(' ', '_')
-    query = ('SELECT ?{seed_col_var} ?{new_col_var},'
-             'typeOf ?pop {seed_col_type},'
-             'typeOf ?o Observation,'
-             'dcid ?pop {dcids},'
-             'dcid ?pop ?{seed_col_var},'
-             'observedNode ?o ?pop,'
-             'observationDate ?o "{observation_date}",'
-             'measuredProperty ?o {measured_property},'
-             '{stats_type}Value ?o ?{new_col_var},').format(
-                 seed_col_type=seed_col_type,
-                 new_col_var=new_col_var,
-                 seed_col_var=seed_col_var,
-                 dcids=dcids,
-                 measured_property=measured_property,
-                 stats_type=stats_type,
-                 observation_date=observation_date)
-
-    measurementMethod = None
-    if measured_property == 'prevalence':
-      measurementMethod = 'CDC_CrudePrevalence'
-    elif measured_property == 'unemploymentRate':
-      measurementMethod = 'BLSSeasonallyUnadjusted'
-    if measurementMethod:
-      query += 'measurementMethod ?o {}'.format(measurementMethod)
-
-    # Run the query and merge the results.
-    return self._query_and_merge(
-        pd_table,
-        query,
-        seed_col_name,
-        new_col_name,
-        seed_col_var,
-        new_col_var,
-        'Observation',
-        max_rows=max_rows)
-
-  # -------------------------- CACHING FUNCTIONS --------------------------
-
-  def read_dataframe(self, file_name):
-    """Read a previously saved pandas dataframe.
-
-      User can only read previously saved data file with the same authentication
-      email.
-
-    Args:
-      file_name: The saved file name.
-
-    Returns:
-      A pandas dataframe.
-
-    Raises:
-      RuntimeError: when failed to read the dataframe.
-    """
-    assert self._inited, 'Initialization was unsuccessful, cannot execute Query'
-    try:
-      response = self._service.read_dataframe(file_name=file_name).execute()
-    except Exception as e:  # pylint: disable=broad-except
-      raise RuntimeError('Failed to read dataframe: {}'.format(e))
-    return pd.read_json(json.loads(response['data']), dtype=False, orient='split')
-
-  def save_dataframe(self, pd_dataframe, file_name):
-    """Saves pandas dataframe for later retrieving.
-
-      Each aunthentication email has its own scope for saved dataframe. Write
-      with same file_name overwrites previously saved dataframe.
-
-    Args:
-      pd_dataframe: A pandas.DataFrame.
-      file_name: The saved file name.
+      The file name that the
 
     Raises:
       RuntimeError: when failed to save the dataframe.
     """
-    assert self._inited, 'Initialization was unsuccessful, cannot execute Query'
-    data = json.dumps(pd_dataframe.to_json(index=False, orient='split'))
+    assert self._client._inited, 'Initialization was unsuccessful, cannot execute Query'
+
+    # Saves the DCFrame to cache
+    data = json.dumps({
+      'dataframe': self._dataframe.to_json(index=False, orient='split'),
+      'col_types': self._col_types,
+      'prop_map': self._prop_map,
+    })
     try:
-      response = self._service.save_dataframe(body={
+      response = self._client._service.save_dataframe(body={
           'data': data,
           'file_name': file_name
       }).execute()
     except Exception as e:  # pylint: disable=broad-except
       raise RuntimeError('Failed to save dataframe: {}'.format(e))
     return response['file_name']
-
-  # -------------------------- OTHER QUERY FUNCTIONS --------------------------
-
-  def get_cities(self, state, new_col_name, max_rows=100):
-    """Get a list of city dcids in a given state.
-
-    Args:
-      state: Name of the state.
-      new_col_name: Column name for the returned city column.
-      max_rows: Max number of returned rows.
-
-    Returns:
-      A pandas.DataFrame with city dcids.
-    """
-    assert self._inited, 'Initialization was unsuccessful, cannot execute Query'
-    query = ('SELECT ?{new_col_name},'
-             'typeOf ?node City,'
-             'dcid ?node ?{new_col_name},'
-             'containedInPlace ?node ?county,'
-             'containedInPlace ?county ?state,'
-             'name ?state "{state}"').format(
-                 new_col_name=new_col_name, state=state)
-    type_row = pd.DataFrame(data=[{new_col_name: 'City'}])
-
-    try:
-      dcid_column = self.query(query, max_rows)
-    except RuntimeError as e:
-      raise RuntimeError('Execute query\n%s\ngot an error:\n%s' % (query, e))
-
-    return pd.concat([type_row, dcid_column], ignore_index=True)
-
-  def get_states(self, country, new_col_name, max_rows=100):
-    """Get a list of state dcids.
-
-    Args:
-      country: Name of the country that states are contained in.
-      new_col_name: Column name for the returned state column.
-      max_rows: Max number of returned results.
-
-    Returns:
-      A pandas.DataFrame with state dcids.
-    """
-    assert self._inited, 'Initialization was unsuccessful, cannot execute Query'
-    query = ('SELECT ?{new_col_name},'
-             'typeOf ?node State,'
-             'dcid ?node ?{new_col_name},'
-             'containedInPlace ?node ?country,'
-             'name ?country "{country}"').format(
-                 new_col_name=new_col_name, country=country)
-    type_row = pd.DataFrame(data=[{new_col_name: 'State'}])
-
-    try:
-      dcid_column = self.query(query, max_rows)
-    except RuntimeError as e:
-      raise RuntimeError('Execute query %s got an error:\n%s' % (query, e))
-
-    return pd.concat([type_row, dcid_column], ignore_index=True)
-
-
-  def get_places_in(self, place_type, container_dcid, col_name, max_rows=100):
-    """Get a list of places that are contained in a higher level geo place.
-
-    Args:
-      place_type: The place type, like "City".
-      container_dcid: The dcid of the container place.
-      col_name: Column name for the returned places column.
-      max_rows: Max number of returned results.
-
-    Returns:
-      A pandas.DataFrame with dcids of the contained place.
-    """
-    assert self._inited, 'Initialization was unsuccessful, cannot execute Query'
-    assert place_type in _PLACES, 'Input place types are not supported'
-    place_type_orig = place_type
-
-    # Get the type of the container place.
-    type_query = ('SELECT ?type,'
-                  'typeOf ?node Place,'
-                  'dcid ?node {dcid},'
-                  'subType ?node ?type').format(dcid=container_dcid)
-    query_result = self.query(type_query)
-    assert query_result['type'].count() == 1, (
-        'Type of the container dcid not found')
-    container_type = query_result['type'][0]
-
-    # Do the actual query.
-    query = ('SELECT ?{col_name},'
-             'typeOf ?node_{place_type} {place_type},'
-             'dcid ?node_{place_type} ?{col_name},').format(
-                 col_name=col_name,
-                 place_type=place_type)
-    # Maximum 4 levels of containedIn relation for places.
-    for i in range(4):
-      parent_type = _PLACES[place_type]
-      query += 'containedInPlace ?node_{child} ?node_{parent},'.format(
-          child=place_type, parent=parent_type)
-      if parent_type == container_type:
-        break
-      else:
-        place_type = parent_type
-    if parent_type != container_type:
-      raise ValueError('%s is not contained in %s' % (place_type_orig, container_type))
-    query += 'dcid ?node_{container_type} "{container_dcid}"'.format(
-        container_type=container_type, container_dcid=container_dcid)
-    try:
-      dcid_column = self.query(query, max_rows)
-    except RuntimeError as e:
-      raise RuntimeError('Execute query %s got an error:\n%s' % (query, e))
-
-    type_row = pd.DataFrame(data=[{col_name: place_type_orig}])
-    return pd.concat([type_row, dcid_column], ignore_index=True)
-
-
-  # ------------------------ INTERNAL HELPER FUNCTIONS ------------------------
-
-  def _query_and_merge(self,
-                       pd_table,
-                       query,
-                       seed_col_name,
-                       new_col_name,
-                       seed_col_var,
-                       new_col_var,
-                       new_col_type,
-                       max_rows=100):
-    """A utility function that executes the given query and adds a new column.
-
-    It sends an request to the API server to execute the given query and joins
-    a new column with the result and type data along with the values in the seed
-    column.
-
-    Args:
-      pd_table: A Pandas dataframe where the new data will be added.
-      query: The query to be executed. This query must output a column with the
-             same name as "seed_col_name".
-      seed_col_name: The name of the seed column (i.e. the column to join the
-                     new data against).
-      new_col_name: The name of the new column.
-      new_col_type: The type of the entities contained in the new column.
-      max_rows: The maximum number of rows returned by the query results.
-
-    Returns:
-      A pandas.DataFrame with an additional column containing the result of the
-      query joined with elements in the seed column.
-    """
-    try:
-      query_result = self.query(query, max_rows=max_rows)
-    except RuntimeError as e:
-      raise RuntimeError('Execute query \n%s\ngot an error:\n%s' % (query, e))
-
-    query_result = query_result.rename(
-        index=str,
-        columns={seed_col_var: seed_col_name, new_col_var: new_col_name})
-
-    new_data = pd.merge(
-        pd_table[1:], query_result, how='left', on=seed_col_name)
-    new_data[new_col_name] = new_data[new_col_name].fillna('')
-    new_type_row = pd_table.loc[0].to_frame().T
-    new_type_row[new_col_name] = new_col_type
-
-    return pd.concat([new_type_row, new_data], ignore_index=True)

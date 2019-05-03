@@ -13,4 +13,5 @@
 # limitations under the License.
 """Data Commons module."""
 
-from .datacommons import Client
+from .datacommons import Client, DCNode, DCFrame
+from .utils import DatalogQuery
