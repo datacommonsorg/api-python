@@ -14,4 +14,5 @@
 """Data Commons module."""
 
 from .datacommons import Client, DCNode, DCFrame
+from .places import PlacesExtension
 from .utils import DatalogQuery
