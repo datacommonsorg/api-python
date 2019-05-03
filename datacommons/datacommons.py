@@ -193,6 +193,7 @@ class DCFrame(object):
                select=None,
                process=None,
                type_hint=None,
+               rows=100,
                db_path=_BIG_QUERY_PATH,
                client_id=_CLIENT_ID,
                client_secret=_CLIENT_SECRET,

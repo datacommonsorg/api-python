@@ -36,12 +36,13 @@ def PlacesExtension(frame):
   return frame
 
 def get_places_in(self, seed_col_name, new_col_name, new_col_type, rows=100):
-  """Get a list of places that are contained in a higher level geo places.
+  """ Adds a new column to the frame places contained in seed column entities.
+
   Args:
-    place_type: The place type, like "City".
-    container_dcid: The dcid of the container place.
-    col_name: Column name for the returned state column.
-    max_rows: max number of returend results.
+    seed_col_name: The column name containing DCIDs to get contained entities.
+    new_col_name: The column name for where the results are stored.
+    new_col_type: The type of place to query for.
+    rows: max number of returend results.
   Returns:
     A pandas.DataFrame with dcids of the contained place.
   """
@@ -91,5 +92,5 @@ def get_places_in(self, seed_col_name, new_col_name, new_col_type, rows=100):
   query.add_constraint('?node{}'.format(seed_col_type), 'dcid', dcids)
 
   # Perform the query and merge the results
-  new_frame = DCFrame(datalog_query=query, labels=labels, type_hint=type_hint)
+  new_frame = DCFrame(datalog_query=query, labels=labels, type_hint=type_hint, rows=rows)
   self.merge(new_frame)
