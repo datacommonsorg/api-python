@@ -29,7 +29,11 @@ class DatalogQuery(object):
     for sub in self._constraints:
       for pred in self._constraints[sub]:
         for obj in self._constraints[sub][obj]:
-          query_body += '{} {} {},\n'.format(pred, sub, obj)
+          if isinstance(obj, list):
+            obj_vals = ' '.join(obj).strip()
+            query_body += '{} {} {},\n'.format(pred, sub, obj_vals)
+          else:
+            query_body += '{} {} {},\n'.format(pred, sub, obj)
     query = ('SELECT {},\n'.format(' '.join(self._variables))
              '{}'.format(query_body))
     return query

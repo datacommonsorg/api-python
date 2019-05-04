@@ -207,15 +207,21 @@ class DCFrame(object):
     be provided to manipuate the results of the datalog query before it is
     wrapped by the DCFrame.
 
+    The DCFrame requires typing information for the columns that it maintains.
+    If the frame is initialized from a query then either the query variable
+    types must be inferrable from the query, or it must be provided in the type
+    hint.
+
     Args:
       file_name: File name of a cached DCTable.
       datalog_query: Query object representing datalog query [TODO(shanth): link]
       labels: A map from the query variables to column names in the DCFrame.
       select: A function that takes in a row and returns true if the row in the
-        result should be added to the final DCFrame. If labels is provided,
-        access the columns using the mapped labels.
+        result should be added to the final DCFrame. Functions should index into
+        columns using column names prior to relabeling.
       process: A function that takes in a Pandas DataFrame. Can be used for
         post processing the results such as converting columns to certain types.
+        Functions should index into columns using names prior to relabeling.
       type_hint: A map from column names to the type that the column contains.
       db_path: The path for the database to query.
       client_id: The API client id
@@ -247,36 +253,34 @@ class DCFrame(object):
       self._dataframe = pd.read_json(data['dataframe'])
       self._col_types = data['col_types']
     elif datalog_query:
-      type_check = not bool(type_hint)
       variables = query.variables()
       var_types = query.var_types()
-      rows = query.limit()
       pd_frame = self._client.query(datalog_query, rows=rows)
 
       # If type hints are provided, they have to be provided for all variables
-      if type_hint:
-        for var in variables:
-          if var not in type_hint:
-            raise RuntimeError('Type hint not provided for query variable {}'.format(var))
+      for var in variables:
+        if type_hint and var not in type_hint and var not in var_types:
+          raise RuntimeError('Type could not be inferred for query variable {}'.format(var))
 
-      # Processing is run the order of renaming via labels, row filtering via
-      # select, and table manipulation via process
-      if labels:
-        pd_frame = pd_frame.rename(index=str, columns=labels)
+      # Processing is run the order of row filtering via select, table
+      # manipulation via process, and column renaming via labels,
       if select:
         pd_frame = pd_frame[pd_frame.apply(select, axis=1)]
       if process:
         pd_frame = process(pd_frame)
-      self._dataframe = pd_frame
-
-      # Set the column types and remap if the column labels are provided
-      if type_hint:
-        self._col_types = type_hint
-      else:
-        self._col_types = var_types
+      for col in pd_frame:
+        # Set the column types and remap if the column labels are provided. Only
+        # add types for columns that appear in the dataframe. This is critical
+        # as "process" may delete columns from the query result.
+        col_name = col
+        if col in labels:
+          col_name = labels[col]
+        if col in type_hint:
+          self._col_types[col_name]
+        self._col_types[col_name] = var_types[col]
       if labels:
-        types = {labels[col] : self._col_types[col] for col in self._col_types}
-        self._col_types = types
+        pd_frame = pd_frame.rename(index=str, columns=labels)
+      self._dataframe = pd_frame
 
   def columns(self):
     """ Returns the set of column names for this frame.
@@ -378,7 +382,7 @@ class DCFrame(object):
           'Expand error: {} does not have incoming property {}'.format(seed_col_type, property))
 
     # Get the list of DCIDs to query for
-    dcids = ' '.join(seed_col).strip()
+    dcids = list(seed_col)
     if not dcids:
       # All entries in the seed column are empty strings. The new column should
       # contain no entries.
@@ -421,21 +425,28 @@ class DCFrame(object):
     """
     merge_on = self.columns.intersection(frame.columns)
 
-    # Verify that the two frame have at least one column in common
+    # If the tables have no columns in common, perform a cross join. Otherwise
+    # join on common columns.
     if len(merge_on) == 0:
-      curr_cols = ', '.join(['"{}"'.format(col) for col in self.columns])
-      given_cols = ', '.join(['"{}"'.format(col) for col in frame.columns])
-      raise ValueError(
-          'Merge error: current and given frame do not share columns.\n  Current: {}\n  Given: {}'.format(curr_cols, given_cols))
+      # Construct a unique dummy column name
+      cross_on = ''.join(list(self._dataframe.columns) + list(frame.columns))
 
-    # Verify that columns being merged have the same type
-    for col in merge_on:
-      if self._col_type[col] != frame._col_type[col]:
-        raise ValueError(
-            'Merge error: columns type mismatch for {}.\n  Current: {}\n  Given: {}'.format(col, self._col_type[col], frame._col_type[col]))
+      # Perform the cross join
+      curr_frame = self._dataframe.assign(**{cross_on: 1})
+      new_frame = frame.assign(**{cross_on: 1})
+      merged = curr_frame.merge(new_frame)
+      self._dataframe = merged.drop(cross_on, 1)
+    else:
+      # Verify that columns being merged have the same type
+      for col in merge_on:
+        if self._col_type[col] != frame._col_type[col]:
+          raise ValueError(
+              'Merge error: columns type mismatch for {}.\n  Current: {}\n  Given: {}'.format(col, self._col_type[col], frame._col_type[col]))
 
-    # Merge dataframe, column types, and property maps
-    self._dataframe = self._dataframe.merge(frame, how=how, left_on=merge_on, right_on=merge_on)
+      # Merge dataframe, column types, and property maps
+      self._dataframe = self._dataframe.merge(frame, how=how, left_on=merge_on, right_on=merge_on)
+
+    # Merge the types
     self._col_type.update(frame._col_type)
 
   def clear(self):
