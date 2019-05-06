@@ -22,14 +22,14 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-from collections import defaultdict
+from collections import defaultdict, OrderedDict
 from . import _auth
 from . import utils
 import json
 import pandas as pd
 
 # Database paths
-_BIG_QUERY_PATH = 'google.com:datcom-store-dev.dc_store_v3'
+_BIG_QUERY_PATH = 'google.com:datcom-store-dev.dc_v3_clustered'
 
 # Standard API Server target
 _CLIENT_ID = '66054275879-a0nalqfe2p9shlv4jpra5jekfkfnr8ug.apps.googleusercontent.com'
@@ -55,9 +55,9 @@ class Client(object):
 
   def __init__(self,
                db_path=_BIG_QUERY_PATH,
-               client_id=_SANDBOX_CLIENT_ID,
-               client_secret=_SANDBOX_CLIENT_SECRET,
-               api_root=_SANDBOX_API_ROOT):
+               client_id=_CLIENT_ID,
+               client_secret=_CLIENT_SECRET,
+               api_root=_API_ROOT):
     self._db_path = db_path
     self._service = _auth.do_auth(client_id, client_secret, api_root)
     response = self._service.get_prop_type(body={}).execute()
@@ -87,7 +87,7 @@ class Client(object):
       return self._prop_type[ent_type][property]
     elif not outgoing and property in self._inv_prop_type:
       return self._inv_prop_type[ent_type][property]
-    elif not outgoing and property in _PAREN_TYPES:
+    elif not outgoing and property in _PARENT_TYPES:
       return _PARENT_TYPES[property]
     return None
 
@@ -110,10 +110,11 @@ class Client(object):
 
     # Append the options
     options = {}
-    if self._db_path:
-      options['db'] = self._db_path
+    # TODO(antaresc): Uncomment this when BQ more stable
+    # if self._db_path:
+    #   options['db'] = self._db_path
     if rows >= 0:
-      options['row_count_limit'] = mad_rows
+      options['row_count_limit'] = rows
 
     # Send the query to the DataCommons query service
     try:
@@ -122,17 +123,16 @@ class Client(object):
             'options': options
         }).execute()
     except Exception as e:
-        msg = 'Failed to execute query:\n  Query: {}\n  Error: {}'.format(query, e)
+        msg = 'Failed to execute query:\n  Query: {}\n  Error: {}'.format(datalog_query, e)
         raise RuntimeError(msg)
 
     # Format and return the result as a DCFrame
     header = response.get('header', [])
-    header = [h.lstrip('?') for h in header]
     rows = response.get('rows', [])
-    result_dict = OrderedDict([(header, []) for header in header])
+    result_dict = OrderedDict([(h, []) for h in header])
     for row in rows:
-        for col in row['cols']:
-            result_dict[col['key']].append(col['value'])
+      for col in row['cols']:
+        result_dict[col['key']].append(col['value'])
 
     # Create the Pandas DataFrame
     return pd.DataFrame(result_dict).drop_duplicates()
@@ -253,14 +253,17 @@ class DCFrame(object):
       self._dataframe = pd.read_json(data['dataframe'])
       self._col_types = data['col_types']
     elif datalog_query:
-      variables = query.variables()
-      var_types = query.var_types()
-      pd_frame = self._client.query(datalog_query, rows=rows)
+      variables = datalog_query.variables()
+      var_types = datalog_query.var_types()
+      query_string = str(datalog_query)
+      pd_frame = self._client.query(query_string, rows=rows)
+      pd_frame = pd_frame.dropna()
 
-      # If type hints are provided, they have to be provided for all variables
+      # If variable type is not provided in type_hint or from the query, infer
+      # the type as text.
       for var in variables:
-        if type_hint and var not in type_hint and var not in var_types:
-          raise RuntimeError('Type could not be inferred for query variable {}'.format(var))
+        if var not in var_types and (type_hint is None or var not in type_hint):
+          var_types[var] = 'Text'
 
       # Processing is run the order of row filtering via select, table
       # manipulation via process, and column renaming via labels,
@@ -273,11 +276,12 @@ class DCFrame(object):
         # add types for columns that appear in the dataframe. This is critical
         # as "process" may delete columns from the query result.
         col_name = col
-        if col in labels:
+        if labels and col in labels:
           col_name = labels[col]
-        if col in type_hint:
-          self._col_types[col_name]
-        self._col_types[col_name] = var_types[col]
+        if type_hint and col in type_hint:
+          self._col_types[col_name] = type_hint[col]
+        else:
+          self._col_types[col_name] = var_types[col]
       if labels:
         pd_frame = pd_frame.rename(index=str, columns=labels)
       self._dataframe = pd_frame
@@ -288,7 +292,15 @@ class DCFrame(object):
     Returns:
       Set of column names for this frame.
     """
-    return {col for col in self._dataframe}
+    return [col for col in self._dataframe]
+
+  def types(self):
+    """ Returns a map from column name to associated DataCommons type.
+
+    Returns:
+      Map from column name to column type.
+    """
+    return self._col_types
 
   def pandas(self, col_names=None):
     """ Returns a copy of the data in this view as a Pandas DataFrame.
@@ -325,8 +337,23 @@ class DCFrame(object):
       The DataFrame exported as a TSV string.
     """
     if col_names:
-        return self._dataframe[col_names].to_csv(index=false, sep='\t')
-    return self._dataframe.to_csv(index=false, sep='\t')
+        return self._dataframe[col_names].to_csv(index=False, sep='\t')
+    return self._dataframe.to_csv(index=False, sep='\t')
+
+  def rename(self, labels):
+    """ Renames the columns of the DCFrame.
+
+    Args:
+      labels: A map from current to new column names.
+    """
+    col_types = {}
+    for col in self._dataframe:
+      col_name = col
+      if col in labels:
+        col_name = labels[col]
+      col_types[col_name] = self._col_types[col]
+    self._col_types = col_types
+    self._dataframe = self._dataframe.rename(index=str, columns=labels)
 
   def add_column(self, col_name, col_type, col_vals):
     """ Adds a column containing the given values of the given type.
@@ -339,7 +366,7 @@ class DCFrame(object):
     self._col_types[col_name] = col_type
     self._dataframe[col_name] = col_vals
 
-  def expand(self, property, seed_col_name, new_col_name, outgoing=True, rows=100):
+  def expand(self, property, seed_col_name, new_col_name, new_col_type=None, outgoing=True, rows=100):
     """ Creates a new column containing values for the given property.
 
     For each entity in the given seed column, queries for entities related to
@@ -351,6 +378,8 @@ class DCFrame(object):
       seed_col_name: The column name that contains dcids that the added
         properties belong to.
       new_col_name: The new column name.
+      new_col_type: The type contained by the new column. Provide this if the
+        type is not immediately inferrable.
       outgoing: Set this flag if the seed property points away from the entities
         denoted by the seed column. That is the seed column serve as subjects
         in triples formed with the given property.
@@ -368,13 +397,14 @@ class DCFrame(object):
 
     # Get the seed column information
     seed_col = self._dataframe[seed_col_name]
-    seed_col_type = self._col_type[seed_col_name]
+    seed_col_type = self._col_types[seed_col_name]
     if seed_col_type == 'Text':
       raise ValueError(
           'Expand error: {} must contain DCIDs'.format(seed_col_name))
 
     # Determine the new column type
-    new_col_type = self._client.property_type(seed_col_type, property, outgoing=outgoing)
+    if new_col_type is None:
+      new_col_type = self._client.property_type(seed_col_type, property, outgoing=outgoing)
     if new_col_type is None and outgoing:
       new_col_type = 'Text'
     elif new_col_type is None:
@@ -387,7 +417,7 @@ class DCFrame(object):
       # All entries in the seed column are empty strings. The new column should
       # contain no entries.
       self._dataframe[new_col_name] = ''
-      self._col_type[new_col_name] = new_col_type
+      self._col_types[new_col_name] = new_col_type
       return
 
     # Construct the query
@@ -408,22 +438,24 @@ class DCFrame(object):
       query.add_constraint(new_col_var, property, '?node')
 
     # Create a new DCFrame and merge it in
-    new_frame = DCFrame(datalog_query=query, rows=rows, labels=labels)
+    new_frame = DCFrame(datalog_query=query, rows=rows, labels=labels, type_hint=type_hint)
     self.merge(new_frame)
 
-  def merge(self, frame, how='left'):
+  def merge(self, frame, how='left', default=''):
     """ Joins the given frame into the current frame along shared column names.
 
     Args:
       frame: The DCFrame to merge in.
       how: Optional argument specifying the joins type to perform. Valid types
         include 'left', 'right', 'inner', and 'outer'
+      default: The default place holder for an empty cell produced by the join.
 
     Raises:
       ValueError: if the given arguments are not valid. This may include either
         the given or current DCFrame does not contain the columns specified.
     """
-    merge_on = self.columns.intersection(frame.columns)
+    merge_on = set(self.columns()) & set(frame.columns())
+    merge_on = list(merge_on)
 
     # If the tables have no columns in common, perform a cross join. Otherwise
     # join on common columns.
@@ -439,19 +471,20 @@ class DCFrame(object):
     else:
       # Verify that columns being merged have the same type
       for col in merge_on:
-        if self._col_type[col] != frame._col_type[col]:
+        if self._col_types[col] != frame._col_types[col]:
           raise ValueError(
-              'Merge error: columns type mismatch for {}.\n  Current: {}\n  Given: {}'.format(col, self._col_type[col], frame._col_type[col]))
+              'Merge error: columns type mismatch for {}.\n  Current: {}\n  Given: {}'.format(col, self._col_types[col], frame._col_types[col]))
 
       # Merge dataframe, column types, and property maps
-      self._dataframe = self._dataframe.merge(frame, how=how, left_on=merge_on, right_on=merge_on)
+      self._dataframe = self._dataframe.merge(frame._dataframe, how=how, left_on=merge_on, right_on=merge_on)
+      self._dataframe = self._dataframe.fillna(default) 
 
     # Merge the types
-    self._col_type.update(frame._col_type)
+    self._col_types.update(frame._col_types)
 
   def clear(self):
     """ Clears all the data stored in this extension. """
-    self._col_type = {}
+    self._col_types = {}
     self._dataframe = pd.DataFrame()
 
   def save(self, file_name):
@@ -470,9 +503,8 @@ class DCFrame(object):
 
     # Saves the DCFrame to cache
     data = json.dumps({
-      'dataframe': self._dataframe.to_json(index=False, orient='split'),
-      'col_types': self._col_types,
-      'prop_map': self._prop_map,
+      'dataframe': self._dataframe.to_json(),
+      'col_types': self._col_types
     })
     try:
       response = self._client._service.save_dataframe(body={
