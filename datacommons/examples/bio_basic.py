@@ -13,9 +13,6 @@
 # limitations under the License.
 """Basic demo showcasing how to use the Bio extension
 
-When constructing a DCFrame from a query, the frame can be manipulated using
-the 'select' and 'process' argument.
-
 Note to use this API code in an Colab or another iPython notebook environment
 add the following code:
 pip install --upgrade numpy
