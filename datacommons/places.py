@@ -52,7 +52,6 @@ def get_places_in(self, seed_col_name, new_col_name, new_col_type, rows=100):
     raise ValueError('{} is already a column name.'.format(new_col_name))
   if new_col_type not in _PLACES:
     raise ValueError('Place type {} is not supported.'.format(new_col_type))
-  place_type_orig = place_type
 
   # Get the variable names
   seed_col_var = '?' + seed_col_name.replace(' ', '_')
