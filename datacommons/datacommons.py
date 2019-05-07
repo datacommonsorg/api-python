@@ -427,8 +427,7 @@ class DCFrame(object):
     type_hint = {seed_col_var: seed_col_type, new_col_var: new_col_type}
 
     query = utils.DatalogQuery()
-    query.add_variable(seed_col_var)
-    query.add_variable(new_col_var)
+    query.add_variable(seed_col_var, new_col_var)
     query.add_constraint('?node', 'typeOf', seed_col_type)
     query.add_constraint('?node', 'dcid', dcids)
     query.add_constraint('?node', 'dcid', seed_col_var)

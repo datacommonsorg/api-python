@@ -28,8 +28,8 @@ def PopulationsExtension(frame):
   Allows users to do frame.function_defined_in_this_extension
   as if these extension functions were built in frame funcs.
   """
-  frame.get_populations = MethodType(get_populations, frame) 
-  frame.get_observations = MethodType(get_observations, frame) 
+  frame.get_populations = MethodType(get_populations, frame)
+  frame.get_observations = MethodType(get_observations, frame)
   return frame
 
 def get_populations(self,
@@ -80,8 +80,7 @@ def get_populations(self,
   # Construct the query
   query = utils.DatalogQuery()
   # Specify which variables to SELECT
-  query.add_variable(seed_col_var)
-  query.add_variable(new_col_var)
+  query.add_variable(seed_col_var, new_col_var)
   # Add constraints to the SELECT SQL query
   query.add_constraint('?node', 'typeOf', seed_col_type)
   query.add_constraint('?pop', 'typeOf', 'StatisticalPopulation')
@@ -93,10 +92,10 @@ def get_populations(self,
 
   pv_pairs = sorted(kwargs.items())
   idx = 0
-    for idx, pv in enumerate(pv_pairs, 1):
-      query.add_constraint('?pop', 'p{}'.format(idx), pv[0]) # ? need str(pv[0])
-      query.add_constraint('?pop', 'v{}'.format(idx), pv[1]) # ditto
-    query.add_constraint('?pop', 'numConstraints', idx)
+  for idx, pv in enumerate(pv_pairs, 1):
+    query.add_constraint('?pop', 'p{}'.format(idx), pv[0]) # ? need str(pv[0])
+    query.add_constraint('?pop', 'v{}'.format(idx), pv[1]) # ditto
+  query.add_constraint('?pop', 'numConstraints', idx)
 
   # Perform the query and merge the results
   new_frame = DCFrame(datalog_query=query, labels=labels, type_hint=type_hint, rows=rows)
@@ -156,8 +155,7 @@ def get_observations(self,
   # Construct the query
   query = utils.DatalogQuery()
   # Specify which variables to SELECT
-  query.add_variable(seed_col_var)
-  query.add_variable(new_col_var)
+  query.add_variable(seed_col_var, new_col_var)
   # Add constraints to the SELECT SQL query
   query.add_constraint('?pop', 'typeOf', seed_col_type)
   query.add_constraint('?o', 'typeOf', 'Observation')

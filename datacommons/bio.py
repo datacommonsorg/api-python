@@ -107,8 +107,7 @@ def get_experiments(self, new_col_name, **kwargs):
   if 'bio_class' in kwargs and 'bio_term' in kwargs:
     classes = ['"{}"'.format(val) for val in kwargs['bio_class']]
     terms = ['"{}"'.format(val) for val in kwargs['bio_term']]
-    query.add_variable('?bioClass')
-    query.add_variable('?bioTerm')
+    query.add_variable('?bioClass', '?bioTerm')
     query.add_constraint('?experimentNode', 'biosampleOntology', '?bioNode')
     query.add_constraint('?bioNode', 'classification', classes)
     query.add_constraint('?bioNode', 'termName', terms)
@@ -166,8 +165,7 @@ def get_bed_files(self, seed_col_name, new_col_name, **kwargs):
 
   # Construct the query
   query = utils.DatalogQuery()
-  query.add_variable(seed_col_var)
-  query.add_variable(new_col_var)
+  query.add_variable(seed_col_var, new_col_var)
   query.add_constraint(new_col_var, 'fromExperiment', '?experimentNode')
 
   # Add constraints based on if the seed is a column of experiments or lab names

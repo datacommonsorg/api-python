@@ -74,8 +74,7 @@ def get_places_in(self, seed_col_name, new_col_name, new_col_type, rows=100):
 
   # Construct the query
   query = utils.DatalogQuery()
-  query.add_variable(seed_col_var)
-  query.add_variable(new_col_var)
+  query.add_variable(seed_col_var, new_col_var)
   query.add_constraint('?node{}'.format(new_col_type), 'typeOf', new_col_type)
   query.add_constraint('?node{}'.format(new_col_type), 'dcid', new_col_var)
 
