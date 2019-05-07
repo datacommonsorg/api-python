@@ -19,6 +19,7 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+from types import MethodType
 from .datacommons import DCFrame
 from . import utils
 
@@ -27,10 +28,10 @@ def PopulationsExtension(frame):
   Allows users to do frame.function_defined_in_this_extension
   as if these extension functions were built in frame funcs.
   """
-  frame.get_populations = get_populations 
-  frame.get_observations = get_observations 
+  frame.get_populations = MethodType(get_populations, frame) 
+  frame.get_observations = MethodType(get_observations, frame) 
   return frame
-  
+
 def get_populations(self,
                     seed_col_name,
                     new_col_name,
@@ -56,7 +57,7 @@ def get_populations(self,
     raise ValueError('{} is not a valid seed column.'.format(seed_col_name))
   if new_col_name in self._dataframe:
     raise ValueError('{} is already a column name.'.format(new_col_name))
-    
+
   # Get the variable names
   seed_col_var = '?' + seed_col_name.replace(' ', '_')
   new_col_var = '?' + new_col_name.replace(' ', '_')
@@ -66,7 +67,7 @@ def get_populations(self,
   seed_col_type = self._col_type[seed_col_name]
   new_col_type = 'StatisticalPopulation'
   type_hint = {seed_col_var: seed_col_type, new_col_var: new_col_type}
-  
+
   # Get allowed DCIDs
   dcids = list(self._dataframe[seed_col_name])
   if not dcids:
@@ -75,7 +76,7 @@ def get_populations(self,
     self._dataframe[new_col_name] = ''
     self._col_type[new_col_name] = new_col_type
     return
-    
+
   # Construct the query
   query = utils.DatalogQuery()
   # Specify which variables to SELECT
@@ -127,7 +128,7 @@ def get_observations(self,
     raise ValueError('{} is not a valid seed column.'.format(seed_col_name))
   if new_col_name in self._dataframe:
     raise ValueError('{} is already a column name.'.format(new_col_name))
-    
+
   # Get the variable names
   seed_col_var = '?' + seed_col_name.replace(' ', '_')
   new_col_var = '?' + new_col_name.replace(' ', '_')
@@ -137,7 +138,7 @@ def get_observations(self,
   seed_col_type = self._col_type[seed_col_name]
   new_col_type = 'Observation'
   type_hint = {seed_col_var: seed_col_type, new_col_var: new_col_type}
-  
+
   # Make sure the seed column can have observations
   assert seed_col_type == 'StatisticalPopulation' or seed_col_type == 'City', (
         'Parent entity should be StatisticalPopulation' or 'City')
@@ -146,7 +147,7 @@ def get_observations(self,
   dcids = list(self._dataframe[seed_col_name])
   if not dcids:
     self._dataframe[new_col_name] = ''
-    self._col_type[new_col_name] = new_col_type 
+    self._col_type[new_col_name] = new_col_type
     return
 
   if stats_type is None:

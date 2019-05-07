@@ -22,7 +22,7 @@ class DatalogQuery(object):
   """ A class wrapping a DataCommons datalog query string. """
 
   def __init__(self):
-    self._variables = set()
+    self._variables = []
     self._constraints = OrderedDict()
 
   def __str__(self):
@@ -64,7 +64,9 @@ class DatalogQuery(object):
   def add_variable(self, *variables):
     """ Add variables to the query. """
     for var in variables:
-      self._variables.add(var)
+      if var not in self._variables:
+        # Maintaining order of the variables is important
+        self._variables.append(var)
 
   def add_constraint(self, sub, pred, obj):
     """ Add constraints to the query. """

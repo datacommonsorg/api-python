@@ -29,6 +29,7 @@ import json
 import pandas as pd
 
 # Database paths
+# TODO(antaresc): set default path to BQ path once query is stable.
 _BIG_QUERY_PATH = 'google.com:datcom-store-dev.dc_v3_clustered'
 
 # Standard API Server target
@@ -110,9 +111,8 @@ class Client(object):
 
     # Append the options
     options = {}
-    # TODO(antaresc): Uncomment this when BQ more stable
-    # if self._db_path:
-    #   options['db'] = self._db_path
+    if self._db_path:
+      options['db'] = self._db_path
     if rows >= 0:
       options['row_count_limit'] = rows
 
@@ -194,7 +194,7 @@ class DCFrame(object):
                process=None,
                type_hint=None,
                rows=100,
-               db_path=_BIG_QUERY_PATH,
+               db_path=None,
                client_id=_CLIENT_ID,
                client_secret=_CLIENT_SECRET,
                api_root=_API_ROOT):
@@ -284,7 +284,7 @@ class DCFrame(object):
           self._col_types[col_name] = var_types[col]
       if labels:
         pd_frame = pd_frame.rename(index=str, columns=labels)
-      self._dataframe = pd_frame
+      self._dataframe = pd_frame.reset_index(drop=True)
 
   def columns(self):
     """ Returns the set of column names for this frame.
@@ -457,15 +457,19 @@ class DCFrame(object):
     merge_on = set(self.columns()) & set(frame.columns())
     merge_on = list(merge_on)
 
-    # If the tables have no columns in common, perform a cross join. Otherwise
-    # join on common columns.
-    if len(merge_on) == 0:
+    # If the current dataframe is empty, select the given dataframe. If the
+    # tables have no columns in common, perform a cross join. Otherwise join on
+    # common columns.
+    if self._dataframe.empty:
+      self._col_types = {}
+      self._dataframe = frame._dataframe
+    elif len(merge_on) == 0:
       # Construct a unique dummy column name
-      cross_on = ''.join(list(self._dataframe.columns) + list(frame.columns))
+      cross_on = ''.join(self.columns() + frame.columns())
 
       # Perform the cross join
       curr_frame = self._dataframe.assign(**{cross_on: 1})
-      new_frame = frame.assign(**{cross_on: 1})
+      new_frame = frame._dataframe.assign(**{cross_on: 1})
       merged = curr_frame.merge(new_frame)
       self._dataframe = merged.drop(cross_on, 1)
     else:
@@ -477,7 +481,7 @@ class DCFrame(object):
 
       # Merge dataframe, column types, and property maps
       self._dataframe = self._dataframe.merge(frame._dataframe, how=how, left_on=merge_on, right_on=merge_on)
-      self._dataframe = self._dataframe.fillna(default) 
+      self._dataframe = self._dataframe.fillna(default)
 
     # Merge the types
     self._col_types.update(frame._col_types)

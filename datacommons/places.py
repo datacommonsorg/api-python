@@ -19,6 +19,7 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+from types import MethodType
 from .datacommons import DCFrame
 from . import utils
 
@@ -32,7 +33,7 @@ _PLACES = {
 
 def PlacesExtension(frame):
   """ The DataCommons places API extension. """
-  frame.get_places_in = get_places_in
+  frame.get_places_in = MethodType(get_places_in, frame)
   return frame
 
 def get_places_in(self, seed_col_name, new_col_name, new_col_type, rows=100):

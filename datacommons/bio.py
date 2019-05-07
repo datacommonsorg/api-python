@@ -21,17 +21,22 @@ from __future__ import division
 from __future__ import print_function
 
 from collections import OrderedDict
+from types import MethodType
+from .datacommons import DCFrame
 from . import utils
 
 # Root url of the ENCODE Project experiment targets.
 _ENCODE_TARGET_URL = 'https://www.encodeproject.org/targets/{}'
 
+# Default maximum number of rows to return in a query
+_MAX_ROWS = 100
+
 # Default bedline properties to query for. Each line has the new column name,
 # the property to query for, and the type mapped to by the property.
 DEFAULT_BEDLINE_PROPS = [
     ('Chromosome', 'chromosome', 'Text'),
-    ('Start', 'chromosomeStart', 'Integer'),
-    ('End', 'chromosomeEnd', 'Integer'),
+    ('StartPos', 'chromosomeStart', 'Integer'),
+    ('EndPos', 'chromosomeEnd', 'Integer'),
     ('BedName', 'bedName', 'Text'),
     ('BedScore', 'bedScore', 'Integer'),
     ('Strand', 'chromosomeStrand', 'Text')
@@ -40,9 +45,9 @@ DEFAULT_BEDLINE_PROPS = [
 
 def BioExtension(frame):
   """ The DataCommons bio extension API. """
-  frame.get_experiments = get_experiments
-  frame.get_bed_files = get_bed_files
-  frame.get_bed_lines = get_bed_lines
+  frame.get_experiments = MethodType(get_experiments, frame)
+  frame.get_bed_files = MethodType(get_bed_files, frame)
+  frame.get_bed_lines = MethodType(get_bed_lines, frame)
   return frame
 
 def get_experiments(self, new_col_name, **kwargs):
@@ -76,7 +81,7 @@ def get_experiments(self, new_col_name, **kwargs):
   type_hint = {new_col_var: 'EncodeExperiment'}
 
   # Get the row limit
-  rows = 100
+  rows = _MAX_ROWS
   if 'rows' in kwargs:
     rows = kwargs['rows']
 
@@ -144,6 +149,11 @@ def get_bed_files(self, seed_col_name, new_col_name, **kwargs):
   if new_col_name in self._dataframe:
     raise ValueError('{} is already a column.'.format(new_col_name))
 
+  # Get the row limit
+  rows = _MAX_ROWS
+  if 'rows' in kwargs:
+    rows = kwargs['rows']
+
   # Get the variables
   seed_col_var = '?' + seed_col_name.replace(' ', '')
   new_col_var = '?' + new_col_name.replace(' ', '')
@@ -175,7 +185,7 @@ def get_bed_files(self, seed_col_name, new_col_name, **kwargs):
         .format(seed_col_type, seed_col_name))
 
   # Perform the query and merge
-  new_frame = DCFrame(datalog_query=query, labels=labels, type_hint=type_hint)
+  new_frame = DCFrame(datalog_query=query, labels=labels, type_hint=type_hint, rows=rows)
   self.merge(new_frame)
 
 def get_bed_lines(self, seed_col_name, prop_info=DEFAULT_BEDLINE_PROPS, **kwargs):
@@ -185,7 +195,6 @@ def get_bed_lines(self, seed_col_name, prop_info=DEFAULT_BEDLINE_PROPS, **kwargs
 
   Args:
     seed_col_name: The name of the experiment column.
-    new_col_name: The name of the new column created.
     prop_info: A list of tuples specifying which properties in a BedLine to
       query for. Each tuple contains:
       (1) The name of the new column.
@@ -202,10 +211,15 @@ def get_bed_lines(self, seed_col_name, prop_info=DEFAULT_BEDLINE_PROPS, **kwargs
   """
   if seed_col_name not in self._dataframe:
     raise ValueError('{} is not a column in the frame.'.format(seed_col_name))
-  if ('start_pos' in kwargs) != ('end_pos' not in kwargs):
+  if ('start_pos' in kwargs) != ('end_pos' in kwargs):
     raise ValueError('Must provide both start_pos and end_pos.')
   if 'start_pos' in kwargs and len(kwargs['start_pos']) != len(kwargs['end_pos']):
     raise ValueError('Length of start_pos must equal length of end_pos.')
+
+  # Get the row limit
+  rows = _MAX_ROWS
+  if 'rows' in kwargs:
+    rows = kwargs['rows']
 
   # Get seed column information
   seed_col = list(self._dataframe[seed_col_name])
@@ -213,7 +227,8 @@ def get_bed_lines(self, seed_col_name, prop_info=DEFAULT_BEDLINE_PROPS, **kwargs
   seed_col_type = self._col_types[seed_col_name]
 
   # Create the query
-  query = utils.Query()
+  query = utils.DatalogQuery()
+  query.add_variable(seed_col_var)
   query.add_constraint('?bedFileNode', 'dcid', seed_col)
   query.add_constraint('?bedFileNode', 'dcid', seed_col_var)
   query.add_constraint('?bedLineNode', 'fromBedFile', '?bedFileNode')
@@ -233,14 +248,14 @@ def get_bed_lines(self, seed_col_name, prop_info=DEFAULT_BEDLINE_PROPS, **kwargs
 
     # Add variable and constraint
     query.add_variable(query_var)
-    query.add_constraint('?bedLineNode', prop_line[0], query_var)
+    query.add_constraint('?bedLineNode', prop_line[1], query_var)
 
     # Store variable if filtering by appropriate parameter
-    if 'chromosome' in kwargs and prop_line[0] == 'chromosome':
+    if 'chromosome' in kwargs and prop_line[1] == 'chromosome':
       chromosome_var = query_var
-    if 'start_pos' in kwargs and prop_line[0] == 'chromosomeStart':
+    if 'start_pos' in kwargs and prop_line[1] == 'chromosomeStart':
       start_pos_var = query_var
-    if 'end_pos' in kwargs and prop_line[0] == 'chromosomeEnd':
+    if 'end_pos' in kwargs and prop_line[1] == 'chromosomeEnd':
       end_pos_var = query_var
 
   # Create filters based on the parameters. Edit the query if certain variables
@@ -249,14 +264,20 @@ def get_bed_lines(self, seed_col_name, prop_info=DEFAULT_BEDLINE_PROPS, **kwargs
   if 'chromosome' in kwargs:
     if not chromosome_var:
       chromosome_var = '?chromosome'
+      query.add_variable(chromosome_var)
+      query.add_constraint('?bedLineNode', 'chromosome', chromosome_var)
       drop_cols.append(chromosome_var)
     select_funcs.append(select_chromosome(chromosome_var, kwargs['chromosome']))
   if 'start_pos' in kwargs:
     if not start_pos_var:
       start_pos_var = '?chromStart'
+      query.add_variable(start_pos_var)
+      query.add_constraint('?bedLineNode', 'chromosomeStart', start_pos_var)
       drop_cols.append(start_pos_var)
     if not end_pos_var:
       end_pos_var = '?chromEnd'
+      query.add_variable(end_pos_var)
+      query.add_constraint('?bedLineNode', 'chromosomeEnd', end_pos_var)
       drop_cols.append(end_pos_var)
     select_funcs.append(
         select_chrom_pos(start_pos_var,
@@ -266,7 +287,7 @@ def get_bed_lines(self, seed_col_name, prop_info=DEFAULT_BEDLINE_PROPS, **kwargs
 
   # If filters were specified, compose the filters and add a post processor if
   # necessary.
-  if not select_funcs:
+  if select_funcs:
     select = compose_select(*select_funcs)
     if drop_cols:
       process = delete_column(*drop_cols)
@@ -301,6 +322,8 @@ def select_biosample_summary(bio_class_col, bio_term_col, bio_classes, bio_terms
   """
   def select(row):
     for bio_class, bio_term in zip(bio_classes, bio_terms):
+      bio_class = bio_class.replace('"', '')
+      bio_term = bio_term.replace('"', '')
       if row[bio_class_col] == bio_class and row[bio_term_col] == bio_term:
         return True
     return False
@@ -334,7 +357,9 @@ def select_chrom_pos(start_pos_col, end_pos_col, start_pos, end_pos):
   """
   def select(row):
     for start, end in zip(start_pos, end_pos):
-      if row[start_pos_col] >= start and row[end_pos_col] <= end:
+      if row[start_pos_col] and row[end_pos_col]\
+        and int(row[start_pos_col]) >= start\
+        and int(row[end_pos_col]) <= end:
         return True
     return False
   return select
@@ -362,5 +387,8 @@ def delete_column(*cols):
     A function that deletes columns in the given Pandas DataFrame.
   """
   def process(pd_frame):
-    return pd_frame.drop(cols, axis=1)
+    for col in cols:
+      if col in pd_frame:
+        pd_frame = pd_frame.drop(col, axis=1)
+    return pd_frame
   return process
