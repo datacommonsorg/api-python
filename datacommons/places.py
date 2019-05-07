@@ -64,7 +64,7 @@ def get_places_in(self, seed_col_name, new_col_name, new_col_type, rows=100):
   type_hint = {seed_col_var: seed_col_type, new_col_var: new_col_type}
 
   # Get allowed DCIDs
-  dcids = ' '.join(self._dataframe[seed_col_name]).strip()
+  dcids = list(self._dataframe[seed_col_name])
   if not dcids:
     # All entries in the seed column are empty strings. The new column should
     # contain no entries.
