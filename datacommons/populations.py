@@ -160,11 +160,11 @@ def get_observations(self,
   query.add_constraint('?pop', 'typeOf', seed_col_type)
   query.add_constraint('?o', 'typeOf', 'Observation')
   query.add_constraint('?pop', 'dcid', dcids)
-  query.add_constraint('?pop', 'dcid', '?{}'.format(seed_col_var))
+  query.add_constraint('?pop', 'dcid', seed_col_var)
   query.add_constraint('?o', 'observedNode', '?pop')
   query.add_constraint('?o', 'observationDate', '\"{}\"'.format(observation_date))
   query.add_constraint('?o', 'measuredProperty', measured_property)
-  query.add_constraint('?o', '{}Value'.format(stats_type), '?{}'.format(new_col_var))
+  query.add_constraint('?o', '{}Value'.format(stats_type), new_col_var)
   measurementMethod = None
   if measured_property == 'prevalence':
     measurementMethod = 'CDC_CrudePrevalence'
