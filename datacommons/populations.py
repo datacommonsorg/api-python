@@ -64,7 +64,7 @@ def get_populations(self,
   labels = {seed_col_var: seed_col_name, new_col_var: new_col_name}
 
   # Get the type of the container place
-  seed_col_type = self._col_type[seed_col_name]
+  seed_col_type = self._col_types[seed_col_name]
   new_col_type = 'StatisticalPopulation'
   type_hint = {seed_col_var: seed_col_type, new_col_var: new_col_type}
 
@@ -74,7 +74,7 @@ def get_populations(self,
     # All entries in the seed column are empty strings. The new column should
     # contain no entries.
     self._dataframe[new_col_name] = ''
-    self._col_type[new_col_name] = new_col_type
+    self._col_types[new_col_name] = new_col_type
     return
 
   # Construct the query
@@ -134,7 +134,7 @@ def get_observations(self,
   labels = {seed_col_var: seed_col_name, new_col_var: new_col_name}
 
   # Get the type of the container place
-  seed_col_type = self._col_type[seed_col_name]
+  seed_col_type = self._col_types[seed_col_name]
   new_col_type = 'Observation'
   type_hint = {seed_col_var: seed_col_type, new_col_var: new_col_type}
 
@@ -146,7 +146,7 @@ def get_observations(self,
   dcids = list(self._dataframe[seed_col_name])
   if not dcids:
     self._dataframe[new_col_name] = ''
-    self._col_type[new_col_name] = new_col_type
+    self._col_types[new_col_name] = new_col_type
     return
 
   if stats_type is None:
