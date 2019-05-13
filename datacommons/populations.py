@@ -37,7 +37,7 @@ def get_populations(self,
                     new_col_name,
                     population_type,
                     rows=100,
-                    location_property='location'
+                    location_property='location',
                     **kwargs):
   """Create a new column with population dcid, in place.
   The current pandas dataframe should include a column containing entity IDs
