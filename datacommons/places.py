@@ -60,7 +60,7 @@ def get_places_in(self, seed_col_name, new_col_name, new_col_type, rows=100):
   labels = {seed_col_var: seed_col_name, new_col_var: new_col_name}
 
   # Get the type of the container place
-  seed_col_type = self._col_type[seed_col_name]
+  seed_col_type = self._col_types[seed_col_name]
   type_hint = {seed_col_var: seed_col_type, new_col_var: new_col_type}
 
   # Get allowed DCIDs
@@ -69,7 +69,7 @@ def get_places_in(self, seed_col_name, new_col_name, new_col_type, rows=100):
     # All entries in the seed column are empty strings. The new column should
     # contain no entries.
     self._dataframe[new_col_name] = ''
-    self._col_type[new_col_name] = new_col_type
+    self._col_types[new_col_name] = new_col_type
     return
 
   # Construct the query
