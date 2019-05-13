@@ -62,8 +62,7 @@ def main():
       new_col_name='state_population',
       population_type='Person',
       rows=100)
-  with pd.option_context('display.width', 400, 'display.max_rows', 100):
-    print frame_1 
+  print(frame_1.pandas())
 
   frame_1.get_populations(
       seed_col_name='state_dcid',
@@ -71,8 +70,7 @@ def main():
       population_type='Person',
       rows=100,
       age='USC/18To24Years')
-  with pd.option_context('display.width', 400, 'display.max_rows', 100):
-    print frame_1
+  print(frame_1.pandas())
 
   frame_1.get_populations(
       seed_col_name='state_dcid',
@@ -80,8 +78,7 @@ def main():
       population_type='Person',
       rows=100,
       gender='Male')
-  with pd.option_context('display.width', 400, 'display.max_rows', 100):
-    print frame_1
+  print(frame_1.pandas())
 
   # Get observations on state populations
   frame_1.get_observations(
@@ -106,8 +103,7 @@ def main():
       new_col_name='county_population',
       population_type='Person',
       rows=100)
-  with pd.option_context('display.width', 400, 'display.max_rows', 100):
-    print frame_1 
+  print(frame_1.pandas())
 
   frame_1.get_populations(
       seed_col_name='county_dcid',
@@ -115,8 +111,7 @@ def main():
       population_type='Person',
       rows=100,
       age='USC/18To24Years')
-  with pd.option_context('display.width', 400, 'display.max_rows', 100):
-    print frame_1
+  print(frame_1.pandas())
 
   frame_1.get_populations(
       seed_col_name='county_dcid',
@@ -124,9 +119,14 @@ def main():
       population_type='Person',
       rows=100,
       gender='Male')
-  with pd.option_context('display.width', 400, 'display.max_rows', 100):
-    print frame_1
+  print(frame_1.pandas())
 
+  frame_1.get_populations(
+      seed_col_name='county_dcid',
+      new_col_name='county_male_population',
+      population_type='Person',
+      rows=100,
+      
   # Get observations on county populations
   frame_1.get_observations(
       seed_col_name='county_population',
