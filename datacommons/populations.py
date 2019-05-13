@@ -85,9 +85,9 @@ def get_populations(self,
   query.add_constraint('?node', 'typeOf', seed_col_type)
   query.add_constraint('?pop', 'typeOf', 'StatisticalPopulation')
   query.add_constraint('?node', 'dcid', dcids)
-  query.add_constraint('?node', 'dcid', '?{}'.format(seed_col_var))
+  query.add_constraint('?node', 'dcid', seed_col_var)
   query.add_constraint('?pop', location_property, '?node')
-  query.add_constraint('?pop', 'dcid', '?{}'.format(new_col_var))
+  query.add_constraint('?pop', 'dcid', new_col_var)
   query.add_constraint('?pop', 'populationType', population_type)
 
   pv_pairs = sorted(kwargs.items())
