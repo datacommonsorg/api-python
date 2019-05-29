@@ -26,14 +26,17 @@ from types import MethodType
 from .datacommons import DCFrame
 from . import utils
 
-_PLACE_TYPES = []
+_PLACES_WITH_WEATHER = ['City']
 
 def WeatherExtension(frame):
   """ The DataCommons weather API extension. """
   frame.get_temperature = MethodType(get_temperature, frame)
+  frame.get_visibility = MethodType(get_visibility, frame)
   frame.get_rainfall = MethodType(get_rainfall, frame)
   frame.get_snowfall = MethodType(get_snowfall, frame)
   frame.get_barometric_pressure = MethodType(get_barometric_pressure, frame)
+  frame.get_humidity = MethodType(get_humidity, frame)
+  return frame
 
 def get_temperature(self, seed_col_name, new_col_name, measured_value, rows=100, **kwargs):
   """ Returns column(s) containing temperature data in celsius.
@@ -52,8 +55,8 @@ def get_temperature(self, seed_col_name, new_col_name, measured_value, rows=100,
                new_col_name,
                measured_value,
                'temperature',
-               rows,
-               kwargs)
+               rows=rows,
+               **kwargs)
 
 
 def get_visibility(self, seed_col_name, new_col_name, measured_value, rows=100, **kwargs):
@@ -73,8 +76,8 @@ def get_visibility(self, seed_col_name, new_col_name, measured_value, rows=100, 
                new_col_name,
                measured_value,
                'visibility',
-               rows,
-               kwargs)
+               rows=rows,
+               **kwargs)
 
 def get_rainfall(self, seed_col_name, new_col_name, measured_value, rows=100, **kwargs):
   """ Returns column(s) containing rainfall data in millimeter.
@@ -93,8 +96,8 @@ def get_rainfall(self, seed_col_name, new_col_name, measured_value, rows=100, **
                new_col_name,
                measured_value,
                'rainfall',
-               rows,
-               kwargs)
+               rows=rows,
+               **kwargs)
 
 def get_snowfall(self, seed_col_name, new_col_name, measured_value, rows=100, **kwargs):
   """ Returns column(s) containing snowfall data in millimeter.
@@ -113,8 +116,8 @@ def get_snowfall(self, seed_col_name, new_col_name, measured_value, rows=100, **
                new_col_name,
                measured_value,
                'snowfall',
-               rows,
-               kwargs)
+               rows=rows,
+               **kwargs)
 
 def get_barometric_pressure(self, seed_col_name, new_col_name, measured_value, rows=100, **kwargs):
   """ Returns column(s) containing barometric pressure data in millibar.
@@ -133,8 +136,8 @@ def get_barometric_pressure(self, seed_col_name, new_col_name, measured_value, r
                new_col_name,
                measured_value,
                'barometricPressure',
-               rows,
-               kwargs)
+               rows=rows,
+               **kwargs)
 
 def get_humidity(self, seed_col_name, new_col_name, measured_value, rows=100, **kwargs):
   """ Returns column(s) containing barometric pressure data in percent.
@@ -153,8 +156,8 @@ def get_humidity(self, seed_col_name, new_col_name, measured_value, rows=100, **
                new_col_name,
                measured_value,
                'humidity',
-               rows,
-               kwargs)
+               rows=rows,
+               **kwargs)
 
 def _get_weather(self,
                  seed_col_name,
@@ -201,17 +204,15 @@ def _get_weather(self,
       raise ValueError('{} is not a column in the frame.'.format(seed_col_name))
     if new_col_name in self._dataframe:
       raise ValueError('{} is already a column.'.format(new_col_name))
-    if self._col_types[seed_col_name] not in _PLACE_TYPES:
-      valid_places = ', '.join([place for place in _PLACE_TYPES])
+    if self._col_types[seed_col_name] not in _PLACES_WITH_WEATHER:
+      valid_places = ', '.join([place for place in _PLACES_WITH_WEATHER])
       raise ValueError('{} needs to be type of Place e.g. one of {}'.format(seed_col_name, valid_places))
     if 'date' not in kwargs:
       raise ValueError('"date" must be specified as a keyword argument.')
-    if not isinstance(measured_value, utils.MeasuredValue):
-      raise ValueError('Must use "MeasuredValue" enumeration in utils package.')
 
     # Get the query variable label map
     seed_col_var = '?' + seed_col_name.replace(' ', '_')
-    new_col_var = '?' + new_col_var.replace(' ', '_')
+    new_col_var = '?' + new_col_name.replace(' ', '_')
     labels = {seed_col_var: seed_col_name, new_col_var: new_col_name}
 
     # Get the query variable types
@@ -223,7 +224,7 @@ def _get_weather(self,
     place_dcids, date_strings = None, None
     if 'date' in kwargs:
       place_dcids = list(self._dataframe[seed_col_name])
-      date_strings = ['"{}"'.format(date) for date in list(kwargs['date'])]
+      date_strings = ['"{}"'.format(date) for date in [kwargs['date']]]
 
     # NOTE: If we ever want to allow the seed column to contain dates, uncomment
     #       this block of code. Additionally, remove the list call surrounding
@@ -239,7 +240,7 @@ def _get_weather(self,
     # Add the constraints
     query.add_constraint('?o', 'typeOf', 'Observation')
     query.add_constraint('?o', 'measuredProperty', '"{}"'.format(weather_type))
-    query.add_constraint('?o', measured_value.string, new_col_var)
+    query.add_constraint('?o', measured_value, new_col_var)
     query.add_constraint('?o', 'observedNode', place_dcids)
     query.add_constraint('?o', 'observationDate', ' '.join(date_strings))
     if 'date' in kwargs:

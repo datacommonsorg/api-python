@@ -17,19 +17,18 @@ Contains various functions that can aid in the extension of the DataCommons API.
 """
 
 from collections import OrderedDict
-from enum import Enum
 
 
-class MeasuredValue(Enum):
+class MeasuredValue:
   """ An enumeration of valid measured values in the DataCommons graph.
 
   A measured value in a Statistical Observation is the type of statistic being
   measured for example: "mean", "min", "max", etc. The associated string field
   is the DataCommons property used to query for the measured value.
   """
-  MIN = 1, 'minValue'
-  MAX = 2, 'maxValue'
-  MEAN = 3, 'meanValue'
+  MIN = 'minValue'
+  MAX = 'maxValue'
+  MEAN = 'meanValue'
 
 
 class DatalogQuery(object):
