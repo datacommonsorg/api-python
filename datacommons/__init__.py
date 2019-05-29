@@ -16,6 +16,4 @@
 from .bio import BioExtension, DEFAULT_BEDLINE_PROPS
 from .datacommons import Client, DCNode, DCFrame
 from .places import PlacesExtension
-from .utils import DatalogQuery
-
-# from . import utils
+from .utils import DatalogQuery, MeasuredValue

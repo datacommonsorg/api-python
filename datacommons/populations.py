@@ -43,6 +43,7 @@ def get_populations(self,
   The current pandas dataframe should include a column containing entity IDs
   for geo entities. This function populates a new column with
   population dcids corresponding to the geo entities.
+
   Args:
     seed_col_name: The column name that contains entity (ids) that the added
       populations belong to.
@@ -50,6 +51,7 @@ def get_populations(self,
     population_type: Population type like "Person".
     max_rows: The maximum number of rows returned by the query results.
     **kwargs: keyword properties to define the population.
+
   Raises:
     ValueError: when input argument is not valid.
   """
@@ -113,6 +115,7 @@ def get_observations(self,
   dcids. This function populates a new column with observations of the
   populations' measured property. A column containing geo ids of type City
   can be used instead of population dcids.
+
   Args:
     seed_col_name: The column that contains the population dcid or city geo id.
     new_col_name: New column name.
@@ -120,6 +123,7 @@ def get_observations(self,
     measured_property: observation measured property.
     stats_type: Statistical type like "Median"
     rows: The maximum number of rows returned by the query results.
+
   Raises:
     ValueError: when input argument is not valid.
   """
