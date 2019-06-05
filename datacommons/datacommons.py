@@ -56,9 +56,9 @@ class Client(object):
 
   def __init__(self,
                db_path=_BIG_QUERY_PATH,
-               client_id=_CLIENT_ID,
-               client_secret=_CLIENT_SECRET,
-               api_root=_API_ROOT):
+               client_id=_SANDBOX_CLIENT_ID,
+               client_secret=_SANDBOX_CLIENT_SECRET,
+               api_root=_SANDBOX_API_ROOT):
     self._db_path = db_path
     self._service = _auth.do_auth(client_id, client_secret, api_root)
     response = self._service.get_prop_type(body={}).execute()
@@ -149,9 +149,9 @@ class DCNode(object):
   def __init__(self,
                dcid,
                db_path=_BIG_QUERY_PATH,
-               client_id=_CLIENT_ID,
-               client_secret=_CLIENT_SECRET,
-               api_root=_API_ROOT):
+               client_id=_SANDBOX_CLIENT_ID,
+               client_secret=_SANDBOX_CLIENT_SECRET,
+               api_root=_SANDBOX_API_ROOT):
     self._client = Client(db_path=db_path,
                           client_id=client_id,
                           client_secret=client_secret,
@@ -195,9 +195,9 @@ class DCFrame(object):
                type_hint=None,
                rows=100,
                db_path=None,
-               client_id=_CLIENT_ID,
-               client_secret=_CLIENT_SECRET,
-               api_root=_API_ROOT):
+               client_id=_SANDBOX_CLIENT_ID,
+               client_secret=_SANDBOX_CLIENT_SECRET,
+               api_root=_SANDBOX_API_ROOT):
     """ Initializes the DCFrame.
 
     A DCFrame can also be initialized by providing the file name of a cached

@@ -238,10 +238,10 @@ def _get_weather(self,
     query.add_variable(seed_col_var, new_col_var)
 
     # Add the constraints
-    query.add_constraint('?o', 'typeOf', 'Observation')
-    query.add_constraint('?o', 'measuredProperty', '"{}"'.format(weather_type))
+    query.add_constraint('?o', 'typeOf', 'WeatherObservation')
+    query.add_constraint('?o', 'measuredProperty', '{}'.format(weather_type))
     query.add_constraint('?o', measured_value, new_col_var)
-    query.add_constraint('?o', 'observedNode', place_dcids)
+    query.add_constraint(seed_col_var, 'dcid', place_dcids)
     query.add_constraint('?o', 'observationDate', ' '.join(date_strings))
     if 'date' in kwargs:
       query.add_constraint('?o', 'observedNode', seed_col_var)

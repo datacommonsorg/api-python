@@ -39,9 +39,9 @@ def main():
   # Create a list of places to get weather.
   places = [
       'geoId/4261000', # Pittsburgh, PA
-      # 'geoId/0649670', # Mountain View, CA
-      # 'geoId/4805000', # Austin, TX
-      # 'geoId/0606000', # Berkeley, CA
+      'geoId/0649670', # Mountain View, CA
+      'geoId/4805000', # Austin, TX
+      'geoId/0606000', # Berkeley, CA
   ]
 
   # Example 1: Getting the temperature
@@ -68,8 +68,7 @@ def main():
   frame_3.add_column('CityID', 'City', places)
   frame_3.expand('name', 'CityID', 'CityName', new_col_type='Text')
   frame_3.get_visibility('CityID', 'MeanVisibility', MeasuredValue.MEAN, date='2019-05-09')
-  frame_3.get_visibility('CityID', 'MaxVisibility', MeasuredValue.MAX, date='2019-05-09')
-  display_table(3, 'Humidity', frame_3.pandas())
+  display_table(3, 'Visibility', frame_3.pandas())
 
 
 if __name__ == '__main__':
