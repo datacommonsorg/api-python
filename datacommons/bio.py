@@ -92,23 +92,22 @@ def get_experiments(self, new_col_name, **kwargs):
   # Construct the query
   query = utils.DatalogQuery()
   query.add_variable(new_col_var)
-  query.add_constraint('?experimentNode', 'typeOf', 'EncodeExperiment')
-  query.add_constraint('?experimentNode', 'dcid', new_col_var)
+  query.add_constraint(new_col_var, 'typeOf', 'EncodeExperiment')
   if 'assay_category' in kwargs:
     categories = ['"{}"'.format(val) for val in kwargs['assay_category']]
-    query.add_constraint('?experimentNode', 'assaySlims', categories)
+    query.add_constraint(new_col_var, 'assaySlims', categories)
   if 'assay_target' in kwargs:
     target_urls = [_ENCODE_TARGET_URL.format(target) in kwargs['assay_target']]
     targets = ['"{}"'.format(url) for url in target_urls]
-    query.add_constraint('?experimentNode', 'target', targets)
+    query.add_constraint(new_col_var, 'target', targets)
   if 'assembly' in kwargs:
     assemblies = ['"{}"'.format(val) for val in kwargs['assembly']]
-    query.add_constraint('?experimentNode', 'assembly', assemblies)
+    query.add_constraint(new_col_var, 'assembly', assemblies)
   if 'bio_class' in kwargs and 'bio_term' in kwargs:
     classes = ['"{}"'.format(val) for val in kwargs['bio_class']]
     terms = ['"{}"'.format(val) for val in kwargs['bio_term']]
     query.add_variable('?bioClass', '?bioTerm')
-    query.add_constraint('?experimentNode', 'biosampleOntology', '?bioNode')
+    query.add_constraint(new_col_var, 'biosampleOntology', '?bioNode')
     query.add_constraint('?bioNode', 'classification', classes)
     query.add_constraint('?bioNode', 'termName', terms)
     query.add_constraint('?bioNode', 'classification', '?bioClass')
@@ -120,7 +119,7 @@ def get_experiments(self, new_col_name, **kwargs):
     process = delete_column('?bioClass', '?bioTerm')
   if 'lab_name' in kwargs:
     lab_names = ['"{}"'.format(name) for name in kwargs['lab_name']]
-    query.add_constraint('?experimentNode', 'lab', '?labNode')
+    query.add_constraint(new_col_var, 'lab', '?labNode')
     query.add_constraint('?labNode', 'name', lab_names)
 
   # Perform the query and merge
@@ -170,6 +169,8 @@ def get_bed_files(self, seed_col_name, new_col_name, **kwargs):
 
   # Add constraints based on if the seed is a column of experiments or lab names
   seed_col = list(self._dataframe[seed_col_name])
+  if not seed_col:
+    raise ValueError('Seed column {} is empty.'.format(seed_col_name))
   if seed_col_type == 'EncodeExperiment':
     query.add_constraint('?experimentNode', 'dcid', seed_col_var)
     query.add_constraint('?experimentNode', 'dcid', seed_col)
@@ -224,11 +225,15 @@ def get_bed_lines(self, seed_col_name, prop_info=DEFAULT_BEDLINE_PROPS, **kwargs
   seed_col_var = '?' + seed_col_name.replace(' ', '')
   seed_col_type = self._col_types[seed_col_name]
 
+  if not seed_col:
+    raise ValueError('Seed column {} is empty.'.format(seed_col_name))
+
   # Create the query
   query = utils.DatalogQuery()
   query.add_variable(seed_col_var)
   query.add_constraint('?bedFileNode', 'dcid', seed_col)
   query.add_constraint('?bedFileNode', 'dcid', seed_col_var)
+  query.add_constraint('?bedLineNode', 'typeOf', 'BedLine')
   query.add_constraint('?bedLineNode', 'fromBedFile', '?bedFileNode')
 
   # If filtering by a specific parameter, need to store which variable is

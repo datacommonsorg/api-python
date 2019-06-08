@@ -42,6 +42,11 @@ _SANDBOX_CLIENT_ID = '381568890662-ff9evnle0lj0oqttr67p2h6882d9ensr.apps.googleu
 _SANDBOX_CLIENT_SECRET = '77HJA4S5m48Z98UKkW_o-jAY'
 _SANDBOX_API_ROOT = 'https://datcom-api-sandbox.appspot.com'
 
+# Encode API Server target
+_ENCODE_CLIENT_ID = '708273713739-42iak5pck92be9q6hrafmen12tf8eht5.apps.googleusercontent.com'
+_ENCODE_CLIENT_SECRET = 'Rg5gFEE0nfodRToI1d4VwLoj'
+_ENCODE_API_ROOT = 'https://datcom-api-encode.appspot.com'
+
 _PARENT_TYPES = {
   'containedInPlace': 'Place'
 }
@@ -108,6 +113,8 @@ class Client(object):
       RuntimeError: some problem with executing query (hint in the string)
     """
     assert self._inited, 'Initialization was unsuccessful, cannot execute Query'
+
+    print(datalog_query)
 
     # Append the options
     options = {}
