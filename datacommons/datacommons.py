@@ -113,9 +113,7 @@ class Client(object):
       RuntimeError: some problem with executing query (hint in the string)
     """
     assert self._inited, 'Initialization was unsuccessful, cannot execute Query'
-
-    print(datalog_query)
-
+    
     # Append the options
     options = {}
     if self._db_path:

@@ -89,6 +89,7 @@ def get_places_in(self, seed_col_name, new_col_name, new_col_type, rows=100):
     parent_type = _PLACES[curr_type]
 
   query.add_constraint('?node{}'.format(seed_col_type), 'dcid', dcids)
+  query.add_constraint('?node{}'.format(seed_col_type), 'dcid', seed_col_var)
 
   # Perform the query and merge the results
   new_frame = DCFrame(datalog_query=query, labels=labels, type_hint=type_hint, rows=rows)
