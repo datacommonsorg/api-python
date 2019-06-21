@@ -36,7 +36,7 @@
 	        {% else %}
 	        <li>
 	        {% endif %}
-				<a href="https://schema-datacommons.appspot.com/">Schemas</a>
+				<a href="docs/schemas.html">Schemas</a>
 			</li>
 			<li>
 	        {% if home_page == "True" %}
