@@ -13,4 +13,7 @@
 # limitations under the License.
 """Data Commons module."""
 
-from .datacommons import Client
+from .bio import BioExtension, DEFAULT_BEDLINE_PROPS
+from .datacommons import Client, DCNode, DCFrame
+from .places import PlacesExtension
+from .utils import DatalogQuery, MeasuredValue
