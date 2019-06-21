@@ -20,47 +20,26 @@ from __future__ import division
 from __future__ import print_function
 
 from collections import defaultdict
-import datetime
 import json
 from itertools import product
 from . import _auth
 import pandas as pd
 
-_PLACES = ('City', 'County', 'State', 'Country', 'Continent')
+_PLACES = {
+  'City': 'County',
+  'CensusTract': 'County',
+  'County': 'State',
+  'State': 'Country',
+  'Country': 'Continent'
+}
+
+_PARENT_TYPES = {
+  'containedInPlace': 'Place'
+}
 
 _CLIENT_ID = ('66054275879-a0nalqfe2p9shlv4jpra5jekfkfnr8ug.apps.googleusercontent.com')
 _CLIENT_SECRET = 'fuJy7JtECndEXgtQA46hHqqa'
 _API_ROOT = 'https://datcom-api.appspot.com'
-
-_MICRO_SECONDS = 1000000
-_EPOCH_START = datetime.datetime(year=1970, month=1, day=1)
-
-
-def _year_epoch_micros(year):
-  """Get the timestamp of the start of a year in micro seconds.
-
-  Args:
-    year: An integer number of the year.
-
-  Returns:
-    Timestamp of the start of a year in micro seconds.
-  """
-  now = datetime.datetime(year=year, month=1, day=1)
-
-  return int((now - _EPOCH_START).total_seconds()) * _MICRO_SECONDS
-
-
-def _date_epoch_micros(date_string):
-  """Get the timestamp of the date string in micro seconds.
-
-  Args:
-    date_string: An string of date
-
-  Returns:
-    Timestamp of the start of a year in micro seconds.
-  """
-  now = datetime.datetime.strptime(date_string, '%Y-%m-%d')
-  return int((now - _EPOCH_START).total_seconds()) * _MICRO_SECONDS
 
 
 class Client(object):
@@ -108,6 +87,7 @@ class Client(object):
       raise RuntimeError('Failed to execute query: %s' % e)
 
     header = response.get('header', [])
+    header = [h.lstrip('?') for h in header]
     rows = response.get('rows', [])
     result_dict = {header: [] for header in header}
     for row in rows:
@@ -115,21 +95,14 @@ class Client(object):
       if len(cells) != len(header):
         raise RuntimeError(
             'Response #cells mismatches #header: {}'.format(response))
-      cell_values = []
       for key, cell in zip(header, cells):
         if not cell:
-          cell_values.append([''])
+          result_dict[key].append('')
         else:
           try:
-            cell_values.append(cell['value'])
+            result_dict[key].append(cell['string_value'])
           except KeyError:
             raise RuntimeError('No value in cell: {}'.format(row))
-
-      # Iterate through the cartesian product to flatten the query results.
-      for values in product(*cell_values):
-        for idx, key in enumerate(header):
-          result_dict[key].append(values[idx])
-
     return pd.DataFrame(result_dict)[header].drop_duplicates()
 
   def expand(self,
@@ -183,11 +156,13 @@ class Client(object):
       else:
         new_col_type = self._prop_type[seed_col_type][arc_name]
     else:
-      if arc_name not in self._inv_prop_type[seed_col_type]:
+      if arc_name in self._inv_prop_type[seed_col_type]:
+        new_col_type = self._inv_prop_type[seed_col_type][arc_name]
+      elif arc_name in _PARENT_TYPES:
+        new_col_type = _PARENT_TYPES[arc_name]
+      else:
         raise ValueError(
             '%s does not have incoming property %s' % (seed_col_type, arc_name))
-      new_col_type = self._inv_prop_type[seed_col_type][arc_name]
-
     dcids = ' '.join(seed_col[1:]).strip()
     if not dcids:
       # All entries in the seed column are empty strings. The new column should
@@ -240,7 +215,7 @@ class Client(object):
     Args:
       col_name: Column name for the returned column.
       instance_type: String of the instance type.
-      max_rows: Max number of returend rows.
+      max_rows: Max number of returned rows.
 
     Returns:
       A pandas.DataFrame with instance dcids.
@@ -271,12 +246,12 @@ class Client(object):
 
     The existing pandas dataframe should include a column containing entity IDs
     for geo entities. This function populates a new column with
-    population dcid corresponding to the geo entity.
+    population dcids corresponding to the geo entities.
 
     Args:
       pd_table: Pandas dataframe that contains geo entity dcids.
       seed_col_name: The column name that contains entity (ids) that the added
-        properties belong to.
+        populations belong to.
       new_col_name: New column name.
       population_type: Population type like "Person".
       max_rows: The maximum number of rows returned by the query results.
@@ -344,20 +319,20 @@ class Client(object):
                        pd_table,
                        seed_col_name,
                        new_col_name,
-                       start_date,
-                       end_date,
+                       observation_date,
                        measured_property,
                        stats_type=None,
                        max_rows=100):
     """Create a new column with values for an observation of the given property.
 
-    The existing pandas dataframe should include a column containing entity IDs
-    for a certain schema.org type. This function populates a new column with
-    property values for the entities.
+    The existing pandas dataframe should include a column containing population
+    dcids. This function populates a new column with observations of the
+    populations' measured property. A column containing geo ids of type City
+    can be used instead of population dcids.
 
     Args:
       pd_table: Pandas dataframe that contains entity information.
-      seed_col_name: The column that contains the population dcid.
+      seed_col_name: The column that contains the population dcid or city geo id.
       new_col_name: New column name.
       start_date: The start date of the observation (in 'YYY-mm-dd' form).
       end_date: The end date of the observation (in 'YYY-mm-dd' form).
@@ -392,6 +367,7 @@ class Client(object):
 
     if stats_type is None:
       stats_type = 'measured'
+
     seed_col_var = seed_col_name.replace(' ', '_')
     new_col_var = new_col_name.replace(' ', '_')
     query = ('SELECT ?{seed_col_var} ?{new_col_var},'
@@ -400,8 +376,7 @@ class Client(object):
              'dcid ?pop {dcids},'
              'dcid ?pop ?{seed_col_var},'
              'observedNode ?o ?pop,'
-             'startTime ?o {start_time},'
-             'endTime ?o {end_time},'
+             'observationDate ?o "{observation_date}",'
              'measuredProperty ?o {measured_property},'
              '{stats_type}Value ?o ?{new_col_var},').format(
                  seed_col_type=seed_col_type,
@@ -410,8 +385,16 @@ class Client(object):
                  dcids=dcids,
                  measured_property=measured_property,
                  stats_type=stats_type,
-                 start_time=_date_epoch_micros(start_date),
-                 end_time=_date_epoch_micros(end_date))
+                 observation_date=observation_date)
+
+    measurementMethod = None
+    if measured_property == 'prevalence':
+      measurementMethod = 'CDC_CrudePrevalence'
+    elif measured_property == 'unemploymentRate':
+      measurementMethod = 'BLSSeasonallyUnadjusted'
+    if measurementMethod:
+      query += 'measurementMethod ?o {}'.format(measurementMethod)
+
     # Run the query and merge the results.
     return self._query_and_merge(
         pd_table,
@@ -445,7 +428,7 @@ class Client(object):
       response = self._service.read_dataframe(file_name=file_name).execute()
     except Exception as e:  # pylint: disable=broad-except
       raise RuntimeError('Failed to read dataframe: {}'.format(e))
-    return pd.read_json(json.loads(response['data']), dtype=False)
+    return pd.read_json(json.loads(response['data']), dtype=False, orient='split')
 
   def save_dataframe(self, pd_dataframe, file_name):
     """Saves pandas dataframe for later retrieving.
@@ -461,7 +444,7 @@ class Client(object):
       RuntimeError: when failed to save the dataframe.
     """
     assert self._inited, 'Initialization was unsuccessful, cannot execute Query'
-    data = json.dumps(pd_dataframe.to_json())
+    data = json.dumps(pd_dataframe.to_json(index=False, orient='split'))
     try:
       response = self._service.save_dataframe(body={
           'data': data,
@@ -477,9 +460,9 @@ class Client(object):
     """Get a list of city dcids in a given state.
 
     Args:
-      state: Name of the state name.
+      state: Name of the state.
       new_col_name: Column name for the returned city column.
-      max_rows: Max number of returend rows.
+      max_rows: Max number of returned rows.
 
     Returns:
       A pandas.DataFrame with city dcids.
@@ -505,9 +488,9 @@ class Client(object):
     """Get a list of state dcids.
 
     Args:
-      country: A string of the country states contained in.
+      country: Name of the country that states are contained in.
       new_col_name: Column name for the returned state column.
-      max_rows: max number of returend results.
+      max_rows: Max number of returned results.
 
     Returns:
       A pandas.DataFrame with state dcids.
@@ -530,19 +513,20 @@ class Client(object):
 
 
   def get_places_in(self, place_type, container_dcid, col_name, max_rows=100):
-    """Get a list of places that are contained in a higher level geo places.
+    """Get a list of places that are contained in a higher level geo place.
 
     Args:
       place_type: The place type, like "City".
       container_dcid: The dcid of the container place.
-      col_name: Column name for the returned state column.
-      max_rows: max number of returend results.
+      col_name: Column name for the returned places column.
+      max_rows: Max number of returned results.
 
     Returns:
       A pandas.DataFrame with dcids of the contained place.
     """
     assert self._inited, 'Initialization was unsuccessful, cannot execute Query'
     assert place_type in _PLACES, 'Input place types are not supported'
+    place_type_orig = place_type
 
     # Get the type of the container place.
     type_query = ('SELECT ?type,'
@@ -554,21 +538,23 @@ class Client(object):
         'Type of the container dcid not found')
     container_type = query_result['type'][0]
 
-    # Sanity check the type information.
-    place_type_ind = _PLACES.index(place_type)
-    container_type_ind = _PLACES.index(container_type)
-    assert container_type_ind > place_type_ind, (
-        'Requested place type should be of a lower level than the container')
-
     # Do the actual query.
     query = ('SELECT ?{col_name},'
              'typeOf ?node_{place_type} {place_type},'
              'dcid ?node_{place_type} ?{col_name},').format(
                  col_name=col_name,
                  place_type=place_type)
-    for i in range(place_type_ind, container_type_ind):
+    # Maximum 4 levels of containedIn relation for places.
+    for i in range(4):
+      parent_type = _PLACES[place_type]
       query += 'containedInPlace ?node_{child} ?node_{parent},'.format(
-          child=_PLACES[i], parent=_PLACES[i+1])
+          child=place_type, parent=parent_type)
+      if parent_type == container_type:
+        break
+      else:
+        place_type = parent_type
+    if parent_type != container_type:
+      raise ValueError('%s is not contained in %s' % (place_type_orig, container_type))
     query += 'dcid ?node_{container_type} "{container_dcid}"'.format(
         container_type=container_type, container_dcid=container_dcid)
     try:
@@ -576,7 +562,7 @@ class Client(object):
     except RuntimeError as e:
       raise RuntimeError('Execute query %s got an error:\n%s' % (query, e))
 
-    type_row = pd.DataFrame(data=[{col_name: place_type}])
+    type_row = pd.DataFrame(data=[{col_name: place_type_orig}])
     return pd.concat([type_row, dcid_column], ignore_index=True)
 
 
@@ -600,7 +586,7 @@ class Client(object):
     Args:
       pd_table: A Pandas dataframe where the new data will be added.
       query: The query to be executed. This query must output a column with the
-             same name as "seed_col_name"
+             same name as "seed_col_name".
       seed_col_name: The name of the seed column (i.e. the column to join the
                      new data against).
       new_col_name: The name of the new column.

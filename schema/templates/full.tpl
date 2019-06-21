@@ -52,30 +52,14 @@ $(document).ready(function(){
 
 <br/>
 
-<div>Select vocabulary view:<br/>
-    <div>
-        <label><input type="radio" name="viewSel" value="local" checked="checked"> {{local_button}}</label>
-        <label><input type="radio" name="viewSel" value="full"> {{full_button}}</label>
-		{% if ext_button != "" %}
-        	<label><input type="radio" name="viewSel" value="ext"> {{ext_button}}</label>
-		{% endif %}
-	</div>
-</div>
+<div>Vocabulary view:<br/>
+    <div id="thing_tree">
+    {{ full_thing_tree | safe }}
+    </div>
 
-
-<div id="thing_tree">
-{{ thing_tree | safe }}
-</div>
-<div class="display: none" id="full_thing_tree">
-{{ full_thing_tree | safe }}
-</div>
-{% if ext_button != "" %}
-	<div class="display: none" id="ext_thing_tree">
-	{{ ext_thing_tree | safe }}
-	</div>
-{% endif %}
-<div id="datatype_tree">
-{{ datatype_tree | safe }}
+    <div id="datatype_tree">
+    {{ datatype_tree | safe }}
+    </div>
 </div>
 
 
