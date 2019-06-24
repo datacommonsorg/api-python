@@ -25,6 +25,7 @@ from . import utils
 
 _PLACES = {
   'City': 'County',
+  'SchoolDistrict': 'County',
   'CensusTract': 'County',
   'County': 'State',
   'State': 'Country',
