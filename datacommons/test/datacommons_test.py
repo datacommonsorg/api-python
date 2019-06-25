@@ -107,9 +107,15 @@ class AppTest(unittest.TestCase):
     }, {
         'rows': [{
             'cells': [{
-                'value': ['Oceania', 'North America']
+                'string_value': 'Oceania'
             }, {
-                'value': ['3292000']
+                'string_value': '3292000'
+            }]
+        }, {
+            'cells': [{
+                'string_value': 'North America'
+            }, {
+                'string_value': '3292000'
             }]
         }],
         'header': ['name', 'area_sq_mi']
