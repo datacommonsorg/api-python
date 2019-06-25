@@ -34,4 +34,4 @@ cd datacommons
 set -e
 
 # Test the code
-time bazel test --incompatible_disable_deprecated_attr_params=false //... || exit 1
+time bazel test --test_output=errors --incompatible_disable_deprecated_attr_params=false //... || exit 1
