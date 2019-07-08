@@ -109,6 +109,7 @@ def get_observations(self,
                      observation_date,
                      measured_property,
                      stats_type=None,
+                     clean_data=True,
                      rows=100):
   """Create a new column with values for an observation of the given property.
   The current pandas dataframe should include a column containing population
@@ -122,6 +123,7 @@ def get_observations(self,
     observations_date: The date of the observation (in 'YYY-mm-dd' form).
     measured_property: observation measured property.
     stats_type: Statistical type like "Median"
+    clean_data: A flag to convert to numerical types and filter out any NaNs.
     rows: The maximum number of rows returned by the query results.
 
   Raises:
@@ -169,14 +171,21 @@ def get_observations(self,
   query.add_constraint('?o', 'observationDate', '\"{}\"'.format(observation_date))
   query.add_constraint('?o', 'measuredProperty', measured_property)
   query.add_constraint('?o', '{}Value'.format(stats_type), new_col_var)
-  measurementMethod = None
+  measurement_method = None
   if measured_property == 'prevalence':
-    measurementMethod = 'CDC_CrudePrevalence'
+    measurement_method = 'CDC_CrudePrevalence'
   elif measured_property == 'unemploymentRate':
-    measurementMethod = 'BLSSeasonallyUnadjusted'
-  if measurementMethod:
-    query.add_constraint('?o', 'measurementMethod', measurementMethod)
+    measurement_method = 'BLSSeasonallyUnadjusted'
+  if measurement_method:
+    query.add_constraint('?o', 'measurementMethod', measurement_method)
+
+  # Check if data should be cleaned
+  clean_func = None
+  if clean_data:
+    type_func = utils.convert_type(new_col_var, 'float')
+    nan_func = utils.drop_nan(new_col_var)
+    clean_func = utils.compose_process(type_func, nan_func)
 
   # Perform the query and merge the results
-  new_frame = DCFrame(datalog_query=query, labels=labels, type_hint=type_hint, rows=rows)
+  new_frame = DCFrame(datalog_query=query, labels=labels, process=clean_func, type_hint=type_hint, rows=rows)
   self.merge(new_frame)

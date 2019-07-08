@@ -113,7 +113,7 @@ class Client(object):
       RuntimeError: some problem with executing query (hint in the string)
     """
     assert self._inited, 'Initialization was unsuccessful, cannot execute Query'
-    
+
     # Append the options
     options = {}
     if self._db_path:
@@ -123,13 +123,13 @@ class Client(object):
 
     # Send the query to the DataCommons query service
     try:
-        response = self._service.query_table(body={
-            'query': datalog_query,
-            'options': options
-        }).execute()
+      response = self._service.query_table(body={
+          'query': datalog_query,
+          'options': options
+      }).execute()
     except Exception as e:
-        msg = 'Failed to execute query:\n  Query: {}\n  Error: {}'.format(datalog_query, e)
-        raise RuntimeError(msg)
+      msg = 'Failed to execute query:\n  Query: {}\n  Error: {}'.format(datalog_query, e)
+      raise RuntimeError(msg)
 
     # Format and return the result as a DCFrame
     header = response.get('header', [])
@@ -307,17 +307,21 @@ class DCFrame(object):
     """
     return self._col_types
 
-  def pandas(self, col_names=None):
+  def pandas(self, col_names=None, ignore_populations=False):
     """ Returns a copy of the data in this view as a Pandas DataFrame.
 
     Args:
       col_names: An optional list specifying which columns to extract.
+      ignore_populations: Ignores all columns that have type
+        StatisticalPopulation. col_names takes precedence over this argument
 
     Returns: A deep copy of the underlying Pandas DataFrame.
     """
-    if col_names:
-        return self._dataframe[col_names].copy()
-    return self._dataframe.copy()
+    if not col_names:
+      col_names = list(self._dataframe)
+    if ignore_populations:
+      col_names = list(filter(lambda name: self._col_types[name] != 'StatisticalPopulation', col_names))
+    return self._dataframe[col_names].copy()
 
   def csv(self, col_names=None):
     """ Returns the data in this view as a CSV string.
@@ -329,7 +333,7 @@ class DCFrame(object):
       The DataFrame exported as a CSV string.
     """
     if col_names:
-        return self._dataframe[col_names].to_csv(index=False)
+      return self._dataframe[col_names].to_csv(index=False)
     return self._dataframe.to_csv(index=False)
 
   def tsv(self, col_names=None):
@@ -342,7 +346,7 @@ class DCFrame(object):
       The DataFrame exported as a TSV string.
     """
     if col_names:
-        return self._dataframe[col_names].to_csv(index=False, sep='\t')
+      return self._dataframe[col_names].to_csv(index=False, sep='\t')
     return self._dataframe.to_csv(index=False, sep='\t')
 
   def rename(self, labels):
