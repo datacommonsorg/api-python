@@ -41,20 +41,18 @@ def print_pandas(example_num, df):
     print('\n')
 
 def main():
-
   frame_1 = datacommons.DCFrame() # establish generic df
   frame_1 = PopulationsExtension(frame_1) # add population features to df
 
   # Start by initializing a column of three US states: California, Kentucky, and
   # Maryland.
   frame_1.add_column('state_dcid', 'State', ['geoId/06', 'geoId/21', 'geoId/24'])
-  print(frame_1.pandas())
+  print_pandas(1, frame_1.pandas())
 
   # Name is an outgoing property of the State. We can call expand to populate a
   # column 'state_name' with names of states corresponding to dcids in the
   # 'state_dcid' column.
   frame_1.expand('name', 'state_dcid', 'state_name')
-  print(frame_1.pandas())
 
   # Get populations for state
   frame_1.get_populations(
@@ -62,15 +60,7 @@ def main():
       new_col_name='state_population',
       population_type='Person',
       rows=100)
-  print(frame_1.pandas())
-
-  frame_1.get_populations(
-      seed_col_name='state_dcid',
-      new_col_name='state_18_24_years_population',
-      population_type='Person',
-      rows=100,
-      age='USC/18To24Years')
-  print(frame_1.pandas())
+  print_pandas(2, frame_1.pandas())
 
   frame_1.get_populations(
       seed_col_name='state_dcid',
@@ -78,7 +68,15 @@ def main():
       population_type='Person',
       rows=100,
       gender='Male')
-  print(frame_1.pandas())
+  print_pandas(3, frame_1.pandas())
+
+  frame_1.get_populations(
+      seed_col_name='state_dcid',
+      new_col_name='state_female_population',
+      population_type='Person',
+      rows=100,
+      gender='Female')
+  print_pandas(3, frame_1.pandas())
 
   # Get observations on state populations
   frame_1.get_observations(
@@ -86,46 +84,15 @@ def main():
       new_col_name='state_person_2016_count',
       observation_date='2016',
       measured_property='count')
+  print_pandas(4, frame_1.pandas())
 
-  # Add 3 counties contained in each state
-  frame_1.expand(
-      'containedInPlace',
-      'state_dcid',
-      'county_dcid',
-      new_col_type='County',
-      outgoing=False,
-      rows=3)
-  print(frame_1.pandas())
+  # To ignore the population columns...
+  print_pandas(5, frame_1.pandas(ignore_populations=True))
 
-  # Get populations for counties
-  frame_1.get_populations(
-      seed_col_name='county_dcid',
-      new_col_name='county_population',
-      population_type='Person',
-      rows=100)
-  print(frame_1.pandas())
+  # Print the max population count
+  print('Max population count...')
+  print(frame_1.pandas()['state_person_2016_count'].max())
 
-  frame_1.get_populations(
-      seed_col_name='county_dcid',
-      new_col_name='county_18_24_years_population',
-      population_type='Person',
-      rows=100,
-      age='USC/18To24Years')
-  print(frame_1.pandas())
 
-  frame_1.get_populations(
-      seed_col_name='county_dcid',
-      new_col_name='county_male_population',
-      population_type='Person',
-      rows=100,
-      gender='Male')
-  print(frame_1.pandas())
-
-  # Get observations on county populations
-  frame_1.get_observations(
-      seed_col_name='county_population',
-      new_col_name='county_person_2016_count',
-      observation_date='2016',
-      measured_property='count')
 if __name__ == '__main__':
   main()
