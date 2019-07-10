@@ -116,7 +116,7 @@ def get_experiments(self, new_col_name, **kwargs):
     # Specify select and process functions to filter for biosample class and
     # terms. This enforces the paired-ness of term and class
     select = select_biosample_summary('?bioClass', '?bioTerm', classes, terms)
-    process = delete_column('?bioClass', '?bioTerm')
+    process = utils.delete_column('?bioClass', '?bioTerm')
   if 'lab_name' in kwargs:
     lab_names = ['"{}"'.format(name) for name in kwargs['lab_name']]
     query.add_constraint(new_col_var, 'lab', '?labNode')
@@ -291,9 +291,9 @@ def get_bed_lines(self, seed_col_name, prop_info=DEFAULT_BEDLINE_PROPS, **kwargs
   # If filters were specified, compose the filters and add a post processor if
   # necessary.
   if select_funcs:
-    select = compose_select(*select_funcs)
+    select = utils.compose_select(*select_funcs)
     if drop_cols:
-      process = delete_column(*drop_cols)
+      process = utils.delete_column(*drop_cols)
 
   # Perform the query and merge
   new_frame = DCFrame(datalog_query=query,
@@ -366,32 +366,3 @@ def select_chrom_pos(start_pos_col, end_pos_col, start_pos, end_pos):
         return True
     return False
   return select
-
-def compose_select(*select_funcs):
-  """ Returns a filter function composed of the given selectors.
-
-  Args:
-    select_funcs: Functions to compose.
-
-  Returns:
-    A filter function which returns True iff all select_funcs return True.
-  """
-  def select(row):
-    return all(select_func(row) for select_func in select_funcs)
-  return select
-
-def delete_column(*cols):
-  """ Returns a function that deletes the given column from a frame.
-
-  Args:
-    cols: Columns to delete from the data frame.
-
-  Returns:
-    A function that deletes columns in the given Pandas DataFrame.
-  """
-  def process(pd_frame):
-    for col in cols:
-      if col in pd_frame:
-        pd_frame = pd_frame.drop(col, axis=1)
-    return pd_frame
-  return process
