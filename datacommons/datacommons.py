@@ -125,7 +125,7 @@ class DCNode(object):
     by definition not equal to each other. This means a comparison between a
     leaf node and a node with a dcid or two leaf nodes is always False.
     """
-    return self._dcid and other._dcid and self._dcid == other._dcid
+    return bool(self._dcid) and bool(other._dcid) and self._dcid == other._dcid
 
   def __ne__(self, other):
     """ Overrides != operator. """
