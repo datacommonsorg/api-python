@@ -183,11 +183,9 @@ class DCNode(object):
     if outgoing and prop in self._out_props:
       if len(self._out_props[prop]) >= limit:
         return self._out_props[prop][:limit]
-      limit = limit - len(self._out_props[prop])
     elif not outgoing and prop in self._in_props:
       if len(self._in_props[prop]) >= limit:
         return self._in_props[prop][:limit]
-      limit = limit - len(self._in_props[prop])
 
     # Query for the rest of the nodes to meet limit. First create request body
     req_json = {
