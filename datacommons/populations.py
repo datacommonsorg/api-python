@@ -109,7 +109,7 @@ def get_observations(self,
                      observation_date,
                      measured_property,
                      stats_type=None,
-                     clean_data=True,
+                     clean_data=False,
                      rows=100):
   """Create a new column with values for an observation of the given property.
   The current pandas dataframe should include a column containing population
@@ -187,5 +187,5 @@ def get_observations(self,
     clean_func = utils.compose_process(type_func, nan_func)
 
   # Perform the query and merge the results
-  new_frame = DCFrame(datalog_query=query, labels=labels, process=clean_func, type_hint=type_hint, rows=rows)
-  self.merge(new_frame)
+  new_frame = DCFrame(datalog_query=query, labels=labels, type_hint=type_hint, rows=rows)
+  self.merge(new_frame, process=clean_func)
