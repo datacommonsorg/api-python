@@ -80,6 +80,9 @@ class DCNode(object):
     if ('dcid' not in kwargs or not bool(kwargs['dcid'])) and\
       ('value' not in kwargs or not bool(kwargs['value'])):
       raise ValueError('Must specify one of "dcid" or "value"')
+    if 'dcid' in kwargs and 'value' in kwargs and\
+      bool(kwargs['dcid']) and bool(kwargs['value']):
+      raise ValueError('Can only specify one of "dcid" or "value"')
 
     # Initialize all fields
     self._dcid = None
