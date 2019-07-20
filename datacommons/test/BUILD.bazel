@@ -7,5 +7,6 @@ py_test(
         "//datacommons:datacommons",
         requirement("mock"),
         requirement("pandas"),
-    ]
+    ],
+    python_version = "PY3"
 )
