@@ -179,13 +179,13 @@ def get_observations(self,
   if measurement_method:
     query.add_constraint('?o', 'measurementMethod', measurement_method)
 
-  # Check if data should be cleaned
-  clean_func = None
+  # Perform the query and merge the results
+  new_frame = DCFrame(datalog_query=query, labels=labels, type_hint=type_hint, rows=rows)
+  self.merge(new_frame)
+
+  # After the merge is performed, check if cleaning needs to be done
   if clean_data:
     type_func = utils.convert_type(new_col_var, 'float')
     nan_func = utils.drop_nan(new_col_var)
     clean_func = utils.compose_process(type_func, nan_func)
-
-  # Perform the query and merge the results
-  new_frame = DCFrame(datalog_query=query, labels=labels, type_hint=type_hint, rows=rows)
-  self.merge(new_frame, process=clean_func)
+    self._dataframe = clean_func(self._dataframe)

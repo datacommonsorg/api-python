@@ -449,7 +449,7 @@ class DCFrame(object):
     new_frame = DCFrame(datalog_query=query, rows=rows, labels=labels, type_hint=type_hint)
     self.merge(new_frame)
 
-  def merge(self, frame, how='left', default='', process=None):
+  def merge(self, frame, how='left', default=''):
     """ Joins the given frame into the current frame along shared column names.
 
     Args:
@@ -457,8 +457,6 @@ class DCFrame(object):
       how: Optional argument specifying the joins type to perform. Valid types
         include 'left', 'right', 'inner', and 'outer'
       default: The default place holder for an empty cell produced by the join.
-      process: A function to be applied per row after the left joins is
-        performed.
 
     Raises:
       ValueError: if the given arguments are not valid. This may include either
@@ -492,10 +490,6 @@ class DCFrame(object):
       # Merge dataframe, column types, and property maps
       self._dataframe = self._dataframe.merge(frame._dataframe, how=how, left_on=merge_on, right_on=merge_on)
       self._dataframe = self._dataframe.fillna(default)
-
-    # If process is specified, perform row based processing post merge
-    if process:
-      self._dataframe = process(self._dataframe)
 
     # Merge the types
     self._col_types.update(frame._col_types)
