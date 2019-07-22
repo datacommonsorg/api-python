@@ -185,7 +185,7 @@ def get_observations(self,
 
   # After the merge is performed, check if cleaning needs to be done
   if clean_data:
-    type_func = utils.convert_type(new_col_var, 'float')
-    nan_func = utils.drop_nan(new_col_var)
+    type_func = utils.convert_type(new_col_name, 'float')
+    nan_func = utils.drop_nan(new_col_name)
     clean_func = utils.compose_process(type_func, nan_func)
     self._dataframe = clean_func(self._dataframe)
