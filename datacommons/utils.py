@@ -20,77 +20,9 @@ from collections import OrderedDict
 
 import pandas as pd
 
-
-class MeasuredValue:
-  """ An enumeration of valid measured values in the DataCommons graph.
-
-  A measured value in a Statistical Observation is the type of statistic being
-  measured for example: "mean", "min", "max", etc. The associated string field
-  is the DataCommons property used to query for the measured value.
-  """
-  MIN = 'minValue'
-  MAX = 'maxValue'
-  MEAN = 'meanValue'
-
-
-class DatalogQuery(object):
-  """ A class wrapping a DataCommons datalog query string. """
-
-  def __init__(self):
-    self._variables = []
-    self._constraints = OrderedDict()
-
-  def __str__(self):
-    """ Returns the query stored by this object. """
-    query_body = ''
-    for sub in self._constraints:
-      for pred in self._constraints[sub]:
-        for obj in self._constraints[sub][pred]:
-          if isinstance(obj, list):
-            obj_vals = ' '.join(obj).strip()
-            query_body += '{} {} {},\n'.format(pred, sub, obj_vals)
-          else:
-            query_body += '{} {} {},\n'.format(pred, sub, obj)
-    query = 'SELECT {},\n{}'.format(' '.join(self._variables), query_body)
-    return query
-
-  def variables(self):
-    """ Returns the set of variables. """
-    return self._variables
-
-  def var_types(self):
-    """ Returns a map from query variable to types specified in the query. """
-    # Get initial var types
-    var_types = {}
-    for sub in self._constraints:
-      for pred in self._constraints[sub]:
-        if pred == 'typeOf':
-          var_types[sub] = self._constraints[sub][pred][0]
-
-    # If the property is dcid, then the type can be carried over
-    for sub in self._constraints:
-      for pred in self._constraints[sub]:
-        if pred == 'dcid':
-          for obj in self._constraints[sub][pred]:
-            if isinstance(obj, str) and sub in var_types:
-              var_types[obj] = var_types[sub]
-    return var_types
-
-  def add_variable(self, *variables):
-    """ Add variables to the query. """
-    for var in variables:
-      if var not in self._variables:
-        # Maintaining order of the variables is important
-        self._variables.append(var)
-
-  def add_constraint(self, sub, pred, obj):
-    """ Add constraints to the query. """
-    # Entries in the set correspond to separate lines
-    if sub not in self._constraints:
-      self._constraints[sub] = OrderedDict()
-    if pred not in self._constraints[sub]:
-      self._constraints[sub][pred] = []
-    self._constraints[sub][pred].append(obj)
+import base64
+import json
+import zlib
 
 
 # ------------------------ SELECT AND PROCESS HELPERS -------------------------
@@ -168,3 +100,21 @@ def compose_process(*process_funcs):
       pd_frame = process_func(pd_frame)
     return pd_frame
   return process
+
+
+# ------------------------------- OTHER HELPERS -------------------------------
+
+
+def format_response(response, compress=False):
+  """ Returns the json payload in a response from the mixer. """
+  res_json = response.json()
+  if 'code' in res_json and res_json['code'] != 0:
+    raise Error(res_json['message'])
+  elif 'payload' not in res_json:
+    return {}
+
+  # If the payload is compressed, decompress and decode it
+  payload = res_json['payload']
+  if compress:
+    payload = zlib.decompress(base64.b64decode(payload), 16 + zlib.MAX_WBITS)
+  return json.loads(payload)
