@@ -27,6 +27,12 @@ def main():
   # Notice that its name and types are immediately populated
   print("> Node: {}".format(node))
 
+  # Print the in and out properties defined for this node.
+  out_props = node.get_properties()
+  in_props = node.get_properties(outgoing=False)
+  print("> Incoming properties: {}".format(in_props))
+  print("> Outgoing properties: {}".format(out_props))
+
   # Get all cities contained in Santa Clara county
   cities = node.get_property_values("containedInPlace", outgoing=False, value_type="City", reload=True)
   print("\n> Cities contained in Santa Clara County.")

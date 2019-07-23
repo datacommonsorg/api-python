@@ -174,13 +174,26 @@ class DCNode(object):
     """ Returns true if the node only contains a single value. """
     return bool(self._value)
 
-  def get_properties(self, outgoing=True):
+  def get_properties(self, outgoing=True, reload=False):
     """ Returns a list of properties associated with this node.
 
     Args:
       outgoing: whether or not the node is a subject or object.
     """
-    pass
+    # Generate the GetProperty query and send the request.
+    params = "?dcid={}".format(self._dcid)
+    if reload:
+      params += "&reload=true"
+    url = _API_ROOT + _API_ENDPOINTS['get_property'] + params
+    res = requests.get(url)
+    payload = utils.format_response(res)
+
+    # Return the results based on the orientation
+    if outgoing and 'outArcs' in payload:
+      return payload['outArcs']
+    elif not outgoing and 'inArcs' in payload:
+      return payload['inArcs']
+    return []
 
   def get_property_values(self,
                           prop,
@@ -254,7 +267,7 @@ class DCNode(object):
       reload: Send the query through cache.
       limit: The maximum number of values to return.
     """
-    # Generate the GetTriple query.
+    # Generate the GetTriple query and send the request.
     params = "?dcid={}&limit_per_arc={}".format(self._dcid, limit)
     if reload:
       params += "&reload=true"
