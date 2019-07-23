@@ -24,6 +24,7 @@ from __future__ import print_function
 
 from collections import defaultdict, OrderedDict
 from . import utils
+import copy
 import json
 import requests
 import pandas as pd
@@ -34,9 +35,9 @@ _API_ROOT = "http://mixergrpc.endpoints.datcom-mixer.cloud.goog"
 # REST API endpoint paths
 _API_ENDPOINTS = {
   "get_node": "/node",
-  "get_property": "/property",
-  "get_property_value": "/propertyvalue",
-  "get_triples": "/triples"
+  "get_property": "/node/property",
+  "get_property_value": "/node/property-value",
+  "get_triple": "/node/triple"
 }
 
 # Database paths
@@ -58,6 +59,15 @@ class DCNode(object):
   def __init__(self, **kwargs):
     """ Constructor for the node.
 
+    Valid keyword arguments:
+      dcid: The dcid of the node. Either this or "value" must be specified
+      value: The value contained by a DCNode. This specifies the node as a leaf
+        node. Either this or "dcid" must be specified
+      name: The name of the node
+      types: A list of Data Commons types associated with the node.
+      node: If this is specified, then the constructor is treated as a copy
+        constructor. This parameter must be an instance of a DCNode.
+
     DCNode fields:
       _dcid: The dcid of the node. This should never change after the creation
         of the DCNode.
@@ -71,17 +81,25 @@ class DCNode(object):
     Raises:
       ValueError: If neither of dcid or value are provided.
     """
+    # If 'node' is provided as a keyword argument, then this constructor is
+    # treated as a copy constructor.
+    if 'node' in kwargs:
+      if not isinstance(kwargs['node'], DCNode):
+        raise ValueError('The node must be an instance of DCNode.')
+      self._dcid = kwargs['node']._dcid
+      self._name = kwargs['node']._name
+      self._value = kwargs['node']._value
+      self._types = copy.deepcopy(kwargs['node']._types)
+      self._in_props = copy.deepcopy(kwargs['node']._in_props)
+      self._out_props = copy.deepcopy(kwargs['node']._out_props)
+      return
+
     # TODO(antaresc): Remove this after id -> dcid in the EntityInfo proto
     if 'id' in kwargs and 'dcid' not in kwargs:
       kwargs['dcid'] = kwargs['id']
-
-    # TODO(antaresc): Make the return value not have a key if it maps to an
-    #   empty string.
-    if ('dcid' not in kwargs or not bool(kwargs['dcid'])) and\
-      ('value' not in kwargs or not bool(kwargs['value'])):
+    if 'dcid' not in kwargs and 'value' not in kwargs:
       raise ValueError('Must specify one of "dcid" or "value"')
-    if 'dcid' in kwargs and 'value' in kwargs and\
-      bool(kwargs['dcid']) and bool(kwargs['value']):
+    if 'dcid' in kwargs and 'value' in kwargs:
       raise ValueError('Can only specify one of "dcid" or "value"')
 
     # Initialize all fields
@@ -93,7 +111,7 @@ class DCNode(object):
     self._out_props = {}
 
     # Populate fields based on if this is a node with a dcid or a leaf node.
-    if 'dcid' in kwargs and bool(kwargs['dcid']):
+    if 'dcid' in kwargs:
       if 'name' in kwargs and 'types' in kwargs:
         self._name = kwargs['name']
         self._types = kwargs['types']
@@ -189,7 +207,7 @@ class DCNode(object):
 
     # Query for the rest of the nodes to meet limit. First create request body
     req_json = {
-      "dcid": [self._dcid],
+      "dcids": [self._dcid],
       "property": prop,
       "outgoing": outgoing,
       "reload": reload,
@@ -211,27 +229,115 @@ class DCNode(object):
         prop_vals.add(DCNode(**node))
 
     # Cache the results and set prop_vals to the appropriate list of nodes.
+    in_props, out_props = defaultdict(set), defaultdict(set)
     if outgoing:
-      if prop not in self._out_props:
-        self._out_props[prop] = []
-      self._out_props[prop] = list(set(self._out_props[prop]).union(prop_vals))
-      prop_vals = self._out_props[prop][:limit]
+      out_props[prop] = prop_vals
     else:
-      if prop not in self._in_props:
-        self._in_props[prop] = []
-      self._in_props[prop] = list(set(self._in_props[prop]).union(prop_vals))
-      prop_vals = self._in_props[prop][:limit]
+      in_props[prop] = prop_vals
+    self._update_props(in_props, out_props)
 
     # Return the results
-    return prop_vals
+    return list(prop_vals)
 
-  def get_triples(self):
+  def get_triples(self, as_node=False, reload=False, limit=_MAX_LIMIT):
     """ Returns a list of triples where this node is either a subject or object.
 
+    The return value is a list of tuples (s, p, o) where s denotes the subject
+    entity, p the property, and o the object. When "as_node" is set to True, the
+    subject and object are converted to DCNode instances.
+
+    Note that if as_node is specified, then the DCNode instances are deep copies
+    of the given node wherever it is a subject or object.
+
     Args:
-      outgoing: whether or not the node is a subject or object.
+      as_node: Convert the subject and object in the triples into nodes.
+      reload: Send the query through cache.
+      limit: The maximum number of values to return.
     """
-    pass
+    # Generate the GetTriple query.
+    params = "?dcid={}&limit_per_arc={}".format(self._dcid, limit)
+    if reload:
+      params += "&reload=true"
+    url = _API_ROOT + _API_ENDPOINTS['get_triple'] + params
+    res = requests.get(url)
+    payload = utils.format_response(res)
+
+    # If the payload did not return triples, return an empty list.
+    triples = []
+    if 'triples' not in payload:
+      return triples
+
+    # Iterate through all triples in the payload to build the response list.
+    for t in payload['triples']:
+      if as_node:
+        if 'subjectId' in t and 'objectId' in t:
+          # A triple with the object as a reference node.
+          if t['subjectId'] == self._dcid:
+            # A triple with an outgoing predicate
+            object_info = {
+              'dcid': t['objectId'],
+              'types': t['objectTypes']
+            }
+            if 'objectName' in t:
+              object_info['name'] = t['objectName']
+
+            # Create the triple
+            sub, obj = DCNode(node=self), DCNode(**object_info)
+            triples.append((sub, t['predicate'], obj))
+          else:
+            # A triple with an incoming predicate
+            subject_info = {
+              'dcid': t['subjectId'],
+              'types': t['subjectTypes']
+            }
+            if 'subjectName' in t:
+              subject_info['name'] = t['subjectName']
+
+            # Create the triple
+            sub, obj = DCNode(**subject_info), DCNode(node=self)
+            triples.append((sub, t['predicate'], obj))
+        elif 'objectValue' in t:
+          # A triple with the object as a leaf node. Currently, all triples with
+          # objectValue also have the given node as the subjectId.
+          sub, obj = DCNode(node=self), DCNode(value=t['objectValue'])
+          triples.append((sub, t['predicate'], obj))
+      else:
+        if 'objectId' in t:
+          triples.append((t['subjectId'], t['predicate'], t['objectId']))
+        elif 'objectValue' in t:
+          triples.append((t['subjectId'], t['predicate'], t['objectValue']))
+
+    # If as_node is specified, add all triples to the node's in/out_props cache.
+    if as_node:
+      in_props, out_props = defaultdict(set), defaultdict(set)
+      for s, p, o in triples:
+        if s == self:
+          out_props[p].add(o)
+        else:
+          in_props[p].add(o)
+      self._update_props(in_props, out_props)
+
+    # Return the resulting triples.
+    return triples
+
+  def _update_props(self, in_props, out_props):
+    """ Updates self._in_props and _out_props given the following dicts.
+
+    Args:
+      in_props: A map from property name to a set of property values to update
+        self._in_props with.
+      out_props: A map from property name to a set of property values to update
+        self._out_props with.
+    """
+    for p in in_props:
+      if p not in self._in_props:
+        self._in_props[p] = []
+      self._in_props[p] = list(set(self._in_props[p]).union(in_props[p]))
+    for p in out_props:
+      if p not in self._out_props:
+        self._out_props[p] = []
+      self._out_props[p] = list(set(self._out_props[p]).union(out_props[p]))
+
 
 # class DCFrame(object):
 #   """ Provides a tabular view of the DataCommons knowledge graph. """

@@ -109,7 +109,7 @@ def format_response(response, compress=False):
   """ Returns the json payload in a response from the mixer. """
   res_json = response.json()
   if 'code' in res_json and res_json['code'] != 0:
-    raise Error(res_json['message'])
+    raise ValueError(res_json['message'])
   elif 'payload' not in res_json:
     return {}
 

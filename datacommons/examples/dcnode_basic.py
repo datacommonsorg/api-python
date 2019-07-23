@@ -28,12 +28,23 @@ def main():
   print("> Node: {}".format(node))
 
   # Get all cities contained in Santa Clara county
-  cities = node.get_property_values("containedInPlace", outgoing=False, value_type="City")
-  print("> Cities contained in Santa Clara County")
+  cities = node.get_property_values("containedInPlace", outgoing=False, value_type="City", reload=True)
+  print("\n> Cities contained in Santa Clara County.")
   for city in cities:
     print("  {}".format(city))
 
-  print(node._in_props)
+  # Print all triples associated with Santa Clara county
+  triples = node.get_triples()
+  print("\n> Printing 5 triples for Santa Clara County.")
+  for s, p, o in triples[:5]:
+    print("  ({}, {}, {})".format(s, p, o))
+
+  # Print all triples associated with Santa Clara county converting subject
+  # and object to DCNodes.
+  triples = node.get_triples(as_node=True)
+  print("\n> Printing 5 triples for Santa Clara County with as_node = True.")
+  for s, p, o in triples[:5]:
+    print("  ({}, {}, {})".format(s, p, o))
 
 if __name__ == '__main__':
   main()
