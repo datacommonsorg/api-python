@@ -1,4 +1,5 @@
 workspace(name="datacommons")
+
 load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
 
 # The following rules are needed to perform pip-install of dependencies.
