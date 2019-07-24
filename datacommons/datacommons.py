@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-""" DataCommons base public API.
+""" Data Commons base Python Client API.
 
 Contains DCQuery which performs graph queries on the Data Commons kg, DCNode
 which wraps a node in the graph, and DCFrame which provides a tabular view of
@@ -34,6 +34,7 @@ _API_ROOT = "http://mixergrpc.endpoints.datcom-mixer.cloud.goog"
 
 # REST API endpoint paths
 _API_ENDPOINTS = {
+  "query": "/query",
   "get_node": "/node",
   "get_property": "/node/property",
   "get_property_value": "/node/property-value",
@@ -46,14 +47,109 @@ _BIG_QUERY_PATH = 'google.com:datcom-store-dev.dc_v3_clustered'
 # The default value to limit to
 _MAX_LIMIT = 100
 
+# Valid query languages
+_SPARQL_LANG = 'sparql'
+_VALID_LANG = [_SPARQL_LANG]
+
+
+class DCQuery(object):
+  """ Performs a graph query to the Data Commons knowledge graph. """
+
+  def __init__(self, **kwargs):
+    """ Initializes a DCQuery.
+
+    Keyword Args:
+      sparql: A sparql query string.
+    """
+    if _SPARQL_LANG in kwargs:
+      self._query = kwargs[_SPARQL_LANG]
+      self._language = _SPARQL_LANG
+      self._result = None
+    else:
+      lang_str = _VALID_LANG.join(', ')
+      raise ValueError('Must provide one of the following languages: {}'.format(lang_str))
+
+  def rows(self, select=None):
+    """ Returns the results of the query as an iterator over all rows.
+
+    Rows from the query are represented as maps from query variable to its value
+    in the current row.
+
+    Args:
+      select: A function that returns true if and only if a row in the query
+        results should be kept. The argument for this function is a map from
+        query variable to its value in a given row.
+    """
+    # Execute the query if the results are empty.
+    if not self._result:
+      self._execute()
+
+    # Iterate through the query results
+    header = self._result['header']
+    for row in self._result['rows']:
+      # Construct the map from query variable to cell value.
+      row_map = {}
+      for idx, cell in enumerate(row['cells']):
+        if idx > len(header):
+          raise RuntimeError('Query error: unexpected cell {}'.format(cell))
+        if 'value' not in cell:
+          raise RuntimeError('Query error: cell missing value {}'.format(cell))
+        cell_var = header[idx]
+        row_map[cell_var] = cell['value']
+
+      # Yield the row if it is selected
+      if select is None or select(row_map):
+        yield row_map
+
+  def as_dcframe(self, type_hint, select=None, process=None, labels={}):
+    """ Returns the result as a DCFrame.
+
+    Args:
+      type_hint: A map from query variables to types.
+      select: A function that returns true if and only if a row in the query
+        results should be kept. The argument for this function is a map from
+        query variable to its value in a given row.
+      process: A function that takes in a Pandas DataFrame. Can be used for
+        post processing the results such as converting columns to certain types.
+        Functions should index into columns using names prior to relabeling.
+      labels: A map from the query variables to their column names in the
+        DCFrame.
+
+    Raises:
+      RuntimeError: on query failure (see error hint).
+    """
+    # Get the rows filtered by select. Then process, and relabel as necessary.
+    query_rows = list(self.rows(select=select))
+    frame = DCFrame(query_rows, type_hint=type_hint, process=process)
+    frame.rename(labels)
+    return frame
+
+  def _execute(self):
+    """ Execute the query.
+
+    Raises:
+      RuntimeError: on query failure (see error hint).
+    """
+    # Create the query request.
+    if self._language == _SPARQL_LANG:
+      payload = {'sparql': self._query}
+    url = _API_ROOT + _API_ENDPOINTS['query']
+    res = requests.post(url, json=payload)
+
+    # Verify then store the results.
+    res_json = res.json()
+    if 'message' in res_json:
+      raise RuntimeError('Query error: {}'.format(res_json['message']))
+    self._result = res.json()
+
 
 class DCNode(object):
-  """ Wraps a node found in the DataCommons knowledge graph. """
+  """ Wraps a node found in the Data Commons knowledge graph. """
 
   def __init__(self, **kwargs):
     """ Constructor for the node.
 
-    Valid keyword arguments:
+    Keyword Args:
       dcid: The dcid of the node. Either this or "value" must be specified
       value: The value contained by a DCNode. This specifies the node as a leaf
         node. Either this or "dcid" must be specified
@@ -347,10 +443,10 @@ class DCNode(object):
 
 
 class DCFrame(object):
-  """ Provides a tabular view of the DataCommons knowledge graph. """
+  """ Provides a tabular view of the Data Commons knowledge graph. """
 
   def __init__(self, data={}, type_hint={}, process=None, file_name=None):
-    """ Initializes the DCFrame.
+    """ Initializes a DCFrame.
 
     Args:
       data: Either a list of dictionaries where each row is represented as a
@@ -401,7 +497,7 @@ class DCFrame(object):
     return [col for col in self._dataframe]
 
   def types(self, col_name):
-    """ Returns a map from column name to associated DataCommons type.
+    """ Returns a map from column name to associated Data Commons type.
 
     Args:
       col_name: Column to get types for.
@@ -629,7 +725,7 @@ class DCFrame(object):
     self._dataframe = pd.DataFrame()
 
   def save(self, file_name):
-    """ Saves the current DCFrame to the DataCommons cache with given file name.
+    """ Saves the current DCFrame to the Data Commons cache with given file name.
 
     Args:
       file_name: The name used to store the current DCFrame.
