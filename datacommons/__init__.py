@@ -13,4 +13,4 @@
 # limitations under the License.
 """Data Commons module."""
 
-from .datacommons import DCNode
+from .datacommons import DCNode, DCFrame
