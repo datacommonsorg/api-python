@@ -50,6 +50,6 @@ class PlacesMixin:
     # Load the data into a new DCFrame and rename the columns
     type_hint = {'dcid': seed_col_type, 'place': new_col_type}
     labels = {'dcid': seed_col_name, 'place': new_col_name}
-    new_frame = datacommons.DCFrame(payload, type_hint=type_hint)
+    new_frame = datacommons.Frame(payload, type_hint=type_hint)
     new_frame.rename(labels)
     self.merge(new_frame)

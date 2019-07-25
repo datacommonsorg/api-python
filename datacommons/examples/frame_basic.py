@@ -11,9 +11,9 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""Basic demo for the DCFrame.
+"""Basic demo for the Frame.
 
-This demo showcases basic features of the DCFrame class.
+This demo showcases basic features of the Frame class.
 """
 
 import datacommons
@@ -29,7 +29,7 @@ def print_header(label):
 
 def main():
   # Initialize the frame
-  frame = datacommons.DCFrame()
+  frame = datacommons.Frame()
 
   # Start by initializing a column of three US states: California, Kentucky, and
   # Maryland.
