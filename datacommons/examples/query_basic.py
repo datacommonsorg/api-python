@@ -35,10 +35,10 @@ WHERE {
 ''')
   print('> Issuing query.\n{}'.format(query))
 
-  # Initialize the DCQuery instance
-  dc_query = datacommons.DCQuery(sparql=query)
+  # Initialize the Query instance.
+  dc_query = datacommons.Query(sparql=query)
 
-  # Iterate through all the rows in the results
+  # Iterate through all the rows in the results.
   print('> Printing results.\n')
   for row in dc_query.rows():
     print('  {}'.format(row))
