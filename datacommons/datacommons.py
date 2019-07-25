@@ -583,7 +583,7 @@ class DCFrame(PlacesMixin):
       col_type: The string type of the column
       col_vals: The values in the given column
     """
-    _verify_col_add(col_name)
+    self._verify_col_add(col_name)
     self._col_types[col_name] = [col_type]
     self._dataframe[col_name] = col_vals
 
