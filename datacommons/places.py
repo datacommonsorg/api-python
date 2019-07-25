@@ -12,86 +12,44 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""DataCommons Places data API Extension.
+"""DataCommons Places data API Mixin.
 """
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
+from datacommons.utils import format_response, _API_ROOT, _API_ENDPOINTS
 
-from types import MethodType
-from .datacommons import DCFrame
-from . import utils
+import datacommons
+import requests
 
-_PLACES = {
-  'City': 'County',
-  'SchoolDistrict': 'County',
-  'CensusTract': 'County',
-  'County': 'State',
-  'State': 'Country',
-  'Country': 'Continent'
-}
+class PlacesMixin:
 
-def PlacesExtension(frame):
-  """ The DataCommons places API extension. """
-  frame.get_places_in = MethodType(get_places_in, frame)
-  return frame
+  def get_places_in(self, seed_col_name, new_col_name, new_col_type, reload=False):
+    """ Adds a new column with places contained in seed column entities.
 
-def get_places_in(self, seed_col_name, new_col_name, new_col_type, rows=100):
-  """ Adds a new column to the frame places contained in seed column entities.
+    Args:
+      seed_col_name: The column name containing DCIDs to get contained entities.
+      new_col_name: The column name for where the results are stored.
+      new_col_type: The type of place to query for.
+      reload: Send the query without hitting cache.
+    """
+    self._verify_col_add(new_col_name, seed_col=seed_col_name)
+    self._verify_col_type_excludes(seed_col_name, ['Text'])
 
-  Args:
-    seed_col_name: The column name containing DCIDs to get contained entities.
-    new_col_name: The column name for where the results are stored.
-    new_col_type: The type of place to query for.
-    rows: max number of returend results.
-  Returns:
-    A pandas.DataFrame with dcids of the contained place.
-  """
-  if seed_col_name not in self._dataframe:
-    raise ValueError('{} is not a valid seed column.'.format(seed_col_name))
-  if new_col_name in self._dataframe:
-    raise ValueError('{} is already a column name.'.format(new_col_name))
-  if new_col_type not in _PLACES:
-    raise ValueError('Place type {} is not supported.'.format(new_col_type))
+    # Get the seed column dcids. If no dcids present, append an empty column
+    seed_col = self._dataframe[seed_col_name]
+    seed_col_type = self._col_types[seed_col_name]
 
-  # Get the variable names
-  seed_col_var = '?' + seed_col_name.replace(' ', '_')
-  new_col_var = '?' + new_col_name.replace(' ', '_')
-  labels = {seed_col_var: seed_col_name, new_col_var: new_col_name}
+    # Create the request to GetPlaceIn
+    url = _API_ROOT + _API_ENDPOINTS['get_place_in']
+    res = requests.post(url, json={
+      'dcids': list(seed_col),
+      'place_type': new_col_type,
+      'reload': reload,
+    })
+    payload = format_response(res)
 
-  # Get the type of the container place
-  seed_col_type = self._col_types[seed_col_name]
-  type_hint = {seed_col_var: seed_col_type, new_col_var: new_col_type}
-
-  # Get allowed DCIDs
-  dcids = list(self._dataframe[seed_col_name])
-  if not dcids:
-    # All entries in the seed column are empty strings. The new column should
-    # contain no entries.
-    self._dataframe[new_col_name] = ''
-    self._col_types[new_col_name] = new_col_type
-    return
-
-  # Construct the query
-  query = utils.DatalogQuery()
-  query.add_variable(seed_col_var, new_col_var)
-  query.add_constraint('?node{}'.format(new_col_type), 'typeOf', new_col_type)
-  query.add_constraint('?node{}'.format(new_col_type), 'dcid', new_col_var)
-
-  # Construct chain of parent types
-  curr_type = new_col_type
-  parent_type = _PLACES[curr_type]
-  while curr_type != seed_col_type:
-    query.add_constraint('?node{}'.format(curr_type), 'containedInPlace', '?node{}'.format(parent_type))
-    curr_type = parent_type
-    if curr_type not in _PLACES:
-      raise ValueError('{} is not contained in {}.'.format(new_col_type, seed_col_type))
-    parent_type = _PLACES[curr_type]
-
-  query.add_constraint('?node{}'.format(seed_col_type), 'dcid', dcids)
-  query.add_constraint('?node{}'.format(seed_col_type), 'dcid', seed_col_var)
-
-  # Perform the query and merge the results
-  new_frame = DCFrame(datalog_query=query, labels=labels, type_hint=type_hint, rows=rows)
-  self.merge(new_frame)
+    # Load the data into a new DCFrame and rename the columns
+    type_hint = {'dcid': seed_col_type, 'place': new_col_type}
+    labels = {'dcid': seed_col_name, 'place': new_col_name}
+    new_frame = datacommons.DCFrame(payload, type_hint=type_hint)
+    new_frame.rename(labels)
+    self.merge(new_frame)
