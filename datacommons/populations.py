@@ -20,7 +20,7 @@ from __future__ import division
 from __future__ import print_function
 
 from types import MethodType
-from .datacommons import DCFrame
+from .datacommons import Frame
 from . import utils
 
 def PopulationsExtension(frame):
@@ -100,7 +100,7 @@ def get_populations(self,
   query.add_constraint('?pop', 'numConstraints', idx)
 
   # Perform the query and merge the results
-  new_frame = DCFrame(datalog_query=query, labels=labels, type_hint=type_hint, rows=rows)
+  new_frame = Frame(datalog_query=query, labels=labels, type_hint=type_hint, rows=rows)
   self.merge(new_frame)
 
 def get_observations(self,

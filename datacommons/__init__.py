@@ -13,4 +13,4 @@
 # limitations under the License.
 """Data Commons module."""
 
-from .datacommons import DCQuery, DCNode, DCFrame
+from .datacommons import Query, Node, Frame
