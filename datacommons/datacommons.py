@@ -67,12 +67,12 @@ class DCQuery(object):
     Keyword Args:
       sparql: A sparql query string.
     """
-    if _SPARQL_LANG in kwargs:
-      self._query = kwargs[_SPARQL_LANG]
-      self._language = _SPARQL_LANG
+    if self._SPARQL_LANG in kwargs:
+      self._query = kwargs[self._SPARQL_LANG]
+      self._language = self._SPARQL_LANG
       self._result = None
     else:
-      lang_str = _VALID_LANG.join(', ')
+      lang_str = ', '.join(self._VALID_LANG)
       raise ValueError('Must provide one of the following languages: {}'.format(lang_str))
 
   def rows(self, select=None):
@@ -137,7 +137,7 @@ class DCQuery(object):
       RuntimeError: on query failure (see error hint).
     """
     # Create the query request.
-    if self._language == _SPARQL_LANG:
+    if self._language == self._SPARQL_LANG:
       payload = {'sparql': self._query}
     url = _API_ROOT + _API_ENDPOINTS['query']
     res = requests.post(url, json=payload)
