@@ -22,29 +22,31 @@ from __future__ import print_function
 import datacommons
 import pandas as pd
 
-
 def main():
-  dc = datacommons.Client()
-
-  # Get lat/long of a city.
+  # Create a SPARQL query querying for the name of some states
   query = ('''
-           SELECT ?id ?lat ?long,
-             typeOf ?o City,
-             name ?o "San Luis Obispo",
-             dcid ?o ?id,
-             latitude ?o ?lat,
-             longitude ?o ?long
-           ''')
-  print('Issuing query "{}"'.format(query))
-  try:
-    df = dc.query(query)
-  except RuntimeError as e:
-    print(e)
-    return
+SELECT  ?name ?dcid
+WHERE {
+  ?a typeOf Place .
+  ?a name ?name .
+  ?a dcid ("geoId/06" "geoId/21" "geoId/24") .
+  ?a dcid ?dcid
+}
+''')
+  print('> Issuing query.\n{}'.format(query))
 
-  with pd.option_context('display.width', 400, 'display.max_rows', 100):
-    print(df)
+  # Initialize the DCQuery instance
+  dc_query = datacommons.DCQuery(sparql=query)
 
+  # Iterate through all the rows in the results
+  print('> Printing results.\n')
+  for row in dc_query.rows():
+    print('  {}'.format(row))
+
+  # Return the result as a DCFrame.
+  dc_frame = dc_query.as_dcframe({'?name': 'Text', '?dcid': 'State'})
+  print('\n> Printing results as a DCFrame.\n')
+  print(dc_frame.pandas())
 
 if __name__ == '__main__':
   main()
