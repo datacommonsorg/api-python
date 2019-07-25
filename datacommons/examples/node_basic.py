@@ -11,18 +11,18 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""Basic demo for the DCNode.
+"""Basic demo for the Node.
 
-This demo showcases basic features of the DCNode class.
-- Initialize a DCNode
-- Get property values for a DCNode.
+This demo showcases basic features of the Node class.
+- Initialize a Node
+- Get property values for a Node.
 """
 
 import datacommons
 
 def main():
   # Create a node for Santa Clara county
-  node = datacommons.DCNode(dcid="geoId/06085")
+  node = datacommons.Node(dcid="geoId/06085")
 
   # Notice that its name and types are immediately populated
   print("> Node: {}".format(node))
@@ -46,7 +46,7 @@ def main():
     print("  ({}, {}, {})".format(s, p, o))
 
   # Print all triples associated with Santa Clara county converting subject
-  # and object to DCNodes.
+  # and object to Nodes.
   triples = node.get_triples(as_node=True)
   print("\n> Printing 5 triples for Santa Clara County with as_node = True.")
   for s, p, o in triples[:5]:

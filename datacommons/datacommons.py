@@ -13,8 +13,8 @@
 # limitations under the License.
 """ Data Commons base Python Client API.
 
-Contains DCQuery which performs graph queries on the Data Commons kg, DCNode
-which wraps a node in the graph, and DCFrame which provides a tabular view of
+Contains Query which performs graph queries on the Data Commons kg, Node
+which wraps a node in the graph, and Frame which provides a tabular view of
 graph data.
 """
 
@@ -51,10 +51,10 @@ _MAX_LIMIT = 100
 
 
 # -----------------------------------------------------------------------------
-# DCQUERY CLASS
+# Query Class
 # -----------------------------------------------------------------------------
 
-class DCQuery(object):
+class Query(object):
   """ Performs a graph query to the Data Commons knowledge graph. """
 
   # Valid query languages
@@ -62,7 +62,7 @@ class DCQuery(object):
   _VALID_LANG = [_SPARQL_LANG]
 
   def __init__(self, **kwargs):
-    """ Initializes a DCQuery.
+    """ Initializes a Query.
 
     Keyword Args:
       sparql: A sparql query string.
@@ -107,8 +107,8 @@ class DCQuery(object):
       if select is None or select(row_map):
         yield row_map
 
-  def as_dcframe(self, type_hint, select=None, process=None, labels={}):
-    """ Returns the result as a DCFrame.
+  def as_Frame(self, type_hint, select=None, process=None, labels={}):
+    """ Returns the result as a Frame.
 
     Args:
       type_hint: A map from query variables to types.
@@ -119,14 +119,14 @@ class DCQuery(object):
         post processing the results such as converting columns to certain types.
         Functions should index into columns using names prior to relabeling.
       labels: A map from the query variables to their column names in the
-        DCFrame.
+        Frame.
 
     Raises:
       RuntimeError: on query failure (see error hint).
     """
     # Get the rows filtered by select. Then process, and relabel as necessary.
     query_rows = list(self.rows(select=select))
-    frame = DCFrame(query_rows, type_hint=type_hint, process=process)
+    frame = Frame(query_rows, type_hint=type_hint, process=process)
     frame.rename(labels)
     return frame
 
@@ -150,10 +150,10 @@ class DCQuery(object):
 
 
 # -----------------------------------------------------------------------------
-# DCNODE CLASS
+# Node Class
 # -----------------------------------------------------------------------------
 
-class DCNode(object):
+class Node(object):
   """ Wraps a node found in the Data Commons knowledge graph. """
 
   def __init__(self, **kwargs):
@@ -161,16 +161,16 @@ class DCNode(object):
 
     Keyword Args:
       dcid: The dcid of the node. Either this or "value" must be specified
-      value: The value contained by a DCNode. This specifies the node as a leaf
+      value: The value contained by a Node. This specifies the node as a leaf
         node. Either this or "dcid" must be specified
       name: The name of the node
       types: A list of Data Commons types associated with the node.
       node: If this is specified, then the constructor is treated as a copy
-        constructor. This parameter must be an instance of a DCNode.
+        constructor. This parameter must be an instance of a Node.
 
-    DCNode instance variables:
+    Node instance variables:
       _dcid: The dcid of the node. This should never change after the creation
-        of the DCNode.
+        of the Node.
       _name: The name of the node
       _value: A node is a leaf node if it only contains a value. Leaf nodes do
         not have a specific dcid assigned to them.
@@ -184,8 +184,8 @@ class DCNode(object):
     # If 'node' is provided as a keyword argument, then this constructor is
     # treated as a copy constructor.
     if 'node' in kwargs:
-      if not isinstance(kwargs['node'], DCNode):
-        raise ValueError('The node must be an instance of DCNode.')
+      if not isinstance(kwargs['node'], Node):
+        raise ValueError('The node must be an instance of Node.')
       self._dcid = kwargs['node']._dcid
       self._name = kwargs['node']._name
       self._value = kwargs['node']._value
@@ -339,7 +339,7 @@ class DCNode(object):
     if self._dcid in payload and prop in payload[self._dcid]:
       nodes = payload[self._dcid][prop]
       for node in nodes:
-        prop_vals.add(DCNode(**node))
+        prop_vals.add(Node(**node))
 
     # Cache the results and set prop_vals to the appropriate list of nodes.
     in_props, out_props = defaultdict(set), defaultdict(set)
@@ -357,9 +357,9 @@ class DCNode(object):
 
     The return value is a list of tuples (s, p, o) where s denotes the subject
     entity, p the property, and o the object. When "as_node" is set to True, the
-    subject and object are converted to DCNode instances.
+    subject and object are converted to Node instances.
 
-    Note that if as_node is specified, then the DCNode instances are deep copies
+    Note that if as_node is specified, then the Node instances are deep copies
     of the given node wherever it is a subject or object.
 
     Args:
@@ -395,7 +395,7 @@ class DCNode(object):
               object_info['name'] = t['objectName']
 
             # Create the triple
-            sub, obj = DCNode(node=self), DCNode(**object_info)
+            sub, obj = Node(node=self), Node(**object_info)
             triples.append((sub, t['predicate'], obj))
           else:
             # A triple with an incoming predicate
@@ -407,12 +407,12 @@ class DCNode(object):
               subject_info['name'] = t['subjectName']
 
             # Create the triple
-            sub, obj = DCNode(**subject_info), DCNode(node=self)
+            sub, obj = Node(**subject_info), Node(node=self)
             triples.append((sub, t['predicate'], obj))
         elif 'objectValue' in t:
           # A triple with the object as a leaf node. Currently, all triples with
           # objectValue also have the given node as the subjectId.
-          sub, obj = DCNode(node=self), DCNode(value=t['objectValue'])
+          sub, obj = Node(node=self), Node(value=t['objectValue'])
           triples.append((sub, t['predicate'], obj))
       else:
         if 'objectId' in t:
@@ -453,14 +453,14 @@ class DCNode(object):
 
 
 # -----------------------------------------------------------------------------
-# DCFRAME CLASS
+# Frame Class
 # -----------------------------------------------------------------------------
 
-class DCFrame(PlacesMixin):
+class Frame(PlacesMixin):
   """ Provides a tabular view of the Data Commons knowledge graph. """
 
   def __init__(self, data={}, type_hint={}, process=None):
-    """ Initializes a DCFrame.
+    """ Initializes a Frame.
 
     Args:
       data: Either a list of dictionaries where each row is represented as a
@@ -471,18 +471,18 @@ class DCFrame(PlacesMixin):
         Functions should index into columns using names prior to relabeling.
       type_hint: A map from column names to a list of types that the column
         contains.
-      file_name: File name of a cached DCFrame to initialize the given frame
+      file_name: File name of a cached Frame to initialize the given frame
         from.
 
-    DCFrame instance variables:
-      _dataframe: The Pandas dataframe containing data in this DCFrame
+    Frame instance variables:
+      _dataframe: The Pandas dataframe containing data in this Frame
       _col_types: A map from each column in the frame to a list of types it
         contains.
 
     Raises:
       RuntimeError: some problem with the given data
     """
-    # Initialize the DCFrame from a (potentially empty) data parameter. First
+    # Initialize the Frame from a (potentially empty) data parameter. First
     # create the Pandas data frame
     pd_frame = pd.DataFrame(data)
     if process:
@@ -493,7 +493,7 @@ class DCFrame(PlacesMixin):
       if col not in type_hint:
         raise ValueError('No type provided for column {} in data.'.format(col))
 
-    # Initialize the fields of the DCFrame
+    # Initialize the fields of the Frame
     self._dataframe = pd_frame.reset_index(drop=True)
     self._col_types = type_hint
 
@@ -515,7 +515,7 @@ class DCFrame(PlacesMixin):
       Map from column name to column type.
     """
     if col_name not in self.columns():
-      raise ValueError('DCFrame error: {} not a column in the frame.'.format(col_name))
+      raise ValueError('Frame error: {} not a column in the frame.'.format(col_name))
     return self._col_types[col_name]
 
   def pandas(self, col_names=None, ignore_populations=False):
@@ -561,7 +561,7 @@ class DCFrame(PlacesMixin):
     return self._dataframe.to_csv(index=False, sep='\t')
 
   def rename(self, labels):
-    """ Renames the columns of the DCFrame.
+    """ Renames the columns of the Frame.
 
     Args:
       labels: A map from current to new column names.
@@ -667,7 +667,7 @@ class DCFrame(PlacesMixin):
           else:
             new_types.add('Text')
 
-    # Update the DCFrame with the new column type
+    # Update the Frame with the new column type
     new_col_types = {seed_col_name: seed_col_type}
     if new_col_type:
       new_col_types[new_col_name] = [new_col_type]
@@ -675,21 +675,21 @@ class DCFrame(PlacesMixin):
       new_col_types[new_col_name] = list(new_types)
 
     # Create the new frame and merge the frame in.
-    new_frame = DCFrame(new_rows, type_hint=new_col_types)
+    new_frame = Frame(new_rows, type_hint=new_col_types)
     self.merge(new_frame)
 
   def merge(self, frame, how='left', default=''):
     """ Joins the given frame into the current frame along shared column names.
 
     Args:
-      frame: The DCFrame to merge in.
+      frame: The Frame to merge in.
       how: Optional argument specifying the joins type to perform. Valid types
         include 'left', 'right', 'inner', and 'outer'
       default: The default place holder for an empty cell produced by the join.
 
     Raises:
       ValueError: if the given arguments are not valid. This may include either
-        the given or current DCFrame does not contain the columns specified.
+        the given or current Frame does not contain the columns specified.
     """
     merge_on = set(self.columns()) & set(frame.columns())
     merge_on = list(merge_on)
@@ -731,7 +731,7 @@ class DCFrame(PlacesMixin):
   # -------------------------- OTHER HELPER METHODS ---------------------------
 
   def _update_col_types(self, new_col_types):
-    """ Updates the given DCFrame's column types with new column types.
+    """ Updates the given Frame's column types with new column types.
 
     Args:
       new_col_types: A map from column name to a list or set of types.
