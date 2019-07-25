@@ -22,12 +22,14 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+from datacommons.utils import format_response, _API_ROOT, _API_ENDPOINTS, _MAX_LIMIT
+from datacommons.places import PlacesMixin
+
 from collections import defaultdict, OrderedDict
-from . import utils
-import copy
-import json
-import requests
 import pandas as pd
+import copy
+import requests
+
 
 # REST API endpoint root
 _API_ROOT = "http://mixergrpc.endpoints.datcom-mixer.cloud.goog"
@@ -47,13 +49,17 @@ _BIG_QUERY_PATH = 'google.com:datcom-store-dev.dc_v3_clustered'
 # The default value to limit to
 _MAX_LIMIT = 100
 
-# Valid query languages
-_SPARQL_LANG = 'sparql'
-_VALID_LANG = [_SPARQL_LANG]
 
+# -----------------------------------------------------------------------------
+# DCQUERY CLASS
+# -----------------------------------------------------------------------------
 
 class DCQuery(object):
   """ Performs a graph query to the Data Commons knowledge graph. """
+
+  # Valid query languages
+  _SPARQL_LANG = 'sparql'
+  _VALID_LANG = [_SPARQL_LANG]
 
   def __init__(self, **kwargs):
     """ Initializes a DCQuery.
@@ -143,6 +149,10 @@ class DCQuery(object):
     self._result = res.json()
 
 
+# -----------------------------------------------------------------------------
+# DCNODE CLASS
+# -----------------------------------------------------------------------------
+
 class DCNode(object):
   """ Wraps a node found in the Data Commons knowledge graph. """
 
@@ -210,7 +220,7 @@ class DCNode(object):
         params = "?dcid={}".format(kwargs['dcid'])
         url = _API_ROOT + _API_ENDPOINTS['get_node'] + params
         res = requests.get(url)
-        payload = utils.format_response(res)
+        payload = format_response(res)
 
         # Set the name and type
         if 'name' in kwargs:
@@ -276,7 +286,7 @@ class DCNode(object):
       params += "&reload=true"
     url = _API_ROOT + _API_ENDPOINTS['get_property'] + params
     res = requests.get(url)
-    payload = utils.format_response(res)
+    payload = format_response(res)
 
     # Return the results based on the orientation
     if outgoing and 'outArcs' in payload:
@@ -297,7 +307,7 @@ class DCNode(object):
       prop: The property adjacent to the current node.
       outgoing: whether or not the node is a subject or object.
       value_type: Filter values mapped to this node by the given type.
-      reload: Send the query through cache.
+      reload: Send the query without hitting cache.
       limit: The maximum number of values to return.
     """
     # Check if there are enough property values in the cache.
@@ -322,7 +332,7 @@ class DCNode(object):
     # Send the request to GetPropertyValue
     url = _API_ROOT + _API_ENDPOINTS['get_property_value']
     res = requests.post(url, json=req_json)
-    payload = utils.format_response(res)
+    payload = format_response(res)
 
     # Create nodes for each property value returned.
     prop_vals = set()
@@ -354,7 +364,7 @@ class DCNode(object):
 
     Args:
       as_node: Convert the subject and object in the triples into nodes.
-      reload: Send the query through cache.
+      reload: Send the query without hitting cache.
       limit: The maximum number of values to return.
     """
     # Generate the GetTriple query and send the request.
@@ -363,7 +373,7 @@ class DCNode(object):
       params += "&reload=true"
     url = _API_ROOT + _API_ENDPOINTS['get_triple'] + params
     res = requests.get(url)
-    payload = utils.format_response(res)
+    payload = format_response(res)
 
     # If the payload did not return triples, return an empty list.
     triples = []
@@ -442,10 +452,14 @@ class DCNode(object):
       self._out_props[p] = list(set(self._out_props[p]).union(out_props[p]))
 
 
-class DCFrame(object):
+# -----------------------------------------------------------------------------
+# DCFRAME CLASS
+# -----------------------------------------------------------------------------
+
+class DCFrame(PlacesMixin):
   """ Provides a tabular view of the Data Commons knowledge graph. """
 
-  def __init__(self, data={}, type_hint={}, process=None, file_name=None):
+  def __init__(self, data={}, type_hint={}, process=None):
     """ Initializes a DCFrame.
 
     Args:
@@ -468,11 +482,6 @@ class DCFrame(object):
     Raises:
       RuntimeError: some problem with the given data
     """
-    # If a file name is given, read the DataFrame from cache.
-    if file_name:
-      # TODO(antaresc): implement this
-      pass
-
     # Initialize the DCFrame from a (potentially empty) data parameter. First
     # create the Pandas data frame
     pd_frame = pd.DataFrame(data)
@@ -574,53 +583,9 @@ class DCFrame(object):
       col_type: The string type of the column
       col_vals: The values in the given column
     """
+    _verify_col_add(col_name)
     self._col_types[col_name] = [col_type]
     self._dataframe[col_name] = col_vals
-
-  def merge(self, frame, how='left', default=''):
-    """ Joins the given frame into the current frame along shared column names.
-
-    Args:
-      frame: The DCFrame to merge in.
-      how: Optional argument specifying the joins type to perform. Valid types
-        include 'left', 'right', 'inner', and 'outer'
-      default: The default place holder for an empty cell produced by the join.
-
-    Raises:
-      ValueError: if the given arguments are not valid. This may include either
-        the given or current DCFrame does not contain the columns specified.
-    """
-    merge_on = set(self.columns()) & set(frame.columns())
-    merge_on = list(merge_on)
-
-    # If the current dataframe is empty, select the given dataframe. If the
-    # tables have no columns in common, perform a cross join. Otherwise join on
-    # common columns.
-    if self._dataframe.empty:
-      self._col_types = {}
-      self._dataframe = frame._dataframe
-    elif len(merge_on) == 0:
-      # Construct a unique dummy column name
-      cross_on = ''.join(self.columns() + frame.columns())
-
-      # Perform the cross join
-      curr_frame = self._dataframe.assign(cross_on=1)
-      new_frame = frame._dataframe.assign(cross_on=1)
-      merged = curr_frame.merge(new_frame)
-      self._dataframe = merged.drop(cross_on, 1)
-    else:
-      # Verify that columns being merged have the same type
-      for col in merge_on:
-        if set(self._col_types[col]) != set(frame._col_types[col]):
-          raise ValueError(
-              'Merge error: columns type mismatch for {}.\n  Current: {}\n  Given: {}'.format(col, self._col_types[col], frame._col_types[col]))
-
-      # Merge dataframe, column types, and property maps
-      self._dataframe = self._dataframe.merge(frame._dataframe, how=how, left_on=merge_on, right_on=merge_on)
-      self._dataframe = self._dataframe.fillna(default)
-
-    # Merge the types
-    self._update_col_types(frame._col_types)
 
   def expand(self,
              property,
@@ -646,25 +611,19 @@ class DCFrame(object):
       outgoing: Set this flag if the seed property points away from the entities
         denoted by the seed column. That is the seed column serve as subjects
         in triples formed with the given property.
-      reload: Send the query through cache.
+      reload: Send the query without hitting cache.
       limit: The maximum number of rows returned by the query results.
 
     Raises:
       ValueError: when input argument is not valid.
     """
-    if seed_col_name not in self._dataframe:
-      raise ValueError(
-          'Expand error: {} is not a valid seed column.'.format(seed_col_name))
-    if new_col_name in self._dataframe:
-      raise ValueError(
-          'Expand error: {} is already a column.'.format(new_col_name))
+    # Error checking
+    self._verify_col_add(new_col_name, seed_col=seed_col_name)
+    self._verify_col_type_excludes(seed_col_name, ['Text'])
 
     # Get the seed column information
     seed_col = self._dataframe[seed_col_name]
     seed_col_type = self._col_types[seed_col_name]
-    if seed_col_type == 'Text':
-      raise ValueError(
-          'Expand error: {} must contain DCIDs'.format(seed_col_name))
 
     # Get the list of DCIDs to query for
     # NOTE: new_col_type may be None here and so the updated column type may be
@@ -687,7 +646,7 @@ class DCFrame(object):
       req_json['value_type'] = new_col_type
     url = _API_ROOT + _API_ENDPOINTS['get_property_value']
     res = requests.post(url, json=req_json)
-    payload = utils.format_response(res)
+    payload = format_response(res)
 
     # Format the new column and create the new frame
     new_rows, new_types = [], set()
@@ -719,25 +678,57 @@ class DCFrame(object):
     new_frame = DCFrame(new_rows, type_hint=new_col_types)
     self.merge(new_frame)
 
+  def merge(self, frame, how='left', default=''):
+    """ Joins the given frame into the current frame along shared column names.
+
+    Args:
+      frame: The DCFrame to merge in.
+      how: Optional argument specifying the joins type to perform. Valid types
+        include 'left', 'right', 'inner', and 'outer'
+      default: The default place holder for an empty cell produced by the join.
+
+    Raises:
+      ValueError: if the given arguments are not valid. This may include either
+        the given or current DCFrame does not contain the columns specified.
+    """
+    merge_on = set(self.columns()) & set(frame.columns())
+    merge_on = list(merge_on)
+
+    # If the current dataframe is empty, concat the given dataframe. If the
+    # tables have no columns in common, perform a cross join. Otherwise join on
+    # common columns.
+    if self._dataframe.empty:
+      self._col_types = {}
+      self._dataframe = pd.concat([self._dataframe, frame._dataframe])
+    elif len(merge_on) == 0:
+      # Construct a unique dummy column name
+      cross_on = ''.join(self.columns() + frame.columns())
+
+      # Perform the cross join
+      curr_frame = self._dataframe.assign(**{cross_on: 1})
+      new_frame = frame._dataframe.assign(**{cross_on: 1})
+      merged = curr_frame.merge(new_frame)
+      self._dataframe = merged.drop(cross_on, 1)
+    else:
+      # Verify that columns being merged have the same type
+      for col in merge_on:
+        if set(self._col_types[col]) != set(frame._col_types[col]):
+          raise ValueError(
+              'Merge error: columns type mismatch for {}.\n  Current: {}\n  Given: {}'.format(col, self._col_types[col], frame._col_types[col]))
+
+      # Merge dataframe, column types, and property maps
+      self._dataframe = self._dataframe.merge(frame._dataframe, how=how, left_on=merge_on, right_on=merge_on)
+      self._dataframe = self._dataframe.fillna(default)
+
+    # Merge the types
+    self._update_col_types(frame._col_types)
+
   def clear(self):
     """ Clears all the data stored in this extension. """
     self._col_types = {}
     self._dataframe = pd.DataFrame()
 
-  def save(self, file_name):
-    """ Saves the current DCFrame to the Data Commons cache with given file name.
-
-    Args:
-      file_name: The name used to store the current DCFrame.
-
-    Returns:
-      The file name that the
-
-    Raises:
-      RuntimeError: when failed to save the dataframe.
-    """
-    # TODO(antaresc): Implement this
-    pass
+  # -------------------------- OTHER HELPER METHODS ---------------------------
 
   def _update_col_types(self, new_col_types):
     """ Updates the given DCFrame's column types with new column types.
@@ -752,3 +743,50 @@ class DCFrame(object):
         self._col_types[col] = list(set(new_col_types[col] + self._col_types[col]))
       else:
         self._col_types[col] = list(new_col_types[col])
+
+  def _verify_col_add(self, new_col, seed_col=None):
+    """ Verifies that the seed_col exists and that the new_col does not.
+
+    Args:
+      new_col: The column that should not exist.
+      seed_col: The column that must exist.
+
+    Raises:
+      RuntimeError: If either the seed_col does not exist, or the new_col does.
+    """
+    if new_col in self._dataframe:
+      raise ValueError(
+          'Column Error: {} is already a column.'.format(new_col))
+    if seed_col and seed_col not in self._dataframe:
+      raise ValueError(
+          'Column Error: {} is not a valid seed column.'.format(seed_col))
+
+  def _verify_col_type_includes(self, col_name, col_types):
+    """ Verifies that the given column do not contain the given types.
+
+    Args:
+      col_name: The column to check.
+      col_types: Column types to include.
+
+    Raises:
+      RuntimeError: If the column does not include the given types.
+    """
+    if any(t not in self._col_types[col_name] for t in col_types):
+      type_str = col_types.join(', ')
+      raise ValueError(
+          'Column Error: column {} must include types {}'.format(col_name, type_str))
+
+  def _verify_col_type_excludes(self, col_name, col_types):
+    """ Verifies that the given column contains the given types.
+
+    Args:
+      col_name: The column to check.
+      col_types: Column types to exclude.
+
+    Raises:
+      RuntimeError: If the column does includes the given types.
+    """
+    if any(t in self._col_types[col_name] for t in col_types):
+      type_str = col_types.join(', ')
+      raise ValueError(
+          'Column Error: column {} cannot include types {}'.format(col_name, type_str))

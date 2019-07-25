@@ -25,6 +25,29 @@ import json
 import zlib
 
 
+# --------------------------------- CONSTANTS ---------------------------------
+
+
+# REST API endpoint root
+_API_ROOT = "http://mixergrpc.endpoints.datcom-mixer.cloud.goog"
+
+# REST API endpoint paths
+_API_ENDPOINTS = {
+  "query": "/query",
+  "get_node": "/node",
+  "get_property": "/node/property",
+  "get_property_value": "/node/property-value",
+  "get_triple": "/node/triple",
+  "get_place_in": "/expand/place-in"
+}
+
+# Database paths
+_BIG_QUERY_PATH = 'google.com:datcom-store-dev.dc_v3_clustered'
+
+# The default value to limit to
+_MAX_LIMIT = 100
+
+
 # ------------------------ SELECT AND PROCESS HELPERS -------------------------
 
 
