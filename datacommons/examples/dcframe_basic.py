@@ -14,40 +14,55 @@
 """Basic demo for the DCFrame.
 
 This demo showcases basic features of the DCFrame class.
-- Initializing a frame from query
-- Relabeling the columns
-- Getting column names and types
-- Getting a Pandas DataFrame view
-- Getting csv and tsv strings of the frame
 """
-
-from datacommons.utils import DatalogQuery
 
 import datacommons
 
+import pandas as pd
+
+pd.options.display.max_rows = 10
+
+def print_header(label):
+  print('\n' + '-'*80)
+  print(label)
+  print('-'*80 + '\n')
 
 def main():
-  # Create the query
-  query = DatalogQuery()
-  query.add_variable('?id', '?lat', '?lon')
-  query.add_constraint('?node', 'typeOf', 'City')
-  query.add_constraint('?node', 'name', '"San Luis Obispo"')
-  query.add_constraint('?node', 'dcid', '?id')
-  query.add_constraint('?node', 'latitude', '?lat')
-  query.add_constraint('?node', 'longitude', '?lon')
+  # Initialize the frame
+  frame = datacommons.DCFrame()
 
-  # Create the frame
-  labels = {'?id': 'city', '?lat': 'latitude', '?lon': 'longitude'}
-  frame = datacommons.DCFrame(datalog_query=query, labels=labels)
+  # Start by initializing a column of three US states: California, Kentucky, and
+  # Maryland.
+  frame.add_column('state_dcid', 'State', ['geoId/06', 'geoId/21', 'geoId/24'])
 
-  print('> Columns\t{}'.format(frame.columns()))
-  print('> Col types\t{}'.format(frame.types()))
-  print('> Pandas frame\n')
+  # Name is an outgoing property of the State. We can call expand to populate a
+  # column 'state_name' with names of states corresponding to dcids in the
+  # 'state_dcid' column.
+  print_header('GET STATE NAMES')
+  frame.expand('name', 'state_dcid', 'state_name', reload=True)
   print(frame.pandas())
-  print('\n> CSV string\n')
-  print(frame.csv())
+
+  # We can also use expand to traverse incoming properties. To get all Counties
+  # contained in States, we construct a column of county dcids using the
+  # containedInPlace property pointing into State. This requires a type hint for
+  # as multiple types can be containedInPlace of a State.
+  print_header('GET CONTAINING COUNTIES')
+  frame.expand('containedInPlace', 'state_dcid', 'county_dcid', new_col_type='County', outgoing=False, reload=True)
+  print(frame.pandas())
+
+  # Finally, we populate a column of County names.
+  print_header('GET COUNTY NAMES')
+  frame.expand('name', 'county_dcid', 'county_name', reload=True)
+  print(frame.pandas())
+
+  # Print out basic information about the table.
+  print_header('TABLE INFORMATION')
+  print('> Columns: {}'.format(frame.columns()))
+  print('> Column type for "county_dcid": {}'.format(frame.types('county_dcid')))
+  print('> CSV string\n')
+  print(frame.csv()[:500] + '...')
   print('\n> TSV string\n')
-  print(frame.tsv())
+  print(frame.tsv()[:500] + '...')
 
 if __name__ == '__main__':
   main()
