@@ -22,7 +22,8 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-from datacommons.utils import format_response, _API_ROOT, _API_ENDPOINTS, _MAX_LIMIT
+from datacommons.utils import (format_response, _API_ROOT, _API_ENDPOINTS,
+  _BIG_QUERY_PATH, _MAX_LIMIT)
 from datacommons.places import PlacesMixin
 
 from collections import defaultdict, OrderedDict
