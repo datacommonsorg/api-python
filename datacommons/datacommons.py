@@ -22,33 +22,14 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-from datacommons.utils import format_response, _API_ROOT, _API_ENDPOINTS, _MAX_LIMIT
+from datacommons.utils import (format_response, _API_ROOT, _API_ENDPOINTS,
+  _BIG_QUERY_PATH, _MAX_LIMIT)
 from datacommons.places import PlacesMixin
 
 from collections import defaultdict, OrderedDict
 import pandas as pd
 import copy
 import requests
-
-
-# REST API endpoint root
-_API_ROOT = "http://mixergrpc.endpoints.datcom-mixer.cloud.goog"
-
-# REST API endpoint paths
-_API_ENDPOINTS = {
-  "query": "/query",
-  "get_node": "/node",
-  "get_property": "/node/property",
-  "get_property_value": "/node/property-value",
-  "get_triple": "/node/triple"
-}
-
-# Database paths
-_BIG_QUERY_PATH = 'google.com:datcom-store-dev.dc_v3_clustered'
-
-# The default value to limit to
-_MAX_LIMIT = 100
-
 
 # -----------------------------------------------------------------------------
 # Query Class
@@ -236,19 +217,6 @@ class Node(object):
     else:
       self._value = kwargs['value']
 
-  def __eq__(self, other):
-    """ Overrides == operator.
-
-    Two nodes are equal if and only if they have the same dcid. Leaf-nodes are
-    by definition not equal to each other. This means a comparison between a
-    leaf node and a node with a dcid or two leaf nodes is always False.
-    """
-    return bool(self._dcid) and bool(other._dcid) and self._dcid == other._dcid
-
-  def __ne__(self, other):
-    """ Overrides != operator. """
-    return not (self == other)
-
   def __str__(self):
     """ Overrides str() operator. """
     fields = {}
@@ -259,20 +227,6 @@ class Node(object):
     if self._value:
       fields['value'] = self._value
     return str(fields)
-
-  def __hash__(self):
-    """ Overrides hash() operator.
-
-    The hash of a node with a dcid is the hash of the string "dcid: <the dcid>"
-    while the hash of a leaf is the hash of "value: <the value>".
-    """
-    if self.is_leaf():
-      return hash('value:{}'.format(self._value))
-    return hash('dcid:{}'.format(self._dcid))
-
-  def is_leaf(self):
-    """ Returns true if the node only contains a single value. """
-    return bool(self._value)
 
   def get_properties(self, outgoing=True, reload=False):
     """ Returns a list of properties associated with this node.
