@@ -217,19 +217,6 @@ class Node(object):
     else:
       self._value = kwargs['value']
 
-  def __eq__(self, other):
-    """ Overrides == operator.
-
-    Two nodes are equal if and only if they have the same dcid. Leaf-nodes are
-    by definition not equal to each other. This means a comparison between a
-    leaf node and a node with a dcid or two leaf nodes is always False.
-    """
-    return bool(self._dcid) and bool(other._dcid) and self._dcid == other._dcid
-
-  def __ne__(self, other):
-    """ Overrides != operator. """
-    return not (self == other)
-
   def __str__(self):
     """ Overrides str() operator. """
     fields = {}
@@ -240,20 +227,6 @@ class Node(object):
     if self._value:
       fields['value'] = self._value
     return str(fields)
-
-  def __hash__(self):
-    """ Overrides hash() operator.
-
-    The hash of a node with a dcid is the hash of the string "dcid: <the dcid>"
-    while the hash of a leaf is the hash of "value: <the value>".
-    """
-    if self.is_leaf():
-      return hash('value:{}'.format(self._value))
-    return hash('dcid:{}'.format(self._dcid))
-
-  def is_leaf(self):
-    """ Returns true if the node only contains a single value. """
-    return bool(self._value)
 
   def get_properties(self, outgoing=True, reload=False):
     """ Returns a list of properties associated with this node.
