@@ -22,33 +22,14 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-from datacommons.utils import format_response, _API_ROOT, _API_ENDPOINTS, _MAX_LIMIT
+from datacommons.utils import (format_response, _API_ROOT, _API_ENDPOINTS,
+  _BIG_QUERY_PATH, _MAX_LIMIT)
 from datacommons.places import PlacesMixin
 
 from collections import defaultdict, OrderedDict
 import pandas as pd
 import copy
 import requests
-
-
-# REST API endpoint root
-_API_ROOT = "http://mixergrpc.endpoints.datcom-mixer.cloud.goog"
-
-# REST API endpoint paths
-_API_ENDPOINTS = {
-  "query": "/query",
-  "get_node": "/node",
-  "get_property": "/node/property",
-  "get_property_value": "/node/property-value",
-  "get_triple": "/node/triple"
-}
-
-# Database paths
-_BIG_QUERY_PATH = 'google.com:datcom-store-dev.dc_v3_clustered'
-
-# The default value to limit to
-_MAX_LIMIT = 100
-
 
 # -----------------------------------------------------------------------------
 # Query Class
