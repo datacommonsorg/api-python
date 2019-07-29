@@ -16,7 +16,7 @@
 Contains various functions that can aid in the extension of the DataCommons API.
 """
 
-from collections import OrderedDict
+from collections import defaultdict
 
 import pandas as pd
 
@@ -86,7 +86,7 @@ def clean_frame(pd_frame):
   return pd_frame
 
 
-# ----------------------------- HELPER FUNCTIONS ------------------------------
+# ------------------------- INTERNAL HELPER FUNCTIONS -------------------------
 
 
 def format_response(response, compress=False):
@@ -102,3 +102,33 @@ def format_response(response, compress=False):
   if compress:
     payload = zlib.decompress(base64.b64decode(payload), 16 + zlib.MAX_WBITS)
   return json.loads(payload)
+
+def format_expand_payload(payload, new_key, must_exist=[]):
+  """ Formats expand type payloads into dicts from dcids to lists of values. """
+  # Create the results dictionary from payload
+  results = defaultdict(list)
+  for entry in payload:
+    if 'dcid' in entry and new_key in entry:
+      dcid = entry['dcid']
+      results[dcid].append(entry[new_key])
+
+  # Ensure all dcids in must_exist have some entry in results.
+  for dcid in must_exist:
+    results[dcid]
+  return dict(results)
+
+def convert_dcids_type(dcids):
+  """ Amends dcids list type and creates the approprate request dcids list. """
+  # Format the dcids list.
+  if isinstance(dcids, str):
+    dcids = [dcids]
+
+  # Create the requests dcids list.
+  if isinstance(dcids, list):
+    req_dcids = dcids
+  elif isinstance(dcids, pd.Series):
+    req_dcids = list(dcids)
+  else:
+    raise ValueError(
+        'dcids parameter must either be of type string, list or pandas.Series.')
+  return dcids, req_dcids

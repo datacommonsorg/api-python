@@ -15,41 +15,38 @@
 """DataCommons Places data API Mixin.
 """
 
-from datacommons.utils import format_response, _API_ROOT, _API_ENDPOINTS
+import datacommons.utils as utils
+import pandas as pd
 
-import datacommons
 import requests
 
-class PlacesMixin:
+def get_places_in(dcids, place_type, reload=False):
+  """ Returns a list of places contained in a given list of places.
 
-  def get_places_in(self, seed_col_name, new_col_name, new_col_type, reload=False):
-    """ Adds a new column with places contained in seed column entities.
+  If the dcids field is a list, then the return value is a dictionary mapping
+  dcid to the list of values associated with the given property.
 
-    Args:
-      seed_col_name: The column name containing DCIDs to get contained entities.
-      new_col_name: The column name for where the results are stored.
-      new_col_type: The type of place to query for.
-      reload: Send the query without hitting cache.
-    """
-    self._verify_col_add(new_col_name, seed_col=seed_col_name)
-    self._verify_col_type_excludes(seed_col_name, ['Text'])
+  If the dcids field is a Pandas Series, then the return value is a Series where
+  the i-th cell is the list of values associated with the given property for the
+  i-th dcid.
 
-    # Get the seed column dcids. If no dcids present, append an empty column
-    seed_col = self._dataframe[seed_col_name]
-    seed_col_type = self._col_types[seed_col_name]
+  Args:
+    dcids: List of dcids to get contained in places of.
+    place_type: The type of place to query for.
+    reload: Send the query without hitting cache.
+  """
+  # Convert the dcids field and format the request to GetPlacesIn
+  dcids, req_dcids = utils.convert_dcids_type(dcids)
+  url = utils._API_ROOT + utils._API_ENDPOINTS['get_place_in']
+  res = requests.post(url, json={
+    'dcids': req_dcids,
+    'place_type': place_type,
+    'reload': reload,
+  })
+  payload = utils.format_response(res)
 
-    # Create the request to GetPlaceIn
-    url = _API_ROOT + _API_ENDPOINTS['get_place_in']
-    res = requests.post(url, json={
-      'dcids': list(seed_col),
-      'place_type': new_col_type,
-      'reload': reload,
-    })
-    payload = format_response(res)
-
-    # Load the data into a new DCFrame and rename the columns
-    type_hint = {'dcid': seed_col_type, 'place': new_col_type}
-    labels = {'dcid': seed_col_name, 'place': new_col_name}
-    new_frame = datacommons.Frame(payload, type_hint=type_hint)
-    new_frame.rename(labels)
-    self.merge(new_frame)
+  # Create the results and format it appropriately
+  result = utils.format_expand_payload(payload, 'place', must_exist=dcids)
+  if isinstance(dcids, pd.Series):
+    return pd.Series([result[dcid] for dcid in dcids])
+  return result

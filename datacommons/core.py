@@ -67,15 +67,8 @@ def get_property_values(dcids, prop, outgoing=True, value_type=None, reload=Fals
     reload: Whether or not to send the query to cache.
     limit: The maximum number of values to return.
   """
-  # Convert the dcids field to the correct type
-  if isinstance(dcids, str):
-    dcids = [dcids]
-  if isinstance(dcids, list):
-    req_dcids = dcids
-  if isinstance(dcids, pd.Series):
-    req_dcids = list(dcids)
-
-  # Format the request to GetPropertyValue
+  # Convert the dcids field and format the request to GetPropertyValue
+  dcids, req_dcids = utils.convert_dcids_type(dcids)
   req_json = {
     'dcids': req_dcids,
     'property': prop,
