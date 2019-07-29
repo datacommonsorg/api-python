@@ -61,7 +61,9 @@ def flatten_frame(pd_frame):
   """
   for col in pd_frame:
     if any(isinstance(v, list) for v in pd_frame[col]):
-      pd_frame = pd_frame.explode(col)
+      # TODO: Uncomment after colab supports pandas 0.25
+      # pd_frame = pd_frame.explode(col)
+      pd_frame = explode(pd_frame, col)
   pd_frame = pd_frame.reset_index(drop=True)
   return pd_frame
 
@@ -136,3 +138,25 @@ def convert_dcids_type(dcids):
     raise ValueError(
         'dcids parameter must either be of type string, list or pandas.Series.')
   return dcids, req_dcids
+
+def explode(pd_frame, column):
+  matches = [i for i,n in enumerate(pd_frame.columns) if n == column]
+  col_idx = matches[0]
+
+  def helper(d):
+    row = list(d.values[0])
+    bef = row[:col_idx]
+    aft = row[col_idx+1:]
+    col = row[col_idx]
+    z = [bef + [c] + aft for c in col]
+    return pd.DataFrame(z)
+
+  col_idx += len(pd_frame.index.shape)
+  index_names = list(pd_frame.index.names)
+  column_names = list(index_names) + list(pd_frame.columns)
+  return (pd_frame
+          .reset_index()
+          .groupby(level=0,as_index=0)
+          .apply(helper)
+          .rename(columns = lambda i :column_names[i])
+          .set_index(index_names))
