@@ -48,6 +48,31 @@ _BIG_QUERY_PATH = 'google.com:datcom-store-dev.dc_v3_clustered'
 _MAX_LIMIT = 100
 
 
+# ------------------------- PANDAS UTILITY FUNCTIONS --------------------------
+
+
+def flatten_frame(pd_frame):
+  """ Expands each cell in a Pandas DataFrame containing a list of values.
+
+  Args:
+    pd_frame: The Pandas DataFrame.
+  """
+  pass
+
+def clean_frame(pd_frame):
+  """ A convenience function that cleans a pandas DataFrame.
+
+  The following operations are performed:
+  - Columns containing numerical types are converted to floats.
+  - Rows with empty values are dropped.
+
+  Args:
+    pd_frame: The Pandas DataFrame.
+  """
+  pass
+
+
+
 # ----------------------------- HELPER FUNCTIONS ------------------------------
 
 
