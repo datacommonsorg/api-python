@@ -43,10 +43,5 @@ WHERE {
   for row in dc_query.rows():
     print('  {}'.format(row))
 
-  # Return the result as a DCFrame.
-  dc_frame = dc_query.as_dcframe({'?name': 'Text', '?dcid': 'State'})
-  print('\n> Printing results as a DCFrame.\n')
-  print(dc_frame.pandas())
-
 if __name__ == '__main__':
   main()
