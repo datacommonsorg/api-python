@@ -33,12 +33,14 @@ _API_ROOT = "http://mixergrpc.endpoints.datcom-mixer.cloud.goog"
 
 # REST API endpoint paths
 _API_ENDPOINTS = {
-  "query": "/query",
-  "get_node": "/node",
-  "get_property": "/node/property",
-  "get_property_value": "/node/property-value",
-  "get_triple": "/node/triple",
-  "get_place_in": "/expand/place-in"
+  'query': '/query',
+  'get_node': '/node',
+  'get_property': '/node/property',
+  'get_property_value': '/node/property-value',
+  'get_triple': '/node/triple',
+  'get_place_in': '/expand/place-in',
+  'get_population': '/expand/population',
+  'get_observation': '/expand/observation'
 }
 
 # Database paths
@@ -76,9 +78,11 @@ def clean_frame(pd_frame):
   if len(pd_frame.index) > 0:
     # Convert all numeric columns to numeric types.
     for col in pd_frame:
-      col_value = pd_frame[col].iloc[0]
-      if isinstance(col_value, str) and col_value.isnumeric():
+      try:
+        float(pd_frame[col].iloc[0])
         pd_frame = pd_frame.astype({col: 'float'})
+      except ValueError:
+        continue
 
     # Drop all rows with NaN elements.
     pd_frame = pd_frame.dropna()

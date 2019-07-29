@@ -16,6 +16,6 @@
 from .datacommons import Query
 from .core import get_property_labels, get_property_values, get_triples
 from .places import get_places_in
-# from .populations import get_populations, get_observations
+from .populations import get_populations, get_observations
 
 from .utils import clean_frame, flatten_frame

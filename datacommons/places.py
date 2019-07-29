@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""DataCommons Places data API Mixin.
+"""Data Commons Places wrapper functions.
 """
 
 import datacommons.utils as utils
