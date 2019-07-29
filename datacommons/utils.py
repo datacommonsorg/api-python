@@ -57,7 +57,10 @@ def flatten_frame(pd_frame):
   Args:
     pd_frame: The Pandas DataFrame.
   """
-  pass
+  for col in pd_frame:
+    if any(isinstance(v, list) for v in pd_frame[col]):
+      pd_frame = pd_frame.explode(col)
+  return pd_frame
 
 def clean_frame(pd_frame):
   """ A convenience function that cleans a pandas DataFrame.
@@ -69,8 +72,16 @@ def clean_frame(pd_frame):
   Args:
     pd_frame: The Pandas DataFrame.
   """
-  pass
+  if len(pd_frame.index) > 0:
+    # Convert all numeric columns to numeric types.
+    for col in pd_frame:
+      col_value = pd_frame[col].iloc[0]
+      if isinstance(col_value, str) and col_value.isnumeric():
+        pd_frame = pd_frame.astype({col: 'float'})
 
+    # Drop all rows with NaN elements.
+    pd_frame = pd_frame.dropna()
+  return pd_frame
 
 
 # ----------------------------- HELPER FUNCTIONS ------------------------------
