@@ -60,6 +60,7 @@ def flatten_frame(pd_frame):
   for col in pd_frame:
     if any(isinstance(v, list) for v in pd_frame[col]):
       pd_frame = pd_frame.explode(col)
+  pd_frame = pd_frame.reset_index(drop=True)
   return pd_frame
 
 def clean_frame(pd_frame):
@@ -81,6 +82,7 @@ def clean_frame(pd_frame):
 
     # Drop all rows with NaN elements.
     pd_frame = pd_frame.dropna()
+  pd_frame = pd_frame.reset_index(drop=True)
   return pd_frame
 
 

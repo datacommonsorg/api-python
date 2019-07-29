@@ -21,7 +21,7 @@ from collections import defaultdict
 
 import pandas as pd
 
-import datacommons.utils
+import datacommons.utils as utils
 import requests
 
 # ----------------------------- WRAPPER FUNCTIONS -----------------------------
@@ -35,7 +35,7 @@ def get_property_labels(dcid, outgoing=True, reload=False):
     reload: Whether or not to send the query to cache.
   """
   # Generate the GetProperty query and send the request
-  params = "?dcid={}".format(self._dcid)
+  params = "?dcid={}".format(dcid)
   if reload:
     params += "&reload=true"
   url = utils._API_ROOT + utils._API_ENDPOINTS['get_property'] + params
@@ -129,10 +129,9 @@ def get_triples(dcid, reload=False, limit=utils._MAX_LIMIT):
 
   # Create a list of triples and return.
   triples = []
-  if 'triples' in payload:
-    for t in payload['triples']:
-      if 'objectId' in t:
-        triples.append((t['subjectId'], t['predicate'], t['objectId']))
-      elif 'objectValue' in t:
-        triples.append((t['subjectId'], t['predicate'], t['objectValue']))
+  for t in payload:
+    if 'object_id' in t:
+      triples.append((t['subject_id'], t['predicate'], t['object_id']))
+    elif 'object_value' in t:
+      triples.append((t['subject_id'], t['predicate'], t['object_value']))
   return triples
