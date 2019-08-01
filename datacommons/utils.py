@@ -16,7 +16,7 @@
 Contains various functions that can aid in the extension of the DataCommons API.
 """
 
-from collections import OrderedDict
+from collections import defaultdict
 
 import pandas as pd
 
@@ -33,102 +33,58 @@ _API_ROOT = "http://mixergrpc.endpoints.datcom-mixer.cloud.goog"
 
 # REST API endpoint paths
 _API_ENDPOINTS = {
-  "query": "/query",
-  "get_node": "/node",
-  "get_property": "/node/property",
-  "get_property_value": "/node/property-value",
-  "get_triple": "/node/triple",
-  "get_place_in": "/expand/place-in"
+  'query': '/query',
+  'get_property_labels': '/node/property-labels',
+  'get_property_values': '/node/property-values',
+  'get_triples': '/node/triples',
+  'get_places_in': '/node/places-in',
+  'get_populations': '/node/populations',
+  'get_observations': '/node/observations'
 }
-
-# Database paths
-_BIG_QUERY_PATH = 'google.com:datcom-store-dev.dc_v3_clustered'
 
 # The default value to limit to
 _MAX_LIMIT = 100
 
 
-# ------------------------ SELECT AND PROCESS HELPERS -------------------------
+# ------------------------- PANDAS UTILITY FUNCTIONS --------------------------
 
 
-def convert_type(col_names, dtype):
-  """ Converts values in a given column to the given type.
-
-  Args:
-    col_names: The column or columns to convert
-    dtype: Data type or a dictionary from column name to data type.
-
-  Returns: A process function that converts the column to a given type.
-  """
-  if isinstance(col_names, str):
-    col_names = [col_names]
-  def process(pd_frame):
-    for name in col_names:
-      pd_frame[name] = pd.to_numeric(pd_frame[name])
-    return pd_frame
-  return process
-
-def drop_nan(col_names):
-  """ Drops rows containing NAN as a value in columns in col_names.
+def flatten_frame(pd_frame, cols=[]):
+  """ Expands each cell in a Pandas DataFrame containing a list of values.
 
   Args:
-    col_names: single column name or a list of column names.
+    pd_frame: The Pandas DataFrame.
   """
-  if isinstance(col_names, str):
-    col_names = [col_names]
-  def process(pd_frame):
-    return pd_frame.dropna(subset=col_names)
-  return process
+  if not cols:
+    cols = list(pd_frame.columns)
+  for col in cols:
+    if col not in pd_frame:
+      raise ValueError('Column {} is not in data frame.'.format(col))
+    if any(isinstance(v, list) for v in pd_frame[col]):
+      # TODO: Uncomment after colab supports pandas 0.25
+      # pd_frame = pd_frame._explode(col)
+      pd_frame = _explode(pd_frame, col)
+  pd_frame = pd_frame.reset_index(drop=True)
+  return pd_frame
 
-def delete_column(*cols):
-  """ Returns a function that deletes the given column from a frame.
+
+def clean_frame(pd_frame):
+  """ A convenience function that cleans a pandas DataFrame.
+
+  The following operations are performed:
+  - Columns containing numerical types are converted to floats.
+  - Rows with empty values are dropped.
 
   Args:
-    cols: Columns to delete from the data frame.
-
-  Returns:
-    A function that deletes columns in the given Pandas DataFrame.
+    pd_frame: The Pandas DataFrame.
   """
-  def process(pd_frame):
-    for col in cols:
-      if col in pd_frame:
-        pd_frame = pd_frame.drop(col, axis=1)
-    return pd_frame
-  return process
-
-def compose_select(*select_funcs):
-  """ Returns a filter function composed of the given selectors.
-
-  Args:
-    select_funcs: Functions to compose.
-
-  Returns:
-    A filter function which returns True iff all select_funcs return True.
-  """
-  def select(row):
-    return all(select_func(row) for select_func in select_funcs)
-  return select
-
-def compose_process(*process_funcs):
-  """ Returns a process function composed of the given functions.
-
-  Args:
-    process_funcs: Functions to compose.
-
-  Returns:
-    A process function which performs each function in the order given.
-  """
-  def process(pd_frame):
-    for process_func in process_funcs:
-      pd_frame = process_func(pd_frame)
-    return pd_frame
-  return process
+  return pd_frame.dropna().reset_index(drop=True)
 
 
-# ------------------------------- OTHER HELPERS -------------------------------
+# ------------------------- INTERNAL HELPER FUNCTIONS -------------------------
 
 
-def format_response(response, compress=False):
+def _format_response(response, compress=False):
   """ Returns the json payload in a response from the mixer. """
   res_json = response.json()
   if 'code' in res_json and res_json['code'] != 0:
@@ -139,5 +95,79 @@ def format_response(response, compress=False):
   # If the payload is compressed, decompress and decode it
   payload = res_json['payload']
   if compress:
-    payload = zlib.decompress(base64.b64decode(payload), 16 + zlib.MAX_WBITS)
+    payload = zlib.decompress(
+      base64.b64decode(payload), 16 + zlib.MAX_WBITS)
   return json.loads(payload)
+
+
+def _format_expand_payload(payload, new_key, must_exist=[]):
+  """ Formats expand type payloads into dicts from dcids to lists of values. """
+  # Create the results dictionary from payload
+  results = defaultdict(list)
+  for entry in payload:
+    if 'dcid' in entry and new_key in entry:
+      dcid = entry['dcid']
+      results[dcid].append(entry[new_key])
+
+  # Ensure all dcids in must_exist have some entry in results.
+  for dcid in must_exist:
+    results[dcid]
+  return dict(results)
+
+
+def _flatten_results(result, default_value=""):
+  """ Formats results to map to a single value or default value if empty. """
+  flattened = {}
+  for k, v in result.items():
+    if len(v) > 1:
+      raise ValueError(
+        'Expected one result, but more returned: {}'.format(v))
+    if len(v) == 1:
+      flattened[k] = v[0]
+    else:
+      flattened[k] = default_value
+  return flattened
+
+
+def _convert_dcids_type(dcids):
+  """ Amends dcids list type and creates the approprate request dcids list. """
+  # Create the requests dcids list.
+  if isinstance(dcids, list):
+    req_dcids = dcids
+  elif isinstance(dcids, pd.Series):
+    req_dcids = list(dcids)
+  else:
+    raise ValueError(
+      'dcids parameter must either be of type list or pandas.Series.')
+  return dcids, req_dcids
+
+
+def _explode(pd_frame, column):
+  """ Expands a list inside a Pandas cell. """
+  matches = [i for i, n in enumerate(pd_frame.columns) if n == column]
+  col_idx = matches[0]
+
+  def helper(d):
+    row = list(d.values[0])
+    bef = row[:col_idx]
+    aft = row[col_idx + 1:]
+    col = row[col_idx]
+    z = [bef + [c] + aft for c in col]
+    return pd.DataFrame(z)
+
+  col_idx += len(pd_frame.index.shape)
+  index_names = list(pd_frame.index.names)
+  column_names = list(index_names) + list(pd_frame.columns)
+  return (pd_frame
+          .reset_index()
+          .groupby(level=0, as_index=0)
+          .apply(helper)
+          .rename(columns=lambda i: column_names[i])
+          .set_index(index_names))
+
+
+def _print_header(label):
+  """ Prints a pretty header with the given label. """
+  print('\n' + '-' * 80)
+  print(label)
+  print('-' * 80 + '\n')

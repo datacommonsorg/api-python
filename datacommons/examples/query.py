@@ -15,12 +15,9 @@
 
 """
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
-import datacommons
+import datacommons as dc
 import pandas as pd
+
 
 def main():
   # Create a SPARQL query querying for the name of some states
@@ -36,17 +33,13 @@ WHERE {
   print('> Issuing query.\n{}'.format(query))
 
   # Initialize the Query instance.
-  dc_query = datacommons.Query(sparql=query)
+  dc_query = dc.Query(sparql=query)
 
   # Iterate through all the rows in the results.
   print('> Printing results.\n')
   for row in dc_query.rows():
     print('  {}'.format(row))
 
-  # Return the result as a DCFrame.
-  dc_frame = dc_query.as_dcframe({'?name': 'Text', '?dcid': 'State'})
-  print('\n> Printing results as a DCFrame.\n')
-  print(dc_frame.pandas())
 
 if __name__ == '__main__':
   main()
