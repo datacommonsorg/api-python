@@ -12,8 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Data Commons Populations wrapper functions.
-"""
+"""Data Commons Populations wrapper functions."""
+
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
 
 import datacommons.utils as utils
 import pandas as pd
