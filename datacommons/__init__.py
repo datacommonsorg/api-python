@@ -13,9 +13,13 @@
 # limitations under the License.
 """Data Commons module."""
 
-from .datacommons import Query
-from .core import get_property_labels, get_property_values, get_triples
-from .places import get_places_in
-from .populations import get_populations, get_observations
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+
+from datacommons.datacommons import Query
+from datacommons.core import get_property_labels, get_property_values, get_triples
+from datacommons.places import get_places_in
+from datacommons.populations import get_populations, get_observations
 
 from .utils import clean_frame, flatten_frame

@@ -17,6 +17,10 @@ Contains wrapper functions for get_property_labels, get_property_values, and
 get_triples
 """
 
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+
 from collections import defaultdict
 
 import pandas as pd
