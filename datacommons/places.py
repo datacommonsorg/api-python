@@ -20,7 +20,8 @@ import pandas as pd
 
 import requests
 
-def get_places_in(dcids, place_type, reload=False):
+
+def get_places_in(dcids, place_type):
   """ Returns a list of places contained in a given list of places.
 
   If the dcids field is a list, then the return value is a dictionary mapping
@@ -32,21 +33,19 @@ def get_places_in(dcids, place_type, reload=False):
 
   Args:
     dcids: List of dcids to get contained in places of.
-    place_type: The type of place to query for.
-    reload: Send the query without hitting cache.
+    place_type: The type of places returned.
   """
   # Convert the dcids field and format the request to GetPlacesIn
-  dcids, req_dcids = utils.convert_dcids_type(dcids)
-  url = utils._API_ROOT + utils._API_ENDPOINTS['get_place_in']
+  dcids, req_dcids = utils._convert_dcids_type(dcids)
+  url = utils._API_ROOT + utils._API_ENDPOINTS['get_places_in']
   res = requests.post(url, json={
     'dcids': req_dcids,
     'place_type': place_type,
-    'reload': reload,
   })
-  payload = utils.format_response(res)
+  payload = utils._format_response(res)
 
   # Create the results and format it appropriately
-  result = utils.format_expand_payload(payload, 'place', must_exist=dcids)
+  result = utils._format_expand_payload(payload, 'place', must_exist=dcids)
   if isinstance(dcids, pd.Series):
     return pd.Series([result[dcid] for dcid in dcids])
   return result

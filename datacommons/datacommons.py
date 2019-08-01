@@ -24,6 +24,7 @@ import requests
 # Query Class
 # -----------------------------------------------------------------------------
 
+
 class Query(object):
   """ Performs a graph query to the Data Commons knowledge graph. """
 
@@ -43,7 +44,8 @@ class Query(object):
       self._result = None
     else:
       lang_str = ', '.join(self._VALID_LANG)
-      raise ValueError('Must provide one of the following languages: {}'.format(lang_str))
+      raise ValueError(
+        'Must provide one of the following languages: {}'.format(lang_str))
 
   def rows(self, select=None):
     """ Returns the results of the query as an iterator over all rows.
@@ -53,8 +55,8 @@ class Query(object):
 
     Args:
       select: A function that returns true if and only if a row in the query
-        results should be kept. The argument for this function is a map from
-        query variable to its value in a given row.
+      results should be kept. The argument for this function is a map from
+      query variable to its value in a given row.
     """
     # Execute the query if the results are empty.
     if not self._result:
@@ -67,9 +69,11 @@ class Query(object):
       row_map = {}
       for idx, cell in enumerate(row['cells']):
         if idx > len(header):
-          raise RuntimeError('Query error: unexpected cell {}'.format(cell))
+          raise RuntimeError(
+            'Query error: unexpected cell {}'.format(cell))
         if 'value' not in cell:
-          raise RuntimeError('Query error: cell missing value {}'.format(cell))
+          raise RuntimeError(
+            'Query error: cell missing value {}'.format(cell))
         cell_var = header[idx]
         row_map[cell_var] = cell['value']
 

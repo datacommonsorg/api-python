@@ -18,6 +18,7 @@
 import datacommons as dc
 import pandas as pd
 
+
 def main():
   # Create a SPARQL query querying for the name of some states
   query = ('''
@@ -38,6 +39,7 @@ WHERE {
   print('> Printing results.\n')
   for row in dc_query.rows():
     print('  {}'.format(row))
+
 
 if __name__ == '__main__':
   main()

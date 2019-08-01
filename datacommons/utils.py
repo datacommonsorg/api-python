@@ -34,17 +34,13 @@ _API_ROOT = "http://mixergrpc.endpoints.datcom-mixer.cloud.goog"
 # REST API endpoint paths
 _API_ENDPOINTS = {
   'query': '/query',
-  'get_node': '/node',
-  'get_property': '/node/property',
-  'get_property_value': '/node/property-value',
-  'get_triple': '/node/triple',
-  'get_place_in': '/expand/place-in',
-  'get_population': '/expand/population',
-  'get_observation': '/expand/observation'
+  'get_property_labels': '/node/property-labels',
+  'get_property_values': '/node/property-values',
+  'get_triples': '/node/triples',
+  'get_places_in': '/node/places-in',
+  'get_populations': '/node/populations',
+  'get_observations': '/node/observations'
 }
-
-# Database paths
-_BIG_QUERY_PATH = 'google.com:datcom-store-dev.dc_v3_clustered'
 
 # The default value to limit to
 _MAX_LIMIT = 100
@@ -53,19 +49,24 @@ _MAX_LIMIT = 100
 # ------------------------- PANDAS UTILITY FUNCTIONS --------------------------
 
 
-def flatten_frame(pd_frame):
+def flatten_frame(pd_frame, cols=[]):
   """ Expands each cell in a Pandas DataFrame containing a list of values.
 
   Args:
     pd_frame: The Pandas DataFrame.
   """
-  for col in pd_frame:
+  if not cols:
+    cols = list(pd_frame.columns)
+  for col in cols:
+    if col not in pd_frame:
+      raise ValueError('Column {} is not in data frame.'.format(col))
     if any(isinstance(v, list) for v in pd_frame[col]):
       # TODO: Uncomment after colab supports pandas 0.25
-      # pd_frame = pd_frame.explode(col)
-      pd_frame = explode(pd_frame, col)
+      # pd_frame = pd_frame._explode(col)
+      pd_frame = _explode(pd_frame, col)
   pd_frame = pd_frame.reset_index(drop=True)
   return pd_frame
+
 
 def clean_frame(pd_frame):
   """ A convenience function that cleans a pandas DataFrame.
@@ -77,25 +78,13 @@ def clean_frame(pd_frame):
   Args:
     pd_frame: The Pandas DataFrame.
   """
-  if len(pd_frame.index) > 0:
-    # Convert all numeric columns to numeric types.
-    for col in pd_frame:
-      try:
-        float(pd_frame[col].iloc[0])
-        pd_frame = pd_frame.astype({col: 'float'})
-      except ValueError:
-        continue
-
-    # Drop all rows with NaN elements.
-    pd_frame = pd_frame.dropna()
-  pd_frame = pd_frame.reset_index(drop=True)
-  return pd_frame
+  return pd_frame.dropna().reset_index(drop=True)
 
 
 # ------------------------- INTERNAL HELPER FUNCTIONS -------------------------
 
 
-def format_response(response, compress=False):
+def _format_response(response, compress=False):
   """ Returns the json payload in a response from the mixer. """
   res_json = response.json()
   if 'code' in res_json and res_json['code'] != 0:
@@ -106,10 +95,12 @@ def format_response(response, compress=False):
   # If the payload is compressed, decompress and decode it
   payload = res_json['payload']
   if compress:
-    payload = zlib.decompress(base64.b64decode(payload), 16 + zlib.MAX_WBITS)
+    payload = zlib.decompress(
+      base64.b64decode(payload), 16 + zlib.MAX_WBITS)
   return json.loads(payload)
 
-def format_expand_payload(payload, new_key, must_exist=[]):
+
+def _format_expand_payload(payload, new_key, must_exist=[]):
   """ Formats expand type payloads into dicts from dcids to lists of values. """
   # Create the results dictionary from payload
   results = defaultdict(list)
@@ -123,12 +114,23 @@ def format_expand_payload(payload, new_key, must_exist=[]):
     results[dcid]
   return dict(results)
 
-def convert_dcids_type(dcids):
-  """ Amends dcids list type and creates the approprate request dcids list. """
-  # Format the dcids list.
-  if isinstance(dcids, str):
-    dcids = [dcids]
 
+def _flatten_results(result, default_value=""):
+  """ Formats results to map to a single value or default value if empty. """
+  flattened = {}
+  for k, v in result.items():
+    if len(v) > 1:
+      raise ValueError(
+        'Expected one result, but more returned: {}'.format(v))
+    if len(v) == 1:
+      flattened[k] = v[0]
+    else:
+      flattened[k] = default_value
+  return flattened
+
+
+def _convert_dcids_type(dcids):
+  """ Amends dcids list type and creates the approprate request dcids list. """
   # Create the requests dcids list.
   if isinstance(dcids, list):
     req_dcids = dcids
@@ -136,17 +138,19 @@ def convert_dcids_type(dcids):
     req_dcids = list(dcids)
   else:
     raise ValueError(
-        'dcids parameter must either be of type string, list or pandas.Series.')
+      'dcids parameter must either be of type list or pandas.Series.')
   return dcids, req_dcids
 
-def explode(pd_frame, column):
-  matches = [i for i,n in enumerate(pd_frame.columns) if n == column]
+
+def _explode(pd_frame, column):
+  """ Expands a list inside a Pandas cell. """
+  matches = [i for i, n in enumerate(pd_frame.columns) if n == column]
   col_idx = matches[0]
 
   def helper(d):
     row = list(d.values[0])
     bef = row[:col_idx]
-    aft = row[col_idx+1:]
+    aft = row[col_idx + 1:]
     col = row[col_idx]
     z = [bef + [c] + aft for c in col]
     return pd.DataFrame(z)
@@ -156,7 +160,14 @@ def explode(pd_frame, column):
   column_names = list(index_names) + list(pd_frame.columns)
   return (pd_frame
           .reset_index()
-          .groupby(level=0,as_index=0)
+          .groupby(level=0, as_index=0)
           .apply(helper)
-          .rename(columns = lambda i :column_names[i])
+          .rename(columns=lambda i: column_names[i])
           .set_index(index_names))
+
+
+def _print_header(label):
+  """ Prints a pretty header with the given label. """
+  print('\n' + '-' * 80)
+  print(label)
+  print('-' * 80 + '\n')
