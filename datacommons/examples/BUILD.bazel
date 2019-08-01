@@ -1,9 +1,9 @@
 load("@requirements//:requirements.bzl", "requirement")
 
 py_binary(
-    name = "query_basic",
-    srcs = ["query_basic.py"],
-    deps = [
+    name="query_basic",
+    srcs=["query_basic.py"],
+    deps=[
         "//datacommons:datacommons",
         requirement("pandas"),
     ]
