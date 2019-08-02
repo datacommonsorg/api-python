@@ -120,8 +120,9 @@ def get_triples(dcids, limit=utils._MAX_LIMIT):
   """ Returns all triples associated with the given dcids.
 
   The return value is a dictionary mapping given dcids to list of triples. The
-  triples are repsented as 3-tuples (s, p, o) where "s" denotes the subject, "p"
-  the property, and "o" the object.
+  triples are represented as 3-tuples (s, p, o) where "s" denotes the subject,
+  "p" the property, and "o" the object. Here "s" and "o" are two nodes of the
+  graph, and "p" is the label of a directed edge between "s" and "o".
 
   Args:
     dcids: A list of dcids to get triples for.
