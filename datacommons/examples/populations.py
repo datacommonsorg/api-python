@@ -30,7 +30,7 @@ def main():
 
   # Get the population of all employed individuals in the above states.
   utils._print_header('Get Populations for All Employed Individuals')
-  employed = dc.get_populations(dcids, 'Person', pv_map={
+  employed = dc.get_populations(dcids, 'Person', constraining_properties={
                   'employment': 'BLS_Employed'})
   print('> Printing all populations of employed individuals\n')
   print(json.dumps(employed, indent=2))
@@ -41,7 +41,7 @@ def main():
   print('> Requesting observations for {} in December 2018\n'.format(pop_dcids))
   obs = dc.get_observations(pop_dcids,
                             'count',
-                            'measured_value',
+                            'measuredValue',
                             '2018-12',
                             observation_period='P1M',
                             measurement_method='BLSSeasonallyAdjusted')
@@ -58,11 +58,13 @@ def main():
   # Get populations for employed individuals
   utils._print_header('Add Population and Observation to DataFrame')
   pd_frame['employed_pop'] = dc.get_populations(
-    pd_frame['state'], 'Person', pv_map={'employment': 'BLS_Employed'})
+    pd_frame['state'],
+    'Person',
+    constraining_properties={'employment': 'BLS_Employed'})
   pd_frame['employed_count'] = dc.get_observations(
     pd_frame['employed_pop'],
     'count',
-    'measured_value',
+    'measuredValue',
     '2018-12',
     observation_period='P1M',
     measurement_method='BLSSeasonallyAdjusted')
