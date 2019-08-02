@@ -4,3 +4,4 @@ mock
 numpy
 oauth2client
 pandas
+requests
