@@ -24,32 +24,34 @@ import pandas as pd
 import requests
 
 
-def get_populations(dcids, population_type, pv_map={}):
-  """ Returns a list of populations associated with the given dcids.
+def get_populations(dcids, population_type, constraining_properties={}):
+  """ Returns StatisticalPopulation dcids located at the given dcids.
 
-  The pv_map must be a dictionary mapping p (property) to v (value) in a pv
-  pair defining a population.
+  When the dcids are given as a list, the returned property values are formatted
+  as a map from given dcid to associated StatatisticalPopulation dcid.
 
-  If the dcids field is a list, then the return value is a dictionary mapping
-  dcid to the list of values associated with the given property.
-
-  If the dcids field is a Pandas Series, then the return value is a Series where
-  the i-th cell is the list of values associated with the given property for the
-  i-th dcid.
+  When the dcids are given as a Pandas Series, returned StatisticalPopulations
+  are formatted as a Pandas Series where the i-th entry corresponds to the
+  StatisticalPopulation located in the i-th given dcid. The cells of the Series
+  contain a single dcid as the combination of population_type and
+  constraining_properties always define a unique StatisticalPopulation if it
+  exists.
 
   Args:
-    dcids: List of dcids to get populations for.
-    population_type: The type of entity associated with the population
-    pv_map: pv-pairs defining the population.
+    dcids: A list or Pandas Series of dcids denoting the locations of
+      populations to query for.
+    population_type: The population type of the `StatisticalPopulation`
+    constraining_properties: An optional map from constraining property to the
+      value that the `StatisticalPopulation` should be constrained by.
   """
   # Convert the dcids field and format the request to GetPopulations
   dcids, req_dcids = utils._convert_dcids_type(dcids)
-  pv_params = [{'property': k, 'value': v} for k, v in pv_map.items()]
+  pv = [{'property': k, 'value': v} for k, v in constraining_properties.items()]
   url = utils._API_ROOT + utils._API_ENDPOINTS['get_populations']
   res = requests.post(url, json={
     'dcids': req_dcids,
     'population_type': population_type,
-    'pvs': pv_params,
+    'pvs': pv,
   })
   payload = utils._format_response(res)
 
@@ -68,23 +70,30 @@ def get_observations(dcids,
                      observation_date,
                      observation_period=None,
                      measurement_method=None):
-  """ Returns a list of observations associated with the given dcids.
+  """ Returns Observations made of the given dcids.
 
-  If the dcids field is a list, then the return value is a dictionary mapping
-  dcid to the list of values associated with the given property.
+  When the dcids are given as a list, the returned Observations are formatted
+  as a map from given dcid to Observation dcid.
 
   If the dcids field is a Pandas Series, then the return value is a Series where
   the i-th cell is the list of values associated with the given property for the
   i-th dcid. If no observation is returned, then the cell holds NaN.
 
+  When the dcids are given as a Pandas Series, returned Observations are
+  formatted as a Pandas Series where the i-th entry corresponds to the value
+  of the observation observing the i-th given dcid. The cells of the Series
+  contain a single dcid as the combination of measured_property, stats_type,
+  observation_date, and optional parameters always define a unique Observation
+  if it exists. If it does not, then the cell will hold NaN.
+
   Args:
-    dcids: List of dcids to get observations for.
+    dcids: A list or Pandas Series of dcids of nodes that are observed by
+      observations being queried for.
     measured_property: The measured property.
     stats_type: The statistical type for the observation.
     observation_date: The assoociated observation date in ISO8601 format.
-    observation_period: The observation period.
-    measurement_method: The measurement method.
-    reload: A flag that sends the query without hitting cache when set.
+    observation_period: An optional parameter specifying the observation period.
+    measurement_method: An optional parameter specifying the measurement method.
   """
   # Convert the dcids field and format the request to GetObservation
   dcids, req_dcids = utils._convert_dcids_type(dcids)
