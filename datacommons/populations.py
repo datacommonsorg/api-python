@@ -127,7 +127,8 @@ def get_observations(dcids,
     series = pd.Series([flattened[dcid] for dcid in dcids])
     return series.apply(pd.to_numeric, errors='coerce')
 
-  # Convert type and drop empty results while flattening.
+  # Drop empty results by calling _flatten_results without default_value, then
+  # coerce the type to float if possible.
   typed_results = {}
   for k, v in utils._flatten_results(result).items():
     try:
