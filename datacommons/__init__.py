@@ -13,13 +13,13 @@
 # limitations under the License.
 """Data Commons module."""
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
+# Data Commons SPARQL query support
+from datacommons.query import Query
 
-from datacommons.datacommons import Query
+# Data Commons Python Client API
 from datacommons.core import get_property_labels, get_property_values, get_triples
 from datacommons.places import get_places_in
 from datacommons.populations import get_populations, get_observations
 
+# Other utilities
 from .utils import clean_frame, flatten_frame

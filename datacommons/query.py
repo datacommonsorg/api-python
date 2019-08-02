@@ -16,10 +16,6 @@
 Contains Query which performs graph queries on the Data Commons kg.
 """
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
 from datacommons.utils import _API_ROOT, _API_ENDPOINTS
 
 import requests

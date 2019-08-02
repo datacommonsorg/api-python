@@ -16,10 +16,6 @@
 Contains various functions that can aid in the extension of the DataCommons API.
 """
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
 from collections import defaultdict
 
 import pandas as pd
@@ -92,9 +88,9 @@ def _format_response(response, compress=False):
   """ Returns the json payload in a response from the mixer. """
   res_json = response.json()
   if 'code' in res_json and res_json['code'] != 0:
-    raise ValueError(res_json['message'])
+    raise ValueError('Response error: {}'.format(res_json['message']))
   elif 'payload' not in res_json:
-    return {}
+    raise ValueError('Response error: Payload not found "{}"'.format(response))
 
   # If the payload is compressed, decompress and decode it
   payload = res_json['payload']
@@ -119,7 +115,7 @@ def _format_expand_payload(payload, new_key, must_exist=[]):
   return dict(results)
 
 
-def _flatten_results(result, default_value=""):
+def _flatten_results(result, default_value=None):
   """ Formats results to map to a single value or default value if empty. """
   flattened = {}
   for k, v in result.items():
@@ -128,7 +124,7 @@ def _flatten_results(result, default_value=""):
         'Expected one result, but more returned: {}'.format(v))
     if len(v) == 1:
       flattened[k] = v[0]
-    else:
+    elif default_value is not None:
       flattened[k] = default_value
   return flattened
 

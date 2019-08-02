@@ -17,10 +17,6 @@ Contains wrapper functions for get_property_labels, get_property_values, and
 get_triples
 """
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
 from collections import defaultdict
 
 import pandas as pd
@@ -32,7 +28,9 @@ import requests
 
 
 def get_property_labels(dcids, out=True):
-  """ Returns a map from given dcids to a list of defined properties defined.
+  """ Returns the labels of properties defined for the given dcids.
+
+  The return value is a dictionary mapping dcids to lists of property labels.
 
   Args:
     dcids: A list of nodes identified by their dcids.
@@ -95,33 +93,36 @@ def get_property_values(dcids,
   payload = utils._format_response(res)
 
   # Create the result format for when dcids is provided as a list.
-  result = defaultdict(list)
+  results = defaultdict(list)
   for dcid in dcids:
+    # Make sure each dcid is mapped to an empty list.
+    results[dcid]
+
+    # Add elements to this list as necessary.
     if dcid in payload and prop in payload[dcid]:
       for node in payload[dcid][prop]:
         if 'dcid' in node:
-          result[dcid].append(node['dcid'])
+          results[dcid].append(node['dcid'])
         elif 'value' in node:
-          result[dcid].append(node['value'])
-    else:
-      result[dcid] = []
+          results[dcid].append(node['value'])
 
-  # Format the result as a Series if a Pandas Series is provided.
+  # Format the results as a Series if a Pandas Series is provided.
   if isinstance(dcids, pd.Series):
-    return pd.Series([result[dcid] for dcid in dcids])
-  return dict(result)
+    return pd.Series([results[dcid] for dcid in dcids])
+  return dict(results)
 
 
 def get_triples(dcids, limit=utils._MAX_LIMIT):
-  """ Returns a list of triples where the dcid is either a subject or object.
+  """ Returns all triples associated with the given dcids.
 
-  The return value is a list of tuples (s, p, o) where s denotes the subject
-  entity, p the property, and o the object.
+  The return value is a dictionary mapping given dcids to list of triples. The
+  triples are repsented as 3-tuples (s, p, o) where "s" denotes the subject, "p"
+  the property, and "o" the object.
 
   Args:
-    dcid: A list of dcids to get triples for.
+    dcids: A list of dcids to get triples for.
     limit: The maximum number of triples to get for each combination of property
-    and type of the neighboring node.
+      and type of property value.
   """
   # Generate the GetTriple query and send the request.
   url = utils._API_ROOT + utils._API_ENDPOINTS['get_triples']
@@ -131,6 +132,10 @@ def get_triples(dcids, limit=utils._MAX_LIMIT):
   # Create a map from dcid to list of triples.
   results = defaultdict(list)
   for dcid in dcids:
+    # Make sure each dcid is mapped to an empty list.
+    results[dcid]
+
+    # Add triples as appropriate
     for t in payload[dcid]:
       if 'objectId' in t:
         results[dcid].append(
