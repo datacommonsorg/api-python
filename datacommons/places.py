@@ -25,18 +25,19 @@ import requests
 
 
 def get_places_in(dcids, place_type):
-  """ Returns a list of places contained in a given list of places.
+  """ Returns places that are contained in the given dcids of the given type.
 
-  If the dcids field is a list, then the return value is a dictionary mapping
-  dcid to the list of values associated with the given property.
+  When the dcids are given as a list, the returned property values are formatted
+  as a map from given dcid to list of place dcids contained in the given dcid.
 
-  If the dcids field is a Pandas Series, then the return value is a Series where
-  the i-th cell is the list of values associated with the given property for the
-  i-th dcid.
+  When the dcids are given as a Pandas Series, the returned contained in places
+  are formatted as a Pandas Series where the i-th entry corresponds to places
+  contained in places identified by the i-th given dcid. The cells of the
+  returned series will always contain a list of place dcids.
 
   Args:
-    dcids: List of dcids to get contained in places of.
-    place_type: The type of places returned.
+    dcids: A list or Pandas Series of dcids to get contained in places.
+    place_type: The type of places contained in the given dcids to query for.
   """
   # Convert the dcids field and format the request to GetPlacesIn
   dcids, req_dcids = utils._convert_dcids_type(dcids)
