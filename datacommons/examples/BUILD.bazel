@@ -1,8 +1,35 @@
 load("@requirements//:requirements.bzl", "requirement")
 
 py_binary(
-    name="query_basic",
-    srcs=["query_basic.py"],
+    name="core",
+    srcs=["core.py"],
+    deps=[
+        "//datacommons:datacommons",
+        requirement("pandas"),
+    ]
+)
+
+py_binary(
+    name="places",
+    srcs=["places.py"],
+    deps=[
+        "//datacommons:datacommons",
+        requirement("pandas"),
+    ]
+)
+
+py_binary(
+    name="populations",
+    srcs=["populations.py"],
+    deps=[
+        "//datacommons:datacommons",
+        requirement("pandas"),
+    ]
+)
+
+py_binary(
+    name="query",
+    srcs=["query.py"],
     deps=[
         "//datacommons:datacommons",
         requirement("pandas"),
