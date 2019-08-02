@@ -11,8 +11,10 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+""" Data Commons base Python Client API.
 
-"""Data Commons Populations wrapper functions."""
+StatisticalPopulation and Observation wrapper functions.
+"""
 
 from __future__ import absolute_import
 from __future__ import division
@@ -28,7 +30,8 @@ def get_populations(dcids, population_type, constraining_properties={}):
   """ Returns StatisticalPopulation dcids located at the given dcids.
 
   When the dcids are given as a list, the returned property values are formatted
-  as a map from given dcid to associated StatatisticalPopulation dcid.
+  as a map from given dcid to associated StatatisticalPopulation dcid. The dcid
+  will *not* be a member of the dict if a population is not located there.
 
   When the dcids are given as a Pandas Series, returned StatisticalPopulations
   are formatted as a Pandas Series where the i-th entry corresponds to the
@@ -58,10 +61,12 @@ def get_populations(dcids, population_type, constraining_properties={}):
   # Create the results and format it appropriately
   result = utils._format_expand_payload(
     payload, 'population', must_exist=dcids)
-  flattened = utils._flatten_results(result)
   if isinstance(dcids, pd.Series):
+    flattened = utils._flatten_results(result, default_value="")
     return pd.Series([flattened[dcid] for dcid in dcids])
-  return flattened
+
+  # Drop empty results while flattening
+  return utils._flatten_results(result)
 
 
 def get_observations(dcids,
@@ -73,7 +78,8 @@ def get_observations(dcids,
   """ Returns Observations made of the given dcids.
 
   When the dcids are given as a list, the returned Observations are formatted
-  as a map from given dcid to Observation dcid.
+  as a map from given dcid to Observation dcid. The dcid will *not* be a member
+  of the dict if a population is there is no available observation for it.
 
   If the dcids field is a Pandas Series, then the return value is a Series where
   the i-th cell is the list of values associated with the given property for the
@@ -116,8 +122,17 @@ def get_observations(dcids,
   # Create the results and format it appropriately
   result = utils._format_expand_payload(
     payload, 'observation', must_exist=dcids)
-  flattened = utils._flatten_results(result)
   if isinstance(dcids, pd.Series):
+    flattened = utils._flatten_results(result, default_value="")
     series = pd.Series([flattened[dcid] for dcid in dcids])
     return series.apply(pd.to_numeric, errors='coerce')
-  return flattened
+
+  # Drop empty results by calling _flatten_results without default_value, then
+  # coerce the type to float if possible.
+  typed_results = {}
+  for k, v in utils._flatten_results(result).items():
+    try:
+      typed_results[k] = float(v)
+    except ValueError:
+      typed_results[k] = v
+  return typed_results
