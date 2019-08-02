@@ -45,9 +45,9 @@ def get_property_labels(dcids, out=True):
   results = {}
   for dcid in dcids:
     if out:
-      results[dcid] = payload[dcid]['outArcs']
+      results[dcid] = payload[dcid]['outLabels']
     else:
-      results[dcid] = payload[dcid]['inArcs']
+      results[dcid] = payload[dcid]['inLabels']
   return results
 
 

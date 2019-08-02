@@ -29,7 +29,7 @@ import zlib
 
 
 # REST API endpoint root
-_API_ROOT = "http://mixergrpc.endpoints.datcom-mixer.cloud.goog"
+_API_ROOT = "http://datacommons.endpoints.datcom-mixer.cloud.goog"
 
 # REST API endpoint paths
 _API_ENDPOINTS = {

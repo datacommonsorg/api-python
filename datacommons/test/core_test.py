@@ -48,8 +48,8 @@ def post_request_mock(*args, **kwargs):
       out_arcs = ['containedInPlace', 'name', 'geoId', 'typeOf']
       res_json = json.dumps({
         'geoId/0649670': {
-          'inArcs': [],
-          'outArcs': out_arcs
+          'inLabels': [],
+          'outLabels': out_arcs
         }
       })
       return MockResponse({"payload": res_json}, 200)
@@ -58,17 +58,17 @@ def post_request_mock(*args, **kwargs):
       in_arcs = ['typeOf']
       out_arcs = ['name', 'provenance', 'subClassOf', 'typeOf', 'url']
       res_json = json.dumps({
-        'City': {'inArcs': in_arcs, 'outArcs': out_arcs},
-        'County': {'inArcs': in_arcs, 'outArcs': out_arcs},
-        'State': {'inArcs': in_arcs, 'outArcs': out_arcs}
+        'City': {'inLabels': in_arcs, 'outLabels': out_arcs},
+        'County': {'inLabels': in_arcs, 'outLabels': out_arcs},
+        'State': {'inLabels': in_arcs, 'outLabels': out_arcs}
       })
       return MockResponse({'payload': res_json}, 200)
     elif req['dcids'] == ['dc/MadDcid']:
       # Response for sending a dcid that doesn't exist to get_property_labels
       res_json = json.dumps({
         'dc/MadDcid': {
-          'inArcs': [],
-          'outArcs': []
+          'inLabels': [],
+          'outLabels': []
         }
       })
       return MockResponse({'payload': res_json}, 200)
