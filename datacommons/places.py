@@ -11,8 +11,14 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+""" Data Commons base Python Client API.
 
-"""Data Commons Places wrapper functions."""
+Places wrapper functions.
+"""
+
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
 
 import datacommons.utils as utils
 import pandas as pd

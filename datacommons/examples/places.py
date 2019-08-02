@@ -11,9 +11,14 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""Basic demo for get_places_in
+""" Data Commons Python Client API examples.
 
+Basic demo for get_places_in
 """
+
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
 
 import datacommons as dc
 import pandas as pd
