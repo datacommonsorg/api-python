@@ -58,22 +58,25 @@ def get_property_values(dcids,
                         out=True,
                         value_type=None,
                         limit=utils._MAX_LIMIT):
-  """ Returns values associated to given dcids via the given property.
+  """ Returns property values of the given dcids along the given property.
 
-  If the dcids field is a list, then the return value is a dictionary mapping
-  dcid to the list of values associated with the given property.
+  When the dcids are given as a list, the returned property values are formatted
+  as a map from given dcid to list of property values.
 
-  If the dcids field is a Pandas Series, then the return value is a Series where
-  the i-th cell is the list of values associated with the given property for the
-  i-th dcid.
+  When the dcids are given as a Pandas Series, the returned property values
+  are formatted as a Pandas Series where the i-th entry corresponds to property
+  values associated with the i-th given dcid. The cells of the returned series
+  will always contain a list of property values.
 
   Args:
-    dcids: A string, list of, or Pandas DataSeries of dcid.
-    prop: The property to get the property values for.
-    out: Whether or not the property points away from the given list of nodes.
-    value_type: Filter returning values by a given type.
-    reload: A flag that sends the query without hitting cache when set.
-    limit: The maximum number of values to return.
+    dcids: A list or Pandas Series of dcids to get property values for.
+    prop: The property to get property values for.
+    out: An optional flag that indicates the property is oriented away from the
+      given nodes if true.
+    value_type: An optional parameter which filters property values by the given
+      type.
+    limit: An optional parameter which limits the total number of property
+      values returned aggregated over all given nodes.
   """
   # Convert the dcids field and format the request to GetPropertyValue
   dcids, req_dcids = utils._convert_dcids_type(dcids)
