@@ -131,15 +131,3 @@ WHERE {
 
 if __name__ == '__main__':
   unittest.main()
-
-
-# py_test(
-#     name = "datacommons_test",
-#     srcs = ["datacommons_test.py"],
-#     deps = [
-#         "//datacommons:datacommons",
-#         requirement("mock"),
-#         requirement("pandas"),
-#     ],
-#     python_version = "PY3"
-# )
