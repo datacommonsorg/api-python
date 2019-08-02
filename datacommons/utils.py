@@ -140,6 +140,12 @@ def _convert_dcids_type(dcids):
     req_dcids = dcids
   elif isinstance(dcids, pd.Series):
     req_dcids = list(dcids)
+  elif isinstance(dcids, pd.DataFrame):
+    # Assume user did df[[col]] instead of df[col]
+    # Or user had to use single-col dataframe for Reticulate
+    # Take the first column as a series
+    dcids = dcids.iloc[:,0]
+    req_dcids = list(dcids)
   else:
     raise ValueError(
       'dcids parameter must either be of type list or pandas.Series.')
