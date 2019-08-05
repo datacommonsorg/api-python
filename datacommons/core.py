@@ -11,10 +11,11 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-""" Data Commons base Python Client API.
+""" Data Commons Python Client API Core.
 
-Contains wrapper functions for get_property_labels, get_property_values, and
-get_triples
+Provides primitive operations for working with collections of nodes. Use cases
+include getting all property labels, property values, and triples associated
+with collections of nodes specified by their dcids.
 """
 
 from __future__ import absolute_import
@@ -32,13 +33,65 @@ import requests
 
 
 def get_property_labels(dcids, out=True):
-  """ Returns the labels of properties defined for the given dcids.
-
-  The return value is a dictionary mapping dcids to lists of property labels.
+  """ Returns the labels of properties defined for the given `dcids`.
 
   Args:
-    dcids: A list of nodes identified by their dcids.
-    out: Whether or not the property points away from the given list of nodes.
+    dcids (:obj:`list` of :obj:`str`): A list of nodes identified by their
+      dcids.
+    out (:obj:`bool`, optional): Whether or not the property points away from
+      the given list of nodes.
+
+  Returns:
+    A :obj:`dict` mapping dcids to lists of property labels. If `out` is `True`,
+    then property labels correspond to edges directed away from given nodes.
+    Otherwise, they correspond to edges directed towards the given nodes.
+
+  Raises:
+    ValueError: If the payload returned by the Data Commons mixer is malformed.
+
+  Examples:
+    To get all outgoing property labels for
+    `California <https://browser.datacommons.org/kg?dcid=geoId/06>`_ and
+    `Colorado <https://browser.datacommons.org/kg?dcid=geoId/08>`_, we can write the
+    following.
+
+    >>> get_property_labels(['geoId/06', 'geoId/08'])
+    {
+      "geoId/06": [
+        "containedInPlace",
+        "geoId",
+        "kmlCoordinates",
+        "name",
+        "provenance",
+        "typeOf"
+      ],
+      "geoId/08",: [
+        "containedInPlace",
+        "geoId",
+        "kmlCoordinates",
+        "name",
+        "provenance",
+        "typeOf"
+      ]
+    }
+
+    We can also get incoming property labels by setting `out=False`.
+
+    >>> get_property_labels(['geoId/06', 'geoId/08'], out=False)
+    {
+      "geoId/06": [
+        "addressRegion",
+        "containedInPlace",
+        "location",
+        "overlapsWith"
+      ],
+      "geoId/08",: [
+        "addressRegion",
+        "containedInPlace",
+        "location",
+        "overlapsWith"
+      ]
+    }
   """
   # Generate the GetProperty query and send the request
   url = utils._API_ROOT + utils._API_ENDPOINTS['get_property_labels']
@@ -60,32 +113,64 @@ def get_property_values(dcids,
                         out=True,
                         value_type=None,
                         limit=utils._MAX_LIMIT):
-  """ Returns property values of the given dcids along the given property.
-
-  When the dcids are given as a list, the returned property values are formatted
-  as a map from given dcid to list of property values.
-
-  When the dcids are given as a Pandas Series, the returned property values
-  are formatted as a Pandas Series where the i-th entry corresponds to property
-  values associated with the i-th given dcid. The cells of the returned series
-  will always contain a list of property values.
+  """ Returns property values of the given `dcids` along the given property.
 
   Args:
-    dcids: A list or Pandas Series of dcids to get property values for.
-    prop: The property to get property values for.
-    out: An optional flag that indicates the property is oriented away from the
-      given nodes if true.
-    value_type: An optional parameter which filters property values by the given
-      type.
-    limit: An optional parameter which limits the total number of property
-      values returned aggregated over all given nodes.
+    dcids (Union[:obj:`list` of :obj:`str`, :obj:`pandas.Series`]): dcids to get
+      property values for.
+    prop (:obj:`str`): The property to get property values for.
+    out (:obj:`bool`, optional): A flag that indicates the property is directed
+      away from the given nodes when set to true.
+    value_type (:obj:`str`, optional): A type to filter returned property values
+      by.
+    limit (:obj:`int`, optional): The maximum number of property values returned
+      aggregated over all given nodes.
+
+  Returns:
+    When `dcids` is an instance of :obj:`list`, the returned property values
+    are formatted as a :obj:`dict` from a given dcid to a list of its property
+    values.
+
+    When `dcids` is an instance of :obj:`pandas.Series`, the returned property
+    values are formatted as a :obj:`pandas.Series` where the `i`-th entry
+    corresponds to property values associated with the `i`-th given dcid.
+    The cells of the returned series will always contain a :obj:`list` of
+    property values.
+
+  Raises:
+    ValueError: If the payload returned by the Data Commons mixer is malformed.
+
+  Examples:
+    We would like to get the `name` of a list of states specified by their dcid:
+    `geoId/06 <https://browser.datacommons.org/kg?dcid=geoId/06>`_,
+    `geoId/21 <https://browser.datacommons.org/kg?dcid=geoId/21>`_, and
+    `geoId/24 <https://browser.datacommons.org/kg?dcid=geoId/24>`_
+
+    First, let's try specifying the `dcids` as a :obj:`list` of :obj:`str`.
+
+    >>> get_property_values(["geoId/06", "geoId/21", "geoId/24"], "name")
+    {
+      "geoId/06": ["California"],
+      "geoId/21": ["Kentucky"],
+      "geoId/24": ["Maryland"],
+    }
+
+    Next, we specify `dcids` as a :obj:`pandas.Series`
+
+    >>> import pandas as pd
+    >>> dcids = pd.Series(["geoId/06", "geoId/21", "geoId/24"])
+    >>> get_property_values(dcids, "name")
+    0    [California]
+    1      [Kentucky]
+    2      [Maryland]
+    dtype: object
   """
   # Convert the dcids field and format the request to GetPropertyValue
   dcids, req_dcids = utils._convert_dcids_type(dcids)
   req_json = {
     'dcids': req_dcids,
     'property': prop,
-    'outgoing': out,
+    'out': out,
     'limit': limit
   }
   if value_type:
@@ -117,17 +202,40 @@ def get_property_values(dcids,
 
 
 def get_triples(dcids, limit=utils._MAX_LIMIT):
-  """ Returns all triples associated with the given dcids.
+  """ Returns all triples associated with the given `dcids`.
 
-  The return value is a dictionary mapping given dcids to list of triples. The
-  triples are represented as 3-tuples (s, p, o) where "s" denotes the subject,
-  "p" the property, and "o" the object. Here "s" and "o" are two nodes of the
-  graph, and "p" is the label of a directed edge between "s" and "o".
+  A knowledge graph can be described as a collection of `triples` which are
+  3-tuples that take the form `(s, p, o)`. Here `s` and `o` are nodes in the
+  graph called the *subject* and *object* respectively while `p` is the property
+  label of a directed edge from `s` to `o` (sometimes also called the
+  *predicate*).
 
   Args:
-    dcids: A list of dcids to get triples for.
-    limit: The maximum number of triples to get for each combination of property
-      and type of property value.
+    dcids (:obj:`list` of :obj:`str`): A list of dcids to get triples for.
+    limit (:obj:`int`, optional): The maximum number of triples to get for each
+      combination of property and type of property value.
+
+  Returns:
+    A :obj:`dict` mapping dcids to a :obj:`list` of triples `(s, p, o)` where
+    `s`, `p`, and `o` are instances of :obj:`str`.
+
+  Raises:
+    ValueError: If the payload returned by the Data Commons mixer is malformed.
+
+  Examples:
+    We would like to get five triples associated with
+    `California <https://browser.datacommons.org/kg?dcid=geoId/06>`_
+
+    >>> get_triples(["geoId/06"], limit=5)
+    {
+      "geoId/06": [
+        ("geoId/06", "name", "California"),
+        ("geoId/06", "typeOf", "State"),
+        ("geoId/06", "geoId", "06"),
+        ("geoId/0687056", "containedInPlace", "geoId/06"),
+        ("geoId/0686440", "containedInPlace", "geoId/06")
+      ]
+    }
   """
   # Generate the GetTriple query and send the request.
   url = utils._API_ROOT + utils._API_ENDPOINTS['get_triples']
