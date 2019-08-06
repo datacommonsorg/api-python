@@ -91,7 +91,7 @@ def post_request_mock(*args, **kwargs):
       # Santa Clara County and Montgomery County.
       res_json = json.dumps({
         'geoId/06085': {
-          'containedInPlace': [
+          'in': [
             {
               'dcid': 'geoId/0644112',
               'name': 'Los Gatos',
@@ -110,10 +110,11 @@ def post_request_mock(*args, **kwargs):
                 'Town'
               ]
             }
-          ]
+          ],
+          'out': []
         },
         'geoId/24031': {
-          'containedInPlace': [
+          'in': [
             {
               'dcid': 'geoId/2462850',
               'name': 'Poolesville',
@@ -123,7 +124,8 @@ def post_request_mock(*args, **kwargs):
                 'Town'
               ]
             },
-          ]
+          ],
+          'out': []
         }
       })
       return MockResponse({'payload': res_json}, 200)
@@ -132,7 +134,8 @@ def post_request_mock(*args, **kwargs):
       # Response for sending a request for the name of multiple dcids.
       res_json = json.dumps({
         'geoId/06085': {
-          'name': [
+          'in': [],
+          'out': [
             {
               'value': 'Santa Clara County',
               'provenanceId': 'dc/sm3m2w3',
@@ -140,7 +143,8 @@ def post_request_mock(*args, **kwargs):
           ]
         },
         'geoId/24031': {
-          'name': [
+          'in': [],
+          'out': [
             {
               'value': 'Montgomery County',
               'provenanceId': 'dc/sm3m2w3',
@@ -154,19 +158,22 @@ def post_request_mock(*args, **kwargs):
       # Response for sending a request with a property that does not exist.
       res_json = json.dumps({
         'geoId/06085': {
-          'madProperty': []
+          'in': [],
+          'out': []
         },
         'geoId/24031': {
-          'madProperty': []
+          'in': [],
+          'out': []
         }
       })
       return MockResponse({'payload': res_json}, 200)
     if req['dcids'] == ['geoId/06085', 'dc/MadDcid']\
-      and req['property'] == 'containedInPlace':
+      and req['property'] == 'containedInPlace'\
+      and req['out'] == False:
       # Response for sending a request with a single dcid that does not exist.
       res_json = json.dumps({
         'geoId/06085': {
-          'containedInPlace': [
+          'in': [
             {
               'dcid': 'geoId/0644112',
               'name': 'Los Gatos',
@@ -176,10 +183,12 @@ def post_request_mock(*args, **kwargs):
                 'Town'
               ]
             },
-          ]
+          ],
+          'out': []
         },
         'dc/MadDcid': {
-          'containedInPlace': []
+          'in': [],
+          'out': []
         }
       })
       return MockResponse({'payload': res_json}, 200)
@@ -187,10 +196,12 @@ def post_request_mock(*args, **kwargs):
       # Response for sending a request where both dcids do not exist.
       res_json = json.dumps({
         'dc/MadDcid': {
-          'containedInPlace': []
+          'in': [],
+          'out': []
         },
         'dc/MadderDcid': {
-          'containedInPlace': []
+          'in': [],
+          'out': []
         }
       })
       return MockResponse({'payload': res_json}, 200)
@@ -401,7 +412,7 @@ class TestGetPropertyValues(unittest.TestCase):
 
     # Get entities containedInPlace of Santa Clara County and a dcid that does
     # not exist.
-    contained_1 = dc.get_property_values(bad_dcids_1, 'containedInPlace')
+    contained_1 = dc.get_property_values(bad_dcids_1, 'containedInPlace', out=False)
     self.assertDictEqual(contained_1, {
       'geoId/06085': ['geoId/0644112'],
       'dc/MadDcid': []
@@ -465,8 +476,8 @@ class TestGetPropertyValues(unittest.TestCase):
     expected_2 = pd.Series([[], []])
 
     # Call get_property_values with series as input
-    actual_1 = dc.get_property_values(bad_dcids_1, 'containedInPlace')
-    actual_2 = dc.get_property_values(bad_dcids_2, 'containedInPlace')
+    actual_1 = dc.get_property_values(bad_dcids_1, 'containedInPlace', out=False)
+    actual_2 = dc.get_property_values(bad_dcids_2, 'containedInPlace', out=False)
 
     # Assert the results are correct
     assert_series_equal(actual_1, expected_1)
