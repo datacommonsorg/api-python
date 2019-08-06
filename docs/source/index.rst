@@ -11,6 +11,21 @@ Data Commons Python Client API
    Modules <modules>
    License <https://github.com/google/datacommons/blob/master/LICENSE>
 
+Feedback Request
+----------------
+
+Thank you for using this experimental version of the Python Client API. Please
+consider leaving us some feedback so that we can make this library more easy
+to use and understand!
+
+- Send an issue request to the
+  `Data Commons Issues Page <https://github.com/google/datacommons/issues>`_.
+  When creating an issue please mark the issue using the **api feedback** label!
+
+**DISCLAIMER** This is an experimental version of the Python Client API. The
+semantics and availability of this library is subject to change without
+prior notice!
+
 Overview
 --------
 
@@ -40,7 +55,7 @@ Begin by installing the :code:`datacommons` package through :code:`pip`.
 
 .. code-block:: bash
 
-    $ pip install datacommons
+    $ pip install git+https://github.com/google/datacommons.git@dev2
 
 For more information about installing :code:`pip` and setting up other parts of
 your Python development environment, please refer to the
