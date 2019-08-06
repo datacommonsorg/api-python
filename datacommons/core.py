@@ -230,7 +230,8 @@ def get_triples(dcids, limit=utils._MAX_LIMIT):
 
   Returns:
     A :obj:`dict` mapping dcids to a :obj:`list` of triples `(s, p, o)` where
-    `s`, `p`, and `o` are instances of :obj:`str`.
+    `s`, `p`, and `o` are instances of :obj:`str` and either the subject
+    or object are the mapped dcid.
 
   Raises:
     ValueError: If the payload returned by the Data Commons REST API is
