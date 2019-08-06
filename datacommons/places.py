@@ -14,7 +14,8 @@
 """ Data Commons Python Client API Places Module.
 
 Provides convenience functions for working with Places in the Data Commons
-knowledge graph. Use cases include getting places contained in a list of places.
+knowledge graph. This submodule implements the ability to access :obj:`Place`'s
+within a collection of nodes identified by dcid. 
 """
 
 from __future__ import absolute_import

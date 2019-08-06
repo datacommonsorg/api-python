@@ -7,11 +7,10 @@ and hosted on readthedocs.org.
 
 To generate documentation locally,
 
-1.  Autogenerate the API documentation using `sphinx-apidoc` by running the
+1.  Autogenerate the API documentation using `sphinx-build` by running the
     following command in the root directory of this repository:
 
     ```
-    sphinx-apidoc --separate -f -o docs/source datacommons datacommons/test datacommons/examples
     sphinx-build -a docs/source docs/build
     ```
 
