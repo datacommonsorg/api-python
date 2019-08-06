@@ -1,7 +1,11 @@
 datacommons
 ===========
 
-.. toctree::
-   :maxdepth: 4
+.. autosummary::
+   :toctree: _autosummary
 
-   datacommons
+   datacommons.core
+   datacommons.places
+   datacommons.populations
+   datacommons.query
+   datacommons.utils

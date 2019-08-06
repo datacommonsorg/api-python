@@ -13,9 +13,13 @@
 # limitations under the License.
 """ Data Commons Python Client API Core.
 
-Provides primitive operations for working with collections of nodes. Use cases
-include getting all property labels, property values, and triples associated
-with collections of nodes specified by their dcids.
+Provides primitive operations for working with collections of nodes. For a
+collection of nodes identified by their dcids, this submodule implements the
+following:
+
+- Getting all property labels
+- Getting all property values
+- Getting all triples
 """
 
 from __future__ import absolute_import
