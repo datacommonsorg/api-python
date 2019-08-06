@@ -190,13 +190,19 @@ def get_property_values(dcids,
     # Make sure each dcid is mapped to an empty list.
     results[dcid]
 
-    # Add elements to this list as necessary.
-    if dcid in payload and prop in payload[dcid]:
-      for node in payload[dcid][prop]:
-        if 'dcid' in node:
-          results[dcid].append(node['dcid'])
-        elif 'value' in node:
-          results[dcid].append(node['value'])
+    # Get the list of nodes based on the direction given.
+    nodes = []
+    if dcid in payload and out:
+      nodes = payload[dcid]['out']
+    elif dcid in payload and not out:
+      nodes = payload[dcid]['in']
+
+    # Add nodes to results if it is not empty
+    for node in nodes:
+      if 'dcid' in node:
+        results[dcid].append(node['dcid'])
+      elif 'value' in node:
+        results[dcid].append(node['value'])
 
   # Format the results as a Series if a Pandas Series is provided.
   if isinstance(dcids, pd.Series):
