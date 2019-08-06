@@ -30,14 +30,6 @@ import requests
 def get_places_in(dcids, place_type):
   """ Returns :obj:`Place`'s contained in `dcids` of type `place_type`.
 
-  When the dcids are given as a list, the returned property values are formatted
-  as a map from given dcid to list of place dcids contained in the given dcid.
-
-  When the dcids are given as a Pandas Series, the returned contained in places
-  are formatted as a Pandas Series where the i-th entry corresponds to places
-  contained in places identified by the i-th given dcid. The cells of the
-  returned series will always contain a list of place dcids.
-
   Args:
     dcids (Union[:obj:`list` of :obj:`str`, :obj:`pandas.Series`]): Dcids to get
       contained in places.
