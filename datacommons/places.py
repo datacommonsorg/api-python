@@ -28,7 +28,7 @@ import requests
 
 
 def get_places_in(dcids, place_type):
-  """ Returns :obj:`Place`'s contained in `dcids` of type `place_type`.
+  """ Returns :obj:`Place`'s contained in :code:`dcids` of type `place_type`.
 
   Args:
     dcids (Union[:obj:`list` of :obj:`str`, :obj:`pandas.Series`]): Dcids to get
@@ -37,14 +37,14 @@ def get_places_in(dcids, place_type):
       filter by.
 
   Returns:
-    When `dcids` is an instance of :obj:`list`, the returned :obj:`Place`'s
-    are formatted as a :obj:`dict` from a given dcid to a list of places
-    identified by dcids of the given `place_type`.
+    When :code:`dcids` is an instance of :obj:`list`, the returned
+    :obj:`Place`'s are formatted as a :obj:`dict` from a given dcid to a list of
+    places identified by dcids of the given `place_type`.
 
-    When `dcids` is an instance of :obj:`pandas.Series`, the returned
+    When :code:`dcids` is an instance of :obj:`pandas.Series`, the returned
     :obj:`Place`'s are formatted as a :obj:`pandas.Series` where the `i`-th
     entry corresponds to places contained in the place identified by the dcid
-    in `i`-th cell if `dcids`. The cells of the returned series will always
+    in `i`-th cell if :code:`dcids`. The cells of the returned series will always
     contain a :obj:`list` of place dcids of the given `place_type`.
 
   Raises:
@@ -53,8 +53,8 @@ def get_places_in(dcids, place_type):
 
   Examples:
     We would like to get all Counties contained in
-    `California <https://browser.datacommons.org/kg?dcid=geoId/06>`_. Specifying the
-    `dcids` as a :obj:`list` resulst in the following.
+    `California <https://browser.datacommons.org/kg?dcid=geoId/06>`_. Specifying
+    the :code:`dcids` as a :obj:`list` resulst in the following.
 
     >>> get_places_in(["geoId/06"], "County")
     {
@@ -69,7 +69,7 @@ def get_places_in(dcids, place_type):
       ]
     }
 
-    We can also specify the `dcids` as a :obj:`pandas.Series` like so.
+    We can also specify the :code:`dcids` as a :obj:`pandas.Series` like so.
 
     >>> import pandas as pd
     >>> dcids = pd.Series(["geoId/06"])

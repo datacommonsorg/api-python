@@ -28,7 +28,7 @@ import requests
 
 
 def get_populations(dcids, population_type, constraining_properties={}):
-  """ Returns :obj:`StatisticalPopulation`'s dcids located at the given `dcids`.
+  """ Returns :obj:`StatisticalPopulation`'s located at the given :code:`dcids`.
 
   Args:
     dcids (Union[:obj:`list` of :obj:`str`, :obj:`pandas.Series`]): Dcids
@@ -43,14 +43,14 @@ def get_populations(dcids, population_type, constraining_properties={}):
       :obj:`StatisticalPopulation` should be constrained by.
 
   Returns:
-    When `dcids` is an instance of :obj:`list`, the returned
+    When :code:`dcids` is an instance of :obj:`list`, the returned
     :obj:`StatisticalPopulation` are formatted as a :obj:`dict` from a given
     dcid to the unique :obj:`StatisticalPopulation` located at the dcid as
     specified by the `population_type` and `constraining_properties` *if such
     exists*. A given dcid will *NOT* be a member of the :obj:`dict` if such
     a population does not exist.
 
-    When `dcids` is an instance of :obj:`pandas.Series`, the returned
+    When :code:`dcids` is an instance of :obj:`pandas.Series`, the returned
     :obj:`StatisticalPopulation` are formatted as a :obj:`pandas.Series` where
     the `i`-th entry corresponds to populations located at the given dcid
     specified by the `population_type` and `constraining_properties` *if such
@@ -84,7 +84,7 @@ def get_populations(dcids, population_type, constraining_properties={}):
       "geoId/24": "dc/p/lr52m1yr46r44"
     }
 
-    We can also specify the `dcids` as a :obj:`pandas.Series` like so.
+    We can also specify the :code:`dcids` as a :obj:`pandas.Series` like so.
 
     >>> import pandas as pd
     >>> dcids = pd.Series(["geoId/06", "geoId/21", "geoId/24"])
@@ -123,7 +123,7 @@ def get_observations(dcids,
                      observation_date,
                      observation_period=None,
                      measurement_method=None):
-  """ Returns :obj:`Observation`'s dcids observing the given `dcids`.
+  """ Returns :obj:`Observation`'s dcids observing the given :code:`dcids`.
 
   When the dcids are given as a list, the returned Observations are formatted
   as a map from given dcid to Observation dcid. The dcid will *not* be a member
@@ -160,14 +160,14 @@ def get_observations(dcids,
       malformed.
 
   Returns:
-    When `dcids` is an instance of :obj:`list`, the returned
+    When :code:`dcids` is an instance of :obj:`list`, the returned
     :obj:`Observation`'s are formatted as a :obj:`dict` from a given dcid to the
     unique :obj:`Observation` observing the dcid where the observation is
     specified by what is given in the other parameters *if such exists*. A given
     dcid will *NOT* be a member of the :obj:`dict` if such an observation does
     not exist.
 
-    When `dcids` is an instance of :obj:`pandas.Series`, the returned
+    When :code:`dcids` is an instance of :obj:`pandas.Series`, the returned
     :obj:`Observation`'s are formatted as a :obj:`pandas.Series` where the
     `i`-th entry corresponds to observation observing the given dcid asspecified
     by the other parameters *if such exists*. Otherwise, the cell holds NaN.
@@ -199,7 +199,7 @@ def get_observations(dcids,
       "dc/p/lr52m1yr46r44": 3075662.0
     }
 
-    We can also specify the `dcids` as a :obj:`pandas.Series` like so.
+    We can also specify the :code:`dcids` as a :obj:`pandas.Series` like so.
 
     >>> import pandas as pd
     >>> dcids = pd.Series(["dc/p/x6t44d8jd95rd", "dc/p/fs929fynprzs", "dc/p/lr52m1yr46r44"])

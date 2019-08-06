@@ -87,7 +87,8 @@ class Query(object):
       the row is returned if and only if `select` returns :obj:`True`.
 
     Example:
-      The following query asks for names of three states: California_,
+      The following query asks for names of three states:
+      `California <https://browser.datacommons.org/kg?dcid=geoId/06>`_,
       `Kentucky <https://browser.datacommons.org/kg?dcid=geoId/21>`_, and
       `Maryland <https://browser.datacommons.org/kg?dcid=geoId/24>`_.
 

@@ -33,7 +33,7 @@ import requests
 
 
 def get_property_labels(dcids, out=True):
-  """ Returns the labels of properties defined for the given `dcids`.
+  """ Returns the labels of properties defined for the given :code:`dcids`.
 
   Args:
     dcids (:obj:`list` of :obj:`str`): A list of nodes identified by their
@@ -53,8 +53,8 @@ def get_property_labels(dcids, out=True):
   Examples:
     To get all outgoing property labels for
     `California <https://browser.datacommons.org/kg?dcid=geoId/06>`_ and
-    `Colorado <https://browser.datacommons.org/kg?dcid=geoId/08>`_, we can write the
-    following.
+    `Colorado <https://browser.datacommons.org/kg?dcid=geoId/08>`_, we can write
+    the following.
 
     >>> get_property_labels(['geoId/06', 'geoId/08'])
     {
@@ -114,7 +114,7 @@ def get_property_values(dcids,
                         out=True,
                         value_type=None,
                         limit=utils._MAX_LIMIT):
-  """ Returns property values of the given `dcids` along the given property.
+  """ Returns property values of given :code:`dcids` along the given property.
 
   Args:
     dcids (Union[:obj:`list` of :obj:`str`, :obj:`pandas.Series`]): dcids to get
@@ -128,13 +128,13 @@ def get_property_values(dcids,
       aggregated over all given nodes.
 
   Returns:
-    When `dcids` is an instance of :obj:`list`, the returned property values
-    are formatted as a :obj:`dict` from a given dcid to a list of its property
-    values.
+    When :code:`dcids` is an instance of :obj:`list`, the returned property
+    values are formatted as a :obj:`dict` from a given dcid to a list of its
+    property values.
 
-    When `dcids` is an instance of :obj:`pandas.Series`, the returned property
-    values are formatted as a :obj:`pandas.Series` where the `i`-th entry
-    corresponds to property values associated with the `i`-th given dcid.
+    When :code:`dcids` is an instance of :obj:`pandas.Series`, the returned
+    property values are formatted as a :obj:`pandas.Series` where the `i`-th
+    entry corresponds to property values associated with the `i`-th given dcid.
     The cells of the returned series will always contain a :obj:`list` of
     property values.
 
@@ -148,7 +148,8 @@ def get_property_values(dcids,
     `geoId/21 <https://browser.datacommons.org/kg?dcid=geoId/21>`_, and
     `geoId/24 <https://browser.datacommons.org/kg?dcid=geoId/24>`_
 
-    First, let's try specifying the `dcids` as a :obj:`list` of :obj:`str`.
+    First, let's try specifying the :code:`dcids` as a :obj:`list` of
+    :obj:`str`.
 
     >>> get_property_values(["geoId/06", "geoId/21", "geoId/24"], "name")
     {
@@ -157,7 +158,7 @@ def get_property_values(dcids,
       "geoId/24": ["Maryland"],
     }
 
-    Next, we specify `dcids` as a :obj:`pandas.Series`
+    Next, we specify :code:`dcids` as a :obj:`pandas.Series`
 
     >>> import pandas as pd
     >>> dcids = pd.Series(["geoId/06", "geoId/21", "geoId/24"])
@@ -204,7 +205,7 @@ def get_property_values(dcids,
 
 
 def get_triples(dcids, limit=utils._MAX_LIMIT):
-  """ Returns all triples associated with the given `dcids`.
+  """ Returns all triples associated with the given :code:`dcids`.
 
   A knowledge graph can be described as a collection of `triples` which are
   3-tuples that take the form `(s, p, o)`. Here `s` and `o` are nodes in the
