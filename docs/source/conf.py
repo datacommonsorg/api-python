@@ -17,7 +17,7 @@ sys.path.insert(0, os.path.abspath('../../'))
 
 # -- Project information -----------------------------------------------------
 
-project = 'Data Commons Python Client API'
+project = 'Data Commons'
 copyright = '2019, Google Inc.'
 author = 'datacommons.org'
 

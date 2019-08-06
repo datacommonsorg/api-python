@@ -1,8 +1,8 @@
 .. Data Commons Python Client API documentation master file, created by
    sphinx-quickstart on Fri Aug  2 15:29:27 2019.
 
-Data Commons Client API for Python
-==================================
+Data Commons Python Client API
+==============================
 
 .. toctree::
    :maxdepth: 1
@@ -48,6 +48,10 @@ import the :code:`datacommons` package.
 .. code-block:: python
 
     import datacommons as dc
+
+From here you can view our tutorials on how to use the API to perform certain
+tasks, or see a full list of functions, classes and methods available for use
+by navigating to `modules <modules.html>`_
 
 Further Resources
 =================
