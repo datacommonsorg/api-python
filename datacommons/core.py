@@ -47,7 +47,8 @@ def get_property_labels(dcids, out=True):
     Otherwise, they correspond to edges directed towards the given nodes.
 
   Raises:
-    ValueError: If the payload returned by the Data Commons mixer is malformed.
+    ValueError: If the payload returned by the Data Commons REST API is
+      malformed.
 
   Examples:
     To get all outgoing property labels for
@@ -138,7 +139,8 @@ def get_property_values(dcids,
     property values.
 
   Raises:
-    ValueError: If the payload returned by the Data Commons mixer is malformed.
+    ValueError: If the payload returned by the Data Commons REST API is
+      malformed.
 
   Examples:
     We would like to get the `name` of a list of states specified by their dcid:
@@ -220,7 +222,8 @@ def get_triples(dcids, limit=utils._MAX_LIMIT):
     `s`, `p`, and `o` are instances of :obj:`str`.
 
   Raises:
-    ValueError: If the payload returned by the Data Commons mixer is malformed.
+    ValueError: If the payload returned by the Data Commons REST API is
+      malformed.
 
   Examples:
     We would like to get five triples associated with

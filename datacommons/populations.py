@@ -57,7 +57,8 @@ def get_populations(dcids, population_type, constraining_properties={}):
     exists*. Otherwise, the cell is empty.
 
   Raises:
-    ValueError: If the payload returned by the Data Commons mixer is malformed.
+    ValueError: If the payload returned by the Data Commons REST API is
+      malformed.
 
   Examples:
     We would like to get
@@ -155,7 +156,8 @@ def get_observations(dcids,
       the measurement method.
 
   Raises:
-    ValueError: If the payload returned by the Data Commons mixer is malformed.
+    ValueError: If the payload returned by the Data Commons REST API is
+      malformed.
 
   Returns:
     When `dcids` is an instance of :obj:`list`, the returned

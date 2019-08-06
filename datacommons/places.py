@@ -48,7 +48,8 @@ def get_places_in(dcids, place_type):
     contain a :obj:`list` of place dcids of the given `place_type`.
 
   Raises:
-    ValueError: If the payload returned by the Data Commons mixer is malformed.
+    ValueError: If the payload returned by the Data Commons REST API is
+      malformed.
 
   Examples:
     We would like to get all Counties contained in
