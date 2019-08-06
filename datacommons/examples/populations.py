@@ -66,6 +66,8 @@ def main():
     pd_frame['state'],
     'Person',
     constraining_properties={'employment': 'BLS_Employed'})
+
+  # Add the observation for employed individuals
   pd_frame['employed_count'] = dc.get_observations(
     pd_frame['employed_pop'],
     'count',
@@ -74,8 +76,6 @@ def main():
     observation_period='P1M',
     measurement_method='BLSSeasonallyAdjusted')
   print(pd_frame)
-
-  # Add the observation for employed individuals
 
   # Final dataframe. Use the convenience function "clean_frame" to convert
   # columns to numerical types.

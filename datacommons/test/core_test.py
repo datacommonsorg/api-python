@@ -85,7 +85,7 @@ def post_request_mock(*args, **kwargs):
   if args[0] == utils._API_ROOT + utils._API_ENDPOINTS['get_property_values']:
     if req['dcids'] == ['geoId/06085', 'geoId/24031']\
       and req['property'] == 'containedInPlace'\
-      and req['outgoing'] == False\
+      and req['out'] == False\
       and req['value_type'] == 'Town':
       # Response for sending a request for getting Towns containedInPlace of
       # Santa Clara County and Montgomery County.

@@ -5,3 +5,5 @@ numpy
 oauth2client
 pandas
 requests
+sphinx
+sphinxcontrib-napoleon
