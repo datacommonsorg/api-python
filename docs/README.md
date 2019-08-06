@@ -11,7 +11,8 @@ To generate documentation locally,
     following command in the root directory of this repository:
 
     ```
-    sphinx-apidoc -f -o docs/source datacommons datacommons/test datacommons/examples
+    sphinx-apidoc --separate -f -o docs/source datacommons datacommons/test datacommons/examples
+    sphinx-build -a docs/source docs/build
     ```
 
     This generates documentation as `.rst` files from the Python docstrings of
@@ -25,9 +26,6 @@ To generate documentation locally,
 
 Local documentation is not meant to be committe! Readthedocs will automatically
 build the documentation on a push to the Github repository.
-
-## Preparing Documentation for Pushing
-
 
 ## Additional Details About Documenting Data Commons
 

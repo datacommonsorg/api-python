@@ -11,6 +11,9 @@ Data Commons Python Client API
    Modules <modules>
    License <https://github.com/google/datacommons/blob/master/LICENSE>
 
+Overview
+--------
+
 `Data Commons <http://datacommons.org/>`_ is an open knowledge graph that
 connects data from different sources (US Census, NOAA, Bureau of Labor
 Statistics, and more) under a single unified representation. It contains
@@ -31,7 +34,7 @@ package allows users to explore the structure of the graph, integrate statistics
 in the Data Commons graph into data analysis workflows and much more.
 
 Getting Started
-===============
+---------------
 
 Begin by installing the :code:`datacommons` package through :code:`pip`.
 
@@ -54,7 +57,7 @@ tasks, or see a full list of functions, classes and methods available for use
 by navigating to `modules <modules.html>`_
 
 Further Resources
-=================
+-----------------
 
 To learn more about Data Commons and get involved, please visit the following
 resources.
