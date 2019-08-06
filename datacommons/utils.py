@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-""" DataCommons utilities library
+""" Data Commons utilities library
 
 Various functions that can aid in the extension of the DataCommons API.
 """
@@ -57,7 +57,33 @@ def flatten_frame(pd_frame, cols=[]):
   """ Expands each cell in a Pandas DataFrame containing a list of values.
 
   Args:
-    pd_frame: The Pandas DataFrame.
+    pd_frame (:obj:`pandas.DataFrame`): The Pandas DataFrame.
+    cols (:obj:`list` of `str`, optional): A list of columns to flatten. If none
+      are provided, then all columns are flattened.
+
+  Returns:
+    A :obj:`pandas.DataFrame` with all columns containing lists flattened.
+
+  Raises:
+    ValueError: If a given column is not in the data frame.
+
+  Examples:
+    We can flatten a data frame with a column of lists like so.
+
+    >>> frame = pd.DataFrame({"state": ["geoId/06"]})
+    >>> frame['county'] = dc.get_places_in(dcids, "County")
+    >>> frame
+          state                                             county
+    0  geoId/06  [geoId/06041, geoId/06089, geoId/06015, geoId/...
+    >>> dc.flatten_frame(frame)
+           state       county
+    0   geoId/06  geoId/06041
+    1   geoId/06  geoId/06089
+    2   geoId/06  geoId/06015
+    ..       ...          ...
+    55  geoId/06  geoId/06019
+    56  geoId/06  geoId/06031
+    57  geoId/06  geoId/06099
   """
   if not cols:
     cols = list(pd_frame.columns)
@@ -75,12 +101,12 @@ def flatten_frame(pd_frame, cols=[]):
 def clean_frame(pd_frame):
   """ A convenience function that cleans a pandas DataFrame.
 
-  The following operations are performed:
-  - Columns containing numerical types are converted to floats.
-  - Rows with empty values are dropped.
-
   Args:
-    pd_frame: The Pandas DataFrame.
+    pd_frame (:obj:`pandas.DataFrame`): The Pandas DataFrame.
+
+  Returns:
+    A :obj:`pandas.DataFrame` with all rows containing empty or NaN elements
+    removed.
   """
   return pd_frame.dropna().reset_index(drop=True)
 
