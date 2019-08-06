@@ -14,7 +14,12 @@
 """ Data Commons Python Client API Populations Module.
 
 Provides convenience functions for accessing :obj:`StatisticalPopulation`'s and
-:obj:`Observation`'s in the Data Commons knowledge graph.
+:obj:`Observation`'s in the Data Commons knowledge graph. Implements the
+following:
+
+- Get :obj:`StatisticalPopulation`'s located at a given collection of nodes.
+- Get :obj:`Observation`'s observing a collection of
+  :obj:`StatisticalPopulation`'s
 """
 
 from __future__ import absolute_import
@@ -123,22 +128,7 @@ def get_observations(dcids,
                      observation_date,
                      observation_period=None,
                      measurement_method=None):
-  """ Returns :obj:`Observation`'s dcids observing the given :code:`dcids`.
-
-  When the dcids are given as a list, the returned Observations are formatted
-  as a map from given dcid to Observation dcid. The dcid will *not* be a member
-  of the dict if a population is there is no available observation for it.
-
-  If the dcids field is a Pandas Series, then the return value is a Series where
-  the i-th cell is the list of values associated with the given property for the
-  i-th dcid. If no observation is returned, then the cell holds NaN.
-
-  When the dcids are given as a Pandas Series, returned Observations are
-  formatted as a Pandas Series where the i-th entry corresponds to the value
-  of the observation observing the i-th given dcid. The cells of the Series
-  contain a single dcid as the combination of measured_property, stats_type,
-  observation_date, and optional parameters always define a unique Observation
-  if it exists. If it does not, then the cell will hold NaN.
+  """ Returns values of :obj:`Observation`'s observing the given :code:`dcids`.
 
   Args:
     dcids (Union[:obj:`list` of :obj:`str`, :obj:`pandas.Series`]): Dcids
@@ -169,7 +159,7 @@ def get_observations(dcids,
 
     When :code:`dcids` is an instance of :obj:`pandas.Series`, the returned
     :obj:`Observation`'s are formatted as a :obj:`pandas.Series` where the
-    `i`-th entry corresponds to observation observing the given dcid asspecified
+    `i`-th entry corresponds to observation observing the given dcid as specified
     by the other parameters *if such exists*. Otherwise, the cell holds NaN.
 
   Examples:
