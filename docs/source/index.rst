@@ -5,9 +5,11 @@ Data Commons Python Client API
 ==============================
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 5
    :hidden:
 
+   Getting Started <started>
+   Tutorials <tutorials>
    Modules <modules>
    License <https://github.com/google/datacommons/blob/master/LICENSE>
 
@@ -47,29 +49,6 @@ The **Data Commons Python Client API** is a Python library that allows
 developers to programmatically access nodes in the Data Commons graph. This
 package allows users to explore the structure of the graph, integrate statistics
 in the Data Commons graph into data analysis workflows and much more.
-
-Getting Started
----------------
-
-Begin by installing the :code:`datacommons` package through :code:`pip`.
-
-.. code-block:: bash
-
-    $ pip install git+https://github.com/google/datacommons.git@dev2
-
-For more information about installing :code:`pip` and setting up other parts of
-your Python development environment, please refer to the
-`Python Development Environment Setup Guide <https://cloud.google.com/python/setup>`_
-for Google Cloud Platform. To get started using the Python Client API, simply
-import the :code:`datacommons` package.
-
-.. code-block:: python
-
-    import datacommons as dc
-
-From here you can view our tutorials on how to use the API to perform certain
-tasks, or see a full list of functions, classes and methods available for use
-by navigating to `modules <modules.html>`_
 
 Further Resources
 -----------------
