@@ -9,40 +9,53 @@ Data Commons Client API for Python
    :hidden:
 
    Modules <modules>
+   License <https://github.com/google/datacommons/blob/master/LICENSE>
 
+`Data Commons <http://datacommons.org/>`_ is an open knowledge graph that
+connects data from different sources (US Census, NOAA, Bureau of Labor
+Statistics, and more) under a single unified representation. It contains
+statements about real world entities like
 
-.. OVERVIEW
-.. Provide some details about what Data Commons is and what the Python Client
-.. API achieves
+- Santa Clara County is contained in the State of California
+- The latitude of Berkeley, CA is 37.8703
+- The population of all persons in Maryland has a total count of 5,996,080.
 
-.. GETTING STARTED
-.. pip install whatever
-..
-.. import datacommons as dc and yeah
-.. dc.get_triples("geoId/06")
+It links references to the same entities (such as cities, counties,
+organizations, etc.) across different datasets to nodes in the graph, so that
+users can access data about a particular entity aggregated from different
+sources.
 
-.. FREE SOFTWARE
-.. Some spiel about how to contribute to the project.
+The **Data Commons Python Client API** is a Python library that allows
+developers to programmatically access nodes in the Data Commons graph. This
+package allows users to explore the structure of the graph, integrate statistics
+in the Data Commons graph into data analysis workflows and much more.
 
-.. FURTHER RESOURCES
-.. datacommons.org
-.. GitHub
-.. Issues
-.. PyPI
+Getting Started
+===============
 
-.. TUTORIAL
-.. - Set context and link to other documentation on what the graph is
-.. - Basic example about getting information about a node
-.. - Basic example about getting places inside another place
-.. - Basic example about getting Statistical Populations and Observations
-.. MODULES
-.. DEVELOPER GUIDELINE
-.. - Contributing to the API documentation
-.. - Release process for the client API
-.. RELEASE LOG
-.. - Link to Changelog in Github
-.. LICENSE
-.. EXAMPLES
-.. - Link to the notebooks
-.. FURTHER RESOURCES
-.. - Link back to further resources at the bottom of the page
+Begin by installing the :code:`datacommons` package through :code:`pip`.
+
+.. code-block:: bash
+
+    $ pip install datacommons
+
+For more information about installing :code:`pip` and setting up other parts of
+your Python development environment, please refer to the
+`Python Development Environment Setup Guide <https://cloud.google.com/python/setup>`_
+for Google Cloud Platform. To get started using the Python Client API, simply
+import the :code:`datacommons` package.
+
+.. code-block:: python
+
+    import datacommons as dc
+
+Further Resources
+=================
+
+To learn more about Data Commons and get involved, please visit the following
+resources.
+
+- `Our homepage <http://datacommons.org/>`_
+- `Our GitHub Page <https://github.com/google/datacommons/>`_
+- `Our Issues Page <https://github.com/google/datacommons/issues>`_
+- `The Client API PyPI Page <https://pypi.org/project/datacommons/>`_
