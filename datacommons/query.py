@@ -11,9 +11,10 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-""" Data Commons base Python Client API.
+""" Data Commons Python Client API Query Module.
 
-Query object for wrapping SPARQL support in Data Commons
+Implements a wrapper object for sending SPARQL queries to the Data Commons
+knowledge graph.
 """
 
 from __future__ import absolute_import
@@ -138,18 +139,38 @@ class Client(object):
 
 
 class Query(object):
-  """ Performs a graph query to the Data Commons knowledge graph. """
+  """ A wrapper object that performs a SPARQL query on the Data Commons graph.
+
+  Args:
+    **kwargs: Valid keyword arguments include the following. At least one
+      valid argument must be provided.
+
+      - `sparql` (:obj:`str`): The SPARQL query string.
+
+  Raises:
+    ValueError: If an invalid keyword argument is provided.
+
+  Example:
+    To construct a :obj:`Query` object, do the following.
+
+    >>> query_str = '''
+    ...SELECT  ?name ?dcid
+    ...WHERE {
+    ...  ?a typeOf Place .
+    ...  ?a name ?name .
+    ...  ?a dcid ("geoId/06" "geoId/21" "geoId/24") .
+    ...  ?a dcid ?dcid
+    ...}
+    ...'''
+    >>> query = dc.Query(sparql=query_str)
+  """
 
   # Valid query languages
   _SPARQL_LANG = 'sparql'
   _VALID_LANG = [_SPARQL_LANG]
 
   def __init__(self, **kwargs):
-    """ Initializes a Query.
-
-    Keyword Args:
-      sparql: A sparql query string.
-    """
+    """ Initializes a SPARQL query targeting the Data Commons graph. """
     if self._SPARQL_LANG in kwargs:
       self._query = kwargs[self._SPARQL_LANG]
       self._language = self._SPARQL_LANG
@@ -160,15 +181,40 @@ class Query(object):
         'Must provide one of the following languages: {}'.format(lang_str))
 
   def rows(self, select=None):
-    """ Returns the results of the query as an iterator over all rows.
-
-    Rows from the query are represented as maps from query variable to its value
-    in the current row.
+    """ Returns the result of executing the query as an iterator over all rows.
 
     Args:
-      select: A function that returns true if and only if a row in the query
-      results should be kept. The argument for this function is a map from
-      query variable to its value in a given row.
+      select (:obj:`func` accepting a `row` in the query result): A function
+        that returns true if and only if a row in the query results should be
+        kept. The argument for this function is a :obj:`dict` from query
+        variable to its value in a given row.
+
+    Yields:
+      Rows from executing the query where each row is a :obj:`dict` mapping
+      query variable to its value in the row. If `select` is not `None`, then
+      the row is returned if and only if `select` returns :obj:`True`.
+
+    Example:
+      The following query asks for names of three states:
+      `California <https://browser.datacommons.org/kg?dcid=geoId/06>`_,
+      `Kentucky <https://browser.datacommons.org/kg?dcid=geoId/21>`_, and
+      `Maryland <https://browser.datacommons.org/kg?dcid=geoId/24>`_.
+
+      >>> query_str = '''
+      ... SELECT  ?name ?dcid
+      ... WHERE {
+      ...   ?a typeOf Place .
+      ...   ?a name ?name .
+      ...   ?a dcid ("geoId/06" "geoId/21" "geoId/24") .
+      ...   ?a dcid ?dcid
+      ... }
+      ... '''
+      >>> query = dc.Query(sparql=query_str)
+      >>> for r in query.rows():
+      ...   print(r)
+      {"?name": "Maryland", "?dcid": "geoId/24"}
+      {"?name": "Kentucky", "?dcid": "geoId/21"}
+      {"?name": "California", "?dcid": "geoId/06"}
     """
     # Execute the query if the results are empty.
     if not self._result:

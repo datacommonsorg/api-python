@@ -11,9 +11,10 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-""" Data Commons base Python Client API.
+""" Data Commons Python Client API Populations Module.
 
-StatisticalPopulation and Observation wrapper functions.
+Provides convenience functions for accessing :obj:`StatisticalPopulation`'s and
+:obj:`Observation`'s in the Data Commons knowledge graph.
 """
 
 from __future__ import absolute_import
@@ -27,25 +28,72 @@ import requests
 
 
 def get_populations(dcids, population_type, constraining_properties={}):
-  """ Returns StatisticalPopulation dcids located at the given dcids.
-
-  When the dcids are given as a list, the returned property values are formatted
-  as a map from given dcid to associated StatatisticalPopulation dcid. The dcid
-  will *not* be a member of the dict if a population is not located there.
-
-  When the dcids are given as a Pandas Series, returned StatisticalPopulations
-  are formatted as a Pandas Series where the i-th entry corresponds to the
-  StatisticalPopulation located in the i-th given dcid. The cells of the Series
-  contain a single dcid as the combination of population_type and
-  constraining_properties always define a unique StatisticalPopulation if it
-  exists.
+  """ Returns :obj:`StatisticalPopulation`'s located at the given :code:`dcids`.
 
   Args:
-    dcids: A list or Pandas Series of dcids denoting the locations of
-      populations to query for.
-    population_type: The population type of the `StatisticalPopulation`
-    constraining_properties: An optional map from constraining property to the
-      value that the `StatisticalPopulation` should be constrained by.
+    dcids (Union[:obj:`list` of :obj:`str`, :obj:`pandas.Series`]): Dcids
+      identifying :obj:`Place`'s of populations to query for. These dcids are
+      treated as the property value associated with returned :obj:`Population`'s
+      by the property
+      `location <https://browser.datacommons.org/kg?dcid=location>`_
+    population_type (:obj:`str`): The population type of the
+      :obj:`StatisticalPopulation`
+    constraining_properties (:obj:`map` from :obj:`str` to :obj:`str`, optional):
+      A map from constraining property to the value that the
+      :obj:`StatisticalPopulation` should be constrained by.
+
+  Returns:
+    When :code:`dcids` is an instance of :obj:`list`, the returned
+    :obj:`StatisticalPopulation` are formatted as a :obj:`dict` from a given
+    dcid to the unique :obj:`StatisticalPopulation` located at the dcid as
+    specified by the `population_type` and `constraining_properties` *if such
+    exists*. A given dcid will *NOT* be a member of the :obj:`dict` if such
+    a population does not exist.
+
+    When :code:`dcids` is an instance of :obj:`pandas.Series`, the returned
+    :obj:`StatisticalPopulation` are formatted as a :obj:`pandas.Series` where
+    the `i`-th entry corresponds to populations located at the given dcid
+    specified by the `population_type` and `constraining_properties` *if such
+    exists*. Otherwise, the cell is empty.
+
+  Raises:
+    ValueError: If the payload returned by the Data Commons REST API is
+      malformed.
+
+  Examples:
+    We would like to get
+
+    - The `population of employed persons in California <https://browser.datacommons.org/kg?dcid=dc/p/x6t44d8jd95rd>`_
+    - The `population of employed persons in Kentucky <https://browser.datacommons.org/kg?dcid=dc/p/fs929fynprzs>`_
+    - The `population of employed persons in Maryland <https://browser.datacommons.org/kg?dcid=dc/p/lr52m1yr46r44>`_.
+
+    These populations are specified as having a
+    `population_type` as :obj:`Person` and the `constraining_properties`
+    as `employment <https://browser.datacommons.org/kg?dcid=employment>`_
+    = BLS_Employed
+
+    With a :obj:`list` of dcids for our states, we can get the populations we
+    want as follows.
+
+    >>> dcids = ["geoId/06", "geoId/21", "geoId/24"]
+    >>> pvs = {'employment': 'BLS_Employed'}
+    >>> dc.get_populations(dcids, 'Person', constraining_properties=pvs)
+    {
+      "geoId/06": "dc/p/x6t44d8jd95rd",
+      "geoId/21": "dc/p/fs929fynprzs",
+      "geoId/24": "dc/p/lr52m1yr46r44"
+    }
+
+    We can also specify the :code:`dcids` as a :obj:`pandas.Series` like so.
+
+    >>> import pandas as pd
+    >>> dcids = pd.Series(["geoId/06", "geoId/21", "geoId/24"])
+    >>> pvs = {'employment': 'BLS_Employed'}
+    >>> dc.get_populations(dcids, 'Person', constraining_properties=pvs)
+    0    dc/p/x6t44d8jd95rd
+    1     dc/p/fs929fynprzs
+    2    dc/p/lr52m1yr46r44
+    dtype: object
   """
   # Convert the dcids field and format the request to GetPopulations
   dcids, req_dcids = utils._convert_dcids_type(dcids)
@@ -75,7 +123,7 @@ def get_observations(dcids,
                      observation_date,
                      observation_period=None,
                      measurement_method=None):
-  """ Returns Observations made of the given dcids.
+  """ Returns :obj:`Observation`'s dcids observing the given :code:`dcids`.
 
   When the dcids are given as a list, the returned Observations are formatted
   as a map from given dcid to Observation dcid. The dcid will *not* be a member
@@ -93,13 +141,76 @@ def get_observations(dcids,
   if it exists. If it does not, then the cell will hold NaN.
 
   Args:
-    dcids: A list or Pandas Series of dcids of nodes that are observed by
-      observations being queried for.
-    measured_property: The measured property.
-    stats_type: The statistical type for the observation.
-    observation_date: The assoociated observation date in ISO8601 format.
-    observation_period: An optional parameter specifying the observation period.
-    measurement_method: An optional parameter specifying the measurement method.
+    dcids (Union[:obj:`list` of :obj:`str`, :obj:`pandas.Series`]): Dcids
+      identifying nodes that returning :obj:`Observation`'s observe. These dcids
+      are treated as the property value associated with returned
+      :obj:`Observation`'s by the property
+      `observedNode <https://browser.datacommons.org/kg?dcid=observedNode>`_
+    measured_property (:obj:`str`): The measured property.
+    stats_type (:obj:`str`): The statistical type for the observation.
+    observation_date (:obj:`str`): The associated observation date in ISO8601
+      format.
+    observation_period (:obj:`str`, optional): An optional parameter specifying
+      the observation period.
+    measurement_method (:obj:`str`, optional): An optional parameter specifying
+      the measurement method.
+
+  Raises:
+    ValueError: If the payload returned by the Data Commons REST API is
+      malformed.
+
+  Returns:
+    When :code:`dcids` is an instance of :obj:`list`, the returned
+    :obj:`Observation`'s are formatted as a :obj:`dict` from a given dcid to the
+    unique :obj:`Observation` observing the dcid where the observation is
+    specified by what is given in the other parameters *if such exists*. A given
+    dcid will *NOT* be a member of the :obj:`dict` if such an observation does
+    not exist.
+
+    When :code:`dcids` is an instance of :obj:`pandas.Series`, the returned
+    :obj:`Observation`'s are formatted as a :obj:`pandas.Series` where the
+    `i`-th entry corresponds to observation observing the given dcid asspecified
+    by the other parameters *if such exists*. Otherwise, the cell holds NaN.
+
+  Examples:
+    We would like to get the following for December, 2018:
+
+    - The `total count of employed persons in California <https://browser.datacommons.org/kg?dcid=dc/o/wetnm9026gf73>`_
+    - The `total count of employed persons in Kentucky <https://browser.datacommons.org/kg?dcid=dc/o/4nklvdnkfq835>`_
+    - The `total count of employed persons in Maryland <https://browser.datacommons.org/kg?dcid=dc/o/nkntbc4vpshn9>`_.
+
+    The observations we want are observations of the populations representing
+    employed individuals in each state (to get these, see
+    :any:module-datacommons.populations.get_populations). With a list of these
+    population dcids, we can get the observations like so.
+
+    >>> dcids = [
+    ...   "dc/p/x6t44d8jd95rd",   # Employed individuals in California
+    ...   "dc/p/fs929fynprzs",    # Employed individuals in Kentucky
+    ...   "dc/p/lr52m1yr46r44"    # Employed individuals in Maryland
+    ... ]
+    >>> get_observations(dcids, 'count', 'measuredValue', '2018-12',
+    ...   observation_period='P1M',
+    ...   measurement_method='BLSSeasonallyAdjusted'
+    ... )
+    {
+      "dc/p/x6t44d8jd95rd": 18704962.0,
+      "dc/p/fs929fynprzs": 1973955.0,
+      "dc/p/lr52m1yr46r44": 3075662.0
+    }
+
+    We can also specify the :code:`dcids` as a :obj:`pandas.Series` like so.
+
+    >>> import pandas as pd
+    >>> dcids = pd.Series(["dc/p/x6t44d8jd95rd", "dc/p/fs929fynprzs", "dc/p/lr52m1yr46r44"])
+    >>> get_observations(dcids, 'count', 'measuredValue', '2018-12',
+    ...   observation_period='P1M',
+    ...   measurement_method='BLSSeasonallyAdjusted'
+    ... )
+    0    18704962.0
+    1     1973955.0
+    2     3075662.0
+    dtype: float64
   """
   # Convert the dcids field and format the request to GetObservation
   dcids, req_dcids = utils._convert_dcids_type(dcids)
