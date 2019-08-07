@@ -1,4 +1,8 @@
-### To use this R API CLient to access Data Commons REST API
+## Pre-release R API Client
+This is a beta library. Support is scheduled to stop on Sept 30.
+The official release is coming soon.
+
+### To use this R API Client to access Data Commons REST API
 
 In the R console, run:
 
