@@ -177,7 +177,6 @@ def get_property_values(dcids,
   req_json = {
     'dcids': req_dcids,
     'property': prop,
-    'out': out,
     'limit': limit
   }
   if value_type:
