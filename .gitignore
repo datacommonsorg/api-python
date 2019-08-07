@@ -114,3 +114,11 @@ Temporary Items
 
 ### Ignore BAZEL BUILD System files ###
 /bazel-*
+
+### R and RStudio ###
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+datacommons.RCheck
+*tar.gz
