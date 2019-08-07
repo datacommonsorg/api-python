@@ -116,11 +116,18 @@ def clean_frame(pd_frame):
 
 def _format_response(response, compress=False):
   """ Returns the json payload in a response from the mixer. """
+  # Verify request succeeded
+  if response.status_code != 200:
+    raise ValueError(
+        'Response error: A non HTTP200 code was returned. Printing response\n\n'
+        '{}'.format(response.text))
+
+  # Get the JSON
   res_json = response.json()
-  if 'code' in res_json and res_json['code'] != 0:
-    raise ValueError('Response error: {}'.format(res_json['message']))
-  elif 'payload' not in res_json:
-    raise ValueError('Response error: Payload not found "{}"'.format(response))
+  if 'payload' not in res_json:
+    raise ValueError(
+        'Response error: Payload not found. Printing response\n\n'
+        '{}'.format(response.text))
 
   # If the payload is compressed, decompress and decode it
   payload = res_json['payload']
