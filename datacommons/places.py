@@ -55,7 +55,7 @@ def get_places_in(dcids, place_type):
   Examples:
     We would like to get all Counties contained in
     `California <https://browser.datacommons.org/kg?dcid=geoId/06>`_. Specifying
-    the :code:`dcids` as a :obj:`list` resulst in the following.
+    the :code:`dcids` as a :obj:`list` result in the following.
 
     >>> get_places_in(["geoId/06"], "County")
     {
