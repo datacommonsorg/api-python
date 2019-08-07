@@ -1,0 +1,26 @@
+Package: datacommons
+Title: Data Commons REST API R Client
+Version: 2.0
+Authors@R: person("Tiffany", "Jann", email = "tjann@google.com", role = c("aut", "cre"))
+Description: A RESTful R API Client for querying the DataCommons.org
+    Open Knowledge Graph. The Node API endpoint is wrapped using Reticulate.
+    The Query API endpoint is implemented in pure R.
+    WiFi is needed for all functions in this package.
+    You can find our code here:
+    https://github.com/google/datacommons/
+Depends: R (>= 3.6.0),
+         tidyverse,
+         httr,
+         jsonlite,
+         reticulate
+License: Apache License, Version 2.0, MIT+
+Encoding: UTF-8
+LazyData: true
+Imports:
+    tidyverse,
+    httr,
+    jsonlite,
+    reticulate
+RoxygenNote: 6.1.1
+Suggests: 
+    testthat
