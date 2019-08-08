@@ -5,7 +5,7 @@ To get started, install the :code:`datacommons` package through :code:`pip`.
 
 .. code-block:: bash
 
-    $ pip install git+https://github.com/google/datacommons.git@dev2
+    $ pip install git+https://github.com/google/datacommons.git@stable-1.x
 
 For more information about installing :code:`pip` and setting up other parts of
 your Python development environment, please refer to the
