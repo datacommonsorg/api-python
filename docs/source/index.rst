@@ -28,6 +28,34 @@ to use and understand!
 semantics and availability of this library is subject to change without
 prior notice!
 
+Getting Started
+---------------
+
+To get started using the Data Commons Python Client API, install the package
+from `pip`.
+
+.. code-block:: bash
+
+    $ pip install git+https://github.com/google/datacommons.git@stable-1.x
+
+Once the package is installed, you can import the `datacommons` package in
+Python.
+
+.. code-block:: python
+
+    import datacommons as dc
+
+You will additionally need to provision an API key to access the Data Commons
+graph. Enable the `Data Commons API` on Google Cloud Platform to create an
+API key. After receiving a key, you can configure the package to use it by
+calling:
+
+.. code-block:: python
+
+    dc.set_api_key('YOUR-API-KEY')
+
+You're now ready to start using Data Commons!
+
 Overview
 --------
 
@@ -59,4 +87,3 @@ resources.
 - `Our homepage <http://datacommons.org/>`_
 - `Our GitHub Page <https://github.com/google/datacommons/>`_
 - `Our Issues Page <https://github.com/google/datacommons/issues>`_
-- `The Client API PyPI Page <https://pypi.org/project/datacommons/>`_
