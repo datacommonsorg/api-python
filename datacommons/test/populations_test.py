@@ -45,6 +45,7 @@ def post_request_mock(*args, **kwargs):
 
   # Get the request json and allowed constraining properties
   req = kwargs['json']
+  headers = kwargs['headers']
   constrained_props = [
     {
       'property': 'placeOfBirth',
@@ -55,6 +56,10 @@ def post_request_mock(*args, **kwargs):
       'value': 'Years5To17'
     }
   ]
+
+  # If the API key does not match, then return 403 Forbidden
+  if 'x-api-key' not in headers or headers['x-api-key'] != 'TEST-API-KEY':
+    return MockResponse({}, 403)
 
   # Mock responses for post requests to get_populations.
   if args[0] == utils._API_ROOT + utils._API_ENDPOINTS['get_populations']\
@@ -140,6 +145,9 @@ class TestGetPopulations(unittest.TestCase):
   @mock.patch('requests.post', side_effect=post_request_mock)
   def test_multiple_dcids(self, post_mock):
     """ Calling get_populations with proper dcids returns valid results. """
+    # Set the API key
+    dc.set_api_key('TEST-API-KEY')
+
     # Call get_populations
     populations = dc.get_populations(['geoId/06085', 'geoId/4805000'], 'Person',
                                      constraining_properties=self._constraints)
@@ -154,6 +162,9 @@ class TestGetPopulations(unittest.TestCase):
     """ Calling get_populations with dcids that do not exist returns empty
     results.
     """
+    # Set the API key
+    dc.set_api_key('TEST-API-KEY')
+
     # Call get_populations
     pops_1 = dc.get_populations(['geoId/06085', 'dc/MadDcid'], 'Person',
                                 constraining_properties=self._constraints)
@@ -167,6 +178,9 @@ class TestGetPopulations(unittest.TestCase):
   @mock.patch('requests.post', side_effect=post_request_mock)
   def test_no_dcids(self, post_mock):
     """ Calling get_populations with no dcids returns empty results. """
+    # Set the API key
+    dc.set_api_key('TEST-API-KEY')
+
     pops = dc.get_populations(
       [], 'Person', constraining_properties=self._constraints)
     self.assertDictEqual(pops, {})
@@ -178,6 +192,9 @@ class TestGetPopulations(unittest.TestCase):
     """ Calling get_populations with a Pandas Series and proper dcids returns
     a Pandas Series with valid results.
     """
+    # Set the API key
+    dc.set_api_key('TEST-API-KEY')
+
     # Get the input and expected output
     dcids = pd.Series(['geoId/06085', 'geoId/4805000'])
     expected = pd.Series(['dc/p/crgfn8blpvl35', 'dc/p/f3q9whmjwbf36'])
@@ -192,6 +209,9 @@ class TestGetPopulations(unittest.TestCase):
     """ Calling get_populations with a Pandas Series and dcids that do not exist
     returns empty results.
     """
+    # Set the API key
+    dc.set_api_key('TEST-API-KEY')
+
     # Get input and expected output
     dcids_1 = pd.Series(['geoId/06085', 'dc/MadDcid'])
     dcids_2 = pd.Series(['dc/MadDcid', 'dc/MadderDcid'])
@@ -211,6 +231,9 @@ class TestGetPopulations(unittest.TestCase):
   @mock.patch('requests.post', side_effect=post_request_mock)
   def test_series_no_dcids(self, post_mock):
     """ Calling get_populations with no dcids returns empty results. """
+    # Set the API key
+    dc.set_api_key('TEST-API-KEY')
+
     dcids = pd.Series([])
     expected = pd.Series([])
 
@@ -226,6 +249,9 @@ class TestGetObservations(unittest.TestCase):
   @mock.patch('requests.post', side_effect=post_request_mock)
   def test_multiple_dcids(self, post_mock):
     """ Calling get_observations with proper dcids returns valid results. """
+    # Set the API key
+    dc.set_api_key('TEST-API-KEY')
+
     dcids = ['dc/p/x6t44d8jd95rd', 'dc/p/lr52m1yr46r44', 'dc/p/fs929fynprzs']
     expected = {
       'dc/p/lr52m1yr46r44': 3075662.0,
@@ -242,6 +268,9 @@ class TestGetObservations(unittest.TestCase):
     """ Calling get_observations with dcids that do not exist returns empty
     results.
     """
+    # Set the API key
+    dc.set_api_key('TEST-API-KEY')
+
     # Get the input
     dcids_1 = ['dc/p/x6t44d8jd95rd', 'dc/MadDcid']
     dcids_2 = ['dc/MadDcid', 'dc/MadderDcid']
@@ -261,6 +290,9 @@ class TestGetObservations(unittest.TestCase):
   @mock.patch('requests.post', side_effect=post_request_mock)
   def test_no_dcids(self, post_mock):
     """ Calling get_observations with no dcids returns empty results. """
+    # Set the API key
+    dc.set_api_key('TEST-API-KEY')
+
     actual = dc.get_observations([], 'count', 'measuredValue', '2018-12',
                                  observation_period='P1M',
                                  measurement_method='BLSSeasonallyAdjusted')
@@ -273,6 +305,9 @@ class TestGetObservations(unittest.TestCase):
     """ Calling get_observations with a Pandas Series and proper dcids returns
     a Pandas Series with valid results.
     """
+    # Set the API key
+    dc.set_api_key('TEST-API-KEY')
+
     dcids = pd.Series(
       ['dc/p/x6t44d8jd95rd', 'dc/p/lr52m1yr46r44', 'dc/p/fs929fynprzs'])
     expected = pd.Series([18704962.0, 3075662.0, 1973955.0])
@@ -286,6 +321,9 @@ class TestGetObservations(unittest.TestCase):
     """ Calling get_observations with a Pandas Series and dcids that do not
     exist returns empty results.
     """
+    # Set the API key
+    dc.set_api_key('TEST-API-KEY')
+
     # Get the input and expected output
     dcids_1 = pd.Series(['dc/p/x6t44d8jd95rd', 'dc/MadDcid'])
     dcids_2 = pd.Series(['dc/MadDcid', 'dc/MadderDcid'])
@@ -307,6 +345,9 @@ class TestGetObservations(unittest.TestCase):
   @mock.patch('requests.post', side_effect=post_request_mock)
   def test_series_no_dcids(self, post_mock):
     """ Calling get_observations with no dcids returns empty results. """
+    # Set the API key
+    dc.set_api_key('TEST-API-KEY')
+
     dcids = pd.Series([])
     expected = pd.Series([])
     actual = dc.get_observations(dcids, 'count', 'measuredValue', '2018-12',

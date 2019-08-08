@@ -50,6 +50,11 @@ WHERE {
 }
 ''')
   req = kwargs['json']
+  headers = kwargs['headers']
+
+  # If the API key does not match, then return 403 Forbidden
+  if 'x-api-key' not in headers or headers['x-api-key'] != 'TEST-API-KEY':
+    return MockResponse({}, 403)
 
   # Mock responses for post requests to query.
   if args[0] == utils._API_ROOT + utils._API_ENDPOINTS['query']\
@@ -103,6 +108,9 @@ class TestQuery(unittest.TestCase):
   @mock.patch('requests.post', side_effect=post_request_mock)
   def test_rows(self, post_mock):
     """ Sending a valid query returns the correct response. """
+    # Set the API key
+    dc.set_api_key('TEST-API-KEY')
+
     # Create the SPARQL query
     query_string = ('''
 SELECT  ?name ?dcid

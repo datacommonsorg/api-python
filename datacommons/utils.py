@@ -146,7 +146,7 @@ def _send_request(req_url, req_json={}, compress=False):
   if not os.environ.get(_ENV_VAR_API_KEY, None):
     raise ValueError(
         'Request error: Must set an API key before using the API!')
-  headers = {'x-dc-api-key': os.environ[_ENV_VAR_API_KEY]}
+  headers = {'x-api-key': os.environ[_ENV_VAR_API_KEY]}
 
   # Send the request and verify the request succeeded
   res = requests.post(req_url, headers=headers, json=req_json)
