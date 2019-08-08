@@ -15,7 +15,7 @@
 
 Provides convenience functions for working with Places in the Data Commons
 knowledge graph. This submodule implements the ability to access :obj:`Place`'s
-within a collection of nodes identified by dcid. 
+within a collection of nodes identified by dcid.
 """
 
 from __future__ import absolute_import
@@ -82,11 +82,10 @@ def get_places_in(dcids, place_type):
   # Convert the dcids field and format the request to GetPlacesIn
   dcids, req_dcids = utils._convert_dcids_type(dcids)
   url = utils._API_ROOT + utils._API_ENDPOINTS['get_places_in']
-  res = requests.post(url, json={
+  payload = utils._send_request(url, req_json={
     'dcids': req_dcids,
     'place_type': place_type,
   })
-  payload = utils._format_response(res)
 
   # Create the results and format it appropriately
   result = utils._format_expand_payload(payload, 'place', must_exist=dcids)

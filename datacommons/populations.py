@@ -104,12 +104,11 @@ def get_populations(dcids, population_type, constraining_properties={}):
   dcids, req_dcids = utils._convert_dcids_type(dcids)
   pv = [{'property': k, 'value': v} for k, v in constraining_properties.items()]
   url = utils._API_ROOT + utils._API_ENDPOINTS['get_populations']
-  res = requests.post(url, json={
+  payload = utils._send_request(url, req_json={
     'dcids': req_dcids,
     'population_type': population_type,
     'pvs': pv,
   })
-  payload = utils._format_response(res)
 
   # Create the results and format it appropriately
   result = utils._format_expand_payload(
@@ -217,8 +216,7 @@ def get_observations(dcids,
 
   # Issue the request to GetObservation
   url = utils._API_ROOT + utils._API_ENDPOINTS['get_observations']
-  res = requests.post(url, json=req_json)
-  payload = utils._format_response(res)
+  payload = utils._send_request(url, req_json=req_json)
 
   # Create the results and format it appropriately
   result = utils._format_expand_payload(
