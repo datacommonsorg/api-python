@@ -222,8 +222,7 @@ def get_triples(dcids, limit=utils._MAX_LIMIT):
 
   Args:
     dcids (:obj:`list` of :obj:`str`): A list of dcids to get triples for.
-    limit (:obj:`int`, optional): The maximum number of triples to get for each
-      combination of property and type of property value.
+    limit (:obj:`int`, optional): The maximum total number of triples to get.
 
   Returns:
     A :obj:`dict` mapping dcids to a :obj:`list` of triples `(s, p, o)` where

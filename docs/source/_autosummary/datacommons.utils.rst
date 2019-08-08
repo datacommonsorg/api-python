@@ -2,13 +2,12 @@ datacommons.utils
 =================
 
 .. automodule:: datacommons.utils
-   :members:
-   :undoc-members:
-   :show-inheritance:
 
    .. rubric:: Functions
 
    .. autosummary::
+      :toctree: datacommons_utils
 
+      set_api_key
       clean_frame
       flatten_frame

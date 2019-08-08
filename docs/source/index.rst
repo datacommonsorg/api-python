@@ -22,7 +22,6 @@ to use and understand!
 
 - Send an issue request to the
   `Data Commons Issues Page <https://github.com/google/datacommons/issues>`_.
-  When creating an issue please mark the issue using the **api feedback** label!
 
 **DISCLAIMER** This is an experimental version of the Python Client API. The
 semantics and availability of this library is subject to change without
