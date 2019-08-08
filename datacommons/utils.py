@@ -26,6 +26,8 @@ import pandas as pd
 
 import base64
 import json
+import requests
+import os
 import zlib
 
 
@@ -48,6 +50,25 @@ _API_ENDPOINTS = {
 
 # The default value to limit to
 _MAX_LIMIT = 100
+
+# Environment variable names used by the package
+_ENV_VAR_API_KEY = 'DC_API_KEY'         # Name the API key variable
+
+
+# --------------------------- API UTILITY FUNCTIONS ---------------------------
+
+
+def set_api_key(api_key):
+  """ Sets an environment variable :code:`"DC_API_KEY"` to given :code:`api_key`.
+
+  An API key is required to use the Python Client API. This can be provided to
+  the API after importing the library, or set as an environment variable
+  :code:`"DC_API_KEY"`.
+
+  Args:
+    api_key (:obj:`str`): The api key.
+  """
+  os.environ[_ENV_VAR_API_KEY] = api_key
 
 
 # ------------------------- PANDAS UTILITY FUNCTIONS --------------------------
@@ -114,20 +135,32 @@ def clean_frame(pd_frame):
 # ------------------------- INTERNAL HELPER FUNCTIONS -------------------------
 
 
-def _format_response(response, compress=False):
-  """ Returns the json payload in a response from the mixer. """
-  # Verify request succeeded
-  if response.status_code != 200:
+def _send_request(req_url, req_json={}, compress=False):
+  """ Sends a POST request to the given req_url with the given req_json.
+
+  Returns:
+    The payload returned by sending the POST request formatted as a Python
+    dict.
+  """
+  # Get the API key
+  if not os.environ.get(_ENV_VAR_API_KEY, None):
+    raise ValueError(
+        'Request error: Must set an API key before using the API!')
+  headers = {'x-api-key': os.environ[_ENV_VAR_API_KEY]}
+
+  # Send the request and verify the request succeeded
+  res = requests.post(req_url, headers=headers, json=req_json)
+  if res.status_code != 200:
     raise ValueError(
         'Response error: A non HTTP200 code was returned. Printing response\n\n'
-        '{}'.format(response.text))
+        '{}'.format(res.text))
 
   # Get the JSON
-  res_json = response.json()
+  res_json = res.json()
   if 'payload' not in res_json:
     raise ValueError(
         'Response error: Payload not found. Printing response\n\n'
-        '{}'.format(response.text))
+        '{}'.format(res.text))
 
   # If the payload is compressed, decompress and decode it
   payload = res_json['payload']

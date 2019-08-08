@@ -7,3 +7,4 @@ pandas
 requests
 sphinx
 sphinxcontrib-napoleon
+sphinx_rtd_theme

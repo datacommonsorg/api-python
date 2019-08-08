@@ -100,8 +100,7 @@ def get_property_labels(dcids, out=True):
   """
   # Generate the GetProperty query and send the request
   url = utils._API_ROOT + utils._API_ENDPOINTS['get_property_labels']
-  res = requests.post(url, json={'dcids': dcids})
-  payload = utils._format_response(res)
+  payload = utils._send_request(url, req_json={'dcids': dcids})
 
   # Return the results based on the orientation
   results = {}
@@ -184,8 +183,7 @@ def get_property_values(dcids,
 
   # Send the request
   url = utils._API_ROOT + utils._API_ENDPOINTS['get_property_values']
-  res = requests.post(url, json=req_json)
-  payload = utils._format_response(res)
+  payload = utils._send_request(url, req_json=req_json)
 
   # Create the result format for when dcids is provided as a list.
   results = defaultdict(list)
@@ -253,8 +251,7 @@ def get_triples(dcids, limit=utils._MAX_LIMIT):
   """
   # Generate the GetTriple query and send the request.
   url = utils._API_ROOT + utils._API_ENDPOINTS['get_triples']
-  res = requests.post(url, json={'dcids': dcids, 'limit': limit})
-  payload = utils._format_response(res)
+  payload = utils._send_request(url, req_json={'dcids': dcids, 'limit': limit})
 
   # Create a map from dcid to list of triples.
   results = defaultdict(list)

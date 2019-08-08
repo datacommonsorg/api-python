@@ -44,6 +44,11 @@ def post_request_mock(*args, **kwargs):
 
   # Get the request json
   req = kwargs['json']
+  headers = kwargs['headers']
+
+  # If the API key does not match, then return 403 Forbidden
+  if 'x-api-key' not in headers or headers['x-api-key'] != 'TEST-API-KEY':
+    return MockResponse({}, 403)
 
   # Mock responses for post requests to get_places_in.
   if args[0] == utils._API_ROOT + utils._API_ENDPOINTS['get_places_in']:
@@ -95,6 +100,9 @@ class TestGetPlacesIn(unittest.TestCase):
   @mock.patch('requests.post', side_effect=post_request_mock)
   def test_multiple_dcids(self, post_mock):
     """ Calling get_places_in with proper dcids returns valid results. """
+    # Set the API key
+    dc.set_api_key('TEST-API-KEY')
+
     # Call get_places_in
     places = dc.get_places_in(['geoId/06085', 'geoId/24031'], 'City')
     self.assertDictEqual(places, {
@@ -107,6 +115,9 @@ class TestGetPlacesIn(unittest.TestCase):
     """ Calling get_places_in with dcids that do not exist returns empty
     results.
     """
+    # Set the API key
+    dc.set_api_key('TEST-API-KEY')
+
     # Call get_places_in with one dcid that does not exist
     bad_dcids_1 = dc.get_places_in(['geoId/06085', 'dc/MadDcid'], 'City')
     self.assertDictEqual(bad_dcids_1, {
@@ -124,6 +135,9 @@ class TestGetPlacesIn(unittest.TestCase):
   @mock.patch('requests.post', side_effect=post_request_mock)
   def test_no_dcids(self, post_mock):
     """ Calling get_places_in with no dcids returns empty results. """
+    # Set the API key
+    dc.set_api_key('TEST-API-KEY')
+
     # Call get_places_in with no dcids.
     bad_dcids = dc.get_places_in(['dc/MadDcid', 'dc/MadderDcid'], 'City')
     self.assertDictEqual(bad_dcids, {
@@ -134,10 +148,13 @@ class TestGetPlacesIn(unittest.TestCase):
   # ---------------------------- PANDAS UNIT TESTS ----------------------------
 
   @mock.patch('requests.post', side_effect=post_request_mock)
-  def test_multiple_dcids(self, post_mock):
+  def test_series_multiple_dcids(self, post_mock):
     """ Calling get_places_in with a Pandas Series and proper dcids returns
     a Pandas Series with valid results.
     """
+    # Set the API key
+    dc.set_api_key('TEST-API-KEY')
+
     # Get the input dcids and expected output
     dcids = pd.Series(['geoId/06085', 'geoId/24031'])
     expected = pd.Series(
@@ -148,10 +165,13 @@ class TestGetPlacesIn(unittest.TestCase):
     assert_series_equal(actual, expected)
 
   @mock.patch('requests.post', side_effect=post_request_mock)
-  def test_bad_dcids(self, post_mock):
+  def test_series_bad_dcids(self, post_mock):
     """ Calling get_places_in with a Pandas Series and dcids that do not exist
     returns empty results.
     """
+    # Set the API key
+    dc.set_api_key('TEST-API-KEY')
+
     # Get the input dcids and expected output
     bad_dcids_1 = pd.Series(['geoId/06085', 'dc/MadDcid'])
     bad_dcids_2 = pd.Series(['dc/MadDcid', 'dc/MadderDcid'])
@@ -167,8 +187,11 @@ class TestGetPlacesIn(unittest.TestCase):
     assert_series_equal(actual_2, expected_2)
 
   @mock.patch('requests.post', side_effect=post_request_mock)
-  def test_no_dcids(self, post_mock):
+  def test_series_no_dcids(self, post_mock):
     """ Calling get_places_in with no dcids returns empty results. """
+    # Set the API key
+    dc.set_api_key('TEST-API-KEY')
+
     # Get the input and expected output
     bad_dcids = pd.Series([])
     expected = pd.Series([])

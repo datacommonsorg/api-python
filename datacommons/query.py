@@ -21,8 +21,9 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-from datacommons.utils import _API_ROOT, _API_ENDPOINTS
+from datacommons.utils import _API_ROOT, _API_ENDPOINTS, _ENV_VAR_API_KEY
 
+import os
 import requests
 
 # -----------------------------------------------------------------------------
@@ -137,11 +138,17 @@ class Query(object):
     Raises:
       RuntimeError: on query failure (see error hint).
     """
+    # Get the API Key and set the headers
+    if not os.environ.get(_ENV_VAR_API_KEY, None):
+      raise ValueError(
+          'Request error: Must set an API key before using the API!')
+    headers = {'x-api-key': os.environ[_ENV_VAR_API_KEY]}
+
     # Create the query request.
     if self._language == self._SPARQL_LANG:
       payload = {'sparql': self._query}
     url = _API_ROOT + _API_ENDPOINTS['query']
-    res = requests.post(url, json=payload)
+    res = requests.post(url, json=payload, headers=headers)
 
     # Verify then store the results.
     res_json = res.json()
