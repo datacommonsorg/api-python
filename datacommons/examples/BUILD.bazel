@@ -1,45 +1,36 @@
 load("@requirements//:requirements.bzl", "requirement")
 
 py_binary(
-    name = "add_property_query",
-    srcs = ["add_property_query.py"],
-    deps = [
+    name="core",
+    srcs=["core.py"],
+    deps=[
         "//datacommons:datacommons",
         requirement("pandas"),
     ]
 )
 
 py_binary(
-    name = "get_instances",
-    srcs = ["get_instances.py"],
-    deps = [
+    name="places",
+    srcs=["places.py"],
+    deps=[
         "//datacommons:datacommons",
         requirement("pandas"),
     ]
 )
 
 py_binary(
-    name = "population_analysis",
-    srcs = ["population_analysis.py"],
-    deps = [
+    name="populations",
+    srcs=["populations.py"],
+    deps=[
         "//datacommons:datacommons",
         requirement("pandas"),
     ]
 )
 
 py_binary(
-    name = "simple_query",
-    srcs = ["simple_query.py"],
-    deps = [
-        "//datacommons:datacommons",
-        requirement("pandas"),
-    ]
-)
-
-py_binary(
-    name = "weather_analysis",
-    srcs = ["weather_analysis.py"],
-    deps = [
+    name="query",
+    srcs=["query.py"],
+    deps=[
         "//datacommons:datacommons",
         requirement("pandas"),
     ]

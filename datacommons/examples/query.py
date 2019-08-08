@@ -11,44 +11,39 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""Example client for DataCommons Python API.
+""" Data Commons Python Client API examples.
 
+Example on how to use the Client API SPARQL query wrapper.
 """
 
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-import datacommons
+import datacommons as dc
 import pandas as pd
 
 
 def main():
-  dc = datacommons.Client()
-
-  # Get lat/long of a city.
+  # Create a SPARQL query querying for the name of some states
   query = ('''
-           SELECT ?id ?lat ?long,
-             typeOf ?o City,
-             name ?o "San Luis Obispo",
-             dcid ?o ?id,
-             latitude ?o ?lat,
-             longitude ?o ?long
-           ''')
-  print('Issuing query "{}"'.format(query))
-  try:
-    df = dc.query(query)
-  except RuntimeError as e:
-    print(e)
-    return
+SELECT  ?name ?dcid
+WHERE {
+  ?a typeOf Place .
+  ?a name ?name .
+  ?a dcid ("geoId/06" "geoId/21" "geoId/24") .
+  ?a dcid ?dcid
+}
+''')
+  print('> Issuing query.\n{}'.format(query))
 
-  with pd.option_context('display.width', 400, 'display.max_rows', 100):
-    print(df)
+  # Initialize the Query instance.
+  dc_query = dc.Query(sparql=query)
 
-  saved_file_name = dc.save_dataframe(df, 'test_df')
-  print(saved_file_name)
-  saved_df = dc.read_dataframe(saved_file_name)
-  assert df.equals(saved_df)
+  # Iterate through all the rows in the results.
+  print('> Printing results.\n')
+  for row in dc_query.rows():
+    print('  {}'.format(row))
 
 
 if __name__ == '__main__':

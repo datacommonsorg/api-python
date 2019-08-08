@@ -11,6 +11,14 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""Data Commons module."""
 
-from .datacommons import Client
+# Data Commons SPARQL query support
+from datacommons.query import Query
+
+# Data Commons Python Client API
+from datacommons.core import get_property_labels, get_property_values, get_triples
+from datacommons.places import get_places_in
+from datacommons.populations import get_populations, get_observations
+
+# Other utilities
+from .utils import clean_frame, flatten_frame
