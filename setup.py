@@ -30,6 +30,7 @@ REQUIRED = [
     'numpy',
     'oauth2client',
     'pandas',
+    'requests'
 ]
 
 PACKAGES = ['datacommons']
