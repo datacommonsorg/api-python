@@ -409,7 +409,7 @@ class TestGetPropertyValues(unittest.TestCase):
     towns = dc.get_property_values(
       dcids, 'containedInPlace', out=False, value_type='Town')
     self.assertDictEqual(towns, {
-      'geoId/06085': ['geoId/0644112', 'geoId/0643294'],
+      'geoId/06085': ['geoId/0643294', 'geoId/0644112'],
       'geoId/24031': ['geoId/2462850']
     })
 
@@ -485,7 +485,7 @@ class TestGetPropertyValues(unittest.TestCase):
     # The given and expected series.
     dcids = pd.Series(['geoId/06085', 'geoId/24031'])
     expected = pd.Series([
-      ['geoId/0644112', 'geoId/0643294'],
+      ['geoId/0643294', 'geoId/0644112'],
       ['geoId/2462850']
     ])
 
@@ -553,7 +553,7 @@ class TestGetPropertyValues(unittest.TestCase):
     # The given and expected series.
     dcids = pd.DataFrame({'dcids': ['geoId/06085', 'geoId/24031']})
     expected = pd.Series([
-      ['geoId/0644112', 'geoId/0643294'],
+      ['geoId/0643294', 'geoId/0644112'],
       ['geoId/2462850']
     ])
 

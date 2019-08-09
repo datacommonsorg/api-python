@@ -187,7 +187,7 @@ def _format_expand_payload(payload, new_key, must_exist=[]):
   # Ensure all dcids in must_exist have some entry in results.
   for dcid in must_exist:
     results[dcid]
-  return {k: list(v) for k, v in results.items()}
+  return {k: sorted(list(v)) for k, v in results.items()}
 
 
 def _flatten_results(result, default_value=None):
