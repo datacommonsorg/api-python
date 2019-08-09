@@ -22,6 +22,8 @@ to use and understand!
 
 - Send an issue request to the
   `Data Commons Issues Page <https://github.com/google/datacommons/issues>`_.
+  When creating the issue, choose the template labeled
+  "Python API v1.0.0 Feedback"
 
 **DISCLAIMER** This is an experimental version of the Python Client API. The
 semantics and availability of this library is subject to change without
