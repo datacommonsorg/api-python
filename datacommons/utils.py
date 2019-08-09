@@ -145,7 +145,9 @@ def _send_request(req_url, req_json={}, compress=False):
   # Get the API key
   if not os.environ.get(_ENV_VAR_API_KEY, None):
     raise ValueError(
-        'Request error: Must set an API key before using the API!')
+        'Request error: Must set an API key before using the API! You can '
+        'call datacommons.set_api_key or assign the key to an environment '
+        'variable named {}'.format(_ENV_VAR_API_KEY))
   headers = {'x-api-key': os.environ[_ENV_VAR_API_KEY]}
 
   # Send the request and verify the request succeeded
