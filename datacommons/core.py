@@ -203,7 +203,7 @@ def get_property_values(dcids,
         unique_results[dcid].add(node['value'])
 
   # Make sure each dcid is in the results dict, and convert all sets to lists.
-  results = {dcid: list(unique_results[dcid]) for dcid in dcids}
+  results = {dcid: sorted(list(unique_results[dcid])) for dcid in dcids}
 
   # Format the results as a Series if a Pandas Series is provided.
   if isinstance(dcids, pd.Series):
