@@ -65,6 +65,9 @@ def set_api_key(api_key):
   the API after importing the library, or set as an environment variable
   :code:`"DC_API_KEY"`.
 
+  For more details about how to get an API key and provide it to the Python
+  Client API, please visit :ref:`getting_started`
+
   Args:
     api_key (:obj:`str`): The api key.
   """
