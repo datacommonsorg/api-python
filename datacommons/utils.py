@@ -154,8 +154,8 @@ def _send_request(req_url, req_json={}, compress=False):
   res = requests.post(req_url, headers=headers, json=req_json)
   if res.status_code != 200:
     raise ValueError(
-        'Response error: A non HTTP200 code was returned by the mixer. Printing '
-        'response\n\n{}'.format(res.text))
+        'Response error: An HTTP {} code was returned by the mixer. Printing '
+        'response\n\n{}'.format(res.status_code , res.text))
 
   # Get the JSON
   res_json = res.json()

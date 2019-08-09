@@ -48,7 +48,7 @@ Using the Python Client API
 Once you have the API key, you can get started using the Data Commons Python
 Client API. There are two ways to enable your key in the API package.
 
-1.  You can set the API key by calling:py:func:`datacommons.utils.set_api_key`.
+1.  You can set the API key by calling :py:func:`datacommons.utils.set_api_key`.
     Start by importing :code:`datacommons`, then set the API key like so.
 
     .. code-block:: python
