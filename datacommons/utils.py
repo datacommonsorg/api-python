@@ -175,16 +175,16 @@ def _send_request(req_url, req_json={}, compress=False):
 def _format_expand_payload(payload, new_key, must_exist=[]):
   """ Formats expand type payloads into dicts from dcids to lists of values. """
   # Create the results dictionary from payload
-  results = defaultdict(list)
+  results = defaultdict(set)
   for entry in payload:
     if 'dcid' in entry and new_key in entry:
       dcid = entry['dcid']
-      results[dcid].append(entry[new_key])
+      results[dcid].add(entry[new_key])
 
   # Ensure all dcids in must_exist have some entry in results.
   for dcid in must_exist:
     results[dcid]
-  return dict(results)
+  return {k: list(v) for k, v in results.items()}
 
 
 def _flatten_results(result, default_value=None):
@@ -193,7 +193,7 @@ def _flatten_results(result, default_value=None):
   for k, v in result.items():
     if len(v) > 1:
       raise ValueError(
-        'Expected one result, but more returned: {}'.format(v))
+        'Expected one result, but more returned for "{}": {}'.format(k, v))
     if len(v) == 1:
       flattened[k] = v[0]
     elif default_value is not None:

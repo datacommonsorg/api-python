@@ -186,11 +186,8 @@ def get_property_values(dcids,
   payload = utils._send_request(url, req_json=req_json)
 
   # Create the result format for when dcids is provided as a list.
-  results = defaultdict(list)
+  unique_results = defaultdict(set)
   for dcid in dcids:
-    # Make sure each dcid is mapped to an empty list.
-    results[dcid]
-
     # Get the list of nodes based on the direction given.
     nodes = []
     if dcid in payload and out:
@@ -198,17 +195,20 @@ def get_property_values(dcids,
     elif dcid in payload and not out:
       nodes = payload[dcid]['in']
 
-    # Add nodes to results if it is not empty
+    # Add nodes to unique_results if it is not empty
     for node in nodes:
       if 'dcid' in node:
-        results[dcid].append(node['dcid'])
+        unique_results[dcid].add(node['dcid'])
       elif 'value' in node:
-        results[dcid].append(node['value'])
+        unique_results[dcid].add(node['value'])
+
+  # Make sure each dcid is in the results dict, and convert all sets to lists.
+  results = {dcid: list(unique_results[dcid]) for dcid in dcids}
 
   # Format the results as a Series if a Pandas Series is provided.
   if isinstance(dcids, pd.Series):
     return pd.Series([results[dcid] for dcid in dcids])
-  return dict(results)
+  return results
 
 
 def get_triples(dcids, limit=utils._MAX_LIMIT):
