@@ -11,7 +11,7 @@ Data Commons Python Client API
    Getting Started <started>
    Tutorials <tutorials>
    Modules <modules>
-   License <https://github.com/google/datacommons/blob/master/LICENSE>
+   License <https://github.com/datacommonsorg/api-python/blob/master/LICENSE>
 
 Feedback Request
 ----------------
@@ -21,7 +21,7 @@ consider leaving us some feedback so that we can make this library more easy
 to use and understand!
 
 - Send an issue request to the
-  `Data Commons Issues Page <https://github.com/google/datacommons/issues>`_.
+  `Data Commons Issues Page <https://github.com/datacommonsorg/api-python/issues>`_.
   When creating the issue, choose the template labeled
   "Python API v1.0.0 Feedback"
 
@@ -39,23 +39,15 @@ from `pip`.
 
     $ pip install git+https://github.com/google/datacommons.git@stable-1.x
 
-Once the package is installed, you can import the `datacommons` package in
+Once the package is installed, you can import the :code:`datacommons` package in
 Python.
 
 .. code-block:: python
 
     import datacommons as dc
 
-You will additionally need to provision an API key to access the Data Commons
-graph. Enable the `Data Commons API` on Google Cloud Platform to create an
-API key. After receiving a key, you can configure the package to use it by
-calling:
-
-.. code-block:: python
-
-    dc.set_api_key('YOUR-API-KEY')
-
-You're now ready to start using Data Commons!
+You will additionally need to *provision an API key* to access the Data Commons
+graph. See `Getting Started <started>`_ to learn more!
 
 Overview
 --------
@@ -86,5 +78,6 @@ To learn more about Data Commons and get involved, please visit the following
 resources.
 
 - `Our homepage <http://datacommons.org/>`_
-- `Our GitHub Page <https://github.com/google/datacommons/>`_
-- `Our Issues Page <https://github.com/google/datacommons/issues>`_
+- `Our GitHub Page <https://github.com/datacommonsorg/api-python>`_
+- `Our Issues Page <https://github.com/datacommonsorg/api-python/issues>`_
+- `More packages for accessing Data Commons <https://github.com/datacommonsorg/>`_

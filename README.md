@@ -14,11 +14,22 @@ GCP. Once you have the API key, simply add the following line to your code.
 
     dc.set_api_key('YOUR-API-KEY')
 
-Please take a look at `datacommons/examples` for examples on how to use this
-package. To find more tutorials and documentation, please refer to our
+For more detail on getting started with the API, please visit
+[Getting Started](https://datacommons.readthedocs.io/en/latest/started.html).
+
+After you're ready to use the API, you can refer to `datacommons/examples` for
+examples on how to use this package to perform various tasks. More tutorials and
+documentation can be found at our
 [readthedocs](https://datacommons.readthedocs.io/en/latest/)!
 
-## Licence
+## About Data Commons
+
+[Data Commons](https://datacommons.org/) is an Open Knowledge Graph that
+provides a unified view across multiple public data sets and statistics. You can
+view what [datasets](https://datacommons.org/datasets) are currently ingested
+and browse the graph using our [browser](https://browser.datacommons.org/).
+
+## License
 
 Apache 2.0
 
