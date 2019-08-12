@@ -18,6 +18,11 @@ from setuptools import setup
 # Package metadata.
 NAME = 'datacommons'
 DESCRIPTION = 'A library to access Data Commons Python Client API.'
+LONG_DESCRIPTION = '''
+Data Commons is an open knowledge graph of publicly accessible data and statistics. Programmatic access to contents in the knowledge graph is enabled through this Python Client APIs.
+
+More information about Data Commons can be found through https://datacommons.org.
+'''
 URL = 'https://github.com/datacommonsorg/api-python'
 EMAIL = 'support@datacommons.org'
 AUTHOR = 'datacommons.org'
