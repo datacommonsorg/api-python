@@ -17,9 +17,9 @@ from setuptools import setup
 
 # Package metadata.
 NAME = 'datacommons'
-DESCRIPTION = 'A library to access Data Commons API.'
-URL = 'https://github.com/google/datacommons'
-EMAIL = 'datacommons@google.com'
+DESCRIPTION = 'A library to access Data Commons Python Client API.'
+URL = 'https://github.com/datacommonsorg/api-python'
+EMAIL = 'support@datacommons.org'
 AUTHOR = 'datacommons.org'
 REQUIRES_PYTHON = '>=3.6.0'
 VERSION = '1.0.0'
