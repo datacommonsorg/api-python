@@ -37,7 +37,7 @@ from `pip`.
 
 .. code-block:: bash
 
-    $ pip install git+https://github.com/google/datacommons.git@stable-1.x
+    $ pip install -U git+https://github.com/google/datacommons.git@stable-1.x
 
 Once the package is installed, you can import the :code:`datacommons` package in
 Python.
