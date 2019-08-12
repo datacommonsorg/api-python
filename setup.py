@@ -21,15 +21,17 @@ DESCRIPTION = 'A library to access Data Commons API.'
 URL = 'https://github.com/google/datacommons'
 EMAIL = 'datacommons@google.com'
 AUTHOR = 'datacommons.org'
-REQUIRES_PYTHON = '>=2.7.0'
-VERSION = '0.4.2'
+REQUIRES_PYTHON = '>=3.6.0'
+VERSION = '1.0.0'
 
 REQUIRED = [
-    'google-api-python-client',
     'httplib2',
+    'requests',
     'numpy',
-    'oauth2client',
     'pandas',
+    'sphinx',
+    'sphinxcontrib-napoleon',
+    'sphinx_rtd_theme',
 ]
 
 PACKAGES = ['datacommons']
