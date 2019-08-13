@@ -22,7 +22,7 @@ URL = 'https://github.com/google/datacommons'
 EMAIL = 'datacommons@google.com'
 AUTHOR = 'datacommons.org'
 REQUIRES_PYTHON = '>=2.7.0'
-VERSION = '0.1'
+VERSION = '0.4.3'
 
 REQUIRED = [
     'google-api-python-client',
