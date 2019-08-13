@@ -3,11 +3,13 @@
 Getting Started
 ===============
 
-To get started using the Python Client API requires three steps.
+To get started using the Python Client API requires four steps.
 
-- Instal the API using :code:`pip`
-- Create an API key on `Google Cloud Platform <https://cloud.google.com/>`_ (GCP)
-- Enable the API key with the Python Client API
+-   Install the API using :code:`pip`
+-   Create an API key on `Google Cloud Platform <https://cloud.google.com/>`_ (GCP)
+-   Enable the *Data Commons API* on GCP. Note that this is separate from the
+    *Python Client API*.
+-   Provide the API key to the Python Client API and begin developing.
 
 Installing the Python Client API
 --------------------------------
@@ -44,11 +46,25 @@ Follow these steps to create your own key.
 .. _`GCP Project`: https://console.developers.google.com/projectcreate
 .. _`enabling billing`: https://cloud.google.com/billing/docs/how-to/modify-project#enable_billing_for_a_project
 
+Enable the Data Commons API
+---------------------------
+
+Additionally, you will need to enable the *Data Commons API* on GCP which is
+separate from the *Python Client API*. This service enables the Python Client
+API to call our REST service and access data in our knowledge graph. To enable
+the API, do the following.
+
+1.  Navigate to the `Data Commons API`_ in the Google APIs Console.
+2.  Click the :code:`Enable` button and wait for the process to complete.
+
+.. _`Data Commons API`: https://console.developers.google.com/apis/api/api.datacommons.org/overview?pli=1
+
 Using the Python Client API
 ---------------------------
 
-Once you have the API key, you can get started using the Data Commons Python
-Client API. There are two ways to enable your key in the API package.
+With the API key created and Data Commons API activated, we can now get started
+using the Data Commons Python Client API. There are two ways to provide your key
+to the Python Client API package.
 
 1.  You can set the API key by calling :py:func:`datacommons.utils.set_api_key`.
     Start by importing :code:`datacommons`, then set the API key like so.
@@ -79,6 +95,6 @@ Client API. There are two ways to enable your key in the API package.
     This route is particularly useful if you are building applications that
     depend on this API, and are deploying them to hosting services.
 
-You're now ready to go! From here you can view our tutorials on how to use the
+You are now ready to go! From here you can view our tutorials on how to use the
 API to perform certain tasks, or see a full list of functions, classes and
 methods available for use by navigating to `modules <modules.html>`_
