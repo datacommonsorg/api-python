@@ -15,14 +15,12 @@
 """Install datacommons."""
 from setuptools import setup
 
+with open("README.md", "r") as fh:
+    long_description = fh.read()
+
 # Package metadata.
 NAME = 'datacommons'
 DESCRIPTION = 'A library to access Data Commons Python Client API.'
-LONG_DESCRIPTION = '''
-Data Commons is an open knowledge graph of publicly accessible data and statistics. Programmatic access to contents in the knowledge graph is enabled through this Python Client APIs.
-
-More information about Data Commons can be found through https://datacommons.org.
-'''
 URL = 'https://github.com/datacommonsorg/api-python'
 EMAIL = 'support@datacommons.org'
 AUTHOR = 'datacommons.org'
@@ -46,6 +44,8 @@ setup(
     name=NAME,
     version=VERSION,
     description=DESCRIPTION,
+    long_description=long_description,
+    long_description_content_type="text/markdown",
     author=AUTHOR,
     author_email=EMAIL,
     maintainer=AUTHOR,
