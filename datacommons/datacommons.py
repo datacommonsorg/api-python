@@ -473,7 +473,8 @@ class Client(object):
              'dcid ?node ?{new_col_name},'
              'containedInPlace ?node ?county,'
              'containedInPlace ?county ?state,'
-             'name ?state "{state}"').format(
+             'name ?state "{state}",'
+             'typeOf ?state State').format(
                  new_col_name=new_col_name, state=state)
     type_row = pd.DataFrame(data=[{new_col_name: 'City'}])
 
@@ -500,7 +501,8 @@ class Client(object):
              'typeOf ?node State,'
              'dcid ?node ?{new_col_name},'
              'containedInPlace ?node ?country,'
-             'name ?country "{country}"').format(
+             'name ?country "{country}",'
+             'typeOf ?country Country').format(
                  new_col_name=new_col_name, country=country)
     type_row = pd.DataFrame(data=[{new_col_name: 'State'}])
 
