@@ -15,7 +15,7 @@
 """Install datacommons."""
 from setuptools import setup
 
-with open("README.md", "r") as fh:
+with open('README.md', 'r') as fh:
     long_description = fh.read()
 
 # Package metadata.
@@ -45,7 +45,7 @@ setup(
     version=VERSION,
     description=DESCRIPTION,
     long_description=long_description,
-    long_description_content_type="text/markdown",
+    long_description_content_type='text/markdown',
     author=AUTHOR,
     author_email=EMAIL,
     maintainer=AUTHOR,
