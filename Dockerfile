@@ -16,7 +16,6 @@ RUN apt-get -q update && \
 
 # Install python
 RUN python setup.py -q install
-RUN pip3 install --upgrade requests
 
 # Run the tests
 RUN ./build.sh
