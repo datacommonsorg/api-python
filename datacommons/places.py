@@ -92,3 +92,59 @@ def get_places_in(dcids, place_type):
   if isinstance(dcids, pd.Series):
     return pd.Series([result[dcid] for dcid in dcids])
   return result
+
+
+def get_pop_obs(dcid):
+  """ Returns :obj:`Place`'s population and observations.
+
+  Args:
+    dcids (:obj:`str`): Dcid of the place.
+
+  Returns:
+    An dictionary of population and observation related to this place.
+
+  Raises:
+    ValueError: If the payload returned by the Data Commons REST API is
+      malformed.
+
+  Examples:
+    We would like to get population and observation of Mountain View
+    `Mountain View <https://browser.datacommons.org/kg?dcid=geoId/0649670>`_.
+
+    >>> get_pop_obs("geoId/0649670")
+    {
+      'name': 'Mountain View',
+      'placeType': 'City',
+      'populations': {
+        'dc/p/013ldrstf6lnf': {
+          'numConstraints': 6,
+          'observations': [
+            {
+              'marginOfError': 119,
+              'measuredProp': 'count',
+              'measuredValue': 225,
+              'measurementMethod': 'CenusACS5yrSurvey',
+              'observationDate': '2014'
+            }, {
+              'marginOfError': 108,
+              'measuredProp': 'count',
+              'measuredValue': 180,
+              'measurementMethod': 'CenusACS5yrSurvey',
+              'observationDate': '2012'
+            }
+          ],
+          'popType': 'Person',
+          'propertyValues': {
+            'age': 'Years16Onwards',
+            'gender': 'Male',
+            'income': 'USDollar30000To34999',
+            'incomeStatus': 'WithIncome',
+            'race': 'USC_HispanicOrLatinoRace',
+            'workExperience': 'USC_NotWorkedFullTime'
+          }
+        }
+      }
+    }
+  """
+  url = utils._API_ROOT + utils._API_ENDPOINTS['get_pop_obs'] + '?dcid={}'.format(dcid)
+  return utils._send_request(url, compress=True, post=False)
