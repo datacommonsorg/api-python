@@ -95,56 +95,74 @@ def get_places_in(dcids, place_type):
 
 
 def get_pop_obs(dcid):
-  """ Returns :obj:`Place`'s population and observations.
+  """ Returns all :obj:`StatisticalPopulation`'s and :obj:`Observation`'s of a :obj:`Place`.
 
   Args:
-    dcids (:obj:`str`): Dcid of the place.
+    dcid (:obj:`str`): Dcid of the place.
 
   Returns:
-    An dictionary of population and observation related to this place.
+    "A :obj:`dict` of :obj:`StatisticalPopulation`'s and :obj:`Observation`'s that are associated to the place
+    identified by the given :code:`dcid`. The given dcid is the :obj:`location` of the returned :obj:`StatisticalPopulation`'s,
+    which are the :obj:`observedNode`'s of the returned :obj:`Observation`'s.
+    See example below for more detail about how the returned :obj:`dict` is structured."
 
   Raises:
     ValueError: If the payload returned by the Data Commons REST API is
       malformed.
 
   Examples:
-    We would like to get population and observation of Mountain View
-    `Mountain View <https://browser.datacommons.org/kg?dcid=geoId/0649670>`_.
+    We would like to get :obj:`StatisticalPopulation`'s and :obj:`Observations`'s of
+    `Mountain View https://browser.datacommons.org/kg?dcid=geoId/0649670`_.
 
     >>> get_pop_obs("geoId/0649670")
     {
       'name': 'Mountain View',
       'placeType': 'City',
       'populations': {
-        'dc/p/013ldrstf6lnf': {
-          'numConstraints': 6,
+        'dc/p/zsb968m3v1f97': {
+          'popType': 'Person',
+          'numConstraints': 1,
+          'propertyValues': {
+            'employmentStatus': 'BLS_InLaborForce'
+          },
           'observations': [
             {
-              'marginOfError': 119,
               'measuredProp': 'count',
-              'measuredValue': 225,
-              'measurementMethod': 'CenusACS5yrSurvey',
-              'observationDate': '2014'
-            }, {
-              'marginOfError': 108,
+              'measuredValue': 49478,
+              'measurementMethod': 'BLSSeasonallyUnadjusted',
+              'observationDate': '2015-12',
+              'observationPeriod': 'P1M'
+            },
+            {
               'measuredProp': 'count',
-              'measuredValue': 180,
-              'measurementMethod': 'CenusACS5yrSurvey',
-              'observationDate': '2012'
+              'measuredValue': 51480,
+              'measurementMethod': 'BLSSeasonallyUnadjusted',
+              'observationDate': '2018-02',
+              'observationPeriod': 'P1M'
+            },
+            {
+              'measuredProp': 'count',
+              'measuredValue': 48800,
+              'measurementMethod': 'BLSSeasonallyUnadjusted',
+              'observationDate': '2014-11',
+              'observationPeriod': 'P1M'
             }
           ],
-          'popType': 'Person',
-          'propertyValues': {
-            'age': 'Years16Onwards',
-            'gender': 'Male',
-            'income': 'USDollar30000To34999',
-            'incomeStatus': 'WithIncome',
-            'race': 'USC_HispanicOrLatinoRace',
-            'workExperience': 'USC_NotWorkedFullTime'
-          }
-        }
+        },
       }
     }
+
+    Notice that the return value is a multi-level :obj:`dict`. The top level contains the following keys.
+
+    - :code:`name` and :code:`placeType` provides the name and type of the :obj:`Place` identified by the given :code:`dcid`.
+    - :code:`populations` maps to a :obj:`dict` containing all :obj:`StatisticalPopulation`'s that have the given :code:`dcid` as its :obj:`location`.
+
+    The :code:`populations` dictionary is keyed by the dcid of each :obj:`StatisticalPopulation`. The mapped dictionary contains the following keys.
+
+    - :code:`popType` which gives the population type of the :obj:`StatisticalPopulation` identified by the key.
+    - :code:`numConstraints` which gives the number of constraining properties defined for the identified :obj:`StatisticalPopulation`.
+    - :code:`propertyValues` which gives a :obj:`dict` mapping a constraining property to its value for the identified :obj:`StatisticalPopulation`.
+    - :code:`observations` which gives a list of all :obj:`Observation`'s that have the identified :obj:`StatisticalPopulation` as their :obj:`observedNode`. Each :obj:`Observation` is represented by a :code:`dict` that have the keys: <INSERT AND DOCUMENT ALL KEYS HERE>
   """
   url = utils._API_ROOT + utils._API_ENDPOINTS['get_pop_obs'] + '?dcid={}'.format(dcid)
   return utils._send_request(url, compress=True, post=False)
