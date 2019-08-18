@@ -29,7 +29,7 @@ import requests
 
 
 def get_places_in(dcids, place_type):
-  """ Returns :obj:`Place`'s contained in :code:`dcids` of type `place_type`.
+  """ Returns :obj:`Place`s contained in :code:`dcids` of type `place_type`.
 
   Args:
     dcids (Union[:obj:`list` of :obj:`str`, :obj:`pandas.Series`]): Dcids to get
@@ -95,24 +95,24 @@ def get_places_in(dcids, place_type):
 
 
 def get_pop_obs(dcid):
-  """ Returns all :obj:`StatisticalPopulation`'s and :obj:`Observation`'s of a :obj:`Place`.
+  """ Returns all :obj:`StatisticalPopulation` and :obj:`Observation` of a :obj:`Place`.
 
   Args:
     dcid (:obj:`str`): Dcid of the place.
 
   Returns:
-    "A :obj:`dict` of :obj:`StatisticalPopulation`'s and :obj:`Observation`'s that are associated to the place
-    identified by the given :code:`dcid`. The given dcid is the :obj:`location` of the returned :obj:`StatisticalPopulation`'s,
-    which are the :obj:`observedNode`'s of the returned :obj:`Observation`'s.
-    See example below for more detail about how the returned :obj:`dict` is structured."
+    A :obj:`dict` of :obj:`StatisticalPopulation` and :obj:`Observation` that are associated to the place
+    identified by the given :code:`dcid`. The given dcid is the :obj:`location` of the returned :obj:`StatisticalPopulation`,
+    which are the :obj:`observedNode` of the returned :obj:`Observation`.
+    See example below for more detail about how the returned :obj:`dict` is structured.
 
   Raises:
     ValueError: If the payload returned by the Data Commons REST API is
       malformed.
 
   Examples:
-    We would like to get :obj:`StatisticalPopulation`'s and :obj:`Observations`'s of
-    `Mountain View https://browser.datacommons.org/kg?dcid=geoId/0649670`_.
+    We would like to get all :obj:`StatisticalPopulation` and :obj:`Observations` of
+    `Mountain View <https://browser.datacommons.org/kg?dcid=geoId/0649670>`_.
 
     >>> get_pop_obs("geoId/0649670")
     {
@@ -155,14 +155,23 @@ def get_pop_obs(dcid):
     Notice that the return value is a multi-level :obj:`dict`. The top level contains the following keys.
 
     - :code:`name` and :code:`placeType` provides the name and type of the :obj:`Place` identified by the given :code:`dcid`.
-    - :code:`populations` maps to a :obj:`dict` containing all :obj:`StatisticalPopulation`'s that have the given :code:`dcid` as its :obj:`location`.
+    - :code:`populations` maps to a :obj:`dict` containing all :obj:`StatisticalPopulation` that have the given :code:`dcid` as its :obj:`location`.
 
     The :code:`populations` dictionary is keyed by the dcid of each :obj:`StatisticalPopulation`. The mapped dictionary contains the following keys.
 
     - :code:`popType` which gives the population type of the :obj:`StatisticalPopulation` identified by the key.
     - :code:`numConstraints` which gives the number of constraining properties defined for the identified :obj:`StatisticalPopulation`.
     - :code:`propertyValues` which gives a :obj:`dict` mapping a constraining property to its value for the identified :obj:`StatisticalPopulation`.
-    - :code:`observations` which gives a list of all :obj:`Observation`'s that have the identified :obj:`StatisticalPopulation` as their :obj:`observedNode`. Each :obj:`Observation` is represented by a :code:`dict` that have the keys: <INSERT AND DOCUMENT ALL KEYS HERE>
+    - :code:`observations` which gives a list of all :obj:`Observation`'s that have the identified :obj:`StatisticalPopulation` as their :obj:`observedNode`.
+
+    Each :obj:`Observation` is represented by a :code:`dict` that have the keys:
+
+    - :code:`measuredProp`
+    - :code:`observationDate`
+    - :code:`observationPeriod` (optional)
+    - :code:`measurementMethod` (optional)
+    - one of: :code:`measuredValue`, :code:`meanValue`, :code:`maxValue`, :code:`minValue`, :code:`medianValue`
+
   """
   url = utils._API_ROOT + utils._API_ENDPOINTS['get_pop_obs'] + '?dcid={}'.format(dcid)
   return utils._send_request(url, compress=True, post=False)
