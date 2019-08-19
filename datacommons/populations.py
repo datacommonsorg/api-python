@@ -279,14 +279,14 @@ def get_pop_obs(dcid):
               'marginOfError': 274,
               'measuredProp': 'count',
               'measuredValue': 1352,
-              'measurementMethod': 'CenusACS5yrSurvey',
+              'measurementMethod': 'CensusACS5yrSurvey',
               'observationDate': '2017'
             },
             {
               'marginOfError': 226,
               'measuredProp': 'count',
               'measuredValue': 1388,
-              'measurementMethod': 'CenusACS5yrSurvey',
+              'measurementMethod': 'CensusACS5yrSurvey',
               'observationDate': '2013'
             }
           ],
