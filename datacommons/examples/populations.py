@@ -22,6 +22,7 @@ from __future__ import print_function
 
 import datacommons as dc
 import pandas as pd
+import pprint
 
 import datacommons.utils as utils
 
@@ -83,6 +84,11 @@ def main():
   pd_frame = dc.clean_frame(pd_frame)
   print(pd_frame)
 
+
+  # Get all population and observation data of Mountain View.
+  utils._print_header('Get Mountain View population and observation')
+  popobs = dc.get_pop_obs("geoId/0649670")
+  pprint.pprint(popobs)
 
 if __name__ == '__main__':
   main()
