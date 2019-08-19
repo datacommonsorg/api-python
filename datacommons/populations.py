@@ -318,6 +318,9 @@ def get_pop_obs(dcid):
     - :code:`populations` maps to a :obj:`dict` containing all
       :obj:`StatisticalPopulation` that have the given :code:`dcid` as its
       :obj:`location`.
+    - :code:`observations` maps to a :obj:`list` containing all
+      :obj:`Observation` that have the given :code:`dcid` as its
+      :obj:`observedNode`.
 
     The :code:`populations` dictionary is keyed by the dcid of each
     :obj:`StatisticalPopulation`. The mapped dictionary contains the following
