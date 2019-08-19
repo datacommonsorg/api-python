@@ -9,4 +9,3 @@ datacommons.places
       :toctree: datacommons_places
 
       get_places_in
-      get_pop_obs

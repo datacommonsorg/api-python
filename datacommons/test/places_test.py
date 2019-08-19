@@ -29,7 +29,6 @@ import pandas as pd
 
 import json
 import unittest
-import zlib
 
 
 def post_request_mock(*args, **kwargs):
