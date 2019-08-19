@@ -167,13 +167,13 @@ def get_request_mock(*args, **kwargs):
               'marginOfError': 119,
               'measuredProp': 'count',
               'measuredValue': 225,
-              'measurementMethod': 'CenusACS5yrSurvey',
+              'measurementMethod': 'CensusACS5yrSurvey',
               'observationDate': '2014'
             }, {
               'marginOfError': 108,
               'measuredProp': 'count',
               'measuredValue': 180,
-              'measurementMethod': 'CenusACS5yrSurvey',
+              'measurementMethod': 'CensusACS5yrSurvey',
               'observationDate': '2012'
             }
           ],
@@ -437,13 +437,13 @@ class TestGetPopObs(unittest.TestCase):
               'marginOfError': 119,
               'measuredProp': 'count',
               'measuredValue': 225,
-              'measurementMethod': 'CenusACS5yrSurvey',
+              'measurementMethod': 'CensusACS5yrSurvey',
               'observationDate': '2014'
             }, {
               'marginOfError': 108,
               'measuredProp': 'count',
               'measuredValue': 180,
-              'measurementMethod': 'CenusACS5yrSurvey',
+              'measurementMethod': 'CensusACS5yrSurvey',
               'observationDate': '2012'
             }
           ],
