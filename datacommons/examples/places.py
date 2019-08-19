@@ -59,7 +59,7 @@ def main():
 
   # Get all population and observation data of Mountain View.
   utils._print_header('Get Mountain View population and observation')
-  popobs = dc.get_pop_obs("geoId/0649670")
+  popobs = dc.get_pop_obs("geoId/06085")
   pprint.pprint(popobs)
 
 
