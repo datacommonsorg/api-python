@@ -235,3 +235,116 @@ def get_observations(dcids,
     except ValueError:
       typed_results[k] = v
   return typed_results
+
+
+def get_pop_obs(dcid):
+  """ Returns all :obj:`StatisticalPopulation` and :obj:`Observation` \
+      of a :obj:`Thing`.
+
+  Args:
+    dcid (:obj:`str`): Dcid of the thing.
+
+  Returns:
+    A :obj:`dict` of :obj:`StatisticalPopulation` and :obj:`Observation` that
+    are associated to the thing identified by the given :code:`dcid`. The given
+    dcid is linked to the returned :obj:`StatisticalPopulation`,
+    which are the :obj:`observedNode` of the returned :obj:`Observation`.
+    See example below for more detail about how the returned :obj:`dict` is
+    structured.
+
+  Raises:
+    ValueError: If the payload returned by the Data Commons REST API is
+      malformed.
+
+  Examples:
+    We would like to get all :obj:`StatisticalPopulation` and
+    :obj:`Observations` of
+    `Santa Clara <https://browser.datacommons.org/kg?dcid=geoId/06085>`_.
+
+    >>> get_pop_obs("geoId/06085")
+    {
+      'name': 'Santa Clara',
+      'placeType': 'County',
+      'populations': {
+        'dc/p/zzlmxxtp1el87': {
+          'popType': 'Household',
+          'numConstraints': 3,
+          'propertyValues': {
+            'householderAge': 'Years45To64',
+            'householderRace': 'USC_AsianAlone',
+            'income': 'USDollar35000To39999'
+          },
+          'observations': [
+            {
+              'marginOfError': 274,
+              'measuredProp': 'count',
+              'measuredValue': 1352,
+              'measurementMethod': 'CensusACS5yrSurvey',
+              'observationDate': '2017'
+            },
+            {
+              'marginOfError': 226,
+              'measuredProp': 'count',
+              'measuredValue': 1388,
+              'measurementMethod': 'CensusACS5yrSurvey',
+              'observationDate': '2013'
+            }
+          ],
+        },
+      },
+      'observations': [
+        {
+          'meanValue': 4.1583,
+          'measuredProp': 'particulateMatter25',
+          'measurementMethod': 'CDCHealthTracking',
+          'observationDate': '2014-04-04',
+          'observedNode': 'geoId/06085'
+        },
+        {
+          'meanValue': 9.4461,
+          'measuredProp': 'particulateMatter25',
+          'measurementMethod': 'CDCHealthTracking',
+          'observationDate': '2014-03-20',
+          'observedNode': 'geoId/06085'
+        }
+      ]
+    }
+
+    Notice that the return value is a multi-level :obj:`dict`. The top level
+    contains the following keys.
+
+    - :code:`name` and :code:`placeType` provides the name and type of the
+      :obj:`Place` identified by the given :code:`dcid`.
+    - :code:`populations` maps to a :obj:`dict` containing all
+      :obj:`StatisticalPopulation` that have the given :code:`dcid` as its
+      :obj:`location`.
+    - :code:`observations` maps to a :obj:`list` containing all
+      :obj:`Observation` that have the given :code:`dcid` as its
+      :obj:`observedNode`.
+
+    The :code:`populations` dictionary is keyed by the dcid of each
+    :obj:`StatisticalPopulation`. The mapped dictionary contains the following
+    keys.
+
+    - :code:`popType` which gives the population type of the
+      :obj:`StatisticalPopulation` identified by the key.
+    - :code:`numConstraints` which gives the number of constraining properties
+      defined for the identified :obj:`StatisticalPopulation`.
+    - :code:`propertyValues` which gives a :obj:`dict` mapping a constraining
+      property to its value for the identified :obj:`StatisticalPopulation`.
+    - :code:`observations` which gives a list of all :obj:`Observation`'s that
+      have the identified :obj:`StatisticalPopulation` as their
+      :obj:`observedNode`.
+
+    Each :obj:`Observation` is represented by a :code:`dict` that have the keys:
+
+    - :code:`measuredProp`
+    - :code:`observationDate`
+    - :code:`observationPeriod` (optional)
+    - :code:`measurementMethod` (optional)
+    - one of: :code:`measuredValue`, :code:`meanValue`, :code:`maxValue`,
+      :code:`minValue`, :code:`medianValue`
+
+  """
+  url = utils._API_ROOT + utils._API_ENDPOINTS['get_pop_obs'] + '?dcid={}'.format(dcid)
+  return utils._send_request(url, compress=True, post=False)

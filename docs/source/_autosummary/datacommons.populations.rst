@@ -10,3 +10,4 @@ datacommons.populations
 
       get_observations
       get_populations
+      get_pop_obs

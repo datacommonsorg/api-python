@@ -18,7 +18,7 @@ from datacommons.query import Query
 # Data Commons Python Client API
 from datacommons.core import get_property_labels, get_property_values, get_triples
 from datacommons.places import get_places_in
-from datacommons.populations import get_populations, get_observations
+from datacommons.populations import get_populations, get_observations, get_pop_obs
 
 # Other utilities
 from .utils import set_api_key, clean_frame, flatten_frame

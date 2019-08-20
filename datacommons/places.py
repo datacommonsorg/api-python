@@ -29,7 +29,8 @@ import requests
 
 
 def get_places_in(dcids, place_type):
-  """ Returns :obj:`Place`'s contained in :code:`dcids` of type `place_type`.
+  """ Returns :obj:`Place`s contained in :code:`dcids` of type
+      :code:`place_type`.
 
   Args:
     dcids (Union[:obj:`list` of :obj:`str`, :obj:`pandas.Series`]): Dcids to get

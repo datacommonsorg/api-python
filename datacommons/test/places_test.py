@@ -93,7 +93,6 @@ def post_request_mock(*args, **kwargs):
   # Otherwise, return an empty response and a 404.
   return MockResponse({}, 404)
 
-
 class TestGetPlacesIn(unittest.TestCase):
   """ Unit stests for get_places_in. """
 
