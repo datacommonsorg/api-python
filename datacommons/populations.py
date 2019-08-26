@@ -389,9 +389,9 @@ def get_place_obs(place_type, population_type, constraining_properties={}):
       with value BornInOtherStateInTheUnitedStates.
 
     >>> props = {
-    >>>   'age': 'Years5To17',
-    >>>   'placeOfBirth': 'BornInOtherStateInTheUnitedStates'
-    >>> }
+    ...   'age': 'Years5To17',
+    ...   'placeOfBirth': 'BornInOtherStateInTheUnitedStates'
+    ... }
     >>> get_place_obs('City', 'Person', constraining_properties=props)
     [
       'name': 'Marcus Hook borough',

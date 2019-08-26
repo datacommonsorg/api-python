@@ -13,8 +13,8 @@
 # limitations under the License.
 """ Data Commons Python Client API Query Module.
 
-Implements a wrapper object for sending SPARQL queries to the Data Commons
-knowledge graph.
+Implements functions for sending graph queries to the Data Commons knowledge
+graph.
 """
 
 from __future__ import absolute_import
@@ -26,132 +26,92 @@ from datacommons.utils import _API_ROOT, _API_ENDPOINTS, _ENV_VAR_API_KEY
 import os
 import requests
 
-# -----------------------------------------------------------------------------
-# Query Class
-# -----------------------------------------------------------------------------
+# ----------------------------- WRAPPER FUNCTIONS -----------------------------
 
 
-class Query(object):
-  """ A wrapper object that performs a SPARQL query on the Data Commons graph.
+def query(query_string, select=None):
+  """ Returns the results of executing a SPARQL query on the Data Commons graph.
 
   Args:
-    **kwargs: Valid keyword arguments include the following. At least one
-      valid argument must be provided.
+    query_string (:obj:`str`): The SPARQL query string.
+    select (:obj:`func` accepting a `row` in the query result): A function
+      that returns true if and only if a row in the query results should be
+      kept. The argument for this function is a row returned by :code:`query`.
+      More precisely, it is a :obj:`dict` from query variable to its value in a
+      given row.
 
-      - `sparql` (:obj:`str`): The SPARQL query string.
+  Yields:
+    Rows from executing the query where each row is a :obj:`dict` mapping
+    query variable to its value in the row. If `select` is not `None`, then
+    the row is returned if and only if `select` returns :obj:`True`.
 
   Raises:
-    ValueError: If an invalid keyword argument is provided.
+    ValueError: If the payload returned by the Data Commons REST API is
+      malformed.
 
-  Example:
-    To construct a :obj:`Query` object, do the following.
+  Examples:
+    We would like to query for the name associated with three states identified
+    by their dcids
+    `California <https://browser.datacommons.org/kg?dcid=geoId/06>`_,
+    `Kentucky <https://browser.datacommons.org/kg?dcid=geoId/21>`_, and
+    `Maryland <https://browser.datacommons.org/kg?dcid=geoId/24>`_.
 
     >>> query_str = '''
-    ...SELECT  ?name ?dcid
-    ...WHERE {
-    ...  ?a typeOf Place .
-    ...  ?a name ?name .
-    ...  ?a dcid ("geoId/06" "geoId/21" "geoId/24") .
-    ...  ?a dcid ?dcid
-    ...}
-    ...'''
-    >>> query = dc.Query(sparql=query_str)
+    ... SELECT ?name ?dcid
+    ... WHERE {
+    ...   ?a typeOf Place .
+    ...   ?a name ?name .
+    ...   ?a dcid ("geoId/06" "geoId/21" "geoId/24") .
+    ...   ?a dcid ?dcid
+    ... }
+    ... '''
+    >>> result = query(query_str)
+    >>> for r in result:
+    ...   print(r)
+    {"?name": "Maryland", "?dcid": "geoId/24"}
+    {"?name": "Kentucky", "?dcid": "geoId/21"}
+    {"?name": "California", "?dcid": "geoId/06"}
+
+    Optionally, we can specify which rows are returned by setting :code:`select`
+    like so. The following returns all rows where the name is "Maryland".
+
+    >>> selector = lambda row: row['?name'] == 'Maryland'
+    >>> result = query(query_str, select=selector)
+    >>> for r in result:
+    ...   print(r)
+    {"?name": "Maryland", "?dcid": "geoId/24"}
   """
+  # Get the API Key and perform the POST request.
+  if not os.environ.get(_ENV_VAR_API_KEY, None):
+    raise ValueError(
+        'Request error: Must set an API key before using the API!')
+  url = _API_ROOT + _API_ENDPOINTS['query']
+  res = requests.post(url, json={'sparql': query_string}, headers={
+    'x-api-key': os.environ[_ENV_VAR_API_KEY]
+  })
 
-  # Valid query languages
-  _SPARQL_LANG = 'sparql'
-  _VALID_LANG = [_SPARQL_LANG]
+  # Verify then store the results.
+  if res.status_code != 200:
+    raise ValueError(
+        'Response error: An HTTP {} code was returned by the mixer. Printing '
+        'response\n\n{}'.format(res.status_code , res.text))
+  res_json = res.json()
 
-  def __init__(self, **kwargs):
-    """ Initializes a SPARQL query targeting the Data Commons graph. """
-    if self._SPARQL_LANG in kwargs:
-      self._query = kwargs[self._SPARQL_LANG]
-      self._language = self._SPARQL_LANG
-      self._result = None
-    else:
-      lang_str = ', '.join(self._VALID_LANG)
-      raise ValueError(
-        'Must provide one of the following languages: {}'.format(lang_str))
+  # Iterate through the query results
+  header = res_json['header']
+  for row in res_json['rows']:
+    # Construct the map from query variable to cell value.
+    row_map = {}
+    for idx, cell in enumerate(row['cells']):
+      if idx > len(header):
+        raise ValueError(
+          'Query error: unexpected cell {}'.format(cell))
+      if 'value' not in cell:
+        raise ValueError(
+          'Query error: cell missing value {}'.format(cell))
+      cell_var = header[idx]
+      row_map[cell_var] = cell['value']
 
-  def rows(self, select=None):
-    """ Returns the result of executing the query as an iterator over all rows.
-
-    Args:
-      select (:obj:`func` accepting a `row` in the query result): A function
-        that returns true if and only if a row in the query results should be
-        kept. The argument for this function is a :obj:`dict` from query
-        variable to its value in a given row.
-
-    Yields:
-      Rows from executing the query where each row is a :obj:`dict` mapping
-      query variable to its value in the row. If `select` is not `None`, then
-      the row is returned if and only if `select` returns :obj:`True`.
-
-    Example:
-      The following query asks for names of three states:
-      `California <https://browser.datacommons.org/kg?dcid=geoId/06>`_,
-      `Kentucky <https://browser.datacommons.org/kg?dcid=geoId/21>`_, and
-      `Maryland <https://browser.datacommons.org/kg?dcid=geoId/24>`_.
-
-      >>> query_str = '''
-      ... SELECT  ?name ?dcid
-      ... WHERE {
-      ...   ?a typeOf Place .
-      ...   ?a name ?name .
-      ...   ?a dcid ("geoId/06" "geoId/21" "geoId/24") .
-      ...   ?a dcid ?dcid
-      ... }
-      ... '''
-      >>> query = dc.Query(sparql=query_str)
-      >>> for r in query.rows():
-      ...   print(r)
-      {"?name": "Maryland", "?dcid": "geoId/24"}
-      {"?name": "Kentucky", "?dcid": "geoId/21"}
-      {"?name": "California", "?dcid": "geoId/06"}
-    """
-    # Execute the query if the results are empty.
-    if not self._result:
-      self._execute()
-
-    # Iterate through the query results
-    header = self._result['header']
-    for row in self._result['rows']:
-      # Construct the map from query variable to cell value.
-      row_map = {}
-      for idx, cell in enumerate(row['cells']):
-        if idx > len(header):
-          raise RuntimeError(
-            'Query error: unexpected cell {}'.format(cell))
-        if 'value' not in cell:
-          raise RuntimeError(
-            'Query error: cell missing value {}'.format(cell))
-        cell_var = header[idx]
-        row_map[cell_var] = cell['value']
-
-      # Yield the row if it is selected
-      if select is None or select(row_map):
-        yield row_map
-
-  def _execute(self):
-    """ Execute the query.
-
-    Raises:
-      RuntimeError: on query failure (see error hint).
-    """
-    # Get the API Key and set the headers
-    if not os.environ.get(_ENV_VAR_API_KEY, None):
-      raise ValueError(
-          'Request error: Must set an API key before using the API!')
-    headers = {'x-api-key': os.environ[_ENV_VAR_API_KEY]}
-
-    # Create the query request.
-    if self._language == self._SPARQL_LANG:
-      payload = {'sparql': self._query}
-    url = _API_ROOT + _API_ENDPOINTS['query']
-    res = requests.post(url, json=payload, headers=headers)
-
-    # Verify then store the results.
-    res_json = res.json()
-    if 'message' in res_json:
-      raise RuntimeError('Query error: {}'.format(res_json['message']))
-    self._result = res.json()
+    # Yield the row if it is selected
+    if select is None or select(row_map):
+      yield row_map

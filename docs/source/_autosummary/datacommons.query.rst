@@ -3,9 +3,9 @@ datacommons.query
 
 .. automodule:: datacommons.query
 
-   .. rubric:: Classes
+   .. rubric:: Functions
 
    .. autosummary::
       :toctree: datacommons_query
 
-      Query
+      query

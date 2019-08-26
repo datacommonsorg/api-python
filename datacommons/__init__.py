@@ -13,7 +13,7 @@
 # limitations under the License.
 
 # Data Commons SPARQL query support
-from datacommons.query import Query
+from datacommons.query import query
 
 # Data Commons Python Client API
 from datacommons.core import get_property_labels, get_property_values, get_triples
