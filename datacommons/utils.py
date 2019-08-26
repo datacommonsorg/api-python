@@ -45,7 +45,8 @@ _API_ENDPOINTS = {
   'get_places_in': '/node/places-in',
   'get_populations': '/node/populations',
   'get_observations': '/node/observations',
-  'get_pop_obs': '/bulk/pop-obs'
+  'get_pop_obs': '/bulk/pop-obs',
+  'get_place_obs': '/bulk/place-obs',
 }
 
 # The default value to limit to

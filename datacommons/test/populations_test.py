@@ -94,6 +94,8 @@ def post_request_mock(*args, **kwargs):
       # provided to the method.
       res_json = json.dumps([])
       return MockResponse({'payload': res_json}, 200)
+
+  # Mock responses for post requests to get_observations
   if args[0] == utils._API_ROOT + utils._API_ENDPOINTS['get_observations']\
     and req['measured_property'] == 'count'\
     and req['stats_type'] == 'measuredValue'\
@@ -131,6 +133,40 @@ def post_request_mock(*args, **kwargs):
       # provided to the method.
       res_json = json.dumps([])
       return MockResponse({'payload': res_json}, 200)
+
+  # Mock responses for post requests to get_place_obs
+  if args[0] == utils._API_ROOT + utils._API_ENDPOINTS['get_place_obs']\
+    and req['place_type'] == 'City'\
+    and req['population_type'] == 'Person'\
+    and req['pvs'] == constrained_props:
+    res_json = json.dumps({
+      'places': [
+        {
+          'name': 'Marcus Hook borough',
+          'place': 'geoId/4247344',
+          'populations': {
+            'dc/p/pq6frs32sfvk': {
+              'observations': [
+                {
+                  'id': 'dc/o/0005qml1el8qh',
+                  'marginOfError': 39,
+                  'measuredProp': 'count',
+                  'measuredValue': 67,
+                  'measurementMethod': 'CenusACS5yrSurvey',
+                  'observationDate': '2014',
+                  'provenanceId': 'dc/3j71hj1',
+                  'type': 'Observation'
+                }
+              ],
+              'provenanceId': 'dc/3j71hj1'
+            }
+          }
+        }
+      ]
+    })
+    return MockResponse({
+      'payload': base64.b64encode(zlib.compress(res_json.encode('utf-8')))
+    }, 200)
 
   # Otherwise, return an empty response and a 404.
   return MockResponse({}, 404)
@@ -189,7 +225,9 @@ def get_request_mock(*args, **kwargs):
         }
       }
     })
-    return MockResponse({'payload': base64.b64encode(zlib.compress(res_json.encode('utf-8')))}, 200)
+    return MockResponse({
+      'payload': base64.b64encode(zlib.compress(res_json.encode('utf-8')))
+    }, 200)
 
   # Otherwise, return an empty response and a 404.
   return MockResponse({}, 404)
@@ -416,7 +454,7 @@ class TestGetObservations(unittest.TestCase):
     assert_series_equal(actual, expected)
 
 class TestGetPopObs(unittest.TestCase):
-  """ Unit stests for get_pop_Obs. """
+  """ Unit tests for get_pop_obs. """
 
   @mock.patch('requests.get', side_effect=get_request_mock)
   def test_valid_dcid(self, get_mock):
@@ -424,9 +462,9 @@ class TestGetPopObs(unittest.TestCase):
     # Set the API key
     dc.set_api_key('TEST-API-KEY')
 
-    # Call get_places_in
-    popobs = dc.get_pop_obs('geoId/06085')
-    self.assertDictEqual(popobs, {
+    # Call get_pop_obs
+    pop_obs = dc.get_pop_obs('geoId/06085')
+    self.assertDictEqual(pop_obs, {
       'name': 'Mountain View',
       'placeType': 'City',
       'populations': {
@@ -459,6 +497,45 @@ class TestGetPopObs(unittest.TestCase):
         }
       }
     })
+
+class TestGetPlaceObs(unittest.TestCase):
+  """ Unit tests for get_place_obs. """
+
+  @mock.patch('requests.post', side_effect=post_request_mock)
+  def test_valid(self, post_mock):
+    """ Calling get_place_obs with valid parameters returns a valid result. """
+    # Set the API key
+    dc.set_api_key('TEST-API-KEY')
+
+    # Call get_place_obs
+    pvs = {
+      'placeOfBirth': 'BornInOtherStateInTheUnitedStates',
+      'age': 'Years5To17'
+    }
+    place_obs = dc.get_place_obs('City', 'Person', constraining_properties=pvs)
+    self.assertListEqual(place_obs, [
+      {
+        'name': 'Marcus Hook borough',
+        'place': 'geoId/4247344',
+        'populations': {
+          'dc/p/pq6frs32sfvk': {
+            'observations': [
+              {
+                'id': 'dc/o/0005qml1el8qh',
+                'marginOfError': 39,
+                'measuredProp': 'count',
+                'measuredValue': 67,
+                'measurementMethod': 'CenusACS5yrSurvey',
+                'observationDate': '2014',
+                'provenanceId': 'dc/3j71hj1',
+                'type': 'Observation'
+              }
+            ],
+            'provenanceId': 'dc/3j71hj1'
+          }
+        }
+      }
+    ])
 
 
 if __name__ == '__main__':
