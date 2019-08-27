@@ -344,10 +344,10 @@ def get_pop_obs(dcid):
       :obj:`Observation` was made.
     - :code:`measurementMethod` (optional): A field providing additional
       information on how the :obj:`Observation` was collected.
-    - one of: :code:`measuredValue`, :code:`meanValue`, :code:`maxValue`,
-      :code:`minValue`, :code:`medianValue`: Fields that denote values measured
-      by the :obj:`Observation`.
-
+    - Additional fields that denote values measured by the :obj:`Observation`.
+      These may include the following: :code:`measuredValue`, :code:`meanValue`,
+      :code:`medianValue`, :code:`maxValue`, :code:`minValue`, :code:`sumValue`,
+      :code:`marginOfError`, :code:`stdError`, :code:`meanStdError`, and others.
   """
   url = utils._API_ROOT + utils._API_ENDPOINTS['get_pop_obs'] + '?dcid={}'.format(dcid)
   return utils._send_request(url, compress=True, post=False)
@@ -404,7 +404,7 @@ def get_place_obs(place_type, population_type, constraining_properties={}):
               'marginOfError': 39,
               'measuredProp': 'count',
               'measuredValue': 67,
-              'measurementMethod': 'CenusACS5yrSurvey',
+              'measurementMethod': 'CensusACS5yrSurvey',
               'observationDate': '2014',
               'provenanceId': 'dc/3j71hj1',
               'type': 'Observation'
@@ -414,7 +414,7 @@ def get_place_obs(place_type, population_type, constraining_properties={}):
               'marginOfError': 33,
               'measuredProp': 'count',
               'measuredValue': 58,
-              'measurementMethod': 'CenusACS5yrSurvey',
+              'measurementMethod': 'CensusACS5yrSurvey',
               'observationDate': '2015',
               'provenanceId': 'dc/3j71hj1',
               'type': 'Observation'
@@ -424,7 +424,7 @@ def get_place_obs(place_type, population_type, constraining_properties={}):
               'marginOfError': 36,
               'measuredProp': 'count',
               'measuredValue': 42,
-              'measurementMethod': 'CenusACS5yrSurvey',
+              'measurementMethod': 'CensusACS5yrSurvey',
               'observationDate': '2011',
               'provenanceId': 'dc/3j71hj1',
               'type': 'Observation'
@@ -462,9 +462,10 @@ def get_place_obs(place_type, population_type, constraining_properties={}):
       :obj:`Observation` was made.
     - :code:`measurementMethod` (optional): A field identifying how the
       :obj:`Observation` was made
-    - one of: :code:`measuredValue`, :code:`meanValue`, :code:`maxValue`,
-      :code:`minValue`, :code:`medianValue`: Fields denoting values measured by
-      the :obj:`Observation`.
+    - Additional fields that denote values measured by the :obj:`Observation`.
+      These may include the following: :code:`measuredValue`, :code:`meanValue`,
+      :code:`medianValue`, :code:`maxValue`, :code:`minValue`, :code:`sumValue`,
+      :code:`marginOfError`, :code:`stdError`, :code:`meanStdError`, and others.
   """
   # Create the json payload and send it to the REST API.
   pv = [{'property': k, 'value': v} for k, v in constraining_properties.items()]

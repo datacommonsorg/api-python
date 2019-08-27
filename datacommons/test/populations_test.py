@@ -152,7 +152,7 @@ def post_request_mock(*args, **kwargs):
                   'marginOfError': 39,
                   'measuredProp': 'count',
                   'measuredValue': 67,
-                  'measurementMethod': 'CenusACS5yrSurvey',
+                  'measurementMethod': 'CensusACS5yrSurvey',
                   'observationDate': '2014',
                   'provenanceId': 'dc/3j71hj1',
                   'type': 'Observation'
@@ -525,7 +525,7 @@ class TestGetPlaceObs(unittest.TestCase):
                 'marginOfError': 39,
                 'measuredProp': 'count',
                 'measuredValue': 67,
-                'measurementMethod': 'CenusACS5yrSurvey',
+                'measurementMethod': 'CensusACS5yrSurvey',
                 'observationDate': '2014',
                 'provenanceId': 'dc/3j71hj1',
                 'type': 'Observation'

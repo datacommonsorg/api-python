@@ -34,16 +34,19 @@ def query(query_string, select=None):
 
   Args:
     query_string (:obj:`str`): The SPARQL query string.
-    select (:obj:`func` accepting a `row` in the query result): A function
-      that returns true if and only if a row in the query results should be
-      kept. The argument for this function is a row returned by :code:`query`.
-      More precisely, it is a :obj:`dict` from query variable to its value in a
-      given row.
+    select (:obj:`func` accepting a row in the query result): A function that
+      selects rows to be returned by :code:`query`. This function accepts a row
+      in the results of executing :code:`query_string` and return True if and
+      only if the row is to be returned by :code:`query`. The row passed in as
+      an argument is represented as a :obj:`dict` that maps a query variable in
+      :code:`query_string` to its value in the given row.
 
-  Yields:
-    Rows from executing the query where each row is a :obj:`dict` mapping
-    query variable to its value in the row. If `select` is not `None`, then
-    the row is returned if and only if `select` returns :obj:`True`.
+  Returns:
+    A table, represented as a :obj:`list` of rows, resulting from executing the
+    given SPARQL query. Each row is a :obj:`dict` mapping query variable to its
+    value in the row. If `select` is not `None`, then a row is included in the
+    returned :obj:`list` if and only if `select` returns :obj:`True` for that
+    row.
 
   Raises:
     ValueError: If the payload returned by the Data Commons REST API is
@@ -99,6 +102,7 @@ def query(query_string, select=None):
 
   # Iterate through the query results
   header = res_json['header']
+  result_rows = []
   for row in res_json['rows']:
     # Construct the map from query variable to cell value.
     row_map = {}
@@ -112,6 +116,7 @@ def query(query_string, select=None):
       cell_var = header[idx]
       row_map[cell_var] = cell['value']
 
-    # Yield the row if it is selected
+    # Add the row to the result rows if it is selected
     if select is None or select(row_map):
-      yield row_map
+      result_rows.append(row_map)
+  return result_rows
