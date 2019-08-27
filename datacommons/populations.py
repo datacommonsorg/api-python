@@ -394,44 +394,47 @@ def get_place_obs(place_type, population_type, constraining_properties={}):
     ... }
     >>> get_place_obs('City', 'Person', constraining_properties=props)
     [
-      'name': 'Marcus Hook borough',
-      'place': 'geoId/4247344',
-      'populations': {
-        'dc/p/pq6frs32sfvk': {
-          'observations': [
-            {
-              'id': 'dc/o/0005qml1el8qh',
-              'marginOfError': 39,
-              'measuredProp': 'count',
-              'measuredValue': 67,
-              'measurementMethod': 'CensusACS5yrSurvey',
-              'observationDate': '2014',
-              'provenanceId': 'dc/3j71hj1',
-              'type': 'Observation'
-            },
-            {
-              'id': 'dc/o/wvskpk5vyjkhb',
-              'marginOfError': 33,
-              'measuredProp': 'count',
-              'measuredValue': 58,
-              'measurementMethod': 'CensusACS5yrSurvey',
-              'observationDate': '2015',
-              'provenanceId': 'dc/3j71hj1',
-              'type': 'Observation'
-            },
-            {
-              'id': 'dc/o/3h44trf3vyrm3',
-              'marginOfError': 36,
-              'measuredProp': 'count',
-              'measuredValue': 42,
-              'measurementMethod': 'CensusACS5yrSurvey',
-              'observationDate': '2011',
-              'provenanceId': 'dc/3j71hj1',
-              'type': 'Observation'
-            },
-            # More observations...
-          ],
-          'provenanceId': 'dc/3j71hj1'
+      {
+        'name': 'Marcus Hook borough',
+        'place': 'geoId/4247344',
+        'populations': {
+          'dc/p/pq6frs32sfvk': {
+            'observations': [
+              {
+                'id': 'dc/o/0005qml1el8qh',
+                'marginOfError': 39,
+                'measuredProp': 'count',
+                'measuredValue': 67,
+                'measurementMethod': 'CensusACS5yrSurvey',
+                'observationDate': '2014',
+                'provenanceId': 'dc/3j71hj1',
+                'type': 'Observation'
+              },
+              {
+                'id': 'dc/o/wvskpk5vyjkhb',
+                'marginOfError': 33,
+                'measuredProp': 'count',
+                'measuredValue': 58,
+                'measurementMethod': 'CensusACS5yrSurvey',
+                'observationDate': '2015',
+                'provenanceId': 'dc/3j71hj1',
+                'type': 'Observation'
+              },
+              {
+                'id': 'dc/o/3h44trf3vyrm3',
+                'marginOfError': 36,
+                'measuredProp': 'count',
+                'measuredValue': 42,
+                'measurementMethod': 'CensusACS5yrSurvey',
+                'observationDate': '2011',
+                'provenanceId': 'dc/3j71hj1',
+                'type': 'Observation'
+              },
+              # More observations...
+            ],
+            'provenanceId': 'dc/3j71hj1'
+          }
+        }
       },
       # Entries for more cities...
     ]
