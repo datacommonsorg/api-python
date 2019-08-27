@@ -121,10 +121,14 @@ WHERE {
   ?a dcid ?dcid
 }
 ''')
-    query = dc.Query(sparql=query_string)
+    selector = lambda row: row['?name'] != 'California'
+
+    # Issue the query
+    results = dc.query(query_string)
+    selected_results = dc.query(query_string, select=selector)
 
     # Execute the query and iterate through the results.
-    for idx, row in enumerate(query.rows()):
+    for idx, row in enumerate(results):
       if idx == 0:
         self.assertDictEqual(row, {'?name': 'California', '?dcid': 'geoId/06'})
       if idx == 1:
@@ -133,8 +137,7 @@ WHERE {
         self.assertDictEqual(row, {'?name': 'Maryland', '?dcid': 'geoId/24'})
 
     # Verify that the select function works.
-    selector = lambda row: row['?name'] != 'California'
-    for idx, row in enumerate(query.rows(select=selector)):
+    for idx, row in enumerate(selected_results):
       if idx == 0:
         self.assertDictEqual(row, {'?name': 'Kentucky', '?dcid': 'geoId/21'})
       if idx == 1:
