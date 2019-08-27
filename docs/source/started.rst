@@ -54,9 +54,11 @@ separate from the *Python Client API*. This service enables the Python Client
 API to call our REST service and access data in our knowledge graph. To enable
 the API, do the following.
 
-1.  Navigate to the `Data Commons API`_ in the Google APIs Console.
-2.  Click the :code:`Enable` button and wait for the process to complete.
+1.  Join datacommons-users `Google Group`_.
+2.  Navigate to the `Data Commons API`_ in the Google APIs Console.
+3.  Click the :code:`Enable` button and wait for the process to complete.
 
+.. _`Google Group`: https://groups.google.com/forum/#!forum/datacommons-users
 .. _`Data Commons API`: https://console.developers.google.com/apis/api/api.datacommons.org/overview?pli=1
 
 Using the Python Client API
