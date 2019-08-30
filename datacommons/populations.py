@@ -353,8 +353,8 @@ def get_pop_obs(dcid):
   return utils._send_request(url, compress=True, post=False)
 
 def get_place_obs(place_type, observation_date, population_type, constraining_properties={}):
-  """ Returns all :obj:`Observation`'s for all places given the place type and
-  the :obj:`StatisticalPopulation` constraints.
+  """ Returns all :obj:`Observation`'s for all places given the place type,
+  observation date and the :obj:`StatisticalPopulation` constraints.
 
   Args:
     place_type (:obj:`str`): The type of places to query
