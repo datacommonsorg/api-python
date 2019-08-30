@@ -137,6 +137,7 @@ def post_request_mock(*args, **kwargs):
   # Mock responses for post requests to get_place_obs
   if args[0] == utils._API_ROOT + utils._API_ENDPOINTS['get_place_obs']\
     and req['place_type'] == 'City'\
+    and req['observation_date'] == '2017'\
     and req['population_type'] == 'Person'\
     and req['pvs'] == constrained_props:
     res_json = json.dumps({
@@ -148,17 +149,11 @@ def post_request_mock(*args, **kwargs):
             'dc/p/pq6frs32sfvk': {
               'observations': [
                 {
-                  'id': 'dc/o/0005qml1el8qh',
                   'marginOfError': 39,
                   'measuredProp': 'count',
                   'measuredValue': 67,
-                  'measurementMethod': 'CensusACS5yrSurvey',
-                  'observationDate': '2014',
-                  'provenanceId': 'dc/3j71hj1',
-                  'type': 'Observation'
                 }
               ],
-              'provenanceId': 'dc/3j71hj1'
             }
           }
         }
@@ -512,7 +507,8 @@ class TestGetPlaceObs(unittest.TestCase):
       'placeOfBirth': 'BornInOtherStateInTheUnitedStates',
       'age': 'Years5To17'
     }
-    place_obs = dc.get_place_obs('City', 'Person', constraining_properties=pvs)
+    place_obs = dc.get_place_obs(
+      'City', '2017', 'Person', constraining_properties=pvs)
     self.assertListEqual(place_obs, [
       {
         'name': 'Marcus Hook borough',
@@ -521,17 +517,11 @@ class TestGetPlaceObs(unittest.TestCase):
           'dc/p/pq6frs32sfvk': {
             'observations': [
               {
-                'id': 'dc/o/0005qml1el8qh',
                 'marginOfError': 39,
                 'measuredProp': 'count',
                 'measuredValue': 67,
-                'measurementMethod': 'CensusACS5yrSurvey',
-                'observationDate': '2014',
-                'provenanceId': 'dc/3j71hj1',
-                'type': 'Observation'
               }
             ],
-            'provenanceId': 'dc/3j71hj1'
           }
         }
       }

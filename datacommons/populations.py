@@ -352,13 +352,14 @@ def get_pop_obs(dcid):
   url = utils._API_ROOT + utils._API_ENDPOINTS['get_pop_obs'] + '?dcid={}'.format(dcid)
   return utils._send_request(url, compress=True, post=False)
 
-def get_place_obs(place_type, population_type, constraining_properties={}):
-  """ Returns all :obj:`StatisticalPopulation`'s and :obj:`Observation`'s for \
-      all places of the given :code:`place_type`.
+def get_place_obs(place_type, observation_date, population_type, constraining_properties={}):
+  """ Returns all :obj:`Observation`'s for all places given the place type,
+  observation date and the :obj:`StatisticalPopulation` constraints.
 
   Args:
     place_type (:obj:`str`): The type of places to query
       :obj:`StatisticalPopulation`'s and :obj:`Observation`'s for.
+    observation_date (:obj:`str`): The observation date in ISO-8601 format.
     population_type (:obj:`str`): The population type of the
       :obj:`StatisticalPopulation`
     constraining_properties (:obj:`map` from :obj:`str` to :obj:`str`, optional):
@@ -366,22 +367,19 @@ def get_place_obs(place_type, population_type, constraining_properties={}):
       :obj:`StatisticalPopulation` should be constrained by.
 
   Returns:
-    Given a :code:`Place` type (i.e. :obj:`State`, :obj:`County`, :obj:`City`),
-    a :code:`population_type` (i.e. :obj:`Person`), and optionally a set of
-    constraining properties defining the `obj`:`StatisticalPopulation`, this
-    function returns *all* :obj:`StatisticalPopulation`'s and
-    :obj:`Observation`'s for all places of the given type. See examples for more
-    details on how the format of the return value is structured.
+    A list of dictionaries, with each dictionary containng *all*
+    :obj:`Observation`'s of a place that conform to the :obj:`StatisticalPopulation`
+    constraints. See examples for more details on how the format of the
+    return value is structured.
 
   Raises:
-    ValueError: If the payload returned by the Data Commons REST API is
-      malformed.
+    ValueError: If the payload is malformed.
 
   Examples:
     We would like to get all :obj:`StatisticalPopulation` and
-    :obj:`Observations` for all places of type :obj:`City` where the populations
-    have a population type of :obj:`Person` is specified by the following
-    constraining properties.
+    :obj:`Observations` for all places of type :obj:`City` in year 2017 where
+    the populations have a population type of :obj:`Person` is specified by the
+    following constraining properties.
 
     - Persons should have `age <https://browser.datacommons.org/kg?dcid=age>`_
       with value `Years5To17 <https://browser.datacommons.org/kg?dcid=Years5To17>`_
@@ -392,7 +390,7 @@ def get_place_obs(place_type, population_type, constraining_properties={}):
     ...   'age': 'Years5To17',
     ...   'placeOfBirth': 'BornInOtherStateInTheUnitedStates'
     ... }
-    >>> get_place_obs('City', 'Person', constraining_properties=props)
+    >>> get_place_obs('City', '2017', Person', constraining_properties=props)
     [
       {
         'name': 'Marcus Hook borough',
@@ -401,38 +399,13 @@ def get_place_obs(place_type, population_type, constraining_properties={}):
           'dc/p/pq6frs32sfvk': {
             'observations': [
               {
-                'id': 'dc/o/0005qml1el8qh',
                 'marginOfError': 39,
                 'measuredProp': 'count',
                 'measuredValue': 67,
-                'measurementMethod': 'CensusACS5yrSurvey',
-                'observationDate': '2014',
-                'provenanceId': 'dc/3j71hj1',
-                'type': 'Observation'
-              },
-              {
-                'id': 'dc/o/wvskpk5vyjkhb',
-                'marginOfError': 33,
-                'measuredProp': 'count',
-                'measuredValue': 58,
-                'measurementMethod': 'CensusACS5yrSurvey',
-                'observationDate': '2015',
-                'provenanceId': 'dc/3j71hj1',
-                'type': 'Observation'
-              },
-              {
-                'id': 'dc/o/3h44trf3vyrm3',
-                'marginOfError': 36,
-                'measuredProp': 'count',
-                'measuredValue': 42,
-                'measurementMethod': 'CensusACS5yrSurvey',
-                'observationDate': '2011',
-                'provenanceId': 'dc/3j71hj1',
                 'type': 'Observation'
               },
               # More observations...
             ],
-            'provenanceId': 'dc/3j71hj1'
           }
         }
       },
@@ -440,7 +413,7 @@ def get_place_obs(place_type, population_type, constraining_properties={}):
     ]
 
     The value returned by :code:`get_place_obs` is a :obj:`list` of
-    :obj:`dict`'s. Each dictionary corresponds to :obj:`StatisticalPopulation`'s
+    :obj:`dict`'s. Each dictionary corresponds to a :obj:`StatisticalPopulation`
     matching the given :code:`population_type` and
     :code:`constraining_properties` for a single place of the given
     :code:`place_type`. The dictionary contains the following keys.
@@ -448,21 +421,11 @@ def get_place_obs(place_type, population_type, constraining_properties={}):
     - :code:`name`: The name of the place being described.
     - :code:`place`: The dcid associated with the place being described.
     - :code:`populations`: A :obj:`dict` mapping :code:`StatisticalPopulation`
-      dcids to a a :obj:`dict` with a list of :code:`observations` and a the
-      :code:`provenanceId` identifying the source that defined the
-      :code:`StatisticalPopulation`.
+      dcids to a a :obj:`dict` with a list of :code:`observations`.
 
     Each :obj:`Observation` is represented by a :obj:`dict` with the following
     keys.
-
-    - :code:`id`: The :code:`dcid` identifying the :obj:`Observation`.
-    - :code:`provenanceId`: The dcid identifying the source that defined this
-      :obj:`Observation`.
-    - :code:`type`: The type associated with the :obj:`Observation`.
     - :code:`measuredProp`: The property measured by the :obj:`Observation`.
-    - :code:`observationDate`: The date when the :obj:`Observation` was made.
-    - :code:`observationPeriod` (optional): The period over which the
-      :obj:`Observation` was made.
     - :code:`measurementMethod` (optional): A field identifying how the
       :obj:`Observation` was made
     - Additional fields that denote values measured by the :obj:`Observation`.
@@ -475,6 +438,7 @@ def get_place_obs(place_type, population_type, constraining_properties={}):
   url = utils._API_ROOT + utils._API_ENDPOINTS['get_place_obs']
   payload = utils._send_request(url, req_json={
     'place_type': place_type,
+    'observation_date': observation_date,
     'population_type': population_type,
     'pvs': pv,
   }, compress=True)
