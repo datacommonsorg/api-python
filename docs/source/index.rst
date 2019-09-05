@@ -47,7 +47,7 @@ Python.
     import datacommons as dc
 
 You will additionally need to *provision an API key* to access the Data Commons
-graph. See `Getting Started <started>`_ to learn more!
+graph. See `Getting Started <started.html>`_ to learn more!
 
 Overview
 --------
