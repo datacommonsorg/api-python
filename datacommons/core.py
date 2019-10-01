@@ -207,7 +207,7 @@ def get_property_values(dcids,
 
   # Format the results as a Series if a Pandas Series is provided.
   if isinstance(dcids, pd.Series):
-    return pd.Series([results[dcid] for dcid in dcids])
+    return pd.Series([results[dcid] for dcid in dcids], index=dcids.index)
   return results
 
 
