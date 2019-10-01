@@ -115,7 +115,7 @@ def get_populations(dcids, population_type, constraining_properties={}):
     payload, 'population', must_exist=dcids)
   if isinstance(dcids, pd.Series):
     flattened = utils._flatten_results(result, default_value="")
-    return pd.Series([flattened[dcid] for dcid in dcids])
+    return pd.Series([flattened[dcid] for dcid in dcids], index=dcids.index)
 
   # Drop empty results while flattening
   return utils._flatten_results(result)
@@ -223,7 +223,7 @@ def get_observations(dcids,
     payload, 'observation', must_exist=dcids)
   if isinstance(dcids, pd.Series):
     flattened = utils._flatten_results(result, default_value="")
-    series = pd.Series([flattened[dcid] for dcid in dcids])
+    series = pd.Series([flattened[dcid] for dcid in dcids], index=dcids.index)
     return series.apply(pd.to_numeric, errors='coerce')
 
   # Drop empty results by calling _flatten_results without default_value, then

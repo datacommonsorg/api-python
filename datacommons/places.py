@@ -91,5 +91,5 @@ def get_places_in(dcids, place_type):
   # Create the results and format it appropriately
   result = utils._format_expand_payload(payload, 'place', must_exist=dcids)
   if isinstance(dcids, pd.Series):
-    return pd.Series([result[dcid] for dcid in dcids])
+    return pd.Series([result[dcid] for dcid in dcids], index=dcids.index)
   return result
