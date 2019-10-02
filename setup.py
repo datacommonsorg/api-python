@@ -15,21 +15,26 @@
 """Install datacommons."""
 from setuptools import setup
 
+with open('README.md', 'r') as fh:
+    long_description = fh.read()
+
 # Package metadata.
 NAME = 'datacommons'
-DESCRIPTION = 'A library to access Data Commons API.'
-URL = 'https://github.com/google/datacommons'
-EMAIL = 'datacommons@google.com'
+DESCRIPTION = 'A library to access Data Commons Python Client API.'
+URL = 'https://github.com/datacommonsorg/api-python'
+EMAIL = 'support@datacommons.org'
 AUTHOR = 'datacommons.org'
-REQUIRES_PYTHON = '>=2.7.0'
-VERSION = '0.4.2'
+REQUIRES_PYTHON = '>=3.6.0'
+VERSION = '1.0.0'
 
 REQUIRED = [
-    'google-api-python-client',
     'httplib2',
+    'requests',
     'numpy',
-    'oauth2client',
     'pandas',
+    'sphinx',
+    'sphinxcontrib-napoleon',
+    'sphinx_rtd_theme',
 ]
 
 PACKAGES = ['datacommons']
@@ -39,6 +44,8 @@ setup(
     name=NAME,
     version=VERSION,
     description=DESCRIPTION,
+    long_description=long_description,
+    long_description_content_type='text/markdown',
     author=AUTHOR,
     author_email=EMAIL,
     maintainer=AUTHOR,

@@ -21,6 +21,7 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+import base64
 from pandas.util.testing import assert_series_equal
 from unittest import mock
 
@@ -30,6 +31,7 @@ import pandas as pd
 
 import json
 import unittest
+import zlib
 
 
 def post_request_mock(*args, **kwargs):
@@ -92,6 +94,8 @@ def post_request_mock(*args, **kwargs):
       # provided to the method.
       res_json = json.dumps([])
       return MockResponse({'payload': res_json}, 200)
+
+  # Mock responses for post requests to get_observations
   if args[0] == utils._API_ROOT + utils._API_ENDPOINTS['get_observations']\
     and req['measured_property'] == 'count'\
     and req['stats_type'] == 'measuredValue'\
@@ -130,9 +134,98 @@ def post_request_mock(*args, **kwargs):
       res_json = json.dumps([])
       return MockResponse({'payload': res_json}, 200)
 
+  # Mock responses for post requests to get_place_obs
+  if args[0] == utils._API_ROOT + utils._API_ENDPOINTS['get_place_obs']\
+    and req['place_type'] == 'City'\
+    and req['observation_date'] == '2017'\
+    and req['population_type'] == 'Person'\
+    and req['pvs'] == constrained_props:
+    res_json = json.dumps({
+      'places': [
+        {
+          'name': 'Marcus Hook borough',
+          'place': 'geoId/4247344',
+          'populations': {
+            'dc/p/pq6frs32sfvk': {
+              'observations': [
+                {
+                  'marginOfError': 39,
+                  'measuredProp': 'count',
+                  'measuredValue': 67,
+                }
+              ],
+            }
+          }
+        }
+      ]
+    })
+    return MockResponse({
+      'payload': base64.b64encode(zlib.compress(res_json.encode('utf-8')))
+    }, 200)
+
   # Otherwise, return an empty response and a 404.
   return MockResponse({}, 404)
 
+
+def get_request_mock(*args, **kwargs):
+  """ A mock GET requests sent in the requests package. """
+  # Create the mock response object.
+  class MockResponse:
+    def __init__(self, json_data, status_code):
+      self.json_data = json_data
+      self.status_code = status_code
+
+    def json(self):
+      return self.json_data
+
+  headers = kwargs['headers']
+
+  # If the API key does not match, then return 403 Forbidden
+  if 'x-api-key' not in headers or headers['x-api-key'] != 'TEST-API-KEY':
+    return MockResponse({}, 403)
+
+  # Mock responses for get requests to get_pop_obs.
+  if args[0] == utils._API_ROOT + utils._API_ENDPOINTS['get_pop_obs'] + '?dcid=geoId/06085':
+    # Response returned when querying for a city in the graph.
+    res_json = json.dumps({
+      'name': 'Mountain View',
+      'placeType': 'City',
+      'populations': {
+        'dc/p/013ldrstf6lnf': {
+          'numConstraints': 6,
+          'observations': [
+            {
+              'marginOfError': 119,
+              'measuredProp': 'count',
+              'measuredValue': 225,
+              'measurementMethod': 'CensusACS5yrSurvey',
+              'observationDate': '2014'
+            }, {
+              'marginOfError': 108,
+              'measuredProp': 'count',
+              'measuredValue': 180,
+              'measurementMethod': 'CensusACS5yrSurvey',
+              'observationDate': '2012'
+            }
+          ],
+          'popType': 'Person',
+          'propertyValues': {
+            'age': 'Years16Onwards',
+            'gender': 'Male',
+            'income': 'USDollar30000To34999',
+            'incomeStatus': 'WithIncome',
+            'race': 'USC_HispanicOrLatinoRace',
+            'workExperience': 'USC_NotWorkedFullTime'
+          }
+        }
+      }
+    })
+    return MockResponse({
+      'payload': base64.b64encode(zlib.compress(res_json.encode('utf-8')))
+    }, 200)
+
+  # Otherwise, return an empty response and a 404.
+  return MockResponse({}, 404)
 
 class TestGetPopulations(unittest.TestCase):
   """ Unit tests for get_populations. """
@@ -354,6 +447,85 @@ class TestGetObservations(unittest.TestCase):
                                  observation_period='P1M',
                                  measurement_method='BLSSeasonallyAdjusted')
     assert_series_equal(actual, expected)
+
+class TestGetPopObs(unittest.TestCase):
+  """ Unit tests for get_pop_obs. """
+
+  @mock.patch('requests.get', side_effect=get_request_mock)
+  def test_valid_dcid(self, get_mock):
+    """ Calling get_pop_obs with valid dcid returns valid results. """
+    # Set the API key
+    dc.set_api_key('TEST-API-KEY')
+
+    # Call get_pop_obs
+    pop_obs = dc.get_pop_obs('geoId/06085')
+    self.assertDictEqual(pop_obs, {
+      'name': 'Mountain View',
+      'placeType': 'City',
+      'populations': {
+        'dc/p/013ldrstf6lnf': {
+          'numConstraints': 6,
+          'observations': [
+            {
+              'marginOfError': 119,
+              'measuredProp': 'count',
+              'measuredValue': 225,
+              'measurementMethod': 'CensusACS5yrSurvey',
+              'observationDate': '2014'
+            }, {
+              'marginOfError': 108,
+              'measuredProp': 'count',
+              'measuredValue': 180,
+              'measurementMethod': 'CensusACS5yrSurvey',
+              'observationDate': '2012'
+            }
+          ],
+          'popType': 'Person',
+          'propertyValues': {
+            'age': 'Years16Onwards',
+            'gender': 'Male',
+            'income': 'USDollar30000To34999',
+            'incomeStatus': 'WithIncome',
+            'race': 'USC_HispanicOrLatinoRace',
+            'workExperience': 'USC_NotWorkedFullTime'
+          }
+        }
+      }
+    })
+
+class TestGetPlaceObs(unittest.TestCase):
+  """ Unit tests for get_place_obs. """
+
+  @mock.patch('requests.post', side_effect=post_request_mock)
+  def test_valid(self, post_mock):
+    """ Calling get_place_obs with valid parameters returns a valid result. """
+    # Set the API key
+    dc.set_api_key('TEST-API-KEY')
+
+    # Call get_place_obs
+    pvs = {
+      'placeOfBirth': 'BornInOtherStateInTheUnitedStates',
+      'age': 'Years5To17'
+    }
+    place_obs = dc.get_place_obs(
+      'City', '2017', 'Person', constraining_properties=pvs)
+    self.assertListEqual(place_obs, [
+      {
+        'name': 'Marcus Hook borough',
+        'place': 'geoId/4247344',
+        'populations': {
+          'dc/p/pq6frs32sfvk': {
+            'observations': [
+              {
+                'marginOfError': 39,
+                'measuredProp': 'count',
+                'measuredValue': 67,
+              }
+            ],
+          }
+        }
+      }
+    ])
 
 
 if __name__ == '__main__':

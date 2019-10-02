@@ -29,7 +29,8 @@ import requests
 
 
 def get_places_in(dcids, place_type):
-  """ Returns :obj:`Place`'s contained in :code:`dcids` of type `place_type`.
+  """ Returns :obj:`Place`s contained in :code:`dcids` of type
+      :code:`place_type`.
 
   Args:
     dcids (Union[:obj:`list` of :obj:`str`, :obj:`pandas.Series`]): Dcids to get
@@ -55,7 +56,7 @@ def get_places_in(dcids, place_type):
   Examples:
     We would like to get all Counties contained in
     `California <https://browser.datacommons.org/kg?dcid=geoId/06>`_. Specifying
-    the :code:`dcids` as a :obj:`list` resulst in the following.
+    the :code:`dcids` as a :obj:`list` result in the following.
 
     >>> get_places_in(["geoId/06"], "County")
     {
@@ -90,5 +91,5 @@ def get_places_in(dcids, place_type):
   # Create the results and format it appropriately
   result = utils._format_expand_payload(payload, 'place', must_exist=dcids)
   if isinstance(dcids, pd.Series):
-    return pd.Series([result[dcid] for dcid in dcids])
+    return pd.Series([result[dcid] for dcid in dcids], index=dcids.index)
   return result

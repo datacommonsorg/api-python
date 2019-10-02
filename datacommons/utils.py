@@ -21,7 +21,6 @@ from __future__ import division
 from __future__ import print_function
 
 from collections import defaultdict
-
 import pandas as pd
 
 import base64
@@ -45,7 +44,9 @@ _API_ENDPOINTS = {
   'get_triples': '/node/triples',
   'get_places_in': '/node/places-in',
   'get_populations': '/node/populations',
-  'get_observations': '/node/observations'
+  'get_observations': '/node/observations',
+  'get_pop_obs': '/bulk/pop-obs',
+  'get_place_obs': '/bulk/place-obs',
 }
 
 # The default value to limit to
@@ -138,7 +139,7 @@ def clean_frame(pd_frame):
 # ------------------------- INTERNAL HELPER FUNCTIONS -------------------------
 
 
-def _send_request(req_url, req_json={}, compress=False):
+def _send_request(req_url, req_json={}, compress=False, post=True):
   """ Sends a POST request to the given req_url with the given req_json.
 
   Returns:
@@ -154,7 +155,10 @@ def _send_request(req_url, req_json={}, compress=False):
   headers = {'x-api-key': os.environ[_ENV_VAR_API_KEY]}
 
   # Send the request and verify the request succeeded
-  res = requests.post(req_url, headers=headers, json=req_json)
+  if post:
+    res = requests.post(req_url, headers=headers, json=req_json)
+  else:
+    res = requests.get(req_url, headers=headers)
   if res.status_code != 200:
     raise ValueError(
         'Response error: An HTTP {} code was returned by the mixer. Printing '
@@ -171,7 +175,7 @@ def _send_request(req_url, req_json={}, compress=False):
   payload = res_json['payload']
   if compress:
     payload = zlib.decompress(
-      base64.b64decode(payload), 16 + zlib.MAX_WBITS)
+      base64.b64decode(payload), zlib.MAX_WBITS|32)
   return json.loads(payload)
 
 

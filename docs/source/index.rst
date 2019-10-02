@@ -37,7 +37,7 @@ from `pip`.
 
 .. code-block:: bash
 
-    $ pip install git+https://github.com/google/datacommons.git@stable-1.x
+    $ pip install -U git+https://github.com/google/datacommons.git@stable-1.x
 
 Once the package is installed, you can import the :code:`datacommons` package in
 Python.
@@ -47,7 +47,7 @@ Python.
     import datacommons as dc
 
 You will additionally need to *provision an API key* to access the Data Commons
-graph. See `Getting Started <started>`_ to learn more!
+graph. See `Getting Started <started.html>`_ to learn more!
 
 Overview
 --------
