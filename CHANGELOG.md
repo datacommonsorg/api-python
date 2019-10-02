@@ -1,12 +1,29 @@
 # Changelog
 
+## 1.0.1
+
+**Date** - 10/2/2019
+
+**Release Tag** - [v1.0.1](https://github.com/datacommonsorg/api-python/releases/tag/v1.0.1)
+
+**Release Status** - Current head of branch [`stable-1.x`](https://github.com/datacommonsorg/api-python/tree/stable-1.x)
+
+New features added to the Python Client API
+
+-   Added two new functions `get_pop_obs` and `get_place_obs`
+-   SPARQL query is now supported as a function `query` instead of a class.
+-   Added documentation on how to provision an API key and provide it to the API
+
+Bugs fixed in new release
+
+-   Fixed various typos and formatting issues in the documentation.
+-   If the index of the `pandas.Series` passed into functions such as `get_populations` and `get_observations` was not contiguous, then the assignment step would not properly align the values returned by calling the function. This is because the `pandas.Series` returned by the function would have a different index than the given series. This is fixed by assigning the index of the returned series to that of the given series.   
+
 ## 1.0.0
 
 **Date** - 8/9/2019
 
 **Release Tag** - [v1.0.0](https://github.com/datacommonsorg/api-python/releases/tag/v1.0.0)
-
-**Release Status** - Current head of branch [`stable-1.x`](https://github.com/datacommonsorg/api-python/tree/stable-1.x)
 
 New release of the Python Client API.
 
