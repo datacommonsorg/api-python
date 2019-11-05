@@ -94,8 +94,6 @@ def get_populations(dcids, population_type, constraining_properties={}):
   # Create the results and format it appropriately
   result = utils._format_expand_payload(
     payload, 'population', must_exist=dcids)
-  print(result)
-  print(utils._flatten_results(result))
 
   # Drop empty results while flattening
   return utils._flatten_results(result)
