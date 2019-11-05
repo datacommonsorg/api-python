@@ -22,13 +22,10 @@ from __future__ import division
 from __future__ import print_function
 
 import base64
-from pandas.util.testing import assert_series_equal
 from unittest import mock
 
 import datacommons as dc
 import datacommons.utils as utils
-import pandas as pd
-
 import json
 import unittest
 import zlib
@@ -278,63 +275,6 @@ class TestGetPopulations(unittest.TestCase):
       [], 'Person', constraining_properties=self._constraints)
     self.assertDictEqual(pops, {})
 
-  # ---------------------------- PANDAS UNIT TESTS ----------------------------
-
-  @mock.patch('requests.post', side_effect=post_request_mock)
-  def test_series_multiple_dcids(self, post_mock):
-    """ Calling get_populations with a Pandas Series and proper dcids returns
-    a Pandas Series with valid results.
-    """
-    # Set the API key
-    dc.set_api_key('TEST-API-KEY')
-
-    # Get the input and expected output
-    dcids = pd.Series(['geoId/06085', 'geoId/4805000'])
-    expected = pd.Series(['dc/p/crgfn8blpvl35', 'dc/p/f3q9whmjwbf36'])
-
-    # Call get_populations
-    actual = dc.get_populations(
-      dcids, 'Person', constraining_properties=self._constraints)
-    assert_series_equal(actual, expected)
-
-  @mock.patch('requests.post', side_effect=post_request_mock)
-  def test_series_bad_dcids(self, post_mock):
-    """ Calling get_populations with a Pandas Series and dcids that do not exist
-    returns empty results.
-    """
-    # Set the API key
-    dc.set_api_key('TEST-API-KEY')
-
-    # Get input and expected output
-    dcids_1 = pd.Series(['geoId/06085', 'dc/MadDcid'])
-    dcids_2 = pd.Series(['dc/MadDcid', 'dc/MadderDcid'])
-    expected_1 = pd.Series(['dc/p/crgfn8blpvl35', ''])
-    expected_2 = pd.Series(['', ''])
-
-    # Call get_populations
-    actual_1 = dc.get_populations(
-      dcids_1, 'Person', constraining_properties=self._constraints)
-    actual_2 = dc.get_populations(
-      dcids_2, 'Person', constraining_properties=self._constraints)
-
-    # Assert that the results are correct
-    assert_series_equal(actual_1, expected_1)
-    assert_series_equal(actual_2, expected_2)
-
-  @mock.patch('requests.post', side_effect=post_request_mock)
-  def test_series_no_dcids(self, post_mock):
-    """ Calling get_populations with no dcids returns empty results. """
-    # Set the API key
-    dc.set_api_key('TEST-API-KEY')
-
-    dcids = pd.Series([])
-    expected = pd.Series([])
-
-    # Call get_populations
-    actual = dc.get_populations(
-      dcids, 'Person', constraining_properties=self._constraints)
-    assert_series_equal(actual, expected)
-
 
 class TestGetObservations(unittest.TestCase):
   """ Unit tests for get_observations. """
@@ -391,62 +331,6 @@ class TestGetObservations(unittest.TestCase):
                                  measurement_method='BLSSeasonallyAdjusted')
     self.assertDictEqual(actual, {})
 
-  # ---------------------------- PANDAS UNIT TESTS ----------------------------
-
-  @mock.patch('requests.post', side_effect=post_request_mock)
-  def test_series_multiple_dcids(self, post_mock):
-    """ Calling get_observations with a Pandas Series and proper dcids returns
-    a Pandas Series with valid results.
-    """
-    # Set the API key
-    dc.set_api_key('TEST-API-KEY')
-
-    dcids = pd.Series(
-      ['dc/p/x6t44d8jd95rd', 'dc/p/lr52m1yr46r44', 'dc/p/fs929fynprzs'])
-    expected = pd.Series([18704962.0, 3075662.0, 1973955.0])
-    actual = dc.get_observations(dcids, 'count', 'measuredValue', '2018-12',
-                                 observation_period='P1M',
-                                 measurement_method='BLSSeasonallyAdjusted')
-    assert_series_equal(actual, expected)
-
-  @mock.patch('requests.post', side_effect=post_request_mock)
-  def test_series_bad_dcids(self, post_mock):
-    """ Calling get_observations with a Pandas Series and dcids that do not
-    exist returns empty results.
-    """
-    # Set the API key
-    dc.set_api_key('TEST-API-KEY')
-
-    # Get the input and expected output
-    dcids_1 = pd.Series(['dc/p/x6t44d8jd95rd', 'dc/MadDcid'])
-    dcids_2 = pd.Series(['dc/MadDcid', 'dc/MadderDcid'])
-    expected_1 = pd.Series([18704962.0, float('NaN')])
-    expected_2 = pd.Series([float('NaN'), float('NaN')])
-
-    # Call get_observations
-    actual_1 = dc.get_observations(dcids_1, 'count', 'measuredValue', '2018-12',
-                                   observation_period='P1M',
-                                   measurement_method='BLSSeasonallyAdjusted')
-    actual_2 = dc.get_observations(dcids_2, 'count', 'measuredValue', '2018-12',
-                                   observation_period='P1M',
-                                   measurement_method='BLSSeasonallyAdjusted')
-
-    # Verify the results
-    assert_series_equal(actual_1, expected_1)
-    assert_series_equal(actual_2, expected_2)
-
-  @mock.patch('requests.post', side_effect=post_request_mock)
-  def test_series_no_dcids(self, post_mock):
-    """ Calling get_observations with no dcids returns empty results. """
-    # Set the API key
-    dc.set_api_key('TEST-API-KEY')
-
-    dcids = pd.Series([])
-    expected = pd.Series([])
-    actual = dc.get_observations(dcids, 'count', 'measuredValue', '2018-12',
-                                 observation_period='P1M',
-                                 measurement_method='BLSSeasonallyAdjusted')
-    assert_series_equal(actual, expected)
 
 class TestGetPopObs(unittest.TestCase):
   """ Unit tests for get_pop_obs. """

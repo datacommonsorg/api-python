@@ -1,10 +1,6 @@
 package(default_visibility = ["//visibility:public"])
-load("@requirements//:requirements.bzl", "requirement")
 
 py_library(
     name = "datacommons",
     srcs = glob(["*.py"]),
-    deps = [
-        requirement("pandas"),
-    ]
 )

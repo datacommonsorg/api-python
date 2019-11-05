@@ -21,4 +21,4 @@ from datacommons.places import get_places_in
 from datacommons.populations import get_populations, get_observations, get_pop_obs, get_place_obs
 
 # Other utilities
-from .utils import set_api_key, clean_frame, flatten_frame
+from .utils import set_api_key

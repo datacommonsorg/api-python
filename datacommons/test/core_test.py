@@ -20,13 +20,10 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-from pandas.util.testing import assert_series_equal, assert_frame_equal
 from unittest import mock
 
 import datacommons as dc
 import datacommons.utils as utils
-import pandas as pd
-
 import json
 import unittest
 
@@ -471,96 +468,6 @@ class TestGetPropertyValues(unittest.TestCase):
     # Get property values with an empty list of dcids.
     prop_vals = dc.get_property_values([], 'containedInPlace')
     self.assertDictEqual(prop_vals, {})
-
-  # ---------------------------- PANDAS UNIT TESTS ----------------------------
-
-  @mock.patch('requests.post', side_effect=post_request_mock)
-  def test_series(self, post_mock):
-    """ Calling get_property_values with a Pandas Series returns the correct
-    results.
-    """
-    # Set the API key
-    dc.set_api_key('TEST-API-KEY')
-
-    # The given and expected series.
-    dcids = pd.Series(['geoId/06085', 'geoId/24031'])
-    expected = pd.Series([
-      ['geoId/0643294', 'geoId/0644112'],
-      ['geoId/2462850']
-    ])
-
-    # Call get_property_values with the series as input
-    actual = dc.get_property_values(
-      dcids, 'containedInPlace', out=False, value_type='Town')
-    assert_series_equal(actual, expected)
-
-  @mock.patch('requests.post', side_effect=post_request_mock)
-  def test_series_bad_dcids(self, post_mock):
-    """ Calling get_property_values with a Pandas Series and dcids that does not
-    exist resturns an empty result.
-    """
-    # Set the API key
-    dc.set_api_key('TEST-API-KEY')
-
-    # The given and expected series
-    bad_dcids_1 = pd.Series(['geoId/06085', 'dc/MadDcid'])
-    bad_dcids_2 = pd.Series(['dc/MadDcid', 'dc/MadderDcid'])
-    expected_1 = pd.Series([['geoId/0644112'], []])
-    expected_2 = pd.Series([[], []])
-
-    # Call get_property_values with series as input
-    actual_1 = dc.get_property_values(bad_dcids_1, 'containedInPlace', out=False)
-    actual_2 = dc.get_property_values(bad_dcids_2, 'containedInPlace', out=False)
-
-    # Assert the results are correct
-    assert_series_equal(actual_1, expected_1)
-    assert_series_equal(actual_2, expected_2)
-
-  @mock.patch('requests.post', side_effect=post_request_mock)
-  def test_series_bad_property(self, post_mock):
-    """ Calling get_property_values with a Pandas Series and a property that
-    does not exist returns an empty result.
-    """
-    # Set the API key
-    dc.set_api_key('TEST-API-KEY')
-
-    # The input and expected series
-    dcids = pd.Series(['geoId/06085', 'geoId/24031'])
-    expected = pd.Series([[], []])
-
-    # Call get_property_values and assert the results are correct.
-    actual = dc.get_property_values(dcids, 'madProperty')
-    assert_series_equal(actual, expected)
-
-  @mock.patch('requests.post', side_effect=post_request_mock)
-  def test_series_no_dcid(self, post_mock):
-    # The input and expected series
-    dcids = pd.Series([])
-    expected = pd.Series([])
-
-    # Call get_property_values and assert the results are correct.
-    actual = dc.get_property_values(dcids, 'containedInPlace')
-    assert_series_equal(actual, expected)
-
-  @mock.patch('requests.post', side_effect=post_request_mock)
-  def test_dataframe(self, post_mock):
-    """ Calling get_property_values with a Pandas DataFrame returns the correct
-    results.
-    """
-    # Set the API key
-    dc.set_api_key('TEST-API-KEY')
-
-    # The given and expected series.
-    dcids = pd.DataFrame({'dcids': ['geoId/06085', 'geoId/24031']})
-    expected = pd.Series([
-      ['geoId/0643294', 'geoId/0644112'],
-      ['geoId/2462850']
-    ])
-
-    # Call get_property_values with the series as input
-    actual = dc.get_property_values(
-        dcids, 'containedInPlace', out=False, value_type='Town')
-    assert_series_equal(actual, expected)
 
 class TestGetTriples(unittest.TestCase):
   """ Unit tests for get_triples. """

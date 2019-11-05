@@ -21,7 +21,6 @@ from __future__ import division
 from __future__ import print_function
 
 from collections import defaultdict
-import pandas as pd
 
 import base64
 import json
@@ -73,67 +72,6 @@ def set_api_key(api_key):
     api_key (:obj:`str`): The api key.
   """
   os.environ[_ENV_VAR_API_KEY] = api_key
-
-
-# ------------------------- PANDAS UTILITY FUNCTIONS --------------------------
-
-
-def flatten_frame(pd_frame, cols=[]):
-  """ Expands each cell in a Pandas DataFrame containing a list of values.
-
-  Args:
-    pd_frame (:obj:`pandas.DataFrame`): The Pandas DataFrame.
-    cols (:obj:`list` of `str`, optional): A list of columns to flatten. If none
-      are provided, then all columns are flattened.
-
-  Returns:
-    A :obj:`pandas.DataFrame` with all columns containing lists flattened.
-
-  Raises:
-    ValueError: If a given column is not in the data frame.
-
-  Examples:
-    We can flatten a data frame with a column of lists like so.
-
-    >>> frame = pd.DataFrame({"state": ["geoId/06"]})
-    >>> frame['county'] = dc.get_places_in(dcids, "County")
-    >>> frame
-          state                                             county
-    0  geoId/06  [geoId/06041, geoId/06089, geoId/06015, geoId/...
-    >>> dc.flatten_frame(frame)
-           state       county
-    0   geoId/06  geoId/06041
-    1   geoId/06  geoId/06089
-    2   geoId/06  geoId/06015
-    ..       ...          ...
-    55  geoId/06  geoId/06019
-    56  geoId/06  geoId/06031
-    57  geoId/06  geoId/06099
-  """
-  if not cols:
-    cols = list(pd_frame.columns)
-  for col in cols:
-    if col not in pd_frame:
-      raise ValueError('Column {} is not in data frame.'.format(col))
-    if any(isinstance(v, list) for v in pd_frame[col]):
-      # TODO: Uncomment after colab supports pandas 0.25
-      # pd_frame = pd_frame._explode(col)
-      pd_frame = _explode(pd_frame, col)
-  pd_frame = pd_frame.reset_index(drop=True)
-  return pd_frame
-
-
-def clean_frame(pd_frame):
-  """ A convenience function that cleans a pandas DataFrame.
-
-  Args:
-    pd_frame (:obj:`pandas.DataFrame`): The Pandas DataFrame.
-
-  Returns:
-    A :obj:`pandas.DataFrame` with all rows containing empty or NaN elements
-    removed.
-  """
-  return pd_frame.dropna().reset_index(drop=True)
 
 
 # ------------------------- INTERNAL HELPER FUNCTIONS -------------------------
@@ -206,49 +144,6 @@ def _flatten_results(result, default_value=None):
     elif default_value is not None:
       flattened[k] = default_value
   return flattened
-
-
-def _convert_dcids_type(dcids):
-  """ Amends dcids list type and creates the approprate request dcids list. """
-  # Create the requests dcids list.
-  if isinstance(dcids, list):
-    req_dcids = dcids
-  elif isinstance(dcids, pd.Series):
-    req_dcids = list(dcids)
-  elif isinstance(dcids, pd.DataFrame):
-    # Assume user did df[[col]] instead of df[col]
-    # Or user had to use single-col dataframe for Reticulate
-    # Take the first column as a series
-    dcids = dcids.iloc[:,0]
-    req_dcids = list(dcids)
-  else:
-    raise ValueError(
-      'dcids parameter must either be of type list or pandas.Series.')
-  return dcids, req_dcids
-
-
-def _explode(pd_frame, column):
-  """ Expands a list inside a Pandas cell. """
-  matches = [i for i, n in enumerate(pd_frame.columns) if n == column]
-  col_idx = matches[0]
-
-  def helper(d):
-    row = list(d.values[0])
-    bef = row[:col_idx]
-    aft = row[col_idx + 1:]
-    col = row[col_idx]
-    z = [bef + [c] + aft for c in col]
-    return pd.DataFrame(z)
-
-  col_idx += len(pd_frame.index.shape)
-  index_names = list(pd_frame.index.names)
-  column_names = list(index_names) + list(pd_frame.columns)
-  return (pd_frame
-          .reset_index()
-          .groupby(level=0, as_index=0)
-          .apply(helper)
-          .rename(columns=lambda i: column_names[i])
-          .set_index(index_names))
 
 
 def _print_header(label):

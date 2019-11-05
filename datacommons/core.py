@@ -28,8 +28,6 @@ from __future__ import print_function
 
 from collections import defaultdict
 
-import pandas as pd
-
 import datacommons.utils as utils
 import requests
 
@@ -40,7 +38,7 @@ def get_property_labels(dcids, out=True):
   """ Returns the labels of properties defined for the given :code:`dcids`.
 
   Args:
-    dcids (:obj:`list` of :obj:`str`): A list of nodes identified by their
+    dcids (:obj:`iterable` of :obj:`str`): A list of nodes identified by their
       dcids.
     out (:obj:`bool`, optional): Whether or not the property points away from
       the given list of nodes.
@@ -99,6 +97,7 @@ def get_property_labels(dcids, out=True):
     }
   """
   # Generate the GetProperty query and send the request
+  dcids = list(dcids)
   url = utils._API_ROOT + utils._API_ENDPOINTS['get_property_labels']
   payload = utils._send_request(url, req_json={'dcids': dcids})
 
@@ -120,8 +119,7 @@ def get_property_values(dcids,
   """ Returns property values of given :code:`dcids` along the given property.
 
   Args:
-    dcids (Union[:obj:`list` of :obj:`str`, :obj:`pandas.Series`]): dcids to get
-      property values for.
+    dcids (:obj:`iterable` of :obj:`str`): dcids to get property values for.
     prop (:obj:`str`): The property to get property values for.
     out (:obj:`bool`, optional): A flag that indicates the property is directed
       away from the given nodes when set to true.
@@ -131,15 +129,8 @@ def get_property_values(dcids,
       aggregated over all given nodes.
 
   Returns:
-    When :code:`dcids` is an instance of :obj:`list`, the returned property
-    values are formatted as a :obj:`dict` from a given dcid to a list of its
-    property values.
-
-    When :code:`dcids` is an instance of :obj:`pandas.Series`, the returned
-    property values are formatted as a :obj:`pandas.Series` where the `i`-th
-    entry corresponds to property values associated with the `i`-th given dcid.
-    The cells of the returned series will always contain a :obj:`list` of
-    property values.
+    Returned property values are formatted as a :obj:`dict` from a given dcid
+    to a list of its property values.
 
   Raises:
     ValueError: If the payload returned by the Data Commons REST API is
@@ -160,21 +151,11 @@ def get_property_values(dcids,
       "geoId/21": ["Kentucky"],
       "geoId/24": ["Maryland"],
     }
-
-    Next, we specify :code:`dcids` as a :obj:`pandas.Series`
-
-    >>> import pandas as pd
-    >>> dcids = pd.Series(["geoId/06", "geoId/21", "geoId/24"])
-    >>> get_property_values(dcids, "name")
-    0    [California]
-    1      [Kentucky]
-    2      [Maryland]
-    dtype: object
   """
   # Convert the dcids field and format the request to GetPropertyValue
-  dcids, req_dcids = utils._convert_dcids_type(dcids)
+  dcids = list(dcids)
   req_json = {
-    'dcids': req_dcids,
+    'dcids': dcids,
     'property': prop,
     'limit': limit
   }
@@ -205,9 +186,6 @@ def get_property_values(dcids,
   # Make sure each dcid is in the results dict, and convert all sets to lists.
   results = {dcid: sorted(list(unique_results[dcid])) for dcid in dcids}
 
-  # Format the results as a Series if a Pandas Series is provided.
-  if isinstance(dcids, pd.Series):
-    return pd.Series([results[dcid] for dcid in dcids], index=dcids.index)
   return results
 
 
@@ -221,7 +199,7 @@ def get_triples(dcids, limit=utils._MAX_LIMIT):
   *predicate*).
 
   Args:
-    dcids (:obj:`list` of :obj:`str`): A list of dcids to get triples for.
+    dcids (:obj:`iterable` of :obj:`str`): A list of dcids to get triples for.
     limit (:obj:`int`, optional): The maximum total number of triples to get.
 
   Returns:
@@ -249,6 +227,7 @@ def get_triples(dcids, limit=utils._MAX_LIMIT):
     }
   """
   # Generate the GetTriple query and send the request.
+  dcids = list(dcids)
   url = utils._API_ROOT + utils._API_ENDPOINTS['get_triples']
   payload = utils._send_request(url, req_json={'dcids': dcids, 'limit': limit})
 
