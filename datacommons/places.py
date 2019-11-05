@@ -23,7 +23,6 @@ from __future__ import division
 from __future__ import print_function
 
 import datacommons.utils as utils
-import pandas as pd
 
 import requests
 
@@ -33,21 +32,13 @@ def get_places_in(dcids, place_type):
       :code:`place_type`.
 
   Args:
-    dcids (Union[:obj:`list` of :obj:`str`, :obj:`pandas.Series`]): Dcids to get
-      contained in places.
+    dcids (:obj:`iterable` of :obj:`str`): Dcids to get contained in places.
     place_type (:obj:`str`): The type of places contained in the given dcids to
       filter by.
 
   Returns:
-    When :code:`dcids` is an instance of :obj:`list`, the returned
-    :obj:`Place`'s are formatted as a :obj:`dict` from a given dcid to a list of
-    places identified by dcids of the given `place_type`.
-
-    When :code:`dcids` is an instance of :obj:`pandas.Series`, the returned
-    :obj:`Place`'s are formatted as a :obj:`pandas.Series` where the `i`-th
-    entry corresponds to places contained in the place identified by the dcid
-    in `i`-th cell if :code:`dcids`. The cells of the returned series will always
-    contain a :obj:`list` of place dcids of the given `place_type`.
+    The returned :obj:`Place`'s are formatted as a :obj:`dict` from a given
+    dcid to a list of places identified by dcids of the given `place_type`.
 
   Raises:
     ValueError: If the payload returned by the Data Commons REST API is
@@ -70,26 +61,14 @@ def get_places_in(dcids, place_type):
         # and 53 more
       ]
     }
-
-    We can also specify the :code:`dcids` as a :obj:`pandas.Series` like so.
-
-    >>> import pandas as pd
-    >>> dcids = pd.Series(["geoId/06"])
-    >>> get_places_in(dcids, "County")
-    0    [geoId/06041, geoId/06089, geoId/06015, geoId/...
-    dtype: object
-
   """
-  # Convert the dcids field and format the request to GetPlacesIn
-  dcids, req_dcids = utils._convert_dcids_type(dcids)
+  dcids = list(dcids)
   url = utils._API_ROOT + utils._API_ENDPOINTS['get_places_in']
   payload = utils._send_request(url, req_json={
-    'dcids': req_dcids,
+    'dcids': dcids,
     'place_type': place_type,
   })
 
   # Create the results and format it appropriately
   result = utils._format_expand_payload(payload, 'place', must_exist=dcids)
-  if isinstance(dcids, pd.Series):
-    return pd.Series([result[dcid] for dcid in dcids], index=dcids.index)
   return result

@@ -57,16 +57,16 @@ def main():
   # DataFrame with Santa Clara and Montgomery County.
   utils._print_header('Initialize the DataFrame')
   pd_frame = pd.DataFrame({'state': ['geoId/06', 'geoId/21', 'geoId/24']})
-  pd_frame['state_name'] = dc.get_property_values(pd_frame['state'], 'name')
-  pd_frame = dc.flatten_frame(pd_frame)
-  print(pd_frame)
+  pd_frame['state_name'] = pd_frame['state'].map(
+    dc.get_property_values(pd_frame['state'], 'name'))
+  pd_frame = pd_frame.explode('state_name').reset_index(drop=True)
 
   # Get populations for employed individuals
   utils._print_header('Add Population and Observation to DataFrame')
-  pd_frame['employed_pop'] = dc.get_populations(
+  pd_frame['employed_pop'] = pd_frame['state'].map(dc.get_populations(
     pd_frame['state'],
     'Person',
-    constraining_properties={'employment': 'BLS_Employed'})
+    constraining_properties={'employment': 'BLS_Employed'}))
 
   # Add the observation for employed individuals
   pd_frame['employed_count'] = dc.get_observations(
@@ -81,7 +81,7 @@ def main():
   # Final dataframe. Use the convenience function "clean_frame" to convert
   # columns to numerical types.
   utils._print_header('Final Data Frame')
-  pd_frame = dc.clean_frame(pd_frame)
+  pd_frame = pd_frame.dropna().reset_index(drop=True)
   print(pd_frame)
 
 

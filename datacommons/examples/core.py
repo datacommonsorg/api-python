@@ -77,7 +77,7 @@ def main():
   # To expand on a column with get_property_values, the data frame has to be
   # flattened first. Clients can use flatten_frame to do this.
   utils._print_header('Flatten the Frame')
-  pd_frame = dc.flatten_frame(pd_frame)
+  pd_frame = pd_frame.explode('county')
   print(pd_frame)
 
   # Get the names for each city.
@@ -87,7 +87,7 @@ def main():
 
   # Format the final frame.
   utils._print_header('The Final Frame')
-  pd_frame = dc.flatten_frame(pd_frame)
+  pd_frame = pd_frame.explode('city')
   print(pd_frame)
 
 

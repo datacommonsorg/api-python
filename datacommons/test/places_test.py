@@ -20,13 +20,10 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-from pandas.util.testing import assert_series_equal
 from unittest import mock
 
 import datacommons as dc
 import datacommons.utils as utils
-import pandas as pd
-
 import json
 import unittest
 
@@ -143,61 +140,6 @@ class TestGetPlacesIn(unittest.TestCase):
       'dc/MadDcid': [],
       'dc/MadderDcid': []
     })
-
-  # ---------------------------- PANDAS UNIT TESTS ----------------------------
-
-  @mock.patch('requests.post', side_effect=post_request_mock)
-  def test_series_multiple_dcids(self, post_mock):
-    """ Calling get_places_in with a Pandas Series and proper dcids returns
-    a Pandas Series with valid results.
-    """
-    # Set the API key
-    dc.set_api_key('TEST-API-KEY')
-
-    # Get the input dcids and expected output
-    dcids = pd.Series(['geoId/06085', 'geoId/24031'])
-    expected = pd.Series(
-      [['geoId/0649670'], ['geoId/2467675', 'geoId/2476650']])
-
-    # Call get_places_in
-    actual = dc.get_places_in(dcids, 'City')
-    assert_series_equal(actual, expected)
-
-  @mock.patch('requests.post', side_effect=post_request_mock)
-  def test_series_bad_dcids(self, post_mock):
-    """ Calling get_places_in with a Pandas Series and dcids that do not exist
-    returns empty results.
-    """
-    # Set the API key
-    dc.set_api_key('TEST-API-KEY')
-
-    # Get the input dcids and expected output
-    bad_dcids_1 = pd.Series(['geoId/06085', 'dc/MadDcid'])
-    bad_dcids_2 = pd.Series(['dc/MadDcid', 'dc/MadderDcid'])
-    expected_1 = pd.Series([['geoId/0649670'], []])
-    expected_2 = pd.Series([[], []])
-
-    # Call get_places_in
-    actual_1 = dc.get_places_in(bad_dcids_1, 'City')
-    actual_2 = dc.get_places_in(bad_dcids_2, 'City')
-
-    # Assert that the answers are correct
-    assert_series_equal(actual_1, expected_1)
-    assert_series_equal(actual_2, expected_2)
-
-  @mock.patch('requests.post', side_effect=post_request_mock)
-  def test_series_no_dcids(self, post_mock):
-    """ Calling get_places_in with no dcids returns empty results. """
-    # Set the API key
-    dc.set_api_key('TEST-API-KEY')
-
-    # Get the input and expected output
-    bad_dcids = pd.Series([])
-    expected = pd.Series([])
-
-    # Test get_places_in
-    actual = dc.get_places_in(bad_dcids, 'City')
-    assert_series_equal(actual, expected)
 
 
 if __name__ == '__main__':

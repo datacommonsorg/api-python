@@ -21,7 +21,6 @@ from __future__ import division
 from __future__ import print_function
 
 import datacommons as dc
-import pandas as pd
 
 
 def main():
@@ -37,12 +36,9 @@ WHERE {
 ''')
   print('> Issuing query.\n{}'.format(query))
 
-  # Initialize the Query instance.
-  dc_query = dc.Query(sparql=query)
-
   # Iterate through all the rows in the results.
   print('> Printing results.\n')
-  for row in dc_query.rows():
+  for row in dc.query(query_string=query):
     print('  {}'.format(row))
 
 
