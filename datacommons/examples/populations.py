@@ -69,13 +69,14 @@ def main():
     constraining_properties={'employment': 'BLS_Employed'}))
 
   # Add the observation for employed individuals
-  pd_frame['employed_count'] = dc.get_observations(
-    pd_frame['employed_pop'],
-    'count',
-    'measuredValue',
-    '2018-12',
-    observation_period='P1M',
-    measurement_method='BLSSeasonallyAdjusted')
+  pd_frame['employed_count'] = pd_frame['employed_pop'].map(
+    dc.get_observations(
+      pd_frame['employed_pop'],
+      'count',
+      'measuredValue',
+      '2018-12',
+      observation_period='P1M',
+      measurement_method='BLSSeasonallyAdjusted'))
   print(pd_frame)
 
   # Final dataframe. Use the convenience function "clean_frame" to convert

@@ -64,30 +64,24 @@ def main():
 
   # Get the names for the given counties.
   utils._print_header('Get County Names')
-  pd_frame['county_name'] = dc.get_property_values(
-    pd_frame['county'], 'name')
+  pd_frame['county_name'] = pd_frame['county'].map(
+    dc.get_property_values(pd_frame['county'], 'name'))
+  pd_frame = pd_frame.explode('county_name')
   print(pd_frame)
 
   # Get the cities contained in these counties.
   utils._print_header('Get Contained Cities')
-  pd_frame['city'] = dc.get_property_values(
-    pd_frame['county'], 'containedInPlace', out=False, value_type='City')
-  print(pd_frame)
-
-  # To expand on a column with get_property_values, the data frame has to be
-  # flattened first. Clients can use flatten_frame to do this.
-  utils._print_header('Flatten the Frame')
-  pd_frame = pd_frame.explode('county')
+  pd_frame['city'] = pd_frame['county'].map(
+    dc.get_property_values(
+      pd_frame['county'], 'containedInPlace', out=False, value_type='City'))
+  pd_frame = pd_frame.explode('city')
   print(pd_frame)
 
   # Get the names for each city.
   utils._print_header('Get City Names')
-  pd_frame['city_name'] = dc.get_property_values(pd_frame['city'], 'name')
-  print(pd_frame)
-
-  # Format the final frame.
-  utils._print_header('The Final Frame')
-  pd_frame = pd_frame.explode('city')
+  pd_frame['city_name'] = pd_frame['city'].map(
+    dc.get_property_values(pd_frame['city'], 'name'))
+  pd_frame = pd_frame.explode('city_name')
   print(pd_frame)
 
 
