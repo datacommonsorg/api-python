@@ -1,5 +1,19 @@
 # Changelog
 
+
+## 1.0.2
+
+**Date** - 11/6/2019
+
+**Release Tag** - [v1.0.2](https://github.com/datacommonsorg/api-python/releases/tag/v1.0.2)
+
+**Release Status** - Current head of branch [`master`](https://github.com/datacommonsorg/api-python/tree/master)
+
+New features added to the Python Client API
+
+-   Remove the dependency on Pandas.
+
+
 ## 1.0.1
 
 **Date** - 10/2/2019
@@ -17,7 +31,7 @@ New features added to the Python Client API
 Bugs fixed in new release
 
 -   Fixed various typos and formatting issues in the documentation.
--   If the index of the `pandas.Series` passed into functions such as `get_populations` and `get_observations` was not contiguous, then the assignment step would not properly align the values returned by calling the function. This is because the `pandas.Series` returned by the function would have a different index than the given series. This is fixed by assigning the index of the returned series to that of the given series.   
+-   If the index of the `pandas.Series` passed into functions such as `get_populations` and `get_observations` was not contiguous, then the assignment step would not properly align the values returned by calling the function. This is because the `pandas.Series` returned by the function would have a different index than the given series. This is fixed by assigning the index of the returned series to that of the given series.
 
 ## 1.0.0
 
