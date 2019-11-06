@@ -52,7 +52,8 @@ def main():
 
   # Get all CensusTracts in these two counties.
   utils._print_header('Get Census Tracts')
-  pd_frame['tracts'] = dc.get_places_in(pd_frame['county'], 'CensusTract')
+  pd_frame['tracts'] = pd_frame['county'].map(
+    dc.get_places_in(pd_frame['county'], 'CensusTract'))
   pd_frame = pd_frame.explode('tracts')
   print(pd_frame)
 
