@@ -154,9 +154,11 @@ def get_property_values(dcids,
   """
   # Convert the dcids field and format the request to GetPropertyValue
   dcids = list(dcids)
-  direction = 'in'
   if out:
     direction = 'out'
+  else:
+    direction = 'in'
+
   req_json = {
     'dcids': dcids,
     'property': prop,
