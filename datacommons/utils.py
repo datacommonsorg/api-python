@@ -24,8 +24,8 @@ from collections import defaultdict
 
 import base64
 import json
-import requests
 import os
+import urllib.request
 import zlib
 
 
@@ -90,20 +90,28 @@ def _send_request(req_url, req_json={}, compress=False, post=True):
         'Request error: Must set an API key before using the API! You can '
         'call datacommons.set_api_key or assign the key to an environment '
         'variable named {}'.format(_ENV_VAR_API_KEY))
-  headers = {'x-api-key': os.environ[_ENV_VAR_API_KEY]}
+  headers = {
+    'x-api-key': os.environ[_ENV_VAR_API_KEY],
+    'Content-Type': 'application/json'
+  }
 
   # Send the request and verify the request succeeded
   if post:
-    res = requests.post(req_url, headers=headers, json=req_json)
+    req = urllib.request.Request(
+      req_url,
+      data=json.dumps(req_json).encode("utf-8"),
+      headers=headers)
   else:
-    res = requests.get(req_url, headers=headers)
-  if res.status_code != 200:
+    req = urllib.request.Request(req_url, headers=headers)
+  try:
+    res = urllib.request.urlopen(req)
+  except urllib.error.HTTPError as e:
     raise ValueError(
         'Response error: An HTTP {} code was returned by the mixer. Printing '
-        'response\n\n{}'.format(res.status_code , res.text))
+        'response\n\n{}'.format(e.code, e.read()))
 
   # Get the JSON
-  res_json = res.json()
+  res_json = json.loads(res.read())
   if 'payload' not in res_json:
     raise ValueError(
         'Response error: Payload not found. Printing response\n\n'
@@ -130,24 +138,3 @@ def _format_expand_payload(payload, new_key, must_exist=[]):
   for dcid in must_exist:
     results[dcid]
   return {k: sorted(list(v)) for k, v in results.items()}
-
-
-def _flatten_results(result, default_value=None):
-  """ Formats results to map to a single value or default value if empty. """
-  flattened = {}
-  for k, v in result.items():
-    if len(v) > 1:
-      raise ValueError(
-        'Expected one result, but more returned for "{}": {}'.format(k, v))
-    if len(v) == 1:
-      flattened[k] = v[0]
-    elif default_value is not None:
-      flattened[k] = default_value
-  return flattened
-
-
-def _print_header(label):
-  """ Prints a pretty header with the given label. """
-  print('\n' + '-' * 80)
-  print(label)
-  print('-' * 80 + '\n')

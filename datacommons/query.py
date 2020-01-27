@@ -23,8 +23,9 @@ from __future__ import print_function
 
 from datacommons.utils import _API_ROOT, _API_ENDPOINTS, _ENV_VAR_API_KEY
 
+import json
 import os
-import requests
+import urllib.request
 
 # ----------------------------- WRAPPER FUNCTIONS -----------------------------
 
@@ -88,17 +89,26 @@ def query(query_string, select=None):
   if not os.environ.get(_ENV_VAR_API_KEY, None):
     raise ValueError(
         'Request error: Must set an API key before using the API!')
-  url = _API_ROOT + _API_ENDPOINTS['query']
-  res = requests.post(url, json={'sparql': query_string}, headers={
-    'x-api-key': os.environ[_ENV_VAR_API_KEY]
-  })
+  req_url = _API_ROOT + _API_ENDPOINTS['query']
 
-  # Verify then store the results.
-  if res.status_code != 200:
+  headers = {
+    'x-api-key': os.environ[_ENV_VAR_API_KEY],
+    'Content-Type': 'application/json'
+  }
+  req = urllib.request.Request(
+    req_url,
+    data=json.dumps({'sparql': query_string}).encode("utf-8"),
+    headers=headers)
+
+  try:
+    res = urllib.request.urlopen(req)
+  except urllib.error.HTTPError as e:
     raise ValueError(
         'Response error: An HTTP {} code was returned by the mixer. Printing '
-        'response\n\n{}'.format(res.status_code , res.text))
-  res_json = res.json()
+        'response\n\n{}'.format(e.code, e.read()))
+
+  # Verify then store the results.
+  res_json = json.loads(res.read())
 
   # Iterate through the query results
   header = res_json['header']

@@ -1,8 +1,5 @@
-numpy
-pandas
 mock
 httplib2
-requests
 sphinx
 sphinxcontrib-napoleon
 sphinx_rtd_theme

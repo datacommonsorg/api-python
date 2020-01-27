@@ -24,8 +24,6 @@ from __future__ import print_function
 
 import datacommons.utils as utils
 
-import requests
-
 
 def get_places_in(dcids, place_type):
   """ Returns :obj:`Place`s contained in :code:`dcids` of type

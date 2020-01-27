@@ -28,7 +28,18 @@ from __future__ import print_function
 
 import datacommons.utils as utils
 
-import requests
+
+def _flatten_results(result, default_value=None):
+  """ Formats results to map to a single value or default value if empty. """
+  for k, v in result.items():
+    if len(v) > 1:
+      raise ValueError(
+        'Expected one result, but more returned for "{}": {}'.format(k, v))
+    if len(v) == 1:
+      result[k] = v[0]
+    elif default_value is not None:
+      result[k] = default_value
+  return result
 
 
 def get_populations(dcids, population_type, constraining_properties={}):
@@ -96,7 +107,7 @@ def get_populations(dcids, population_type, constraining_properties={}):
     payload, 'population', must_exist=dcids)
 
   # Drop empty results while flattening
-  return utils._flatten_results(result)
+  return _flatten_results(result)
 
 
 def get_observations(dcids,
@@ -184,7 +195,7 @@ def get_observations(dcids,
   # Drop empty results by calling _flatten_results without default_value, then
   # coerce the type to float if possible.
   typed_results = {}
-  for k, v in utils._flatten_results(result).items():
+  for k, v in _flatten_results(result).items():
     try:
       typed_results[k] = float(v)
     except ValueError:

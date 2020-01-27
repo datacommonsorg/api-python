@@ -21,10 +21,6 @@ from __future__ import division
 from __future__ import print_function
 
 import datacommons as dc
-import pandas as pd
-
-import datacommons.utils as utils
-
 
 def main():
   # Create a list of dcids for Santa Clara and Montgomery County.
@@ -32,31 +28,16 @@ def main():
   dcids = [sc, mc]
 
   # Get all CensusTracts in these two counties.
-  utils._print_header('Get Census Tracts')
+  print('Get Census Tracts')
   tracts = dc.get_places_in(dcids, 'CensusTract')
   if sc in tracts:
     print('> 10 CensusTracts in Santa Clara County')
     for dcid in tracts[sc][:10]:
       print('  - {}'.format(dcid))
-  print()
   if mc in tracts:
     print('> 10 CensusTracts in Montgomery County')
     for dcid in tracts[mc][:10]:
       print('  - {}'.format(dcid))
-
-  # We perform the same task using a Pandas DataFrame. First, initialize a
-  # DataFrame with Santa Clara and Montgomery County.
-  utils._print_header('Initialize the DataFrame')
-  pd_frame = pd.DataFrame({'county': ['geoId/06085', 'geoId/24031']})
-  print(pd_frame)
-
-  # Get all CensusTracts in these two counties.
-  utils._print_header('Get Census Tracts')
-  pd_frame['tracts'] = pd_frame['county'].map(
-    dc.get_places_in(pd_frame['county'], 'CensusTract'))
-  pd_frame = pd_frame.explode('tracts')
-  print(pd_frame)
-
 
 if __name__ == '__main__':
   main()

@@ -5,7 +5,6 @@ py_binary(
     srcs=["core.py"],
     deps=[
         "//datacommons:datacommons",
-        requirement("pandas"),
     ]
 )
 
@@ -14,7 +13,6 @@ py_binary(
     srcs=["places.py"],
     deps=[
         "//datacommons:datacommons",
-        requirement("pandas"),
     ]
 )
 
@@ -23,7 +21,6 @@ py_binary(
     srcs=["populations.py"],
     deps=[
         "//datacommons:datacommons",
-        requirement("pandas"),
     ]
 )
 
@@ -32,6 +29,5 @@ py_binary(
     srcs=["query.py"],
     deps=[
         "//datacommons:datacommons",
-        requirement("pandas"),
     ]
 )
