@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.0.4
+
+**Date** - 01/17/2020
+
+**Release Tag** - [v1.0.4](https://github.com/datacommonsorg/api-python/releases/tag/v1.0.4)
+
+**Release Status** - Current head of branch [`master`](https://github.com/datacommonsorg/api-python/tree/master)
+
+New features added to the Python Client API
+
+-   Remove the dependency on Pandas and Numpy in package dependency.
+
 
 ## 1.0.2
 

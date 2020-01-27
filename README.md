@@ -3,7 +3,7 @@
 This is a Python library for accessing data in the Data Commons knowledge graph.
 To get started, install this package from pip.
 
-    pip install git+https://github.com/google/datacommons.git@stable-1.x
+    pip install datacommons
 
 Once the package is installed, import `datacommons`.
 
