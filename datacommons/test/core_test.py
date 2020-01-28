@@ -21,6 +21,7 @@ from __future__ import division
 from __future__ import print_function
 
 from unittest import mock
+import urllib
 
 import datacommons as dc
 import datacommons.utils as utils
@@ -28,28 +29,28 @@ import json
 import unittest
 
 
-def post_request_mock(*args, **kwargs):
-  """ A mock POST requests sent in the requests package. """
+def request_mock(*args, **kwargs):
+  """ A mock urlopen in the urllib package. """
   # Create the mock response object.
   class MockResponse:
-    def __init__(self, json_data, status_code):
+    def __init__(self, json_data):
       self.json_data = json_data
-      self.status_code = status_code
 
-    def json(self):
+    def read(self):
       return self.json_data
 
-  # Get the request json
-  req = kwargs['json']
-  headers = kwargs['headers']
+  # Get the request data
+  req = args[0]
+  data = json.loads(req.data)
 
   # If the API key does not match, then return 403 Forbidden
-  if 'x-api-key' not in headers or headers['x-api-key'] != 'TEST-API-KEY':
-    return MockResponse({}, 403)
+  api_key = req.get_header('X-api-key')
+  if api_key != 'TEST-API-KEY':
+    return urllib.error.HTTPError
 
-  # Mock responses for post requests to get_property_labels.
-  if args[0] == utils._API_ROOT + utils._API_ENDPOINTS['get_property_labels']:
-    if req['dcids'] == ['geoId/0649670']:
+  # Mock responses for urlopen requests to get_property_labels.
+  if req.full_url == utils._API_ROOT + utils._API_ENDPOINTS['get_property_labels']:
+    if data['dcids'] == ['geoId/0649670']:
       # Response for sending a single dcid to get_property_labels
       out_arcs = ['containedInPlace', 'name', 'geoId', 'typeOf']
       res_json = json.dumps({
@@ -58,8 +59,8 @@ def post_request_mock(*args, **kwargs):
           'outLabels': out_arcs
         }
       })
-      return MockResponse({"payload": res_json}, 200)
-    elif req['dcids'] == ['State', 'County', 'City']:
+      return MockResponse(json.dumps({'payload': res_json}))
+    elif data['dcids'] == ['State', 'County', 'City']:
       # Response for sending multiple dcids to get_property_labels
       in_arcs = ['typeOf']
       out_arcs = ['name', 'provenance', 'subClassOf', 'typeOf', 'url']
@@ -68,8 +69,8 @@ def post_request_mock(*args, **kwargs):
         'County': {'inLabels': in_arcs, 'outLabels': out_arcs},
         'State': {'inLabels': in_arcs, 'outLabels': out_arcs}
       })
-      return MockResponse({'payload': res_json}, 200)
-    elif req['dcids'] == ['dc/MadDcid']:
+      return MockResponse(json.dumps({'payload': res_json}))
+    elif data['dcids'] == ['dc/MadDcid']:
       # Response for sending a dcid that doesn't exist to get_property_labels
       res_json = json.dumps({
         'dc/MadDcid': {
@@ -77,17 +78,17 @@ def post_request_mock(*args, **kwargs):
           'outLabels': []
         }
       })
-      return MockResponse({'payload': res_json}, 200)
-    elif req['dcids'] == []:
+      return MockResponse(json.dumps({'payload': res_json}))
+    elif data['dcids'] == []:
       # Response for sending no dcids to get_property_labels
       res_json = json.dumps({})
-      return MockResponse({'payload': res_json}, 200)
+      return MockResponse(json.dumps({'payload': res_json}))
 
-  # Mock responses for post requests to get_property_values
-  if args[0] == utils._API_ROOT + utils._API_ENDPOINTS['get_property_values']:
-    if req['dcids'] == ['geoId/06085', 'geoId/24031']\
-      and req['property'] == 'containedInPlace'\
-      and req['value_type'] == 'Town':
+  # Mock responses for urlopen requests to get_property_values
+  if req.full_url == utils._API_ROOT + utils._API_ENDPOINTS['get_property_values']:
+    if data['dcids'] == ['geoId/06085', 'geoId/24031']\
+      and data['property'] == 'containedInPlace'\
+      and data['value_type'] == 'Town':
       # Response for sending a request for getting Towns containedInPlace of
       # Santa Clara County and Montgomery County.
       res_json = json.dumps({
@@ -129,9 +130,9 @@ def post_request_mock(*args, **kwargs):
           'out': []
         }
       })
-      return MockResponse({'payload': res_json}, 200)
-    if req['dcids'] == ['geoId/06085', 'geoId/24031']\
-      and req['property'] == 'name':
+      return MockResponse(json.dumps({'payload': res_json}))
+    if data['dcids'] == ['geoId/06085', 'geoId/24031']\
+      and data['property'] == 'name':
       # Response for sending a request for the name of multiple dcids.
       res_json = json.dumps({
         'geoId/06085': {
@@ -153,9 +154,9 @@ def post_request_mock(*args, **kwargs):
           ]
         }
       })
-      return MockResponse({'payload': res_json}, 200)
-    if req['dcids'] == ['geoId/06085', 'geoId/24031']\
-      and req['property'] == 'madProperty':
+      return MockResponse(json.dumps({'payload': res_json}))
+    if data['dcids'] == ['geoId/06085', 'geoId/24031']\
+      and data['property'] == 'madProperty':
       # Response for sending a request with a property that does not exist.
       res_json = json.dumps({
         'geoId/06085': {
@@ -167,9 +168,9 @@ def post_request_mock(*args, **kwargs):
           'out': []
         }
       })
-      return MockResponse({'payload': res_json}, 200)
-    if req['dcids'] == ['geoId/06085', 'dc/MadDcid']\
-      and req['property'] == 'containedInPlace':
+      return MockResponse(json.dumps({'payload': res_json}))
+    if data['dcids'] == ['geoId/06085', 'dc/MadDcid']\
+      and data['property'] == 'containedInPlace':
       # Response for sending a request with a single dcid that does not exist.
       res_json = json.dumps({
         'geoId/06085': {
@@ -191,8 +192,8 @@ def post_request_mock(*args, **kwargs):
           'out': []
         }
       })
-      return MockResponse({'payload': res_json}, 200)
-    if req['dcids'] == ['dc/MadDcid', 'dc/MadderDcid']:
+      return MockResponse(json.dumps({'payload': res_json}))
+    if data['dcids'] == ['dc/MadDcid', 'dc/MadderDcid']:
       # Response for sending a request where both dcids do not exist.
       res_json = json.dumps({
         'dc/MadDcid': {
@@ -204,15 +205,15 @@ def post_request_mock(*args, **kwargs):
           'out': []
         }
       })
-      return MockResponse({'payload': res_json}, 200)
-    if req['dcids'] == [] and req['property'] == 'containedInPlace':
+      return MockResponse(json.dumps({'payload': res_json}))
+    if data['dcids'] == [] and data['property'] == 'containedInPlace':
       # Response for sending a request where no dcids are given.
       res_json = json.dumps({})
-      return MockResponse({'payload': res_json}, 200)
+      return MockResponse(json.dumps({'payload': res_json}))
 
-  # Mock responses for post requests to get_triples
-  if args[0] == utils._API_ROOT + utils._API_ENDPOINTS['get_triples']:
-    if req['dcids'] == ['geoId/06085', 'geoId/24031']:
+  # Mock responses for urlopen requests to get_triples
+  if req.full_url == utils._API_ROOT + utils._API_ENDPOINTS['get_triples']:
+    if data['dcids'] == ['geoId/06085', 'geoId/24031']:
       # Response for sending a request with two valid dcids.
       res_json = json.dumps({
         'geoId/06085': [
@@ -262,8 +263,8 @@ def post_request_mock(*args, **kwargs):
           },
         ]
       })
-      return MockResponse({'payload': res_json}, 200)
-    if req['dcids'] == ['geoId/06085', 'dc/MadDcid']:
+      return MockResponse(json.dumps({'payload': res_json}))
+    if data['dcids'] == ['geoId/06085', 'dc/MadDcid']:
       # Response for sending a request where one dcid does not exist.
       res_json = json.dumps({
         'geoId/06085': [
@@ -291,28 +292,28 @@ def post_request_mock(*args, **kwargs):
         ],
         'dc/MadDcid': []
       })
-      return MockResponse({'payload': res_json}, 200)
-    if req['dcids'] == ['dc/MadDcid', 'dc/MadderDcid']:
+      return MockResponse(json.dumps({'payload': res_json}))
+    if data['dcids'] == ['dc/MadDcid', 'dc/MadderDcid']:
       # Response for sending a request where both dcids do not exist.
       res_json = json.dumps({
         'dc/MadDcid': [],
         'dc/MadderDcid': []
       })
-      return MockResponse({'payload': res_json}, 200)
-    if req['dcids'] == []:
+      return MockResponse(json.dumps({'payload': res_json}))
+    if data['dcids'] == []:
       # Response for sending a request where no dcids are given.
       res_json = json.dumps({})
-      return MockResponse({'payload': res_json}, 200)
+      return MockResponse(json.dumps({'payload': res_json}))
 
   # Otherwise, return an empty response and a 404.
-  return MockResponse({}, 404)
+  return urllib.error.HTTPError
 
 
 class TestGetPropertyLabels(unittest.TestCase):
   """ Unit tests for get_property_labels. """
 
-  @mock.patch('requests.post', side_effect=post_request_mock)
-  def test_single_dcid(self, post_mock):
+  @mock.patch('urllib.request.urlopen', side_effect=request_mock)
+  def test_single_dcid(self, urlopen_mock):
     """ Calling get_property_labels with a single dcid returns a valid
     result.
     """
@@ -328,8 +329,8 @@ class TestGetPropertyLabels(unittest.TestCase):
     in_props = dc.get_property_labels(['geoId/0649670'], out=False)
     self.assertDictEqual(in_props, {'geoId/0649670': []})
 
-  @mock.patch('requests.post', side_effect=post_request_mock)
-  def test_multiple_dcids(self, post_mock):
+  @mock.patch('urllib.request.urlopen', side_effect=request_mock)
+  def test_multiple_dcids(self, urlopen_mock):
     """ Calling get_property_labels returns valid results with multiple
     dcids.
     """
@@ -356,8 +357,8 @@ class TestGetPropertyLabels(unittest.TestCase):
       'City': expected_in,
     })
 
-  @mock.patch('requests.post', side_effect=post_request_mock)
-  def test_bad_dcids(self, post_mock):
+  @mock.patch('urllib.request.urlopen', side_effect=request_mock)
+  def test_bad_dcids(self, urlopen_mock):
     """ Calling get_property_labels with dcids that do not exist returns empty
     results.
     """
@@ -372,8 +373,8 @@ class TestGetPropertyLabels(unittest.TestCase):
     in_props = dc.get_property_labels(['dc/MadDcid'], out=False)
     self.assertDictEqual(in_props, {'dc/MadDcid': []})
 
-  @mock.patch('requests.post', side_effect=post_request_mock)
-  def test_no_dcids(self, post_mock):
+  @mock.patch('urllib.request.urlopen', side_effect=request_mock)
+  def test_no_dcids(self, urlopen_mock):
     """ Calling get_property_labels with no dcids returns empty results. """
     # Set the API key
     dc.set_api_key('TEST-API-KEY')
@@ -392,8 +393,8 @@ class TestGetPropertyValues(unittest.TestCase):
 
   # --------------------------- STANDARD UNIT TESTS ---------------------------
 
-  @mock.patch('requests.post', side_effect=post_request_mock)
-  def test_multiple_dcids(self, post_mock):
+  @mock.patch('urllib.request.urlopen', side_effect=request_mock)
+  def test_multiple_dcids(self, urlopen_mock):
     """ Calling get_property_values with multiple dcids returns valid
     results.
     """
@@ -417,8 +418,8 @@ class TestGetPropertyValues(unittest.TestCase):
       'geoId/24031': ['Montgomery County']
     })
 
-  @mock.patch('requests.post', side_effect=post_request_mock)
-  def test_bad_dcids(self, post_mock):
+  @mock.patch('urllib.request.urlopen', side_effect=request_mock)
+  def test_bad_dcids(self, urlopen_mock):
     """ Calling get_property_values with dcids that do not exist returns empty
     results.
     """
@@ -443,8 +444,8 @@ class TestGetPropertyValues(unittest.TestCase):
       'dc/MadderDcid': []
     })
 
-  @mock.patch('requests.post', side_effect=post_request_mock)
-  def test_bad_property(self, post_mock):
+  @mock.patch('urllib.request.urlopen', side_effect=request_mock)
+  def test_bad_property(self, urlopen_mock):
     """ Calling get_property_values with a property that does not exist returns
     empty results.
     """
@@ -459,8 +460,8 @@ class TestGetPropertyValues(unittest.TestCase):
       'geoId/24031': []
     })
 
-  @mock.patch('requests.post', side_effect=post_request_mock)
-  def test_no_dcids(self, post_mock):
+  @mock.patch('urllib.request.urlopen', side_effect=request_mock)
+  def test_no_dcids(self, urlopen_mock):
     """ Calling get_property_values with no dcids returns empty results. """
     # Set the API key
     dc.set_api_key('TEST-API-KEY')
@@ -472,8 +473,8 @@ class TestGetPropertyValues(unittest.TestCase):
 class TestGetTriples(unittest.TestCase):
   """ Unit tests for get_triples. """
 
-  @mock.patch('requests.post', side_effect=post_request_mock)
-  def test_multiple_dcids(self, post_mock):
+  @mock.patch('urllib.request.urlopen', side_effect=request_mock)
+  def test_multiple_dcids(self, urlopen_mock):
     """ Calling get_triples with proper dcids returns valid results. """
     # Set the API key
     dc.set_api_key('TEST-API-KEY')
@@ -493,8 +494,8 @@ class TestGetTriples(unittest.TestCase):
       ]
     })
 
-  @mock.patch('requests.post', side_effect=post_request_mock)
-  def test_bad_dcids(self, post_mock):
+  @mock.patch('urllib.request.urlopen', side_effect=request_mock)
+  def test_bad_dcids(self, urlopen_mock):
     """ Calling get_triples with dcids that do not exist returns empty
     results.
     """
@@ -519,8 +520,8 @@ class TestGetTriples(unittest.TestCase):
       'dc/MadderDcid': []
     })
 
-  @mock.patch('requests.post', side_effect=post_request_mock)
-  def test_no_dcids(self, post_mock):
+  @mock.patch('urllib.request.urlopen', side_effect=request_mock)
+  def test_no_dcids(self, urlopen_mock):
     """ Calling get_triples with no dcids returns empty results. """
     # Set the API key
     dc.set_api_key('TEST-API-KEY')

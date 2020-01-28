@@ -21,17 +21,13 @@ from __future__ import division
 from __future__ import print_function
 
 import datacommons as dc
-import pandas as pd
-
-import datacommons.utils as utils
-
 
 def main():
   # Set the dcid to be that of Santa Clara County.
   dcids = ['geoId/06085']
 
   # Print all incoming and outgoing properties from Santa Clara County.
-  utils._print_header('Property Labels for Santa Clara County')
+  print('Property Labels for Santa Clara County')
   in_labels = dc.get_property_labels(dcids)
   out_labels = dc.get_property_labels(dcids, out=False)
   print('> Printing properties for {}'.format(dcids))
@@ -39,8 +35,7 @@ def main():
   print('> Outgoing properties: {}'.format(out_labels))
 
   # Print all property values for "containedInPlace" for Santa Clara County.
-  utils._print_header(
-    'Property Values for "containedInPlace" of Santa Clara County')
+  print('Property Values for "containedInPlace" of Santa Clara County')
   prop_vals = dc.get_property_values(
     dcids, 'containedInPlace', out=False, value_type='City')
   print('> Cities contained in {}'.format(dcids))
@@ -49,40 +44,12 @@ def main():
       print('  - {}'.format(city_dcid))
 
   # Print the first 10 triples associated with Santa Clara County
-  utils._print_header('Triples for Santa Clara County')
+  print('Triples for Santa Clara County')
   triples = dc.get_triples(dcids)
   for dcid in dcids:
     print('> Triples for {}'.format(dcid))
     for s, p, o in triples[dcid][:5]:
       print('  - ("{}", {}, "{}")'.format(s, p, o))
-
-  # get_property_values can be easily used to populate Pandas DataFrames. First
-  # create a DataFrame with some data.
-  utils._print_header('Initialize the DataFrame')
-  pd_frame = pd.DataFrame({'county': ['geoId/06085', 'geoId/24031']})
-  print(pd_frame)
-
-  # Get the names for the given counties.
-  utils._print_header('Get County Names')
-  pd_frame['county_name'] = pd_frame['county'].map(
-    dc.get_property_values(pd_frame['county'], 'name'))
-  pd_frame = pd_frame.explode('county_name')
-  print(pd_frame)
-
-  # Get the cities contained in these counties.
-  utils._print_header('Get Contained Cities')
-  pd_frame['city'] = pd_frame['county'].map(
-    dc.get_property_values(
-      pd_frame['county'], 'containedInPlace', out=False, value_type='City'))
-  pd_frame = pd_frame.explode('city')
-  print(pd_frame)
-
-  # Get the names for each city.
-  utils._print_header('Get City Names')
-  pd_frame['city_name'] = pd_frame['city'].map(
-    dc.get_property_values(pd_frame['city'], 'name'))
-  pd_frame = pd_frame.explode('city_name')
-  print(pd_frame)
 
 
 if __name__ == '__main__':

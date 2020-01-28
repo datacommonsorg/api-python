@@ -21,11 +21,7 @@ from __future__ import division
 from __future__ import print_function
 
 import datacommons as dc
-import pandas as pd
 import pprint
-
-import datacommons.utils as utils
-
 import json
 
 
@@ -35,16 +31,14 @@ def main():
   dcids = [ca, ky, md]
 
   # Get the population of all employed individuals in the above states.
-  utils._print_header('Get Populations for All Employed Individuals')
+  print('Get Populations for All Employed Individuals')
   employed = dc.get_populations(dcids, 'Person', constraining_properties={
                   'employment': 'BLS_Employed'})
-  print('> Printing all populations of employed individuals\n')
   print(json.dumps(employed, indent=2))
 
   # Get the count for all male / females for the above states in 2016
-  utils._print_header('Get Population Counts for Employed Individuals in Maryland')
+  print('Get Population Counts for Employed Individuals in Maryland')
   pop_dcids = [employed[md]]
-  print('> Requesting observations for {} in December 2018\n'.format(pop_dcids))
   obs = dc.get_observations(pop_dcids,
                             'count',
                             'measuredValue',
@@ -53,41 +47,8 @@ def main():
                             measurement_method='BLSSeasonallyAdjusted')
   print(json.dumps(obs, indent=2))
 
-  # We perform the same workflow using a Pandas DataFrame. First, initialize a
-  # DataFrame with Santa Clara and Montgomery County.
-  utils._print_header('Initialize the DataFrame')
-  pd_frame = pd.DataFrame({'state': ['geoId/06', 'geoId/21', 'geoId/24']})
-  pd_frame['state_name'] = pd_frame['state'].map(
-    dc.get_property_values(pd_frame['state'], 'name'))
-  pd_frame = pd_frame.explode('state_name').reset_index(drop=True)
-
-  # Get populations for employed individuals
-  utils._print_header('Add Population and Observation to DataFrame')
-  pd_frame['employed_pop'] = pd_frame['state'].map(dc.get_populations(
-    pd_frame['state'],
-    'Person',
-    constraining_properties={'employment': 'BLS_Employed'}))
-
-  # Add the observation for employed individuals
-  pd_frame['employed_count'] = pd_frame['employed_pop'].map(
-    dc.get_observations(
-      pd_frame['employed_pop'],
-      'count',
-      'measuredValue',
-      '2018-12',
-      observation_period='P1M',
-      measurement_method='BLSSeasonallyAdjusted'))
-  print(pd_frame)
-
-  # Final dataframe. Use the convenience function "clean_frame" to convert
-  # columns to numerical types.
-  utils._print_header('Final Data Frame')
-  pd_frame = pd_frame.dropna().reset_index(drop=True)
-  print(pd_frame)
-
-
   # Get all population and observation data of Mountain View.
-  utils._print_header('Get Mountain View population and observation')
+  print('Get Mountain View population and observation')
   popobs = dc.get_pop_obs("geoId/0649670")
   pprint.pprint(popobs)
 

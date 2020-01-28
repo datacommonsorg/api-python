@@ -25,18 +25,19 @@ from unittest import mock
 import datacommons as dc
 import datacommons.utils as utils
 
+import json
 import unittest
+import urllib
 
 
-def post_request_mock(*args, **kwargs):
-  """ A mock POST requests sent in the requests package. """
+def request_mock(*args, **kwargs):
+  """ A mock urlopen call sent in the urllib package. """
   # Create the mock response object.
   class MockResponse:
-    def __init__(self, json_data, status_code):
+    def __init__(self, json_data):
       self.json_data = json_data
-      self.status_code = status_code
 
-    def json(self):
+    def read(self):
       return self.json_data
 
   # The accepted query.
@@ -49,17 +50,18 @@ WHERE {
   ?a dcid ?dcid
 }
 ''')
-  req = kwargs['json']
-  headers = kwargs['headers']
+  req = args[0]
+  data = json.loads(req.data)
 
   # If the API key does not match, then return 403 Forbidden
-  if 'x-api-key' not in headers or headers['x-api-key'] != 'TEST-API-KEY':
-    return MockResponse({}, 403)
+  api_key = req.get_header('X-api-key')
+  if api_key != 'TEST-API-KEY':
+    return urllib.error.HTTPError(None, 403, None, None, None)
 
-  # Mock responses for post requests to query.
-  if args[0] == utils._API_ROOT + utils._API_ENDPOINTS['query']\
-    and req['sparql'] == accepted_query:
-    return MockResponse({
+  # Mock responses for urlopen requests to query.
+  if req.full_url == utils._API_ROOT + utils._API_ENDPOINTS['query']\
+    and data['sparql'] == accepted_query:
+    return MockResponse(json.dumps({
       'header': [
         '?name',
         '?dcid'
@@ -96,17 +98,17 @@ WHERE {
           ]
         }
       ]
-    }, 200)
+    }))
 
   # Otherwise, return an empty response and a 404.
-  return MockResponse({}, 404)
+  return urllib.error.HTTPError(None, 404, None, None, None)
 
 
 class TestQuery(unittest.TestCase):
   """ Unit tests for the Query object. """
 
-  @mock.patch('requests.post', side_effect=post_request_mock)
-  def test_rows(self, post_mock):
+  @mock.patch('urllib.request.urlopen', side_effect=request_mock)
+  def test_rows(self, urlopen):
     """ Sending a valid query returns the correct response. """
     # Set the API key
     dc.set_api_key('TEST-API-KEY')
