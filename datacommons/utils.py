@@ -99,7 +99,7 @@ def _send_request(req_url, req_json={}, compress=False, post=True):
   if post:
     req = urllib.request.Request(
       req_url,
-      data=json.dumps(req_json).encode("utf-8"),
+      data=json.dumps(req_json).encode('utf-8'),
       headers=headers)
   else:
     req = urllib.request.Request(req_url, headers=headers)

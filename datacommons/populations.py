@@ -31,14 +31,18 @@ import datacommons.utils as utils
 
 def _flatten_results(result, default_value=None):
   """ Formats results to map to a single value or default value if empty. """
-  for k, v in result.items():
+  for k in list(result):
+    v = result[k]
     if len(v) > 1:
       raise ValueError(
         'Expected one result, but more returned for "{}": {}'.format(k, v))
     if len(v) == 1:
       result[k] = v[0]
-    elif default_value is not None:
-      result[k] = default_value
+    else:
+      if default_value is not None:
+        result[k] = default_value
+      else:
+        del result[k]
   return result
 
 

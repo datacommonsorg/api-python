@@ -28,23 +28,29 @@ import datacommons as dc
 import datacommons.utils as utils
 import json
 import unittest
+import urllib
 import zlib
 
 
-def post_request_mock(*args, **kwargs):
-  """ A mock POST requests sent in the requests package. """
+def request_mock(*args, **kwargs):
+  """ A mock urlopen request sent in the requests package. """
   # Create the mock response object.
   class MockResponse:
-    def __init__(self, json_data, status_code):
+    def __init__(self, json_data):
       self.json_data = json_data
-      self.status_code = status_code
 
-    def json(self):
+    def read(self):
       return self.json_data
 
   # Get the request json and allowed constraining properties
-  req = kwargs['json']
-  headers = kwargs['headers']
+  req = args[0]
+  if req.data:
+    data = json.loads(req.data)
+
+  api_key = req.get_header('X-api-key')
+  if api_key != 'TEST-API-KEY':
+    return urllib.error.HTTPError(None, 403, None, None, None)
+
   constrained_props = [
     {
       'property': 'placeOfBirth',
@@ -56,15 +62,11 @@ def post_request_mock(*args, **kwargs):
     }
   ]
 
-  # If the API key does not match, then return 403 Forbidden
-  if 'x-api-key' not in headers or headers['x-api-key'] != 'TEST-API-KEY':
-    return MockResponse({}, 403)
-
-  # Mock responses for post requests to get_populations.
-  if args[0] == utils._API_ROOT + utils._API_ENDPOINTS['get_populations']\
-    and req['population_type'] == 'Person'\
-    and req['pvs'] == constrained_props:
-    if req['dcids'] == ['geoId/06085', 'geoId/4805000']:
+  # Mock responses for urlopen request to get_populations.
+  if req.full_url == utils._API_ROOT + utils._API_ENDPOINTS['get_populations']\
+    and data['population_type'] == 'Person'\
+    and data['pvs'] == constrained_props:
+    if data['dcids'] == ['geoId/06085', 'geoId/4805000']:
       # Response returned when querying for multiple valid dcids.
       res_json = json.dumps([
         {
@@ -76,8 +78,8 @@ def post_request_mock(*args, **kwargs):
           'population': 'dc/p/f3q9whmjwbf36'
         }
       ])
-      return MockResponse({'payload': res_json}, 200)
-    if req['dcids'] == ['geoId/06085', 'dc/MadDcid']:
+      return MockResponse(json.dumps({'payload': res_json}))
+    if data['dcids'] == ['geoId/06085', 'dc/MadDcid']:
       # Response returned when querying for a dcid that does not exist.
       res_json = json.dumps([
         {
@@ -85,21 +87,21 @@ def post_request_mock(*args, **kwargs):
           'population': 'dc/p/crgfn8blpvl35'
         },
       ])
-      return MockResponse({'payload': res_json}, 200)
-    if req['dcids'] == ['dc/MadDcid', 'dc/MadderDcid'] or req['dcids'] == []:
+      return MockResponse(json.dumps({'payload': res_json}))
+    if data['dcids'] == ['dc/MadDcid', 'dc/MadderDcid'] or data['dcids'] == []:
       # Response returned when both given dcids do not exist or no dcids are
       # provided to the method.
       res_json = json.dumps([])
-      return MockResponse({'payload': res_json}, 200)
+      return MockResponse(json.dumps({'payload': res_json}))
 
-  # Mock responses for post requests to get_observations
-  if args[0] == utils._API_ROOT + utils._API_ENDPOINTS['get_observations']\
-    and req['measured_property'] == 'count'\
-    and req['stats_type'] == 'measuredValue'\
-    and req['observation_date'] == '2018-12'\
-    and req['observation_period'] == 'P1M'\
-    and req['measurement_method'] == 'BLSSeasonallyAdjusted':
-    if req['dcids'] == ['dc/p/x6t44d8jd95rd', 'dc/p/lr52m1yr46r44', 'dc/p/fs929fynprzs']:
+  # Mock responses for urlopen request to get_observations
+  if req.full_url == utils._API_ROOT + utils._API_ENDPOINTS['get_observations']\
+    and data['measured_property'] == 'count'\
+    and data['stats_type'] == 'measuredValue'\
+    and data['observation_date'] == '2018-12'\
+    and data['observation_period'] == 'P1M'\
+    and data['measurement_method'] == 'BLSSeasonallyAdjusted':
+    if data['dcids'] == ['dc/p/x6t44d8jd95rd', 'dc/p/lr52m1yr46r44', 'dc/p/fs929fynprzs']:
       # Response returned when querying for multiple valid dcids.
       res_json = json.dumps([
         {
@@ -115,8 +117,8 @@ def post_request_mock(*args, **kwargs):
           'observation': '1973955.000000'
         }
       ])
-      return MockResponse({'payload': res_json}, 200)
-    if req['dcids'] == ['dc/p/x6t44d8jd95rd', 'dc/MadDcid']:
+      return MockResponse(json.dumps({'payload': res_json}))
+    if data['dcids'] == ['dc/p/x6t44d8jd95rd', 'dc/MadDcid']:
       # Response returned when querying for a dcid that does not exist.
       res_json = json.dumps([
         {
@@ -124,19 +126,19 @@ def post_request_mock(*args, **kwargs):
           'observation': '18704962.000000'
         },
       ])
-      return MockResponse({'payload': res_json}, 200)
-    if req['dcids'] == ['dc/MadDcid', 'dc/MadderDcid'] or req['dcids'] == []:
+      return MockResponse(json.dumps({'payload': res_json}))
+    if data['dcids'] == ['dc/MadDcid', 'dc/MadderDcid'] or data['dcids'] == []:
       # Response returned when both given dcids do not exist or no dcids are
       # provided to the method.
       res_json = json.dumps([])
-      return MockResponse({'payload': res_json}, 200)
+      return MockResponse(json.dumps({'payload': res_json}))
 
-  # Mock responses for post requests to get_place_obs
-  if args[0] == utils._API_ROOT + utils._API_ENDPOINTS['get_place_obs']\
-    and req['place_type'] == 'City'\
-    and req['observation_date'] == '2017'\
-    and req['population_type'] == 'Person'\
-    and req['pvs'] == constrained_props:
+  # Mock responses for urlopen request to get_place_obs
+  if req.full_url == utils._API_ROOT + utils._API_ENDPOINTS['get_place_obs']\
+    and data['place_type'] == 'City'\
+    and data['observation_date'] == '2017'\
+    and data['population_type'] == 'Person'\
+    and data['pvs'] == constrained_props:
     res_json = json.dumps({
       'places': [
         {
@@ -156,33 +158,11 @@ def post_request_mock(*args, **kwargs):
         }
       ]
     })
-    return MockResponse({
-      'payload': base64.b64encode(zlib.compress(res_json.encode('utf-8')))
-    }, 200)
-
-  # Otherwise, return an empty response and a 404.
-  return MockResponse({}, 404)
-
-
-def get_request_mock(*args, **kwargs):
-  """ A mock GET requests sent in the requests package. """
-  # Create the mock response object.
-  class MockResponse:
-    def __init__(self, json_data, status_code):
-      self.json_data = json_data
-      self.status_code = status_code
-
-    def json(self):
-      return self.json_data
-
-  headers = kwargs['headers']
-
-  # If the API key does not match, then return 403 Forbidden
-  if 'x-api-key' not in headers or headers['x-api-key'] != 'TEST-API-KEY':
-    return MockResponse({}, 403)
+    return MockResponse(json.dumps(
+      {'payload': base64.encodebytes(zlib.compress(res_json.encode('utf-8'))).decode('ascii')}))
 
   # Mock responses for get requests to get_pop_obs.
-  if args[0] == utils._API_ROOT + utils._API_ENDPOINTS['get_pop_obs'] + '?dcid=geoId/06085':
+  if req.full_url == utils._API_ROOT + utils._API_ENDPOINTS['get_pop_obs'] + '?dcid=geoId/06085':
     # Response returned when querying for a city in the graph.
     res_json = json.dumps({
       'name': 'Mountain View',
@@ -217,12 +197,11 @@ def get_request_mock(*args, **kwargs):
         }
       }
     })
-    return MockResponse({
-      'payload': base64.b64encode(zlib.compress(res_json.encode('utf-8')))
-    }, 200)
+    return MockResponse(json.dumps(
+      {'payload': base64.encodebytes(zlib.compress(res_json.encode('utf-8'))).decode('ascii')}))
 
   # Otherwise, return an empty response and a 404.
-  return MockResponse({}, 404)
+  return urllib.error.HTTPError(None, 404, None, None, None)
 
 class TestGetPopulations(unittest.TestCase):
   """ Unit tests for get_populations. """
@@ -232,8 +211,8 @@ class TestGetPopulations(unittest.TestCase):
     'age': 'Years5To17'
   }
 
-  @mock.patch('requests.post', side_effect=post_request_mock)
-  def test_multiple_dcids(self, post_mock):
+  @mock.patch('urllib.request.urlopen', side_effect=request_mock)
+  def test_multiple_dcids(self, urlopen):
     """ Calling get_populations with proper dcids returns valid results. """
     # Set the API key
     dc.set_api_key('TEST-API-KEY')
@@ -247,8 +226,8 @@ class TestGetPopulations(unittest.TestCase):
     })
 
 
-  @mock.patch('requests.post', side_effect=post_request_mock)
-  def test_bad_dcids(self, post_mock):
+  @mock.patch('urllib.request.urlopen', side_effect=request_mock)
+  def test_bad_dcids(self, urlopen):
     """ Calling get_populations with dcids that do not exist returns empty
     results.
     """
@@ -265,8 +244,8 @@ class TestGetPopulations(unittest.TestCase):
     self.assertDictEqual(pops_1, {'geoId/06085': 'dc/p/crgfn8blpvl35'})
     self.assertDictEqual(pops_2, {})
 
-  @mock.patch('requests.post', side_effect=post_request_mock)
-  def test_no_dcids(self, post_mock):
+  @mock.patch('urllib.request.urlopen', side_effect=request_mock)
+  def test_no_dcids(self, urlopen):
     """ Calling get_populations with no dcids returns empty results. """
     # Set the API key
     dc.set_api_key('TEST-API-KEY')
@@ -275,12 +254,11 @@ class TestGetPopulations(unittest.TestCase):
       [], 'Person', constraining_properties=self._constraints)
     self.assertDictEqual(pops, {})
 
-
 class TestGetObservations(unittest.TestCase):
   """ Unit tests for get_observations. """
 
-  @mock.patch('requests.post', side_effect=post_request_mock)
-  def test_multiple_dcids(self, post_mock):
+  @mock.patch('urllib.request.urlopen', side_effect=request_mock)
+  def test_multiple_dcids(self, urlopen):
     """ Calling get_observations with proper dcids returns valid results. """
     # Set the API key
     dc.set_api_key('TEST-API-KEY')
@@ -296,8 +274,8 @@ class TestGetObservations(unittest.TestCase):
                                  measurement_method='BLSSeasonallyAdjusted')
     self.assertDictEqual(actual, expected)
 
-  @mock.patch('requests.post', side_effect=post_request_mock)
-  def test_bad_dcids(self, post_mock):
+  @mock.patch('urllib.request.urlopen', side_effect=request_mock)
+  def test_bad_dcids(self, urlopen):
     """ Calling get_observations with dcids that do not exist returns empty
     results.
     """
@@ -320,8 +298,8 @@ class TestGetObservations(unittest.TestCase):
     self.assertDictEqual(actual_1, {'dc/p/x6t44d8jd95rd': 18704962.0})
     self.assertDictEqual(actual_2, {})
 
-  @mock.patch('requests.post', side_effect=post_request_mock)
-  def test_no_dcids(self, post_mock):
+  @mock.patch('urllib.request.urlopen', side_effect=request_mock)
+  def test_no_dcids(self, urlopen):
     """ Calling get_observations with no dcids returns empty results. """
     # Set the API key
     dc.set_api_key('TEST-API-KEY')
@@ -335,8 +313,8 @@ class TestGetObservations(unittest.TestCase):
 class TestGetPopObs(unittest.TestCase):
   """ Unit tests for get_pop_obs. """
 
-  @mock.patch('requests.get', side_effect=get_request_mock)
-  def test_valid_dcid(self, get_mock):
+  @mock.patch('urllib.request.urlopen', side_effect=request_mock)
+  def test_valid_dcid(self, urlopen):
     """ Calling get_pop_obs with valid dcid returns valid results. """
     # Set the API key
     dc.set_api_key('TEST-API-KEY')
@@ -380,8 +358,8 @@ class TestGetPopObs(unittest.TestCase):
 class TestGetPlaceObs(unittest.TestCase):
   """ Unit tests for get_place_obs. """
 
-  @mock.patch('requests.post', side_effect=post_request_mock)
-  def test_valid(self, post_mock):
+  @mock.patch('urllib.request.urlopen', side_effect=request_mock)
+  def test_valid(self, urlopen):
     """ Calling get_place_obs with valid parameters returns a valid result. """
     # Set the API key
     dc.set_api_key('TEST-API-KEY')

@@ -26,31 +26,31 @@ import datacommons as dc
 import datacommons.utils as utils
 import json
 import unittest
+import urllib
 
 
-def post_request_mock(*args, **kwargs):
-  """ A mock POST requests sent in the requests package. """
+def request_mock(*args, **kwargs):
+  """ A mock urlopen requests sent in the requests package. """
   # Create the mock response object.
   class MockResponse:
-    def __init__(self, json_data, status_code):
+    def __init__(self, json_data):
       self.json_data = json_data
-      self.status_code = status_code
 
-    def json(self):
+    def read(self):
       return self.json_data
 
-  # Get the request json
-  req = kwargs['json']
-  headers = kwargs['headers']
+  req = args[0]
+  data = json.loads(req.data)
 
   # If the API key does not match, then return 403 Forbidden
-  if 'x-api-key' not in headers or headers['x-api-key'] != 'TEST-API-KEY':
-    return MockResponse({}, 403)
+  api_key = req.get_header('X-api-key')
+  if api_key != 'TEST-API-KEY':
+    return urllib.error.HTTPError(None, 403, None, None, None)
 
-  # Mock responses for post requests to get_places_in.
-  if args[0] == utils._API_ROOT + utils._API_ENDPOINTS['get_places_in']:
-    if req['dcids'] == ['geoId/06085', 'geoId/24031']\
-      and req['place_type'] == 'City':
+  # Mock responses for urlopen requests to get_places_in.
+  if req.full_url == utils._API_ROOT + utils._API_ENDPOINTS['get_places_in']:
+    if (data['dcids'] == ['geoId/06085', 'geoId/24031']
+      and data['place_type'] == 'City'):
       # Response returned when querying for multiple valid dcids.
       res_json = json.dumps([
         {
@@ -66,9 +66,9 @@ def post_request_mock(*args, **kwargs):
           'place': 'geoId/2476650',
         },
       ])
-      return MockResponse({'payload': res_json}, 200)
-    if req['dcids'] == ['geoId/06085', 'dc/MadDcid']\
-      and req['place_type'] == 'City':
+      return MockResponse(json.dumps({'payload': res_json}))
+    if (data['dcids'] == ['geoId/06085', 'dc/MadDcid']
+      and data['place_type'] == 'City'):
       # Response returned when querying for a dcid that does not exist.
       res_json = json.dumps([
         {
@@ -76,25 +76,25 @@ def post_request_mock(*args, **kwargs):
           'place': 'geoId/0649670',
         },
       ])
-      return MockResponse({'payload': res_json}, 200)
-    if req['dcids'] == ['dc/MadDcid', 'dc/MadderDcid']\
-      and req['place_type'] == 'City':
+      return MockResponse(json.dumps({'payload': res_json}))
+    if data['dcids'] == ['dc/MadDcid', 'dc/MadderDcid']\
+      and data['place_type'] == 'City':
       # Response returned when both given dcids do not exist.
       res_json = json.dumps([])
-      return MockResponse({'payload': res_json}, 200)
-    if req['dcids'] == [] and req['place_type'] == 'City':
+      return MockResponse(json.dumps({'payload': res_json}))
+    if data['dcids'] == [] and data['place_type'] == 'City':
       res_json = json.dumps([])
       # Response returned when no dcids are given.
-      return MockResponse({'payload': res_json}, 200)
+      return MockResponse(json.dumps({'payload': res_json}))
 
   # Otherwise, return an empty response and a 404.
-  return MockResponse({}, 404)
+  return urllib.error.HTTPError
 
 class TestGetPlacesIn(unittest.TestCase):
   """ Unit stests for get_places_in. """
 
-  @mock.patch('requests.post', side_effect=post_request_mock)
-  def test_multiple_dcids(self, post_mock):
+  @mock.patch('urllib.request.urlopen', side_effect=request_mock)
+  def test_multiple_dcids(self, urlopen):
     """ Calling get_places_in with proper dcids returns valid results. """
     # Set the API key
     dc.set_api_key('TEST-API-KEY')
@@ -106,10 +106,10 @@ class TestGetPlacesIn(unittest.TestCase):
       'geoId/24031': ['geoId/2467675', 'geoId/2476650']
     })
 
-  @mock.patch('requests.post', side_effect=post_request_mock)
-  def test_bad_dcids(self, post_mock):
+  @mock.patch('urllib.request.urlopen', side_effect=request_mock)
+  def test_bad_dcids(self, urlopen):
     """ Calling get_places_in with dcids that do not exist returns empty
-    results.
+      results.
     """
     # Set the API key
     dc.set_api_key('TEST-API-KEY')
@@ -128,8 +128,8 @@ class TestGetPlacesIn(unittest.TestCase):
       'dc/MadderDcid': []
     })
 
-  @mock.patch('requests.post', side_effect=post_request_mock)
-  def test_no_dcids(self, post_mock):
+  @mock.patch('urllib.request.urlopen', side_effect=request_mock)
+  def test_no_dcids(self, urlopen):
     """ Calling get_places_in with no dcids returns empty results. """
     # Set the API key
     dc.set_api_key('TEST-API-KEY')
