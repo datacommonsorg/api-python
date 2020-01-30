@@ -1,5 +1,19 @@
 # Changelog
 
+## 1.06
+
+**Date** - 01/29/2020
+
+**Release Tag** - [v1.0.6](https://github.com/datacommonsorg/api-python/releases/tag/v1.0.6)
+
+**Release Status** - Current head of branch [`master`](https://github.com/datacommonsorg/api-python/tree/master)
+
+New features added to the Python Client API
+
+-   Add a new API for getting related places.
+
+
+
 ## 1.0.5
 
 **Date** - 01/27/2020
