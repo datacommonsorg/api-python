@@ -73,25 +73,25 @@ def get_places_in(dcids, place_type):
 
 
 def get_related_places(dcids, population_type, constraining_properties={},
-             measured_prop='count',
+             measured_property='count',
              stat_type='measured', within_place='',
              per_capita=False, same_place_type=False):
   """ Returns :obj:`Place`s related to :code:`dcids` for the given constraints.
 
   Args:
-    dcids (:obj:`iterable` of :obj:`str`): Dcids to get contained in places.
+    dcids (:obj:`iterable` of :obj:`str`): Dcids to get related places.
     population_type (:obj:`str`): The type of statistical population.
     constraining_properties (:obj:`map` from :obj:`str` to :obj:`str`, optional):
-    A map from constraining property to the value that the
-    :obj:`StatisticalPopulation` should be constrained by.
+      A map from constraining property to the value that the
+      :obj:`StatisticalPopulation` should be constrained by.
     measured_property (:obj:`str`): The measured property.
     stat_type (:obj:`str`): The statistical type for the observation.
-    within_place(:obj:`str`): Optional, the place that all the related places
-    are contained in.
+    within_place(:obj:`str`): Optional, the DCID of the place that all the
+      related places are contained in.
     per_capita(:obj:`bool`): Optional, whether to take into account
-    `PerCapita` when compute the relatedness.
+      `PerCapita` when compute the relatedness.
     same_place_type(:obj:`bool`): Optional, whether to require all the
-    related places under the same ancestor place.
+      related places under the same place type.
 
   Returns:
     The returned :obj:`Place`'s are formatted as a :obj:`dict` from a given
@@ -106,7 +106,7 @@ def get_related_places(dcids, population_type, constraining_properties={},
     `Santa Clara county <https://browser.datacommons.org/kg?dcid=geoId/06085>`
     Specifying the :code:`dcids` as a :obj:`list` result in the following.
 
-    >>> get_places_in(["geoId/06"], "Person", {
+    >>> get_related_places(["geoId/06"], "Person", {
     "age": "Years21To64",
     "gender": "Female"
     }, "count", "measured")
@@ -128,7 +128,7 @@ def get_related_places(dcids, population_type, constraining_properties={},
     'dcids': dcids,
     'populationType': population_type,
     'pvs': pvs,
-    'measuredProperty': measured_prop,
+    'measuredProperty': measured_property,
     'statType': '',  # TODO: Set to stat_type when having it in BT data.
     'withinPlace': within_place,
     'perCapita': per_capita,
