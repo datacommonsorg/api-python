@@ -42,6 +42,7 @@ _API_ENDPOINTS = {
   'get_property_values': '/node/property-values',
   'get_triples': '/node/triples',
   'get_places_in': '/node/places-in',
+  'get_related_places': '/node/related-places',
   'get_populations': '/node/populations',
   'get_observations': '/node/observations',
   'get_pop_obs': '/bulk/pop-obs',
