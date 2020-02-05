@@ -21,6 +21,7 @@ from __future__ import division
 from __future__ import print_function
 
 from collections import defaultdict
+from collections import Mapping
 
 import base64
 import json
@@ -129,13 +130,24 @@ def _send_request(req_url, req_json={}, compress=False, post=True):
 def _format_expand_payload(payload, new_key, must_exist=[]):
   """ Formats expand type payloads into dicts from dcids to lists of values. """
   # Create the results dictionary from payload
-  results = defaultdict(set)
-  for entry in payload:
-    if 'dcid' in entry and new_key in entry:
-      dcid = entry['dcid']
-      results[dcid].add(entry[new_key])
-
-  # Ensure all dcids in must_exist have some entry in results.
-  for dcid in must_exist:
-    results[dcid]
-  return {k: sorted(list(v)) for k, v in results.items()}
+  # If we have changed the mixer API so that it returns a dict mapping
+  # from dcid to new_key value, we unpack the payload differently.
+  # TODO: delete this check and change this function so it doesn't use
+  # new_key and doesn't sort the values of results.
+  if isinstance(payload, Mapping):
+    results = {}
+    for dcid in must_exist:
+      results[dcid] = []
+    for dcid, value in payload.items():
+      results[dcid] = sorted(value) if isinstance(value, list) else [value]
+    return results
+  else:
+    results = defaultdict(set)
+    for entry in payload:
+      if 'dcid' in entry and new_key in entry:
+        dcid = entry['dcid']
+        results[dcid].add(entry[new_key])
+      # Ensure all dcids in must_exist have some entry in results.
+    for dcid in must_exist:
+      results[dcid]
+    return {k: sorted(list(v)) for k, v in results.items()}

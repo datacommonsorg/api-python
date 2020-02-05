@@ -31,8 +31,10 @@ import unittest
 import urllib
 import zlib
 
-
-def request_mock(*args, **kwargs):
+# new_mixer_api specifies whether to use the Mixer API
+# that gives dictionaries instead of lists for places-in,
+# population, and observation functions.
+def request_mock_base(*args, **kwargs):
   """ A mock urlopen request sent in the requests package. """
   # Create the mock response object.
   class MockResponse:
@@ -68,20 +70,21 @@ def request_mock(*args, **kwargs):
     and data['pvs'] == constrained_props:
     if data['dcids'] == ['geoId/06085', 'geoId/4805000']:
       # Response returned when querying for multiple valid dcids.
-      res_json = json.dumps([
-        {
-          'dcid': 'geoId/06085',
-          'population': 'dc/p/crgfn8blpvl35'
-        },
-        {
-          'dcid': 'geoId/4805000',
-          'population': 'dc/p/f3q9whmjwbf36'
-        }
-      ])
+      res_json =json.dumps({
+          'geoId/06085': 'dc/p/crgfn8blpvl35',
+          'geoId/4805000': 'dc/p/f3q9whmjwbf36'}) if kwargs['new_mixer_api'] else json.dumps([
+          {
+            'dcid': 'geoId/06085',
+            'population': 'dc/p/crgfn8blpvl35'
+           },
+          {
+            'dcid': 'geoId/4805000',
+            'population': 'dc/p/f3q9whmjwbf36'
+          }])
       return MockResponse(json.dumps({'payload': res_json}))
     if data['dcids'] == ['geoId/06085', 'dc/MadDcid']:
       # Response returned when querying for a dcid that does not exist.
-      res_json = json.dumps([
+      res_json = json.dumps({'geoId/06085': 'dc/p/crgfn8blpvl35'}) if kwargs['new_mixer_api'] else json.dumps([
         {
           'dcid': 'geoId/06085',
           'population': 'dc/p/crgfn8blpvl35'
@@ -91,7 +94,7 @@ def request_mock(*args, **kwargs):
     if data['dcids'] == ['dc/MadDcid', 'dc/MadderDcid'] or data['dcids'] == []:
       # Response returned when both given dcids do not exist or no dcids are
       # provided to the method.
-      res_json = json.dumps([])
+      res_json = json.dumps({} if kwargs['new_mixer_api'] else [])
       return MockResponse(json.dumps({'payload': res_json}))
 
   # Mock responses for urlopen request to get_observations
@@ -103,7 +106,7 @@ def request_mock(*args, **kwargs):
     and data['measurement_method'] == 'BLSSeasonallyAdjusted':
     if data['dcids'] == ['dc/p/x6t44d8jd95rd', 'dc/p/lr52m1yr46r44', 'dc/p/fs929fynprzs']:
       # Response returned when querying for multiple valid dcids.
-      res_json = json.dumps([
+      res_json = json.dumps({'dc/p/x6t44d8jd95rd': '18704962.000000', 'dc/p/lr52m1yr46r44': '3075662.000000', 'dc/p/fs929fynprzs': '1973955.000000'}) if kwargs['new_mixer_api'] else json.dumps([
         {
           'dcid': 'dc/p/x6t44d8jd95rd',
           'observation': '18704962.000000'
@@ -120,7 +123,7 @@ def request_mock(*args, **kwargs):
       return MockResponse(json.dumps({'payload': res_json}))
     if data['dcids'] == ['dc/p/x6t44d8jd95rd', 'dc/MadDcid']:
       # Response returned when querying for a dcid that does not exist.
-      res_json = json.dumps([
+      res_json = json.dumps({'dc/p/x6t44d8jd95rd' : '18704962.000000'}) if kwargs['new_mixer_api'] else json.dumps([
         {
           'dcid': 'dc/p/x6t44d8jd95rd',
           'observation': '18704962.000000'
@@ -130,7 +133,7 @@ def request_mock(*args, **kwargs):
     if data['dcids'] == ['dc/MadDcid', 'dc/MadderDcid'] or data['dcids'] == []:
       # Response returned when both given dcids do not exist or no dcids are
       # provided to the method.
-      res_json = json.dumps([])
+      res_json = json.dumps({} if kwargs['new_mixer_api'] else [])
       return MockResponse(json.dumps({'payload': res_json}))
 
   # Mock responses for urlopen request to get_place_obs
@@ -203,6 +206,12 @@ def request_mock(*args, **kwargs):
   # Otherwise, return an empty response and a 404.
   return urllib.error.HTTPError(None, 404, None, None, None)
 
+def request_mock(*args, **kwargs):
+  return request_mock_base(new_mixer_api=False, *args, **kwargs)
+
+def request_mock_new_mixer_api(*args, **kwargs):
+  return request_mock_base(new_mixer_api=True, *args, **kwargs)
+
 class TestGetPopulations(unittest.TestCase):
   """ Unit tests for get_populations. """
 
@@ -225,9 +234,40 @@ class TestGetPopulations(unittest.TestCase):
       'geoId/4805000': 'dc/p/f3q9whmjwbf36'
     })
 
+  @mock.patch('urllib.request.urlopen', side_effect=request_mock_new_mixer_api)
+  def test_multiple_dcids_new_mixer_api(self, urlopen):
+    """ Calling get_populations with proper dcids returns valid results. """
+    # Set the API key
+    dc.set_api_key('TEST-API-KEY')
+
+    # Call get_populations
+    populations = dc.get_populations(['geoId/06085', 'geoId/4805000'], 'Person',
+                                     constraining_properties=self._constraints)
+    self.assertDictEqual(populations, {
+      'geoId/06085': 'dc/p/crgfn8blpvl35',
+      'geoId/4805000': 'dc/p/f3q9whmjwbf36'
+    })
 
   @mock.patch('urllib.request.urlopen', side_effect=request_mock)
   def test_bad_dcids(self, urlopen):
+    """ Calling get_populations with dcids that do not exist returns empty
+    results.
+    """
+    # Set the API key
+    dc.set_api_key('TEST-API-KEY')
+
+    # Call get_populations
+    pops_1 = dc.get_populations(['geoId/06085', 'dc/MadDcid'], 'Person',
+                                constraining_properties=self._constraints)
+    pops_2 = dc.get_populations(['dc/MadDcid', 'dc/MadderDcid'], 'Person',
+                                constraining_properties=self._constraints)
+
+    # Verify the results
+    self.assertDictEqual(pops_1, {'geoId/06085': 'dc/p/crgfn8blpvl35'})
+    self.assertDictEqual(pops_2, {})
+
+  @mock.patch('urllib.request.urlopen', side_effect=request_mock_new_mixer_api)
+  def test_bad_dcids_new_mixer_api(self, urlopen):
     """ Calling get_populations with dcids that do not exist returns empty
     results.
     """
@@ -254,11 +294,38 @@ class TestGetPopulations(unittest.TestCase):
       [], 'Person', constraining_properties=self._constraints)
     self.assertDictEqual(pops, {})
 
+  @mock.patch('urllib.request.urlopen', side_effect=request_mock_new_mixer_api)
+  def test_no_dcids_with_new_mixer_api(self, urlopen):
+    """ Calling get_populations with no dcids returns empty results. """
+    # Set the API key
+    dc.set_api_key('TEST-API-KEY')
+
+    pops = dc.get_populations(
+      [], 'Person', constraining_properties=self._constraints)
+    self.assertDictEqual(pops, {})
+
 class TestGetObservations(unittest.TestCase):
   """ Unit tests for get_observations. """
 
   @mock.patch('urllib.request.urlopen', side_effect=request_mock)
   def test_multiple_dcids(self, urlopen):
+    """ Calling get_observations with proper dcids returns valid results. """
+    # Set the API key
+    dc.set_api_key('TEST-API-KEY')
+
+    dcids = ['dc/p/x6t44d8jd95rd', 'dc/p/lr52m1yr46r44', 'dc/p/fs929fynprzs']
+    expected = {
+      'dc/p/lr52m1yr46r44': 3075662.0,
+      'dc/p/fs929fynprzs': 1973955.0,
+      'dc/p/x6t44d8jd95rd': 18704962.0
+    }
+    actual = dc.get_observations(dcids, 'count', 'measuredValue', '2018-12',
+                                 observation_period='P1M',
+                                 measurement_method='BLSSeasonallyAdjusted')
+    self.assertDictEqual(actual, expected)
+
+  @mock.patch('urllib.request.urlopen', side_effect=request_mock_new_mixer_api)
+  def test_multiple_dcids_with_new_mixer_api(self, urlopen):
     """ Calling get_observations with proper dcids returns valid results. """
     # Set the API key
     dc.set_api_key('TEST-API-KEY')
@@ -298,8 +365,43 @@ class TestGetObservations(unittest.TestCase):
     self.assertDictEqual(actual_1, {'dc/p/x6t44d8jd95rd': 18704962.0})
     self.assertDictEqual(actual_2, {})
 
+  @mock.patch('urllib.request.urlopen', side_effect=request_mock_new_mixer_api)
+  def test_bad_dcids_new_mixer_api(self, urlopen):
+    """ Calling get_observations with dcids that do not exist returns empty
+    results.
+    """
+    # Set the API key
+    dc.set_api_key('TEST-API-KEY')
+
+    # Get the input
+    dcids_1 = ['dc/p/x6t44d8jd95rd', 'dc/MadDcid']
+    dcids_2 = ['dc/MadDcid', 'dc/MadderDcid']
+
+    # Call get_observations
+    actual_1 = dc.get_observations(dcids_1, 'count', 'measuredValue', '2018-12',
+                                   observation_period='P1M',
+                                   measurement_method='BLSSeasonallyAdjusted')
+    actual_2 = dc.get_observations(dcids_2, 'count', 'measuredValue', '2018-12',
+                                   observation_period='P1M',
+                                   measurement_method='BLSSeasonallyAdjusted')
+
+    # Verify the results
+    self.assertDictEqual(actual_1, {'dc/p/x6t44d8jd95rd': 18704962.0})
+    self.assertDictEqual(actual_2, {})
+
   @mock.patch('urllib.request.urlopen', side_effect=request_mock)
   def test_no_dcids(self, urlopen):
+    """ Calling get_observations with no dcids returns empty results. """
+    # Set the API key
+    dc.set_api_key('TEST-API-KEY')
+
+    actual = dc.get_observations([], 'count', 'measuredValue', '2018-12',
+                                 observation_period='P1M',
+                                 measurement_method='BLSSeasonallyAdjusted')
+    self.assertDictEqual(actual, {})
+
+  @mock.patch('urllib.request.urlopen', side_effect=request_mock_new_mixer_api)
+  def test_no_dcids_new_mixer_api(self, urlopen):
     """ Calling get_observations with no dcids returns empty results. """
     # Set the API key
     dc.set_api_key('TEST-API-KEY')

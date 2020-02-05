@@ -40,8 +40,8 @@ The Python Client API currently supports `python>=3.6`. We use
 bazel then run the following:
 
 ```
-$ bazel build //...
-$ bazel test //...
+$ bazel build //... --incompatible_disable_deprecated_attr_params=false
+$ bazel test //... --incompatible_disable_deprecated_attr_params=false
 ```
 
 ## Support
