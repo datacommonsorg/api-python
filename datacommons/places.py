@@ -72,20 +72,20 @@ def get_places_in(dcids, place_type):
   return result
 
 
-def get_related_places(dcids, population_type, constraining_properties={},
-             measured_property='count',
-             stat_type='measured', within_place='',
-             per_capita=False, same_place_type=False):
+def get_related_places(dcids, population_type, measured_property,
+    measurement_method, stat_type, constraining_properties={},
+    within_place='', per_capita=False, same_place_type=False):
   """ Returns :obj:`Place`s related to :code:`dcids` for the given constraints.
 
   Args:
     dcids (:obj:`iterable` of :obj:`str`): Dcids to get related places.
     population_type (:obj:`str`): The type of statistical population.
+    measured_property (:obj:`str`): The measured property.
+    measurement_method(:obj:`str`): The measurement method for the observation.
+    stat_type (:obj:`str`): The statistical type for the observation.
     constraining_properties (:obj:`map` from :obj:`str` to :obj:`str`, optional):
       A map from constraining property to the value that the
       :obj:`StatisticalPopulation` should be constrained by.
-    measured_property (:obj:`str`): The measured property.
-    stat_type (:obj:`str`): The statistical type for the observation.
     within_place(:obj:`str`): Optional, the DCID of the place that all the
       related places are contained in.
     per_capita(:obj:`bool`): Optional, whether to take into account
@@ -109,7 +109,7 @@ def get_related_places(dcids, population_type, constraining_properties={},
     >>> get_related_places(["geoId/06"], "Person", {
     "age": "Years21To64",
     "gender": "Female"
-    }, "count", "measured")
+    }, "count", "CenusACS5yrSurvey", "measuredValue")
     {
     'geoId/06085': [
       'geoId/06041',
@@ -130,6 +130,7 @@ def get_related_places(dcids, population_type, constraining_properties={},
     'pvs': pvs,
     'measuredProperty': measured_property,
     'statType': '',  # TODO: Set to stat_type when having it in BT data.
+    'measurementMethod': measurement_method,
     'withinPlace': within_place,
     'perCapita': per_capita,
     'samePlaceType': same_place_type,
