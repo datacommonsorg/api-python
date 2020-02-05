@@ -28,6 +28,7 @@ REQUIRES_PYTHON = '>=2.7'
 VERSION = '1.0.7'
 
 REQUIRED = [
+    'six',
     'httplib2',
     'sphinx',
     'sphinxcontrib-napoleon',

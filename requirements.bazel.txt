@@ -1,3 +1,4 @@
+six
 mock
 httplib2
 sphinx
