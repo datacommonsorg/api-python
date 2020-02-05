@@ -1,6 +1,18 @@
 # Changelog
 
-## 1.06
+## 1.0.7
+
+**Date** - 02/04/2020
+
+**Release Tag** - [v1.0.7](https://github.com/datacommonsorg/api-python/releases/tag/v1.0.7)
+
+**Release Status** - Current head of branch [`master`](https://github.com/datacommonsorg/api-python/tree/master)
+
+New features added to the Python Client API
+
+-   Support python 2.7.
+
+## 1.0.6
 
 **Date** - 01/29/2020
 
