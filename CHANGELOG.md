@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.0.9
+
+**Date** - 02/04/2020
+
+**Release Tag** - [v1.0.9](https://github.com/datacommonsorg/api-python/releases/tag/v1.0.9)
+
+**Release Status** - Current head of branch [`master`](https://github.com/datacommonsorg/api-python/tree/master)
+
+New features added to the Python Client API
+
+-   Use six package for urllib.
+
 ## 1.0.7
 
 **Date** - 02/04/2020

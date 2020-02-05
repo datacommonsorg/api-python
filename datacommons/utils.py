@@ -25,7 +25,8 @@ from collections import defaultdict
 import base64
 import json
 import os
-import urllib.request
+import six.moves.urllib.error
+import six.moves.urllib.request
 import zlib
 
 
@@ -98,14 +99,14 @@ def _send_request(req_url, req_json={}, compress=False, post=True):
 
   # Send the request and verify the request succeeded
   if post:
-    req = urllib.request.Request(
+    req = six.moves.urllib.request.Request(
       req_url,
       data=json.dumps(req_json).encode('utf-8'),
       headers=headers)
   else:
-    req = urllib.request.Request(req_url, headers=headers)
+    req = six.moves.urllib.request.Request(req_url, headers=headers)
   try:
-    res = urllib.request.urlopen(req)
+    res = six.moves.urllib.request.urlopen(req)
   except urllib.error.HTTPError as e:
     raise ValueError(
         'Response error: An HTTP {} code was returned by the mixer. Printing '

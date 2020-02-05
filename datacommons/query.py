@@ -25,7 +25,8 @@ from datacommons.utils import _API_ROOT, _API_ENDPOINTS, _ENV_VAR_API_KEY
 
 import json
 import os
-import urllib.request
+import six.moves.urllib.error
+import six.moves.urllib.request
 
 # ----------------------------- WRAPPER FUNCTIONS -----------------------------
 
@@ -95,14 +96,14 @@ def query(query_string, select=None):
     'x-api-key': os.environ[_ENV_VAR_API_KEY],
     'Content-Type': 'application/json'
   }
-  req = urllib.request.Request(
+  req = six.moves.urllib.request.Request(
     req_url,
     data=json.dumps({'sparql': query_string}).encode("utf-8"),
     headers=headers)
 
   try:
-    res = urllib.request.urlopen(req)
-  except urllib.error.HTTPError as e:
+    res = six.moves.urllib.request.urlopen(req)
+  except six.moves.urllib.error.HTTPError as e:
     raise ValueError(
         'Response error: An HTTP {} code was returned by the mixer. Printing '
         'response\n\n{}'.format(e.code, e.read()))
