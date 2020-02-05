@@ -42,8 +42,9 @@ def main():
 
   # Get related places.
   print('Get related places')
-  related_places = dc.get_related_places(['geoId/06085'], 'Person',
-      {'age': "Years21To64", "gender": "Female"}, 'count', '')
+  # TODO(*): s/Cenus/Census/g when data is ready in BT.
+  related_places = dc.get_related_places(['geoId/06085'], 'Person', 'count',
+      'CenusACS5yrSurvey', "measuredValue", {"gender": "Female"})
   print(related_places)
 
 
