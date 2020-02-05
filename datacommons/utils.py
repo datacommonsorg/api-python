@@ -80,11 +80,10 @@ def set_api_key(api_key):
 
 
 def _send_request(req_url, req_json={}, compress=False, post=True):
-  """ Sends a POST request to the given req_url with the given req_json.
+  """ Sends a POST/GET request to req_url with req_json, default to POST.
 
   Returns:
-    The payload returned by sending the POST request formatted as a Python
-    dict.
+    The payload returned by sending the POST/GET request formatted as a dict.
   """
   # Get the API key
   if not os.environ.get(_ENV_VAR_API_KEY, None):
