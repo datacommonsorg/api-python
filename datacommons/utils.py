@@ -106,7 +106,7 @@ def _send_request(req_url, req_json={}, compress=False, post=True):
     req = six.moves.urllib.request.Request(req_url, headers=headers)
   try:
     res = six.moves.urllib.request.urlopen(req)
-  except urllib.error.HTTPError as e:
+  except six.urllib.error.HTTPError as e:
     raise ValueError(
         'Response error: An HTTP {} code was returned by the mixer. Printing '
         'response\n\n{}'.format(e.code, e.read()))
