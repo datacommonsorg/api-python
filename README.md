@@ -17,6 +17,10 @@ GCP. Once you have the API key, simply add the following line to your code.
 For more detail on getting started with the API, please visit
 [Getting Started](http://docs.datacommons.org/api/).
 
+After you're ready to use the API, you can refer to `datacommons/examples` for
+examples on how to use this package to perform various tasks. More tutorials and
+documentation can be found at [tutorials](https://datacommons.org/colab)!
+
 ## About Data Commons
 
 [Data Commons](https://datacommons.org/) is an Open Knowledge Graph that
