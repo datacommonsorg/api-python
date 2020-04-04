@@ -96,6 +96,7 @@ def get_property_labels(dcids, out=True):
     }
   """
   # Generate the GetProperty query and send the request
+  dcids = filter(lambda v: v==v, dcids)  # Filter out NaN values
   dcids = list(dcids)
   url = utils._API_ROOT + utils._API_ENDPOINTS['get_property_labels']
   payload = utils._send_request(url, req_json={'dcids': dcids})
@@ -152,6 +153,7 @@ def get_property_values(dcids,
     }
   """
   # Convert the dcids field and format the request to GetPropertyValue
+  dcids = filter(lambda v: v==v, dcids)  # Filter out NaN values
   dcids = list(dcids)
   if out:
     direction = 'out'
@@ -232,6 +234,7 @@ def get_triples(dcids, limit=utils._MAX_LIMIT):
     }
   """
   # Generate the GetTriple query and send the request.
+  dcids = filter(lambda v: v==v, dcids)  # Filter out NaN values
   dcids = list(dcids)
   url = utils._API_ROOT + utils._API_ENDPOINTS['get_triples']
   payload = utils._send_request(url, req_json={'dcids': dcids, 'limit': limit})

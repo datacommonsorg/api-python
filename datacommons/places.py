@@ -60,6 +60,7 @@ def get_places_in(dcids, place_type):
     ]
     }
   """
+  dcids = filter(lambda v: v==v, dcids)  # Filter out NaN values
   dcids = list(dcids)
   url = utils._API_ROOT + utils._API_ENDPOINTS['get_places_in']
   payload = utils._send_request(url, req_json={
@@ -119,6 +120,7 @@ def get_related_places(dcids, population_type, measured_property,
     ]
     }
   """
+  dcids = filter(lambda v: v==v, dcids)  # Filter out NaN values
   dcids = list(dcids)
   url = utils._API_ROOT + utils._API_ENDPOINTS['get_related_places']
   pvs = []

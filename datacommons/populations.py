@@ -97,6 +97,7 @@ def get_populations(dcids, population_type, constraining_properties={}):
     }
   """
   # Convert the dcids field and format the request to GetPopulations
+  dcids = filter(lambda v: v==v, dcids)  # Filter out NaN values
   dcids = list(dcids)
   pv = [{'property': k, 'value': v} for k, v in constraining_properties.items()]
   url = utils._API_ROOT + utils._API_ENDPOINTS['get_populations']
@@ -176,6 +177,7 @@ def get_observations(dcids,
       "dc/p/lr52m1yr46r44": 3075662.0
     }
   """
+  dcids = filter(lambda v: v==v, dcids)  # Filter out NaN values
   dcids = list(dcids)
   req_json = {
     'dcids': dcids,
