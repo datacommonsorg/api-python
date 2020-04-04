@@ -15,12 +15,11 @@ GCP. Once you have the API key, simply add the following line to your code.
     dc.set_api_key('YOUR-API-KEY')
 
 For more detail on getting started with the API, please visit
-[Getting Started](https://datacommons.readthedocs.io/en/latest/started.html).
+[Getting Started](http://docs.datacommons.org/api/).
 
 After you're ready to use the API, you can refer to `datacommons/examples` for
 examples on how to use this package to perform various tasks. More tutorials and
-documentation can be found at our
-[readthedocs](https://datacommons.readthedocs.io/en/latest/)!
+documentation can be found at [tutorials](https://datacommons.org/colab)!
 
 ## About Data Commons
 
@@ -35,7 +34,7 @@ Apache 2.0
 
 ## Development
 
-The Python Client API currently supports `python>=3.6`. We use
+The Python Client API currently supports `python>=2.7`. We use
 [bazel](https://bazel.build/) as our build system. To test, first install
 bazel then run the following:
 

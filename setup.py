@@ -30,9 +30,6 @@ VERSION = '1.0.9'
 REQUIRED = [
     'six',
     'httplib2',
-    'sphinx',
-    'sphinxcontrib-napoleon',
-    'sphinx_rtd_theme',
 ]
 
 PACKAGES = ['datacommons']
