@@ -104,9 +104,7 @@ def query(query_string, select=None):
   try:
     res = six.moves.urllib.request.urlopen(req)
   except six.moves.urllib.error.HTTPError as e:
-    raise ValueError(
-        'Response error: An HTTP {} code was returned by the mixer. Printing '
-        'response\n\n{}'.format(e.code, e.read()))
+    raise ValueError('Response error {}:\n{}'.format(e.code, e.read()))
 
   # Verify then store the results.
   res_json = json.loads(res.read())
