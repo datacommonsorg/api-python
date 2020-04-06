@@ -7,6 +7,7 @@ py_test(
     deps = [
         "//datacommons:datacommons",
         requirement("mock"),
+        requirement("six"),
     ],
     python_version = "PY3"
 )
@@ -17,6 +18,7 @@ py_test(
     deps = [
         "//datacommons:datacommons",
         requirement("mock"),
+        requirement("six"),
     ],
     python_version = "PY3"
 )
@@ -27,6 +29,7 @@ py_test(
     deps = [
         "//datacommons:datacommons",
         requirement("mock"),
+        requirement("six"),
     ],
     python_version = "PY3"
 )
@@ -37,6 +40,7 @@ py_test(
     deps = [
         "//datacommons:datacommons",
         requirement("mock"),
+        requirement("six"),
     ],
     python_version = "PY3"
 )

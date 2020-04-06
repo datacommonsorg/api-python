@@ -29,7 +29,6 @@ VERSION = '1.0.9'
 
 REQUIRED = [
     'six',
-    'httplib2',
 ]
 
 PACKAGES = ['datacommons']
