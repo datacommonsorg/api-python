@@ -1,5 +1,21 @@
 # Changelog
 
+## 1.1.0
+
+**Date** - 04/10/2020
+
+**Release Tag** - [v1.1.0](https://github.com/datacommonsorg/api-python/releases/tag/v1.1.0)
+
+**Release Status** - Current head of branch [`master`](https://github.com/datacommonsorg/api-python/tree/master)
+
+New features added to the Python Client API
+
+-   Handle and ignore NaN in API argument.
+
+Bugs fixed in new release
+
+-   Various small fix.
+
 ## 1.0.9
 
 **Date** - 02/04/2020
