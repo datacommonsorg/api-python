@@ -215,12 +215,36 @@ class TestGetStats(unittest.TestCase):
     # Set the API key
     dc.set_api_key('TEST-API-KEY')
 
-    # Call get_places_in
+    # Call get_stats
     stats = dc.get_stats(['geoId/05', 'geoId/06'], 'dc/0hyp6tkn18vcb')
     self.assertDictEqual(
         stats, {
-            'geoId/06085': ['geoId/0649670'],
-            'geoId/24031': ['geoId/2467675', 'geoId/2476650']
+            'geoId/05': {
+                'data': {
+                    '2011': 18136,
+                    '2012': 17279,
+                    '2013': 17459,
+                    '2014': 16966,
+                    '2015': 17173,
+                    '2016': 17041,
+                    '2017': 17783,
+                    '2018': 18003
+                },
+                'place_name': 'Arkansas'
+            },
+            'geoId/06': {
+                'data': {
+                    '2011': 316667,
+                    '2012': 324116,
+                    '2013': 331853,
+                    '2014': 342818,
+                    '2015': 348979,
+                    '2016': 354806,
+                    '2017': 360645,
+                    '2018': 366331
+                },
+                'place_name': 'California'
+            }
         })
 
   @mock.patch('urllib.request.urlopen', side_effect=request_mock)
@@ -231,17 +255,30 @@ class TestGetStats(unittest.TestCase):
     # Set the API key
     dc.set_api_key('TEST-API-KEY')
 
-    # Call get_places_in with one dcid that does not exist
+    # Call get_stats with one dcid that does not exist
     bad_dcids_1 = dc.get_stats(['geoId/05', 'dc/MadDcid'], 'dc/0hyp6tkn18vcb')
-    self.assertDictEqual(bad_dcids_1, {
-        'geoId/06085': ['geoId/0649670'],
-        'dc/MadDcid': []
-    })
+    self.assertDictEqual(
+        bad_dcids_1, {
+            'geoId/05': {
+                'data': {
+                    '2011': 18136,
+                    '2012': 17279,
+                    '2013': 17459,
+                    '2014': 16966,
+                    '2015': 17173,
+                    '2016': 17041,
+                    '2017': 17783,
+                    '2018': 18003
+                },
+                'place_name': 'Arkansas'
+            },
+            'dc/MadDcid': {}
+        })
 
-    # Call get_places_in when both dcids do not exist
+    # Call get_stats when both dcids do not exist
     bad_dcids_2 = dc.get_stats(['dc/MadDcid', 'dc/MadderDcid'],
                                'dc/0hyp6tkn18vcb')
-    self.assertDictEqual(bad_dcids_2, {'dc/MadDcid': [], 'dc/MadderDcid': []})
+    self.assertDictEqual(bad_dcids_2, {'dc/MadDcid': {}, 'dc/MadderDcid': {}})
 
   @mock.patch('urllib.request.urlopen', side_effect=request_mock)
   def test_no_dcids(self, urlopen):
@@ -249,7 +286,7 @@ class TestGetStats(unittest.TestCase):
     # Set the API key
     dc.set_api_key('TEST-API-KEY')
 
-    # Call get_places_in with no valid dcids.
+    # Call get_stats with no valid dcids.
     no_dcids = dc.get_stats([], 'dc/0hyp6tkn18vcb')
     self.assertDictEqual(no_dcids, {})
 
