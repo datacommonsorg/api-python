@@ -211,7 +211,7 @@ class TestGetStats(unittest.TestCase):
 
   @mock.patch('urllib.request.urlopen', side_effect=request_mock)
   def test_multiple_dcids(self, urlopen):
-    """ Calling get_places_in with proper dcids returns valid results. """
+    """ Calling get_stats with proper dcids returns valid results. """
     # Set the API key
     dc.set_api_key('TEST-API-KEY')
 
@@ -249,7 +249,7 @@ class TestGetStats(unittest.TestCase):
 
   @mock.patch('urllib.request.urlopen', side_effect=request_mock)
   def test_bad_dcids(self, urlopen):
-    """ Calling get_places_in with dcids that do not exist returns empty
+    """ Calling get_stats with dcids that do not exist returns empty
       results.
     """
     # Set the API key
@@ -282,7 +282,7 @@ class TestGetStats(unittest.TestCase):
 
   @mock.patch('urllib.request.urlopen', side_effect=request_mock)
   def test_no_dcids(self, urlopen):
-    """ Calling get_places_in with no dcids returns empty results. """
+    """ Calling get_stats with no dcids returns empty results. """
     # Set the API key
     dc.set_api_key('TEST-API-KEY')
 
