@@ -90,7 +90,7 @@ def request_mock(*args, **kwargs):
 
   # Mock responses for urlopen requests to get_stats.
   if req.full_url == utils._API_ROOT + utils._API_ENDPOINTS['get_stats']:
-    if (data['dcids'] == ['geoId/05', 'geoId/06'] and
+    if (data['place'] == ['geoId/05', 'geoId/06'] and
         data['stats_var'] == 'dc/0hyp6tkn18vcb'):
       # Response returned when querying for multiple valid dcids.
       res_json = json.dumps({
@@ -122,7 +122,7 @@ def request_mock(*args, **kwargs):
           }
       })
       return MockResponse(json.dumps({'payload': res_json}))
-    if (data['dcids'] == ['geoId/05', 'dc/MadDcid'] and
+    if (data['place'] == ['geoId/05', 'dc/MadDcid'] and
         data['stats_var'] == 'dc/0hyp6tkn18vcb'):
       # Response returned when querying for a dcid that does not exist.
       res_json = json.dumps({
@@ -141,12 +141,12 @@ def request_mock(*args, **kwargs):
           }
       })
       return MockResponse(json.dumps({'payload': res_json}))
-    if (data['dcids'] == ['dc/MadDcid', 'dc/MadderDcid'] and
+    if (data['place'] == ['dc/MadDcid', 'dc/MadderDcid'] and
         data['stats_var'] == 'dc/0hyp6tkn18vcb'):
       # Response returned when both given dcids do not exist.
       res_json = json.dumps([])
       return MockResponse(json.dumps({'payload': res_json}))
-    if data['dcids'] == [] and data['stats_var'] == 'dc/0hyp6tkn18vcb':
+    if data['place'] == [] and data['stats_var'] == 'dc/0hyp6tkn18vcb':
       res_json = json.dumps([])
       # Response returned when no dcids are given.
       return MockResponse(json.dumps({'payload': res_json}))
