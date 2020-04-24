@@ -277,7 +277,7 @@ class TestGetStats(unittest.TestCase):
     # Call get_stats when both dcids do not exist
     bad_dcids_2 = dc.get_stats(['dc/MadDcid', 'dc/MadderDcid'],
                                'dc/0hyp6tkn18vcb')
-    self.assertDictEqual(bad_dcids_2, {})
+    self.assertFalse(bad_dcids_2)
 
   @mock.patch('urllib.request.urlopen', side_effect=request_mock)
   def test_no_dcids(self, urlopen):
