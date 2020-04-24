@@ -40,12 +40,16 @@ def main():
     for dcid in tracts[mc][:10]:
       print('  - {}'.format(dcid))
 
+  # Get place stats.
+  print('Get place stats')
+  stats = dc.get_stats(['geoId/05', 'geoId/06'], 'dc/0hyp6tkn18vcb')
+  print(stats)
+
   # Get related places.
-  print('Get related places')
-  # TODO(*): s/Cenus/Census/g when data is ready in BT.
-  related_places = dc.get_related_places(['geoId/06085'], 'Person', 'count',
-      'CenusACS5yrSurvey', "measuredValue", {"gender": "Female"})
-  print(related_places)
+#  print('Get related places')
+#   related_places = dc.get_related_places(['geoId/06085'], 'Person', 'count',
+#       'CensusACS5yrSurvey', "measuredValue", {"gender": "Female"})
+#   print(related_places)
 
 
 if __name__ == '__main__':
