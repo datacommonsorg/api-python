@@ -271,14 +271,13 @@ class TestGetStats(unittest.TestCase):
                     '2018': 18003
                 },
                 'place_name': 'Arkansas'
-            },
-            'dc/MadDcid': {}
+            }
         })
 
     # Call get_stats when both dcids do not exist
     bad_dcids_2 = dc.get_stats(['dc/MadDcid', 'dc/MadderDcid'],
                                'dc/0hyp6tkn18vcb')
-    self.assertDictEqual(bad_dcids_2, {'dc/MadDcid': {}, 'dc/MadderDcid': {}})
+    self.assertDictEqual(bad_dcids_2, {})
 
   @mock.patch('urllib.request.urlopen', side_effect=request_mock)
   def test_no_dcids(self, urlopen):
@@ -286,9 +285,9 @@ class TestGetStats(unittest.TestCase):
     # Set the API key
     dc.set_api_key('TEST-API-KEY')
 
-    # Call get_stats with no valid dcids.
+    # Call get_stats with no dcids.
     no_dcids = dc.get_stats([], 'dc/0hyp6tkn18vcb')
-    self.assertDictEqual(no_dcids, {})
+    self.assertFalse(no_dcids)
 
 
 if __name__ == '__main__':

@@ -42,10 +42,11 @@ def main():
 
   # Get place stats.
   print('Get place stats')
-  stats = dc.get_stats(['geoId/05', 'geoId/06'], 'dc/0hyp6tkn18vcb')
+  stats = dc.get_stats(['geoId/05', 'geoId/06', 'dc/madDcid'], 'dc/0hyp6tkn18vcb')
   print(stats)
 
   # Get related places.
+# TODO(*): Fix the related places example.
 #  print('Get related places')
 #   related_places = dc.get_related_places(['geoId/06085'], 'Person', 'count',
 #       'CensusACS5yrSurvey', "measuredValue", {"gender": "Female"})
