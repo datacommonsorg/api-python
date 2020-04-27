@@ -54,6 +54,9 @@ _API_ENDPOINTS = {
 # The default value to limit to
 _MAX_LIMIT = 100
 
+# Batch size for heavyweight queries.
+_QUERY_BATCH_SIZE = 500
+
 # Environment variable names used by the package
 _ENV_VAR_API_KEY = 'DC_API_KEY'         # Name the API key variable
 

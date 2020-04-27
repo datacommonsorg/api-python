@@ -216,7 +216,7 @@ class TestGetStats(unittest.TestCase):
     dc.set_api_key('TEST-API-KEY')
 
     # Call get_stats
-    stats = dc.get_stats(['geoId/05', 'geoId/06'], 'dc/0hyp6tkn18vcb')
+    stats = dc.get_stats(['geoId/05', 'geoId/06'], 'dc/0hyp6tkn18vcb', 'all')
     self.assertDictEqual(
         stats, {
             'geoId/05': {
@@ -247,6 +247,60 @@ class TestGetStats(unittest.TestCase):
             }
         })
 
+    # Call get_stats for latest obs
+    stats = dc.get_stats(['geoId/05', 'geoId/06'], 'dc/0hyp6tkn18vcb', 'latest')
+    self.assertDictEqual(
+        stats, {
+            'geoId/05': {
+                'data': {
+                    '2018': 18003
+                },
+                'place_name': 'Arkansas'
+            },
+            'geoId/06': {
+                'data': {
+                    '2018': 366331
+                },
+                'place_name': 'California'
+            }
+        })
+
+    # Call get_stats for specific obs
+    stats = dc.get_stats(['geoId/05', 'geoId/06'], 'dc/0hyp6tkn18vcb', ['2013', '2018'])
+    self.assertDictEqual(
+        stats, {
+            'geoId/05': {
+                'data': {
+                    '2013': 17459,
+                    '2018': 18003
+                },
+                'place_name': 'Arkansas'
+            },
+            'geoId/06': {
+                'data': {
+                    '2013': 331853,
+                    '2018': 366331
+                },
+                'place_name': 'California'
+            }
+        })
+
+    # Call get_stats -- dates must be in interable
+    stats = dc.get_stats(['geoId/05', 'geoId/06'], 'dc/0hyp6tkn18vcb', '2018')
+    self.assertDictEqual(
+        stats, {
+            'geoId/05': {
+                'data': {
+                },
+                'place_name': 'Arkansas'
+            },
+            'geoId/06': {
+                'data': {
+                },
+                'place_name': 'California'
+            }
+        })
+
   @mock.patch('urllib.request.urlopen', side_effect=request_mock)
   def test_bad_dcids(self, urlopen):
     """ Calling get_stats with dcids that do not exist returns empty
@@ -261,13 +315,6 @@ class TestGetStats(unittest.TestCase):
         bad_dcids_1, {
             'geoId/05': {
                 'data': {
-                    '2011': 18136,
-                    '2012': 17279,
-                    '2013': 17459,
-                    '2014': 16966,
-                    '2015': 17173,
-                    '2016': 17041,
-                    '2017': 17783,
                     '2018': 18003
                 },
                 'place_name': 'Arkansas'
