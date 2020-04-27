@@ -375,8 +375,6 @@ class TestGetStats(unittest.TestCase):
             }
         })
     self.assertEqual(3, urlopen.call_count)
-    stats = dc.get_stats(['geoId/05', 'geoId/06', 'geoId/36'], 'dc/0hyp6tkn18vcb', 'latest')
-    self.assertEqual(6, urlopen.call_count)
 
     dc.utils._QUERY_BATCH_SIZE = save_batch_size
 
