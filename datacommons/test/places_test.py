@@ -90,7 +90,9 @@ def request_mock(*args, **kwargs):
 
   # Mock responses for urlopen requests to get_stats.
   if req.full_url == utils._API_ROOT + utils._API_ENDPOINTS['get_stats']:
-    if (data['place'] == ['geoId/05', 'geoId/06'] and
+    if ((data['place'] == ['geoId/05', 'geoId/06'] or
+      data['place'] == ['geoId/05'] or
+      data['place'] == ['geoId/06'])  and
         data['stats_var'] == 'dc/0hyp6tkn18vcb'):
       # Response returned when querying for multiple valid dcids.
       res_json = json.dumps({
