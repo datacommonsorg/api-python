@@ -144,10 +144,10 @@ def request_mock(*args, **kwargs):
     if (data['place'] == ['dc/MadDcid', 'dc/MadderDcid'] and
         data['stats_var'] == 'dc/0hyp6tkn18vcb'):
       # Response returned when both given dcids do not exist.
-      res_json = json.dumps([])
+      res_json = json.dumps({})
       return MockResponse(json.dumps({'payload': res_json}))
     if data['place'] == [] and data['stats_var'] == 'dc/0hyp6tkn18vcb':
-      res_json = json.dumps([])
+      res_json = json.dumps({})
       # Response returned when no dcids are given.
       return MockResponse(json.dumps({'payload': res_json}))
 
@@ -324,7 +324,7 @@ class TestGetStats(unittest.TestCase):
     # Call get_stats when both dcids do not exist
     bad_dcids_2 = dc.get_stats(['dc/MadDcid', 'dc/MadderDcid'],
                                'dc/0hyp6tkn18vcb')
-    self.assertFalse(bad_dcids_2)
+    self.assertDictEqual({}, bad_dcids_2)
 
   @mock.patch('urllib.request.urlopen', side_effect=request_mock)
   def test_no_dcids(self, urlopen):
@@ -334,7 +334,7 @@ class TestGetStats(unittest.TestCase):
 
     # Call get_stats with no dcids.
     no_dcids = dc.get_stats([], 'dc/0hyp6tkn18vcb')
-    self.assertFalse(no_dcids)
+    self.assertDictEqual({}, no_dcids)
 
 
 if __name__ == '__main__':
