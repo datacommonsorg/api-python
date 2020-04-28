@@ -90,9 +90,7 @@ def request_mock(*args, **kwargs):
 
   # Mock responses for urlopen requests to get_stats.
   if req.full_url == utils._API_ROOT + utils._API_ENDPOINTS['get_stats']:
-    if ((data['place'] == ['geoId/05', 'geoId/06'] or
-      data['place'] == ['geoId/05'] or
-      data['place'] == ['geoId/06'])  and
+    if (data['place'] == ['geoId/05', 'geoId/06'] and
         data['stats_var'] == 'dc/0hyp6tkn18vcb'):
       # Response returned when querying for multiple valid dcids.
       res_json = json.dumps({
@@ -124,9 +122,10 @@ def request_mock(*args, **kwargs):
           }
       })
       return MockResponse(json.dumps({'payload': res_json}))
-    if (data['place'] == ['geoId/05', 'dc/MadDcid'] and
+    if ((data['place'] == ['geoId/05', 'dc/MadDcid'] or 
+         data['place'] == ['geoId/05']) and
         data['stats_var'] == 'dc/0hyp6tkn18vcb'):
-      # Response returned when querying for a dcid that does not exist.
+      # Response ignores dcid that does not exist.
       res_json = json.dumps({
           'geoId/05': {
               'data': {
@@ -140,6 +139,24 @@ def request_mock(*args, **kwargs):
                   '2018': 18003
               },
               'place_name': 'Arkansas'
+          }
+      })
+      return MockResponse(json.dumps({'payload': res_json}))
+    if (data['place'] == ['geoId/06'] and
+        data['stats_var'] == 'dc/0hyp6tkn18vcb'):
+      res_json = json.dumps({
+          'geoId/06': {
+              'data': {
+                  '2011': 316667,
+                  '2012': 324116,
+                  '2013': 331853,
+                  '2014': 342818,
+                  '2015': 348979,
+                  '2016': 354806,
+                  '2017': 360645,
+                  '2018': 366331
+              },
+              'place_name': 'California'
           }
       })
       return MockResponse(json.dumps({'payload': res_json}))
