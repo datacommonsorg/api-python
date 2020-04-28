@@ -26,7 +26,7 @@ import datacommons as dc
 import datacommons.utils as utils
 import json
 import unittest
-import urllib
+import six.moves.urllib
 
 
 def request_mock(*args, **kwargs):
@@ -122,9 +122,10 @@ def request_mock(*args, **kwargs):
           }
       })
       return MockResponse(json.dumps({'payload': res_json}))
-    if (data['place'] == ['geoId/05', 'dc/MadDcid'] and
+    if ((data['place'] == ['geoId/05', 'dc/MadDcid'] or 
+         data['place'] == ['geoId/05']) and
         data['stats_var'] == 'dc/0hyp6tkn18vcb'):
-      # Response returned when querying for a dcid that does not exist.
+      # Response ignores dcid that does not exist.
       res_json = json.dumps({
           'geoId/05': {
               'data': {
@@ -141,13 +142,31 @@ def request_mock(*args, **kwargs):
           }
       })
       return MockResponse(json.dumps({'payload': res_json}))
+    if (data['place'] == ['geoId/06'] and
+        data['stats_var'] == 'dc/0hyp6tkn18vcb'):
+      res_json = json.dumps({
+          'geoId/06': {
+              'data': {
+                  '2011': 316667,
+                  '2012': 324116,
+                  '2013': 331853,
+                  '2014': 342818,
+                  '2015': 348979,
+                  '2016': 354806,
+                  '2017': 360645,
+                  '2018': 366331
+              },
+              'place_name': 'California'
+          }
+      })
+      return MockResponse(json.dumps({'payload': res_json}))
     if (data['place'] == ['dc/MadDcid', 'dc/MadderDcid'] and
         data['stats_var'] == 'dc/0hyp6tkn18vcb'):
       # Response returned when both given dcids do not exist.
-      res_json = json.dumps([])
+      res_json = json.dumps({})
       return MockResponse(json.dumps({'payload': res_json}))
     if data['place'] == [] and data['stats_var'] == 'dc/0hyp6tkn18vcb':
-      res_json = json.dumps([])
+      res_json = json.dumps({})
       # Response returned when no dcids are given.
       return MockResponse(json.dumps({'payload': res_json}))
 
@@ -216,7 +235,7 @@ class TestGetStats(unittest.TestCase):
     dc.set_api_key('TEST-API-KEY')
 
     # Call get_stats
-    stats = dc.get_stats(['geoId/05', 'geoId/06'], 'dc/0hyp6tkn18vcb')
+    stats = dc.get_stats(['geoId/05', 'geoId/06'], 'dc/0hyp6tkn18vcb', 'all')
     self.assertDictEqual(
         stats, {
             'geoId/05': {
@@ -247,6 +266,60 @@ class TestGetStats(unittest.TestCase):
             }
         })
 
+    # Call get_stats for latest obs
+    stats = dc.get_stats(['geoId/05', 'geoId/06'], 'dc/0hyp6tkn18vcb', 'latest')
+    self.assertDictEqual(
+        stats, {
+            'geoId/05': {
+                'data': {
+                    '2018': 18003
+                },
+                'place_name': 'Arkansas'
+            },
+            'geoId/06': {
+                'data': {
+                    '2018': 366331
+                },
+                'place_name': 'California'
+            }
+        })
+
+    # Call get_stats for specific obs
+    stats = dc.get_stats(['geoId/05', 'geoId/06'], 'dc/0hyp6tkn18vcb', ['2013', '2018'])
+    self.assertDictEqual(
+        stats, {
+            'geoId/05': {
+                'data': {
+                    '2013': 17459,
+                    '2018': 18003
+                },
+                'place_name': 'Arkansas'
+            },
+            'geoId/06': {
+                'data': {
+                    '2013': 331853,
+                    '2018': 366331
+                },
+                'place_name': 'California'
+            }
+        })
+
+    # Call get_stats -- dates must be in interable
+    stats = dc.get_stats(['geoId/05', 'geoId/06'], 'dc/0hyp6tkn18vcb', '2018')
+    self.assertDictEqual(
+        stats, {
+            'geoId/05': {
+                'data': {
+                },
+                'place_name': 'Arkansas'
+            },
+            'geoId/06': {
+                'data': {
+                },
+                'place_name': 'California'
+            }
+        })
+
   @mock.patch('urllib.request.urlopen', side_effect=request_mock)
   def test_bad_dcids(self, urlopen):
     """ Calling get_stats with dcids that do not exist returns empty
@@ -261,13 +334,6 @@ class TestGetStats(unittest.TestCase):
         bad_dcids_1, {
             'geoId/05': {
                 'data': {
-                    '2011': 18136,
-                    '2012': 17279,
-                    '2013': 17459,
-                    '2014': 16966,
-                    '2015': 17173,
-                    '2016': 17041,
-                    '2017': 17783,
                     '2018': 18003
                 },
                 'place_name': 'Arkansas'
@@ -277,7 +343,7 @@ class TestGetStats(unittest.TestCase):
     # Call get_stats when both dcids do not exist
     bad_dcids_2 = dc.get_stats(['dc/MadDcid', 'dc/MadderDcid'],
                                'dc/0hyp6tkn18vcb')
-    self.assertFalse(bad_dcids_2)
+    self.assertDictEqual({}, bad_dcids_2)
 
   @mock.patch('urllib.request.urlopen', side_effect=request_mock)
   def test_no_dcids(self, urlopen):
@@ -287,7 +353,49 @@ class TestGetStats(unittest.TestCase):
 
     # Call get_stats with no dcids.
     no_dcids = dc.get_stats([], 'dc/0hyp6tkn18vcb')
-    self.assertFalse(no_dcids)
+    self.assertDictEqual({}, no_dcids)
+
+  @mock.patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
+  def test_batch_request(self, mock_urlopen):
+    """ Make multiple calls to REST API when number of geos exceeds the batch size. """
+    # Set the API key
+    dc.set_api_key('TEST-API-KEY')
+
+    save_batch_size = dc.utils._QUERY_BATCH_SIZE
+    dc.utils._QUERY_BATCH_SIZE = 1
+
+    self.assertEqual(0, mock_urlopen.call_count)
+    stats = dc.get_stats(['geoId/05'], 'dc/0hyp6tkn18vcb', 'latest')
+    self.assertDictEqual(
+        stats, {
+            'geoId/05': {
+                'data': {
+                    '2018': 18003
+                },
+                'place_name': 'Arkansas'
+            },
+        })
+    self.assertEqual(1, mock_urlopen.call_count)
+
+    stats = dc.get_stats(['geoId/05', 'geoId/06'], 'dc/0hyp6tkn18vcb', 'latest')
+    self.assertDictEqual(
+        stats, {
+            'geoId/05': {
+                'data': {
+                    '2018': 18003
+                },
+                'place_name': 'Arkansas'
+            },
+            'geoId/06': {
+                'data': {
+                    '2018': 366331
+                },
+                'place_name': 'California'
+            }
+        })
+    self.assertEqual(3, mock_urlopen.call_count)
+
+    dc.utils._QUERY_BATCH_SIZE = save_batch_size
 
 
 if __name__ == '__main__':

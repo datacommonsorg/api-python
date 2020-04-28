@@ -41,8 +41,24 @@ def main():
       print('  - {}'.format(dcid))
 
   # Get place stats.
-  print('Get place stats')
+  print('Get place stats -- all')
+  stats = dc.get_stats(['geoId/05', 'geoId/06', 'dc/madDcid'], 'dc/0hyp6tkn18vcb', obs_dates='all')
+  print(stats)
+
+  print('Get place stats -- latest')
   stats = dc.get_stats(['geoId/05', 'geoId/06', 'dc/madDcid'], 'dc/0hyp6tkn18vcb')
+  print(stats)
+
+  print('Get place stats -- 2014')
+  stats = dc.get_stats(['geoId/05', 'geoId/06', 'dc/madDcid'], 'dc/0hyp6tkn18vcb', obs_dates=['2014'])
+  print(stats)
+
+  print('Get place stats -- 2014 badly formatted')
+  stats = dc.get_stats(['geoId/05', 'geoId/06', 'dc/madDcid'], 'dc/0hyp6tkn18vcb', obs_dates='2014')
+  print(stats)
+
+  print('Get place stats -- 2015-2016')
+  stats = dc.get_stats(['geoId/05', 'geoId/06', 'dc/madDcid'], 'dc/0hyp6tkn18vcb', obs_dates=['2015', '2016'])
   print(stats)
 
   # Get related places.
