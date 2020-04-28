@@ -364,7 +364,7 @@ class TestGetStats(unittest.TestCase):
     save_batch_size = dc.utils._QUERY_BATCH_SIZE
     dc.utils._QUERY_BATCH_SIZE = 1
 
-    self.assertEqual(0, urlopen.call_count)
+    self.assertEqual(0, mock_urlopen.call_count)
     stats = dc.get_stats(['geoId/05'], 'dc/0hyp6tkn18vcb', 'latest')
     self.assertDictEqual(
         stats, {
