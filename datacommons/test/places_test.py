@@ -26,7 +26,7 @@ import datacommons as dc
 import datacommons.utils as utils
 import json
 import unittest
-import urllib
+import six.moves.urllib
 
 
 def request_mock(*args, **kwargs):
