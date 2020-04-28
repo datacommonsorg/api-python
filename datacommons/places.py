@@ -154,7 +154,7 @@ def get_stats(dcids, stats_var, obs_dates='latest'):
         time_series[max_date] = max_date_stat
         res[geo] = stats
     elif obs_dates:
-      obs_dates = list(obs_dates)
+      obs_dates = set(obs_dates)
       for geo, stats in payload.items():
         time_series = stats.get('data')
         if not time_series: continue
