@@ -355,8 +355,8 @@ class TestGetStats(unittest.TestCase):
     no_dcids = dc.get_stats([], 'dc/0hyp6tkn18vcb')
     self.assertDictEqual({}, no_dcids)
 
-  @mock.patch('urllib.request.urlopen', side_effect=request_mock)
-  def test_batch_request(self, urlopen):
+  @mock.patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
+  def test_batch_request(self, mock_urlopen):
     """ Make multiple calls to REST API when number of geos exceeds the batch size. """
     # Set the API key
     dc.set_api_key('TEST-API-KEY')
@@ -375,7 +375,7 @@ class TestGetStats(unittest.TestCase):
                 'place_name': 'Arkansas'
             },
         })
-    self.assertEqual(1, urlopen.call_count)
+    self.assertEqual(1, mock_urlopen.call_count)
 
     stats = dc.get_stats(['geoId/05', 'geoId/06'], 'dc/0hyp6tkn18vcb', 'latest')
     self.assertDictEqual(
@@ -393,7 +393,7 @@ class TestGetStats(unittest.TestCase):
                 'place_name': 'California'
             }
         })
-    self.assertEqual(3, urlopen.call_count)
+    self.assertEqual(3, mock_urlopen.call_count)
 
     dc.utils._QUERY_BATCH_SIZE = save_batch_size
 
