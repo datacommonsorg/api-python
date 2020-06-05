@@ -14,7 +14,7 @@ New features added to the Python Client API
 
 Bugs fixed in new release
 
--   Null and empty data check.
+-   Check Null and empty data in REST API response field to avoid KeyError.
 
 
 ## 1.1.0
