@@ -24,7 +24,7 @@ import datacommons as dc
 
 def main():
   # Set the dcid to be that of Santa Clara County.
-  dcids = ['geoId/06085']
+  dcids = ['geoId/06085', 'dc/p/zsb968m3v1f97']
 
   # Print all incoming and outgoing properties from Santa Clara County.
   print('Property Labels for Santa Clara County')

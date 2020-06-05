@@ -71,7 +71,7 @@ def get_places_in(dcids, place_type):
   # Create the results and format it appropriately
   result = utils._format_expand_payload(payload, 'place', must_exist=dcids)
   return result
-  
+
 def get_stats(dcids, stats_var, obs_dates='latest'):
   """ Returns :obj:`TimeSeries` for :code:`dcids` \
     based on the :code:`stats_var`.
@@ -119,7 +119,7 @@ def get_stats(dcids, stats_var, obs_dates='latest'):
       },
       'geoId/05': {
         'place_name': 'California'
-        'data': { 
+        'data': {
           '2011':316667,
           '2012':324116,
           '2013':331853,
@@ -146,6 +146,8 @@ def get_stats(dcids, stats_var, obs_dates='latest'):
       res.update(payload)
     elif obs_dates == 'latest':
       for geo, stats in payload.items():
+        if not stats:
+          continue
         time_series = stats.get('data')
         if not time_series: continue
         max_date = max(time_series)
@@ -156,6 +158,8 @@ def get_stats(dcids, stats_var, obs_dates='latest'):
     elif obs_dates:
       obs_dates = set(obs_dates)
       for geo, stats in payload.items():
+        if not stats:
+          continue
         time_series = stats.get('data')
         if not time_series: continue
         for date in list(time_series):

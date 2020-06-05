@@ -26,7 +26,7 @@ import datacommons as dc
 import datacommons.utils as utils
 import json
 import unittest
-import six.moves.urllib
+import six.moves.urllib as urllib
 
 
 def request_mock(*args, **kwargs):
@@ -122,7 +122,14 @@ def request_mock(*args, **kwargs):
           }
       })
       return MockResponse(json.dumps({'payload': res_json}))
-    if ((data['place'] == ['geoId/05', 'dc/MadDcid'] or 
+    if (data['place'] == ['geoId/00'] and
+        data['stats_var'] == 'dc/0hyp6tkn18vcb'):
+      # No data for the request
+      res_json = json.dumps({
+          'geoId/00': None
+      })
+      return MockResponse(json.dumps({'payload': res_json}))
+    if ((data['place'] == ['geoId/05', 'dc/MadDcid'] or
          data['place'] == ['geoId/05']) and
         data['stats_var'] == 'dc/0hyp6tkn18vcb'):
       # Response ignores dcid that does not exist.
@@ -354,6 +361,16 @@ class TestGetStats(unittest.TestCase):
     # Call get_stats with no dcids.
     no_dcids = dc.get_stats([], 'dc/0hyp6tkn18vcb')
     self.assertDictEqual({}, no_dcids)
+
+  @mock.patch('urllib.request.urlopen', side_effect=request_mock)
+  def test_no_data(self, urlopen):
+    """ Calling get_stats with for None data. """
+    # Set the API key
+    dc.set_api_key('TEST-API-KEY')
+
+    # Call get_stats with no dcids.
+    result = dc.get_stats(['geoId/00'], 'dc/0hyp6tkn18vcb')
+    self.assertDictEqual({}, result)
 
   @mock.patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
   def test_batch_request(self, mock_urlopen):

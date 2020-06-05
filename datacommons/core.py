@@ -178,10 +178,12 @@ def get_property_values(dcids,
   for dcid in dcids:
     # Get the list of nodes based on the direction given.
     nodes = []
-    if dcid in payload and out:
-      nodes = payload[dcid]['out']
-    elif dcid in payload and not out:
-      nodes = payload[dcid]['in']
+    if out:
+      if dcid in payload and 'out' in payload[dcid]:
+        nodes = payload[dcid]['out']
+    else:
+       if dcid in payload and 'in' in payload[dcid]:
+          nodes = payload[dcid]['in']
 
     # Add nodes to unique_results if it is not empty
     for node in nodes:
