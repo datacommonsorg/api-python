@@ -47,7 +47,7 @@ $ bazel test //...
 
 - Update "VERSION" in setup.py
 - Update CHANGELOG.md for a new version
-- Upload a new package using steps in https://packaging.python.org/tutorials/packaging-projects/#uploading-the-distribution-archives
+- Upload a new package using steps for [generating distribution archives](https://packaging.python.org/tutorials/packaging-projects/#generating-distribution-archives) and [uploading the distribution archives](https://packaging.python.org/tutorials/packaging-projects/#uploading-the-distribution-archives)
 
 ## Support
 
