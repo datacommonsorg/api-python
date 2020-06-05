@@ -155,6 +155,12 @@ def request_mock(*args, **kwargs):
         }
       })
       return MockResponse(json.dumps({'payload': res_json}))
+    if data['dcids'] == ['dc/p/1234'] and data['property'] == 'name':
+      # Response for sending a request for the name with no data
+      res_json = json.dumps({
+        'dc/p/1234': {}
+      })
+      return MockResponse(json.dumps({'payload': res_json}))
     if data['dcids'] == ['geoId/06085', 'geoId/24031']\
       and data['property'] == 'madProperty':
       # Response for sending a request with a property that does not exist.
@@ -425,6 +431,12 @@ class TestGetPropertyValues(unittest.TestCase):
     self.assertDictEqual(names, {
       'geoId/06085': ['Santa Clara County'],
       'geoId/24031': ['Montgomery County']
+    })
+
+    # Return empty result when there is no data.
+    names = dc.get_property_values(['dc/p/1234'], 'name')
+    self.assertDictEqual(names, {
+      'dc/p/1234': []
     })
 
   @mock.patch('urllib.request.urlopen', side_effect=request_mock)
