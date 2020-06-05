@@ -1,5 +1,22 @@
 # Changelog
 
+## 1.2.0
+
+**Date** - 06/04/2020
+
+**Release Tag** - [v1.2.0](https://github.com/datacommonsorg/api-python/releases/tag/v1.2.0)
+
+**Release Status** - Current head of branch [`master`](https://github.com/datacommonsorg/api-python/tree/master)
+
+New features added to the Python Client API
+
+-   Add get_stats API to get observations given a StatisticalVariable and place dcids.
+
+Bugs fixed in new release
+
+-   Null and empty data check.
+
+
 ## 1.1.0
 
 **Date** - 04/10/2020

@@ -43,6 +43,12 @@ $ bazel build //...
 $ bazel test //...
 ```
 
+## Release
+
+- Update "VERSION" in setup.py
+- Update CHANGELOG.md for a new version
+- Upload a new package using steps in https://packaging.python.org/tutorials/packaging-projects/#uploading-the-distribution-archives
+
 ## Support
 
 For general questions or issues about the API, please open an issue on our
