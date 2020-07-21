@@ -72,7 +72,8 @@ def get_places_in(dcids, place_type):
   result = utils._format_expand_payload(payload, 'place', must_exist=dcids)
   return result
 
-def get_stats(dcids, stats_var, obs_dates='latest'):
+def get_stats(dcids, stats_var, obs_dates='latest', measurement_method=None,
+							unit=None, obs_period=None):
   """ Returns :obj:`TimeSeries` for :code:`dcids` \
     based on the :code:`stats_var`.
 
@@ -82,11 +83,16 @@ def get_stats(dcids, stats_var, obs_dates='latest'):
     obs_dates (:obj:`str` or :obj:`iterable` of :obj:`str`):
       Which observation to return.
       Can be 'latest', 'all', or an iterable of dates in 'YYYY-MM-DD' format.
+		measurement_method (:obj:`str`): Optional, the dcid of the preferred
+		  `measurementMethod` value.
+	  unit (:obj:`str`): Optional, the dcid of the preferred `unit` value.
+	  obs_period (:obj:`str`): Optional, the dcid of the preferred
+		  `observationPeriod` value.
   Returns:
     A :obj:`dict` mapping the :obj:`Place` identified by the given :code:`dcid`
     to its place name and the :obj:`TimeSeries` associated with the
     :obj:`StatisticalVariable` identified by the given :code:`stats_var`
-    and filtered by :code:`obs_dates`.
+    and filtered by :code:`obs_dates` and optional args.
     See example below for more detail about how the returned :obj:`dict` is
     structured.
 
@@ -138,10 +144,17 @@ def get_stats(dcids, stats_var, obs_dates='latest'):
   batches =  -(-len(dcids) // utils._QUERY_BATCH_SIZE)  # Ceil to get # of batches.
   res = {}
   for i in range(batches):
-    payload = utils._send_request(url, req_json={
+    req_json={
       'place': dcids[i * utils._QUERY_BATCH_SIZE:(i+1) * utils._QUERY_BATCH_SIZE],
       'stats_var': stats_var,
-    })
+    }
+    if measurement_method:
+      req_json['measurement_method'] = measurement_method
+    if unit:
+      req_json['unit'] = unit
+    if obs_period:
+      req_json['observation_period'] = obs_period
+    payload = utils._send_request(url, req_json)
     if obs_dates == 'all':
       res.update(payload)
     elif obs_dates == 'latest':
