@@ -1,6 +1,6 @@
 # Data Commons Python Client API
 
-This is a Python library for accessing data in the Data Commons knowledge graph.
+This is a Python library for accessing data in the Data Commons Graph.
 To get started, install this package from pip.
 
     pip install datacommons

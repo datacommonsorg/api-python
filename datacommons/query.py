@@ -13,8 +13,7 @@
 # limitations under the License.
 """ Data Commons Python Client API Query Module.
 
-Implements functions for sending graph queries to the Data Commons knowledge
-graph.
+Implements functions for sending graph queries to the Data Commons Graph.
 """
 
 from __future__ import absolute_import
