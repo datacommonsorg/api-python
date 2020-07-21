@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-""" Data Commons Python Client API unit tests.
+""" Data Commons Python API unit tests.
 
 Unit tests for the SPARQL query wrapper.
 """
@@ -53,12 +53,6 @@ WHERE {
   req = args[0]
   data = json.loads(req.data)
 
-  # If the API key does not match, then return 403 Forbidden
-  api_key = req.get_header('X-api-key')
-  if api_key != 'TEST-API-KEY':
-    return urllib.error.HTTPError(None, 403, None, None, None)
-
-  # Mock responses for urlopen requests to query.
   if req.full_url == utils._API_ROOT + utils._API_ENDPOINTS['query']\
     and data['sparql'] == accepted_query:
     return MockResponse(json.dumps({
@@ -110,9 +104,6 @@ class TestQuery(unittest.TestCase):
   @mock.patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
   def test_rows(self, urlopen):
     """ Sending a valid query returns the correct response. """
-    # Set the API key
-    dc.set_api_key('TEST-API-KEY')
-
     # Create the SPARQL query
     query_string = ('''
 SELECT  ?name ?dcid

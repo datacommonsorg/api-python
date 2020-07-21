@@ -20,7 +20,7 @@ with open('README.md', 'r') as fh:
 
 # Package metadata.
 NAME = 'datacommons'
-DESCRIPTION = 'A library to access Data Commons Python Client API.'
+DESCRIPTION = 'A library to access Data Commons Python API.'
 URL = 'https://github.com/datacommonsorg/api-python'
 EMAIL = 'support@datacommons.org'
 AUTHOR = 'datacommons.org'

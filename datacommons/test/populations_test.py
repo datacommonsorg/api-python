@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-""" Data Commons Python Client API unit tests.
+""" Data Commons Python API unit tests.
 
 Unit tests for Population and Observation methods in the Data Commons Python
 Client API.
@@ -46,10 +46,6 @@ def request_mock(*args, **kwargs):
   req = args[0]
   if req.data:
     data = json.loads(req.data)
-
-  api_key = req.get_header('X-api-key')
-  if api_key != 'TEST-API-KEY':
-    return urllib.error.HTTPError(None, 403, None, None, None)
 
   constrained_props = [
     {
@@ -214,9 +210,6 @@ class TestGetPopulations(unittest.TestCase):
   @mock.patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
   def test_multiple_dcids(self, urlopen):
     """ Calling get_populations with proper dcids returns valid results. """
-    # Set the API key
-    dc.set_api_key('TEST-API-KEY')
-
     # Call get_populations
     populations = dc.get_populations(['geoId/06085', 'geoId/4805000'], 'Person',
                                      constraining_properties=self._constraints)
@@ -231,9 +224,6 @@ class TestGetPopulations(unittest.TestCase):
     """ Calling get_populations with dcids that do not exist returns empty
     results.
     """
-    # Set the API key
-    dc.set_api_key('TEST-API-KEY')
-
     # Call get_populations
     pops_1 = dc.get_populations(['geoId/06085', 'dc/MadDcid'], 'Person',
                                 constraining_properties=self._constraints)
@@ -247,9 +237,6 @@ class TestGetPopulations(unittest.TestCase):
   @mock.patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
   def test_no_dcids(self, urlopen):
     """ Calling get_populations with no dcids returns empty results. """
-    # Set the API key
-    dc.set_api_key('TEST-API-KEY')
-
     pops = dc.get_populations(
       [], 'Person', constraining_properties=self._constraints)
     self.assertDictEqual(pops, {})
@@ -260,9 +247,6 @@ class TestGetObservations(unittest.TestCase):
   @mock.patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
   def test_multiple_dcids(self, urlopen):
     """ Calling get_observations with proper dcids returns valid results. """
-    # Set the API key
-    dc.set_api_key('TEST-API-KEY')
-
     dcids = ['dc/p/x6t44d8jd95rd', 'dc/p/lr52m1yr46r44', 'dc/p/fs929fynprzs']
     expected = {
       'dc/p/lr52m1yr46r44': 3075662.0,
@@ -279,9 +263,6 @@ class TestGetObservations(unittest.TestCase):
     """ Calling get_observations with dcids that do not exist returns empty
     results.
     """
-    # Set the API key
-    dc.set_api_key('TEST-API-KEY')
-
     # Get the input
     dcids_1 = ['dc/p/x6t44d8jd95rd', 'dc/MadDcid']
     dcids_2 = ['dc/MadDcid', 'dc/MadderDcid']
@@ -301,9 +282,6 @@ class TestGetObservations(unittest.TestCase):
   @mock.patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
   def test_no_dcids(self, urlopen):
     """ Calling get_observations with no dcids returns empty results. """
-    # Set the API key
-    dc.set_api_key('TEST-API-KEY')
-
     actual = dc.get_observations([], 'count', 'measuredValue', '2018-12',
                                  observation_period='P1M',
                                  measurement_method='BLSSeasonallyAdjusted')
@@ -316,9 +294,6 @@ class TestGetPopObs(unittest.TestCase):
   @mock.patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
   def test_valid_dcid(self, urlopen):
     """ Calling get_pop_obs with valid dcid returns valid results. """
-    # Set the API key
-    dc.set_api_key('TEST-API-KEY')
-
     # Call get_pop_obs
     pop_obs = dc.get_pop_obs('geoId/06085')
     self.assertDictEqual(pop_obs, {
@@ -361,9 +336,6 @@ class TestGetPlaceObs(unittest.TestCase):
   @mock.patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
   def test_valid(self, urlopen):
     """ Calling get_place_obs with valid parameters returns a valid result. """
-    # Set the API key
-    dc.set_api_key('TEST-API-KEY')
-
     # Call get_place_obs
     pvs = {
       'placeOfBirth': 'BornInOtherStateInTheUnitedStates',
