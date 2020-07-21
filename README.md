@@ -23,7 +23,7 @@ documentation can be found at [tutorials](https://datacommons.org/colab)!
 
 ## About Data Commons
 
-[Data Commons](https://datacommons.org/) is an Open Knowledge Graph that
+[Data Commons](https://datacommons.org/) is an open knowledge repository that
 provides a unified view across multiple public data sets and statistics. You can
 view what [datasets](https://datacommons.org/datasets) are currently ingested
 and browse the graph using our [browser](https://browser.datacommons.org/).
