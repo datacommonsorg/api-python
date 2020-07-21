@@ -1,4 +1,4 @@
-# Data Commons Python Client API
+# Data Commons Python API
 
 This is a Python library for accessing data in the Data Commons Graph.
 To get started, install this package from pip.
@@ -34,16 +34,23 @@ Apache 2.0
 
 ## Development
 
-The Python Client API currently supports `python>=2.7`. We use
-[bazel](https://bazel.build/) as our build system. To test, first install
-bazel then run the following:
+The Python API currently supports `python>=2.7`.
+
+To test, run:
 
 ```
-$ bazel build //...
-$ bazel test //...
+$ ./run_tests_local.sh
 ```
 
-## Release
+To debug the continuous integration tests, run:
+
+```
+$ cloud-build-local --config=cloudbuild.yaml --dryrun=false .
+```
+
+Both commands will run the same set of tests.
+
+## Release to PyPI
 
 - Update "VERSION" in setup.py
 - Update CHANGELOG.md for a new version
