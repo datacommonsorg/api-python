@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-""" Data Commons Python Client API Places Module.
+""" Data Commons Python API Places Module.
 
 Provides convenience functions for working with Places in the Data Commons
 knowledge graph. This submodule implements the ability to access :obj:`Place`'s

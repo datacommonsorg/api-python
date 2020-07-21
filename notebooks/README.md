@@ -1,6 +1,6 @@
-# Python Client API Notebooks
+# Python API Notebooks
 
-This directory contains iPython notebooks that use the Python Client API to
+This directory contains iPython notebooks that use the Python API to
 perform various statistical analyses on interesting datasets. You can click on
 each link to see a live colab version.
 

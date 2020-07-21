@@ -11,9 +11,9 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-""" Data Commons Python Client API unit tests.
+""" Data Commons Python API unit tests.
 
-Unit tests for core methods in the Data Commons Python Client API.
+Unit tests for core methods in the Data Commons Python API.
 """
 
 from __future__ import absolute_import
@@ -42,11 +42,6 @@ def request_mock(*args, **kwargs):
   # Get the request data
   req = args[0]
   data = json.loads(req.data)
-
-  # If the API key does not match, then return 403 Forbidden
-  api_key = req.get_header('X-api-key')
-  if api_key != 'TEST-API-KEY':
-    return urllib.error.HTTPError
 
   # Mock responses for urlopen requests to get_property_labels.
   if req.full_url == utils._API_ROOT + utils._API_ENDPOINTS['get_property_labels']:
@@ -323,9 +318,6 @@ class TestGetPropertyLabels(unittest.TestCase):
     """ Calling get_property_labels with a single dcid returns a valid
     result.
     """
-    # Set the API key
-    dc.set_api_key('TEST-API-KEY')
-
     # Test for outgoing property labels
     out_props = dc.get_property_labels(['geoId/0649670'])
     self.assertDictEqual(out_props,
@@ -340,9 +332,6 @@ class TestGetPropertyLabels(unittest.TestCase):
     """ Calling get_property_labels returns valid results with multiple
     dcids.
     """
-    # Set the API key
-    dc.set_api_key('TEST-API-KEY')
-
     dcids = ['State', 'County', 'City']
     expected_in = ["typeOf"]
     expected_out = ["name", "provenance", "subClassOf", "typeOf", "url"]
@@ -368,9 +357,6 @@ class TestGetPropertyLabels(unittest.TestCase):
     """ Calling get_property_labels with dcids that do not exist returns empty
     results.
     """
-    # Set the API key
-    dc.set_api_key('TEST-API-KEY')
-
     # Test for outgoing property labels
     out_props = dc.get_property_labels(['dc/MadDcid'])
     self.assertDictEqual(out_props, {'dc/MadDcid': []})
@@ -382,8 +368,6 @@ class TestGetPropertyLabels(unittest.TestCase):
   @mock.patch('urllib.request.urlopen', side_effect=request_mock)
   def test_no_dcids(self, urlopen_mock):
     """ Calling get_property_labels with no dcids returns empty results. """
-    # Set the API key
-    dc.set_api_key('TEST-API-KEY')
 
     # Test for outgoing property labels
     out_props = dc.get_property_labels([])
@@ -404,9 +388,6 @@ class TestGetPropertyValues(unittest.TestCase):
     """ Calling get_property_values with multiple dcids returns valid
     results.
     """
-    # Set the API key
-    dc.set_api_key('TEST-API-KEY')
-
     dcids = ['geoId/06085', 'geoId/24031']
 
     # Get the containedInPlace Towns for Santa Clara and Montgomery County.
@@ -444,9 +425,6 @@ class TestGetPropertyValues(unittest.TestCase):
     """ Calling get_property_values with dcids that do not exist returns empty
     results.
     """
-    # Set the API key
-    dc.set_api_key('TEST-API-KEY')
-
     bad_dcids_1 = ['geoId/06085', 'dc/MadDcid']
     bad_dcids_2 = ['dc/MadDcid', 'dc/MadderDcid']
 
@@ -470,9 +448,6 @@ class TestGetPropertyValues(unittest.TestCase):
     """ Calling get_property_values with a property that does not exist returns
     empty results.
     """
-    # Set the API key
-    dc.set_api_key('TEST-API-KEY')
-
     # Get propery values for a property that does not exist.
     prop_vals = dc.get_property_values(
       ['geoId/06085', 'geoId/24031'], 'madProperty')
@@ -484,9 +459,6 @@ class TestGetPropertyValues(unittest.TestCase):
   @mock.patch('urllib.request.urlopen', side_effect=request_mock)
   def test_no_dcids(self, urlopen_mock):
     """ Calling get_property_values with no dcids returns empty results. """
-    # Set the API key
-    dc.set_api_key('TEST-API-KEY')
-
     # Get property values with an empty list of dcids.
     prop_vals = dc.get_property_values([], 'containedInPlace')
     self.assertDictEqual(prop_vals, {})
@@ -497,9 +469,6 @@ class TestGetTriples(unittest.TestCase):
   @mock.patch('urllib.request.urlopen', side_effect=request_mock)
   def test_multiple_dcids(self, urlopen_mock):
     """ Calling get_triples with proper dcids returns valid results. """
-    # Set the API key
-    dc.set_api_key('TEST-API-KEY')
-
     # Call get_triples
     triples = dc.get_triples(['geoId/06085', 'geoId/24031'])
     self.assertDictEqual(triples, {
@@ -520,9 +489,6 @@ class TestGetTriples(unittest.TestCase):
     """ Calling get_triples with dcids that do not exist returns empty
     results.
     """
-    # Set the API key
-    dc.set_api_key('TEST-API-KEY')
-
     # Call get_triples where one dcid does not exist
     triples_1 = dc.get_triples(['geoId/06085', 'dc/MadDcid'])
     self.assertDictEqual(triples_1, {
@@ -544,9 +510,6 @@ class TestGetTriples(unittest.TestCase):
   @mock.patch('urllib.request.urlopen', side_effect=request_mock)
   def test_no_dcids(self, urlopen_mock):
     """ Calling get_triples with no dcids returns empty results. """
-    # Set the API key
-    dc.set_api_key('TEST-API-KEY')
-
     # Call get_triples with no dcids
     triples_1 = dc.get_triples([])
     self.assertDictEqual(triples_1, {})

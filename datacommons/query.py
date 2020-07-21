@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-""" Data Commons Python Client API Query Module.
+""" Data Commons Python API Query Module.
 
 Implements functions for sending graph queries to the Data Commons knowledge
 graph.
@@ -21,7 +21,7 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-from datacommons.utils import _API_ROOT, _API_ENDPOINTS, _ENV_VAR_API_KEY
+from datacommons.utils import _API_ROOT, _API_ENDPOINTS
 
 import json
 import os
@@ -86,14 +86,9 @@ def query(query_string, select=None):
     ...   print(r)
     {"?name": "Maryland", "?dcid": "geoId/24"}
   """
-  # Get the API Key and perform the POST request.
-  if not os.environ.get(_ENV_VAR_API_KEY, None):
-    raise ValueError(
-        'Request error: Must set an API key before using the API!')
-  req_url = _API_ROOT + _API_ENDPOINTS['query']
 
+  req_url = _API_ROOT + _API_ENDPOINTS['query']
   headers = {
-    'x-api-key': os.environ[_ENV_VAR_API_KEY],
     'Content-Type': 'application/json'
   }
   req = six.moves.urllib.request.Request(

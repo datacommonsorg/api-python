@@ -11,9 +11,9 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-""" Data Commons Python Client API unit tests.
+""" Data Commons Python API unit tests.
 
-Unit tests for Place methods in the Data Commons Python Client API.
+Unit tests for Place methods in the Data Commons Python API.
 """
 
 from __future__ import absolute_import
@@ -41,11 +41,6 @@ def request_mock(*args, **kwargs):
 
   req = args[0]
   data = json.loads(req.data)
-
-  # If the API key does not match, then return 403 Forbidden
-  api_key = req.get_header('X-api-key')
-  if api_key != 'TEST-API-KEY':
-    return urllib.error.HTTPError(None, 403, None, None, None)
 
   # Mock responses for urlopen requests to get_places_in.
   if req.full_url == utils._API_ROOT + utils._API_ENDPOINTS['get_places_in']:
@@ -186,9 +181,6 @@ class TestGetPlacesIn(unittest.TestCase):
   @mock.patch('urllib.request.urlopen', side_effect=request_mock)
   def test_multiple_dcids(self, urlopen):
     """ Calling get_places_in with proper dcids returns valid results. """
-    # Set the API key
-    dc.set_api_key('TEST-API-KEY')
-
     # Call get_places_in
     places = dc.get_places_in(['geoId/06085', 'geoId/24031'], 'City')
     self.assertDictEqual(places, {
@@ -201,9 +193,6 @@ class TestGetPlacesIn(unittest.TestCase):
     """ Calling get_places_in with dcids that do not exist returns empty
       results.
     """
-    # Set the API key
-    dc.set_api_key('TEST-API-KEY')
-
     # Call get_places_in with one dcid that does not exist
     bad_dcids_1 = dc.get_places_in(['geoId/06085', 'dc/MadDcid'], 'City')
     self.assertDictEqual(bad_dcids_1, {
@@ -221,9 +210,6 @@ class TestGetPlacesIn(unittest.TestCase):
   @mock.patch('urllib.request.urlopen', side_effect=request_mock)
   def test_no_dcids(self, urlopen):
     """ Calling get_places_in with no dcids returns empty results. """
-    # Set the API key
-    dc.set_api_key('TEST-API-KEY')
-
     # Call get_places_in with no dcids.
     bad_dcids = dc.get_places_in(['dc/MadDcid', 'dc/MadderDcid'], 'City')
     self.assertDictEqual(bad_dcids, {
@@ -238,9 +224,6 @@ class TestGetStats(unittest.TestCase):
   @mock.patch('urllib.request.urlopen', side_effect=request_mock)
   def test_multiple_dcids(self, urlopen):
     """ Calling get_stats with proper dcids returns valid results. """
-    # Set the API key
-    dc.set_api_key('TEST-API-KEY')
-
     # Call get_stats
     stats = dc.get_stats(['geoId/05', 'geoId/06'], 'dc/0hyp6tkn18vcb', 'all')
     self.assertDictEqual(
@@ -332,9 +315,6 @@ class TestGetStats(unittest.TestCase):
     """ Calling get_stats with dcids that do not exist returns empty
       results.
     """
-    # Set the API key
-    dc.set_api_key('TEST-API-KEY')
-
     # Call get_stats with one dcid that does not exist
     bad_dcids_1 = dc.get_stats(['geoId/05', 'dc/MadDcid'], 'dc/0hyp6tkn18vcb')
     self.assertDictEqual(
@@ -355,9 +335,6 @@ class TestGetStats(unittest.TestCase):
   @mock.patch('urllib.request.urlopen', side_effect=request_mock)
   def test_no_dcids(self, urlopen):
     """ Calling get_stats with no dcids returns empty results. """
-    # Set the API key
-    dc.set_api_key('TEST-API-KEY')
-
     # Call get_stats with no dcids.
     no_dcids = dc.get_stats([], 'dc/0hyp6tkn18vcb')
     self.assertDictEqual({}, no_dcids)
@@ -365,9 +342,6 @@ class TestGetStats(unittest.TestCase):
   @mock.patch('urllib.request.urlopen', side_effect=request_mock)
   def test_no_data(self, urlopen):
     """ Calling get_stats with for None data. """
-    # Set the API key
-    dc.set_api_key('TEST-API-KEY')
-
     # Call get_stats with no dcids.
     result = dc.get_stats(['geoId/00'], 'dc/0hyp6tkn18vcb')
     self.assertDictEqual({}, result)
@@ -375,9 +349,6 @@ class TestGetStats(unittest.TestCase):
   @mock.patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
   def test_batch_request(self, mock_urlopen):
     """ Make multiple calls to REST API when number of geos exceeds the batch size. """
-    # Set the API key
-    dc.set_api_key('TEST-API-KEY')
-
     save_batch_size = dc.utils._QUERY_BATCH_SIZE
     dc.utils._QUERY_BATCH_SIZE = 1
 

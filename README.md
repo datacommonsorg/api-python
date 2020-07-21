@@ -1,4 +1,4 @@
-# Data Commons Python Client API
+# Data Commons Python API
 
 This is a Python library for accessing data in the Data Commons knowledge graph.
 To get started, install this package from pip.
@@ -8,11 +8,6 @@ To get started, install this package from pip.
 Once the package is installed, import `datacommons`.
 
     import datacommons as dc
-
-You will also need to provision an API key by enabling the Data Commons API on
-GCP. Once you have the API key, simply add the following line to your code.
-
-    dc.set_api_key('YOUR-API-KEY')
 
 For more detail on getting started with the API, please visit
 [Getting Started](http://docs.datacommons.org/api/).
@@ -34,7 +29,7 @@ Apache 2.0
 
 ## Development
 
-The Python Client API currently supports `python>=2.7`. We use
+The Python API currently supports `python>=2.7`. We use
 [bazel](https://bazel.build/) as our build system. To test, first install
 bazel then run the following:
 
