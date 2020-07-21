@@ -183,7 +183,7 @@ def request_mock(*args, **kwargs):
 class TestGetPlacesIn(unittest.TestCase):
   """ Unit stests for get_places_in. """
 
-  @mock.patch('urllib.request.urlopen', side_effect=request_mock)
+  @mock.patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
   def test_multiple_dcids(self, urlopen):
     """ Calling get_places_in with proper dcids returns valid results. """
     # Set the API key
@@ -196,7 +196,7 @@ class TestGetPlacesIn(unittest.TestCase):
       'geoId/24031': ['geoId/2467675', 'geoId/2476650']
     })
 
-  @mock.patch('urllib.request.urlopen', side_effect=request_mock)
+  @mock.patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
   def test_bad_dcids(self, urlopen):
     """ Calling get_places_in with dcids that do not exist returns empty
       results.
@@ -218,7 +218,7 @@ class TestGetPlacesIn(unittest.TestCase):
       'dc/MadderDcid': []
     })
 
-  @mock.patch('urllib.request.urlopen', side_effect=request_mock)
+  @mock.patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
   def test_no_dcids(self, urlopen):
     """ Calling get_places_in with no dcids returns empty results. """
     # Set the API key
@@ -235,7 +235,7 @@ class TestGetPlacesIn(unittest.TestCase):
 class TestGetStats(unittest.TestCase):
   """ Unit stests for get_stats. """
 
-  @mock.patch('urllib.request.urlopen', side_effect=request_mock)
+  @mock.patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
   def test_multiple_dcids(self, urlopen):
     """ Calling get_stats with proper dcids returns valid results. """
     # Set the API key
@@ -327,7 +327,7 @@ class TestGetStats(unittest.TestCase):
             }
         })
 
-  @mock.patch('urllib.request.urlopen', side_effect=request_mock)
+  @mock.patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
   def test_bad_dcids(self, urlopen):
     """ Calling get_stats with dcids that do not exist returns empty
       results.
@@ -352,7 +352,7 @@ class TestGetStats(unittest.TestCase):
                                'dc/0hyp6tkn18vcb')
     self.assertDictEqual({}, bad_dcids_2)
 
-  @mock.patch('urllib.request.urlopen', side_effect=request_mock)
+  @mock.patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
   def test_no_dcids(self, urlopen):
     """ Calling get_stats with no dcids returns empty results. """
     # Set the API key
@@ -362,7 +362,7 @@ class TestGetStats(unittest.TestCase):
     no_dcids = dc.get_stats([], 'dc/0hyp6tkn18vcb')
     self.assertDictEqual({}, no_dcids)
 
-  @mock.patch('urllib.request.urlopen', side_effect=request_mock)
+  @mock.patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
   def test_no_data(self, urlopen):
     """ Calling get_stats with for None data. """
     # Set the API key

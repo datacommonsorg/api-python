@@ -107,7 +107,7 @@ WHERE {
 class TestQuery(unittest.TestCase):
   """ Unit tests for the Query object. """
 
-  @mock.patch('urllib.request.urlopen', side_effect=request_mock)
+  @mock.patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
   def test_rows(self, urlopen):
     """ Sending a valid query returns the correct response. """
     # Set the API key
