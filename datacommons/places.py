@@ -73,7 +73,7 @@ def get_places_in(dcids, place_type):
   return result
 
 def get_stats(dcids, stats_var, obs_dates='latest', measurement_method=None,
-	      unit=None, obs_period=None):
+              unit=None, obs_period=None):
   """ Returns :obj:`TimeSeries` for :code:`dcids` \
     based on the :code:`stats_var`.
 
@@ -144,7 +144,7 @@ def get_stats(dcids, stats_var, obs_dates='latest', measurement_method=None,
   batches =  -(-len(dcids) // utils._QUERY_BATCH_SIZE)  # Ceil to get # of batches.
   res = {}
   for i in range(batches):
-    req_json={
+    req_json = {
       'place': dcids[i * utils._QUERY_BATCH_SIZE:(i+1) * utils._QUERY_BATCH_SIZE],
       'stats_var': stats_var,
     }
