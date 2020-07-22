@@ -50,49 +50,66 @@ WHERE {
   ?a dcid ?dcid
 }
 ''')
+
+  accepted_query2 = ('''
+SELECT  ?name ?dcid
+WHERE {
+  ?a typeOf Place .
+  ?a name ?name .
+  ?a dcid ("geoId/DNE") .
+  ?a dcid ?dcid
+}
+''')
   req = args[0]
   data = json.loads(req.data)
 
-  if req.full_url == utils._API_ROOT + utils._API_ENDPOINTS['query']\
-    and data['sparql'] == accepted_query:
-    return MockResponse(json.dumps({
-      'header': [
-        '?name',
-        '?dcid'
-      ],
-      'rows': [
-        {
-          'cells': [
-            {
-              'value': 'California'
-            },
-            {
-              'value': 'geoId/06'
-            }
-          ]
-        },
-        {
-          'cells': [
-            {
-              'value': 'Kentucky'
-            },
-            {
-              'value': 'geoId/21'
-            }
-          ]
-        },
-        {
-          'cells': [
-            {
-              'value': 'Maryland'
-            },
-            {
-              'value': 'geoId/24'
-            }
-          ]
-        }
-      ]
-    }))
+  if req.full_url == utils._API_ROOT + utils._API_ENDPOINTS['query']:
+    if data['sparql'] == accepted_query:
+      return MockResponse(json.dumps({
+        'header': [
+          '?name',
+          '?dcid'
+        ],
+        'rows': [
+          {
+            'cells': [
+              {
+                'value': 'California'
+              },
+              {
+                'value': 'geoId/06'
+              }
+            ]
+          },
+          {
+            'cells': [
+              {
+                'value': 'Kentucky'
+              },
+              {
+                'value': 'geoId/21'
+              }
+            ]
+          },
+          {
+            'cells': [
+              {
+                'value': 'Maryland'
+              },
+              {
+                'value': 'geoId/24'
+              }
+            ]
+          }
+        ]
+      }))
+    elif data['sparql'] == accepted_query2:
+      return MockResponse(json.dumps({
+        'header': [
+          '?name',
+          '?dcid'
+        ],
+      }))
 
   # Otherwise, return an empty response and a 404.
   return urllib.error.HTTPError(None, 404, None, None, None)
@@ -136,6 +153,21 @@ WHERE {
       if idx == 1:
         self.assertDictEqual(row, {'?name': 'Maryland', '?dcid': 'geoId/24'})
 
+  @mock.patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
+  def test_rows(self, urlopen):
+    """ Handles row-less response. """
+    # Create a SPARQL query
+    query_string = ('''
+SELECT  ?name ?dcid
+WHERE {
+  ?a typeOf Place .
+  ?a name ?name .
+  ?a dcid ("geoId/DNE") .
+  ?a dcid ?dcid
+}
+''')
+    # Issue the query
+    self.assertEqual(dc.query(query_string), [])
 
 if __name__ == '__main__':
   unittest.main()

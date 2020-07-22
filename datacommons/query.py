@@ -104,12 +104,14 @@ def query(query_string, select=None):
   res_json = json.loads(res.read())
 
   # Iterate through the query results
-  header = res_json['header']
+  header = res_json.get('header')
+  if header is None:
+    raise ValueError('Ill-formatted response: does not contain a header.')
   result_rows = []
-  for row in res_json['rows']:
+  for row in res_json.get('rows', []):
     # Construct the map from query variable to cell value.
     row_map = {}
-    for idx, cell in enumerate(row['cells']):
+    for idx, cell in enumerate(row.get('cells', [])):
       if idx > len(header):
         raise ValueError(
           'Query error: unexpected cell {}'.format(cell))
@@ -118,7 +120,6 @@ def query(query_string, select=None):
           'Query error: cell missing value {}'.format(cell))
       cell_var = header[idx]
       row_map[cell_var] = cell['value']
-
     # Add the row to the result rows if it is selected
     if select is None or select(row_map):
       result_rows.append(row_map)
