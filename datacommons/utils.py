@@ -64,7 +64,7 @@ _QUERY_BATCH_SIZE = 500
 
 def set_api_key(api_key):
   """DEPRECATED FUNCTION--API keys no longer required."""
-  logging.warning('Data Commons has removed the API key requirement. This function will be removed by June 1st, 2020.')
+  logging.warning('Data Commons has removed the API key requirement. This function will be removed by Dec 1st, 2020.')
 
 
 # ------------------------- INTERNAL HELPER FUNCTIONS -------------------------
