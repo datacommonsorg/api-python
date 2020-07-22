@@ -211,7 +211,7 @@ class TestGetPopulations(unittest.TestCase):
     'age': 'Years5To17'
   }
 
-  @mock.patch('urllib.request.urlopen', side_effect=request_mock)
+  @mock.patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
   def test_multiple_dcids(self, urlopen):
     """ Calling get_populations with proper dcids returns valid results. """
     # Set the API key
@@ -226,7 +226,7 @@ class TestGetPopulations(unittest.TestCase):
     })
 
 
-  @mock.patch('urllib.request.urlopen', side_effect=request_mock)
+  @mock.patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
   def test_bad_dcids(self, urlopen):
     """ Calling get_populations with dcids that do not exist returns empty
     results.
@@ -244,7 +244,7 @@ class TestGetPopulations(unittest.TestCase):
     self.assertDictEqual(pops_1, {'geoId/06085': 'dc/p/crgfn8blpvl35'})
     self.assertDictEqual(pops_2, {})
 
-  @mock.patch('urllib.request.urlopen', side_effect=request_mock)
+  @mock.patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
   def test_no_dcids(self, urlopen):
     """ Calling get_populations with no dcids returns empty results. """
     # Set the API key
@@ -257,7 +257,7 @@ class TestGetPopulations(unittest.TestCase):
 class TestGetObservations(unittest.TestCase):
   """ Unit tests for get_observations. """
 
-  @mock.patch('urllib.request.urlopen', side_effect=request_mock)
+  @mock.patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
   def test_multiple_dcids(self, urlopen):
     """ Calling get_observations with proper dcids returns valid results. """
     # Set the API key
@@ -274,7 +274,7 @@ class TestGetObservations(unittest.TestCase):
                                  measurement_method='BLSSeasonallyAdjusted')
     self.assertDictEqual(actual, expected)
 
-  @mock.patch('urllib.request.urlopen', side_effect=request_mock)
+  @mock.patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
   def test_bad_dcids(self, urlopen):
     """ Calling get_observations with dcids that do not exist returns empty
     results.
@@ -298,7 +298,7 @@ class TestGetObservations(unittest.TestCase):
     self.assertDictEqual(actual_1, {'dc/p/x6t44d8jd95rd': 18704962.0})
     self.assertDictEqual(actual_2, {})
 
-  @mock.patch('urllib.request.urlopen', side_effect=request_mock)
+  @mock.patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
   def test_no_dcids(self, urlopen):
     """ Calling get_observations with no dcids returns empty results. """
     # Set the API key
@@ -313,7 +313,7 @@ class TestGetObservations(unittest.TestCase):
 class TestGetPopObs(unittest.TestCase):
   """ Unit tests for get_pop_obs. """
 
-  @mock.patch('urllib.request.urlopen', side_effect=request_mock)
+  @mock.patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
   def test_valid_dcid(self, urlopen):
     """ Calling get_pop_obs with valid dcid returns valid results. """
     # Set the API key
@@ -358,7 +358,7 @@ class TestGetPopObs(unittest.TestCase):
 class TestGetPlaceObs(unittest.TestCase):
   """ Unit tests for get_place_obs. """
 
-  @mock.patch('urllib.request.urlopen', side_effect=request_mock)
+  @mock.patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
   def test_valid(self, urlopen):
     """ Calling get_place_obs with valid parameters returns a valid result. """
     # Set the API key

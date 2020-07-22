@@ -1,6 +1,6 @@
-# Data Commons Python Client API
+# Data Commons Python API
 
-This is a Python library for accessing data in the Data Commons knowledge graph.
+This is a Python library for accessing data in the Data Commons Graph.
 To get started, install this package from pip.
 
     pip install datacommons
@@ -23,7 +23,7 @@ documentation can be found at [tutorials](https://datacommons.org/colab)!
 
 ## About Data Commons
 
-[Data Commons](https://datacommons.org/) is an Open Knowledge Graph that
+[Data Commons](https://datacommons.org/) is an open knowledge repository that
 provides a unified view across multiple public data sets and statistics. You can
 view what [datasets](https://datacommons.org/datasets) are currently ingested
 and browse the graph using our [browser](https://browser.datacommons.org/).
@@ -34,16 +34,23 @@ Apache 2.0
 
 ## Development
 
-The Python Client API currently supports `python>=2.7`. We use
-[bazel](https://bazel.build/) as our build system. To test, first install
-bazel then run the following:
+The Python API currently supports `python>=2.7`.
+
+To test, run:
 
 ```
-$ bazel build //...
-$ bazel test //...
+$ ./run_tests_local.sh
 ```
 
-## Release
+To debug the continuous integration tests, run:
+
+```
+$ cloud-build-local --config=cloudbuild.yaml --dryrun=false .
+```
+
+Both commands will run the same set of tests.
+
+## Release to PyPI
 
 - Update "VERSION" in setup.py
 - Update CHANGELOG.md for a new version

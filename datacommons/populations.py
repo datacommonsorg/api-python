@@ -14,7 +14,7 @@
 """ Data Commons Python Client API Populations Module.
 
 Provides convenience functions for accessing :obj:`StatisticalPopulation`'s and
-:obj:`Observation`'s in the Data Commons knowledge graph. Implements the
+:obj:`Observation`'s in the Data Commons Graph. Implements the
 following:
 
 - Get :obj:`StatisticalPopulation`'s located at a given collection of nodes.
