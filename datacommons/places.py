@@ -63,7 +63,7 @@ def get_places_in(dcids, place_type):
   dcids = filter(lambda v: v==v, dcids)  # Filter out NaN values
   dcids = list(dcids)
   url = utils._API_ROOT + utils._API_ENDPOINTS['get_places_in']
-  payload = utils._send_request(url, req_json={
+  payload = utils._send_request(url, req_json = {
     'dcids': dcids,
     'place_type': place_type,
   })
@@ -73,7 +73,7 @@ def get_places_in(dcids, place_type):
   return result
 
 def get_stats(dcids, stats_var, obs_dates='latest', measurement_method=None,
-							unit=None, obs_period=None):
+	      unit=None, obs_period=None):
   """ Returns :obj:`TimeSeries` for :code:`dcids` \
     based on the :code:`stats_var`.
 
@@ -83,11 +83,11 @@ def get_stats(dcids, stats_var, obs_dates='latest', measurement_method=None,
     obs_dates (:obj:`str` or :obj:`iterable` of :obj:`str`):
       Which observation to return.
       Can be 'latest', 'all', or an iterable of dates in 'YYYY-MM-DD' format.
-		measurement_method (:obj:`str`): Optional, the dcid of the preferred
-		  `measurementMethod` value.
-	  unit (:obj:`str`): Optional, the dcid of the preferred `unit` value.
-	  obs_period (:obj:`str`): Optional, the dcid of the preferred
-		  `observationPeriod` value.
+    measurement_method (:obj:`str`): Optional, the dcid of the preferred
+      `measurementMethod` value.
+    unit (:obj:`str`): Optional, the dcid of the preferred `unit` value.
+    obs_period (:obj:`str`): Optional, the dcid of the preferred
+      `observationPeriod` value.
   Returns:
     A :obj:`dict` mapping the :obj:`Place` identified by the given :code:`dcid`
     to its place name and the :obj:`TimeSeries` associated with the
