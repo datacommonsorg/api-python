@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-""" Data Commons Python Client API examples.
+""" Data Commons Python API examples.
 
 Basic demo for get_property_labels, get_property_values, and get_triples.
 """

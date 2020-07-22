@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-""" Data Commons Python Client API Populations Module.
+""" Data Commons Python API Populations Module.
 
 Provides convenience functions for accessing :obj:`StatisticalPopulation`'s and
 :obj:`Observation`'s in the Data Commons Graph. Implements the

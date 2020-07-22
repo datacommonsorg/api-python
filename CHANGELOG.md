@@ -8,7 +8,7 @@
 
 **Release Status** - Current head of branch [`master`](https://github.com/datacommonsorg/api-python/tree/master)
 
-New features added to the Python Client API
+New features added to the Python API
 
 -   Add get_stats API to get observations given a StatisticalVariable and place dcids.
 
@@ -25,7 +25,7 @@ Bugs fixed in new release
 
 **Release Status** - Current head of branch [`master`](https://github.com/datacommonsorg/api-python/tree/master)
 
-New features added to the Python Client API
+New features added to the Python API
 
 -   Handle and ignore NaN in API argument.
 
@@ -41,7 +41,7 @@ Bugs fixed in new release
 
 **Release Status** - Current head of branch [`master`](https://github.com/datacommonsorg/api-python/tree/master)
 
-New features added to the Python Client API
+New features added to the Python API
 
 -   Use six package for urllib.
 
@@ -53,7 +53,7 @@ New features added to the Python Client API
 
 **Release Status** - Current head of branch [`master`](https://github.com/datacommonsorg/api-python/tree/master)
 
-New features added to the Python Client API
+New features added to the Python API
 
 -   Support python 2.7.
 
@@ -65,7 +65,7 @@ New features added to the Python Client API
 
 **Release Status** - Current head of branch [`master`](https://github.com/datacommonsorg/api-python/tree/master)
 
-New features added to the Python Client API
+New features added to the Python API
 
 -   Add a new API for getting related places.
 
@@ -79,7 +79,7 @@ New features added to the Python Client API
 
 **Release Status** - Current head of branch [`master`](https://github.com/datacommonsorg/api-python/tree/master)
 
-New features added to the Python Client API
+New features added to the Python API
 
 -   Remove the dependency on Pandas and Numpy in package dependency.
 -   Replace requests with urllib.
@@ -93,7 +93,7 @@ New features added to the Python Client API
 
 **Release Status** - Current head of branch [`master`](https://github.com/datacommonsorg/api-python/tree/master)
 
-New features added to the Python Client API
+New features added to the Python API
 
 -   Remove the dependency on Pandas.
 
@@ -106,7 +106,7 @@ New features added to the Python Client API
 
 **Release Status** - Current head of branch [`stable-1.x`](https://github.com/datacommonsorg/api-python/tree/stable-1.x)
 
-New features added to the Python Client API
+New features added to the Python API
 
 -   Added two new functions `get_pop_obs` and `get_place_obs`
 -   SPARQL query is now supported as a function `query` instead of a class.
@@ -123,7 +123,7 @@ Bugs fixed in new release
 
 **Release Tag** - [v1.0.0](https://github.com/datacommonsorg/api-python/releases/tag/v1.0.0)
 
-New release of the Python Client API.
+New release of the Python API.
 
 -   New functions in the API built on top of the [Data Commons REST API](https://github.com/datacommonsorg/mixer).
     -   `get_property_labels`

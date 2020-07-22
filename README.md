@@ -9,11 +9,6 @@ Once the package is installed, import `datacommons`.
 
     import datacommons as dc
 
-You will also need to provision an API key by enabling the Data Commons API on
-GCP. Once you have the API key, simply add the following line to your code.
-
-    dc.set_api_key('YOUR-API-KEY')
-
 For more detail on getting started with the API, please visit
 [Getting Started](http://docs.datacommons.org/api/).
 
