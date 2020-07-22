@@ -171,6 +171,42 @@ def request_mock(*args, **kwargs):
       res_json = json.dumps({})
       # Response returned when no dcids are given.
       return MockResponse(json.dumps({'payload': res_json}))
+    if (data['place'] == ['geoId/48'] and
+      data['stats_var'] == 'dc/0hyp6tkn18vcb'):
+      if (data.get('measurement_method') == 'MM1' and
+          data.get('unit') == 'Inch' and
+          data.get('observation_period') == 'P1Y'):
+        res_json = json.dumps({
+          'geoId/48': {
+            'data': {
+              '2015': 1,
+              '2016': 1,
+            },
+            'place_name': 'Texas'
+          }
+        })
+      elif data.get('measurement_method') == 'MM1':
+        res_json = json.dumps({
+          'geoId/48': {
+            'data': {
+              '2015': 2,
+              '2016': 2,
+            },
+            'place_name': 'Texas'
+          }
+        })
+      else:
+        res_json = json.dumps({
+          'geoId/48': {
+            'data': {
+              '2015': 3,
+              '2016': 3,
+            },
+            'place_name': 'Texas'
+          }
+        })
+
+    return MockResponse(json.dumps({'payload': res_json}))
 
   # Otherwise, return an empty response and a 404.
   return urllib.error.HTTPError
@@ -309,6 +345,50 @@ class TestGetStats(unittest.TestCase):
                 'place_name': 'California'
             }
         })
+
+  @mock.patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
+  def test_opt_args(self, urlopen):
+    """ Calling get_stats with mmethod, unit, and obs period returns specific data.
+    """
+    # Set the API key
+    dc.set_api_key('TEST-API-KEY')
+
+    # Call get_stats with all optional args
+    stats = dc.get_stats(['geoId/48'], 'dc/0hyp6tkn18vcb', 'latest', 'MM1',
+                         'Inch', 'P1Y')
+    self.assertDictEqual(
+      stats, {
+        'geoId/48': {
+          'data': {
+            '2016': 1
+          },
+          'place_name': 'Texas'
+        }
+      })
+
+    # Call get_stats with mmethod specified
+    stats = dc.get_stats(['geoId/48'], 'dc/0hyp6tkn18vcb', 'latest', 'MM1')
+    self.assertDictEqual(
+      stats, {
+        'geoId/48': {
+          'data': {
+            '2016': 2
+          },
+          'place_name': 'Texas'
+        }
+      })
+
+    # Call get_stats without optional args
+    stats = dc.get_stats(['geoId/48'], 'dc/0hyp6tkn18vcb', 'latest')
+    self.assertDictEqual(
+      stats, {
+        'geoId/48': {
+          'data': {
+            '2016': 3
+          },
+          'place_name': 'Texas'
+        }
+      })
 
   @mock.patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
   def test_bad_dcids(self, urlopen):
