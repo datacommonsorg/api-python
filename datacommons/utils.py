@@ -24,7 +24,6 @@ from collections import defaultdict
 
 import base64
 import json
-import logging
 import os
 import six.moves.urllib.error
 import six.moves.urllib.request
@@ -58,13 +57,26 @@ _MAX_LIMIT = 100
 # Batch size for heavyweight queries.
 _QUERY_BATCH_SIZE = 500
 
+# Environment variable names used by the package	
+_ENV_VAR_API_KEY = 'DC_API_KEY'	
 
 # --------------------------- API UTILITY FUNCTIONS ---------------------------
 
 
 def set_api_key(api_key):
-  """DEPRECATED FUNCTION--API keys no longer required."""
-  logging.warning('Data Commons has removed the API key requirement. This function will be removed by Dec 1st, 2020.')
+  """Sets an environment variable :code:`"DC_API_KEY"` to given :code:`api_key`.
+
+  Users may supply an API key to the Python API, which simply passes it on to
+  the REST API for handling. The API key can be provided to the API after
+  importing the library, or set as an environment variable
+  :code:`"DC_API_KEY"`.
+
+  For more details about how to get an API key and provide it to the Python
+  Client API, please visit :ref:`getting_started`.
+  Args:
+    api_key (:obj:`str`): The API key.
+  """	
+  os.environ[_ENV_VAR_API_KEY] = api_key
 
 
 # ------------------------- INTERNAL HELPER FUNCTIONS -------------------------
@@ -79,6 +91,10 @@ def _send_request(req_url, req_json={}, compress=False, post=True):
   headers = {
     'Content-Type': 'application/json'
   }
+
+  # Pass along API key if provided
+  if os.environ.get(_ENV_VAR_API_KEY):
+    headers['x-api-key'] = os.environ[_ENV_VAR_API_KEY]
 
   # Send the request and verify the request succeeded
   if post:

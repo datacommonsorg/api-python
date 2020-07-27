@@ -154,7 +154,7 @@ WHERE {
         self.assertDictEqual(row, {'?name': 'Maryland', '?dcid': 'geoId/24'})
 
   @mock.patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
-  def test_rows(self, urlopen):
+  def test_no_rows(self, urlopen):
     """ Handles row-less response. """
     # Create a SPARQL query
     query_string = ('''

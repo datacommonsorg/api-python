@@ -9,8 +9,17 @@ Once the package is installed, import `datacommons`.
 
     import datacommons as dc
 
-For more detail on getting started with the API, please visit
-[Getting Started](http://docs.datacommons.org/api/).
+If you would like to provide an API key, follow the steps in
+[Setting up access to the Data Commons API](https://docs.datacommons.org/api/setup.html),
+add the following line to your code:
+
+    dc.set_api_key('YOUR-API-KEY')
+
+Data Commons *does not charge* users, but uses the API key for
+understanding API usage.
+
+For more detail on getting started with the API, please visit our
+[API Overview](http://docs.datacommons.org/api/).
 
 After you're ready to use the API, you can refer to `datacommons/examples` for
 examples on how to use this package to perform various tasks. More tutorials and

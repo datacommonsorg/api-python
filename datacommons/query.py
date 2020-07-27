@@ -20,7 +20,7 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-from datacommons.utils import _API_ROOT, _API_ENDPOINTS
+from datacommons.utils import _API_ROOT, _API_ENDPOINTS, _ENV_VAR_API_KEY
 
 import json
 import os
@@ -90,6 +90,9 @@ def query(query_string, select=None):
   headers = {
     'Content-Type': 'application/json'
   }
+  if os.environ.get(_ENV_VAR_API_KEY):
+    headers['x-api-key'] = os.environ[_ENV_VAR_API_KEY]
+
   req = six.moves.urllib.request.Request(
     req_url,
     data=json.dumps({'sparql': query_string}).encode("utf-8"),

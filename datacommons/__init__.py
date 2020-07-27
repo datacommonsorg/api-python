@@ -20,5 +20,5 @@ from datacommons.core import get_property_labels, get_property_values, get_tripl
 from datacommons.places import get_places_in, get_related_places, get_stats
 from datacommons.populations import get_populations, get_observations, get_pop_obs, get_place_obs
 
-# Other utilities	
+# Other utilities
 from .utils import set_api_key
