@@ -25,9 +25,19 @@ from unittest import mock
 import datacommons as dc
 import datacommons.utils as utils
 
+import os
 import json
 import unittest
 import urllib
+
+_TEST_API_KEY = 'TEST-API-KEY'
+
+_SPARQL_NO_KEY = 'query_no_key'
+_SPARQL_W_KEY = 'query_w_key'
+
+_SEND_REQ_NO_KEY = 'https://send_request_no_key.com'
+_SEND_REQ_W_KEY = 'https://send_request_w_key.com'
+
 
 
 def request_mock(*args, **kwargs):
@@ -41,43 +51,56 @@ def request_mock(*args, **kwargs):
       return self.json_data
 
   req = args[0]
-  data = json.loads(req.data)
-  # If the API key does not match, then return 403 Forbidden	
-  api_key = req.get_header('X-api-key')
-  if api_key != 'TEST-API-KEY':
-    return urllib.error.HTTPError(None, 403, None, None, None)
 
-  if req.full_url != utils._API_ROOT + utils._API_ENDPOINTS['query']:
-    raise ValueError('Unexpected request url %s. Expected query endpoint.', req.full_url)
-  # Return a dummy response
-  return MockResponse(json.dumps({
-    'header': [
-      '?name',
-      '?dcid'
-    ],
-  }))
+  if req.full_url == _SEND_REQ_NO_KEY or json.loads(req.data) == {'sparql': _SPARQL_NO_KEY}:
+    assert 'X-api-key' not in req.headers
+  else:
+    assert req.get_header('X-api-key') == _TEST_API_KEY
+
+  if req.full_url == utils._API_ROOT + utils._API_ENDPOINTS['query']:
+    # Return a dummy response that will parse into [] by query()
+    return MockResponse(json.dumps({
+      'header': [
+        '?name',
+        '?dcid'
+      ],
+    }))
+  else:
+    # Return a dummy response that will parse into {} by _send_request()
+    return MockResponse(json.dumps({'payload': json.dumps({})}))
 
 
-class TestQuery(unittest.TestCase):
-  """Unit test for setting the API Key."""
+class TestApiKey(unittest.TestCase):
+  """Unit test for setting or not setting the API Key."""
   @mock.patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
-  def test_no_rows(self, urlopen):
+  def test_query_no_api_key(self, urlopen):
+    del os.environ[utils._ENV_VAR_API_KEY]
+    # Issue a dummy SPARQL query that tells the mock to not expect a key
+    self.assertEqual(dc.query(_SPARQL_NO_KEY), [])
+
+  @mock.patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
+  def test_send_request_no_api_key(self, urlopen):
+    del os.environ[utils._ENV_VAR_API_KEY]
+    # Issue a dummy url that tells the mock to not expect a key
+    self.assertEqual(utils._send_request(_SEND_REQ_NO_KEY, {'foo': ['bar']}), {})
+
+  @mock.patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
+  def test_query_w_api_key(self, urlopen):
     """ Handles row-less response. """
     # Set the API key	
-    dc.set_api_key('TEST-API-KEY')
+    dc.set_api_key('make_sure_I_am_replaced')
+    dc.set_api_key(_TEST_API_KEY)
+    # Issue a dummy SPARQL query that tells the mock to expect a key
+    self.assertEqual(dc.query(_SPARQL_W_KEY), [])
 
-    # Create a SPARQL query
-    query_string = ('''
-SELECT  ?name ?dcid
-WHERE {
-  ?a typeOf Place .
-  ?a name ?name .
-  ?a dcid ("geoId/06") .
-  ?a dcid ?dcid
-}
-''')
-    # Issue the query
-    self.assertEqual(dc.query(query_string), [])
+  @mock.patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
+  def test_send_request_w_api_key(self, urlopen):
+    """ Handles row-less response. """
+    # Set the API key	
+    dc.set_api_key(_TEST_API_KEY)
+    # Issue a dummy url that tells the mock to expect a key
+    self.assertEqual(utils._send_request(_SEND_REQ_W_KEY), {})
+
 
 if __name__ == '__main__':
   unittest.main()
