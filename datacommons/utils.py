@@ -72,7 +72,7 @@ def set_api_key(api_key):
   :code:`"DC_API_KEY"`.
 
   For more details about how to get an API key and provide it to the Python
-  Client API, please visit :ref:`getting_started`
+  Client API, please visit :ref:`getting_started`.
   Args:
     api_key (:obj:`str`): The API key.
   """	
