@@ -62,11 +62,6 @@ WHERE {
 ''')
   req = args[0]
   data = json.loads(req.data)
-  # If the API key does not match, then return 403 Forbidden	
-  api_key = req.get_header('X-api-key')	
-  if api_key != 'TEST-API-KEY':	
-    return urllib.error.HTTPError(None, 403, None, None, None)
-
 
   if req.full_url == utils._API_ROOT + utils._API_ENDPOINTS['query']:
     if data['sparql'] == accepted_query:
@@ -126,9 +121,6 @@ class TestQuery(unittest.TestCase):
   @mock.patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
   def test_rows(self, urlopen):
     """ Sending a valid query returns the correct response. """
-    # Set the API key	
-    dc.set_api_key('TEST-API-KEY')
-
     # Create the SPARQL query
     query_string = ('''
 SELECT  ?name ?dcid
@@ -164,9 +156,6 @@ WHERE {
   @mock.patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
   def test_no_rows(self, urlopen):
     """ Handles row-less response. """
-    # Set the API key	
-    dc.set_api_key('TEST-API-KEY')
-
     # Create a SPARQL query
     query_string = ('''
 SELECT  ?name ?dcid
