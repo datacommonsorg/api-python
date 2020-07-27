@@ -9,6 +9,15 @@ Once the package is installed, import `datacommons`.
 
     import datacommons as dc
 
+If you would like to provide an API key, enable the Data Commons API for a
+Google Cloud Project and create an API key with Data Commons API access.
+Then, add the following line to your code.
+
+    dc.set_api_key('YOUR-API-KEY')
+
+Data Commons *does not charge* users, but uses the API key for logging and
+understanding API usage.
+
 For more detail on getting started with the API, please visit
 [Getting Started](http://docs.datacommons.org/api/).
 
