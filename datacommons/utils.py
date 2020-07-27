@@ -67,14 +67,14 @@ def set_api_key(api_key):
   """Sets an environment variable :code:`"DC_API_KEY"` to given :code:`api_key`.
 
   Users may supply an API key to the Python API, which simply passes it on to
-  the REST API for handling. The API key can be provided to	the API after
-  importing the library, or set as an environment variable	
+  the REST API for handling. The API key can be provided to the API after
+  importing the library, or set as an environment variable
   :code:`"DC_API_KEY"`.
-  
-  For more details about how to get an API key and provide it to the Python	
-  Client API, please visit :ref:`getting_started`	
-  Args:	
-    api_key (:obj:`str`): The api key.	
+
+  For more details about how to get an API key and provide it to the Python
+  Client API, please visit :ref:`getting_started`
+  Args:
+    api_key (:obj:`str`): The API key.
   """	
   os.environ[_ENV_VAR_API_KEY] = api_key
 
