@@ -1,5 +1,22 @@
 # Changelog
 
+## 1.3.0
+
+**Date** - 07/28/2020
+
+**Release Tag** - [v1.3.0](https://github.com/datacommonsorg/api-python/releases/tag/v1.3.0)
+
+**Release Status** - Current head of branch [`master`](https://github.com/datacommonsorg/api-python/tree/master)
+
+New features added to the Python API
+
+-   Option to use the API without providing API key.
+-   New options to `get_stats`: `measurement_method`, `unit`, and `obs_period` for finer-grain control over returned statistics.
+
+Bugs fixed in new release
+
+-   Elegantly handle sparse responses from `query`.
+
 ## 1.2.0
 
 **Date** - 06/04/2020
