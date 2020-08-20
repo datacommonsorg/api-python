@@ -19,3 +19,15 @@ source .env/bin/activate
 
 pip3 install -r requirements.txt
 python3 -m pytest
+
+deactivate
+
+
+python2 -m venv .env
+source .env/bin/activate
+
+pip2 install -r requirements.txt
+python2 -m pytest
+
+deactivate
+

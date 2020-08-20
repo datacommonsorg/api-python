@@ -49,6 +49,8 @@ _API_ENDPOINTS = {
   'get_pop_obs': '/bulk/pop-obs',
   'get_place_obs': '/bulk/place-obs',
   'get_stats': '/bulk/stats',
+  'get_stat_value': '/stat/value',
+  'get_stat_series': '/stat/series',
 }
 
 # The default value to limit to
@@ -82,7 +84,7 @@ def set_api_key(api_key):
 # ------------------------- INTERNAL HELPER FUNCTIONS -------------------------
 
 
-def _send_request(req_url, req_json={}, compress=False, post=True):
+def _send_request(req_url, req_json={}, compress=False, post=True, use_payload=True):
   """ Sends a POST/GET request to req_url with req_json, default to POST.
 
   Returns:
@@ -113,6 +115,8 @@ def _send_request(req_url, req_json={}, compress=False, post=True):
 
   # Get the JSON
   res_json = json.loads(res.read())
+  if not use_payload:
+    return res_json
   if 'payload' not in res_json:
     raise ValueError(
         'Response error: Payload not found. Printing response\n\n'

@@ -20,8 +20,12 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-from unittest import mock
-import urllib
+try:
+    from unittest.mock import patch
+except ImportError:
+    from mock import patch
+
+import six.moves.urllib as urllib
 
 import datacommons as dc
 import datacommons.utils as utils
@@ -44,7 +48,7 @@ def request_mock(*args, **kwargs):
   data = json.loads(req.data)
 
   # Mock responses for urlopen requests to get_property_labels.
-  if req.full_url == utils._API_ROOT + utils._API_ENDPOINTS['get_property_labels']:
+  if req.get_full_url() == utils._API_ROOT + utils._API_ENDPOINTS['get_property_labels']:
     if data['dcids'] == ['geoId/0649670']:
       # Response for sending a single dcid to get_property_labels
       out_arcs = ['containedInPlace', 'name', 'geoId', 'typeOf']
@@ -80,7 +84,7 @@ def request_mock(*args, **kwargs):
       return MockResponse(json.dumps({'payload': res_json}))
 
   # Mock responses for urlopen requests to get_property_values
-  if req.full_url == utils._API_ROOT + utils._API_ENDPOINTS['get_property_values']:
+  if req.get_full_url() == utils._API_ROOT + utils._API_ENDPOINTS['get_property_values']:
     if data['dcids'] == ['geoId/06085', 'geoId/24031']\
       and data['property'] == 'containedInPlace'\
       and data['value_type'] == 'Town':
@@ -213,7 +217,7 @@ def request_mock(*args, **kwargs):
       return MockResponse(json.dumps({'payload': res_json}))
 
   # Mock responses for urlopen requests to get_triples
-  if req.full_url == utils._API_ROOT + utils._API_ENDPOINTS['get_triples']:
+  if req.get_full_url() == utils._API_ROOT + utils._API_ENDPOINTS['get_triples']:
     if data['dcids'] == ['geoId/06085', 'geoId/24031']:
       # Response for sending a request with two valid dcids.
       res_json = json.dumps({
@@ -313,7 +317,7 @@ def request_mock(*args, **kwargs):
 class TestGetPropertyLabels(unittest.TestCase):
   """ Unit tests for get_property_labels. """
 
-  @mock.patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
+  @patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
   def test_single_dcid(self, urlopen_mock):
     """ Calling get_property_labels with a single dcid returns a valid
     result.
@@ -327,7 +331,7 @@ class TestGetPropertyLabels(unittest.TestCase):
     in_props = dc.get_property_labels(['geoId/0649670'], out=False)
     self.assertDictEqual(in_props, {'geoId/0649670': []})
 
-  @mock.patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
+  @patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
   def test_multiple_dcids(self, urlopen_mock):
     """ Calling get_property_labels returns valid results with multiple
     dcids.
@@ -352,7 +356,7 @@ class TestGetPropertyLabels(unittest.TestCase):
       'City': expected_in,
     })
 
-  @mock.patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
+  @patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
   def test_bad_dcids(self, urlopen_mock):
     """ Calling get_property_labels with dcids that do not exist returns empty
     results.
@@ -365,7 +369,7 @@ class TestGetPropertyLabels(unittest.TestCase):
     in_props = dc.get_property_labels(['dc/MadDcid'], out=False)
     self.assertDictEqual(in_props, {'dc/MadDcid': []})
 
-  @mock.patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
+  @patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
   def test_no_dcids(self, urlopen_mock):
     """ Calling get_property_labels with no dcids returns empty results. """
 
@@ -383,7 +387,7 @@ class TestGetPropertyValues(unittest.TestCase):
 
   # --------------------------- STANDARD UNIT TESTS ---------------------------
 
-  @mock.patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
+  @patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
   def test_multiple_dcids(self, urlopen_mock):
     """ Calling get_property_values with multiple dcids returns valid
     results.
@@ -420,7 +424,7 @@ class TestGetPropertyValues(unittest.TestCase):
       'dc/p/1234': []
     })
 
-  @mock.patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
+  @patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
   def test_bad_dcids(self, urlopen_mock):
     """ Calling get_property_values with dcids that do not exist returns empty
     results.
@@ -443,7 +447,7 @@ class TestGetPropertyValues(unittest.TestCase):
       'dc/MadderDcid': []
     })
 
-  @mock.patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
+  @patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
   def test_bad_property(self, urlopen_mock):
     """ Calling get_property_values with a property that does not exist returns
     empty results.
@@ -456,7 +460,7 @@ class TestGetPropertyValues(unittest.TestCase):
       'geoId/24031': []
     })
 
-  @mock.patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
+  @patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
   def test_no_dcids(self, urlopen_mock):
     """ Calling get_property_values with no dcids returns empty results. """
     # Get property values with an empty list of dcids.
@@ -466,7 +470,7 @@ class TestGetPropertyValues(unittest.TestCase):
 class TestGetTriples(unittest.TestCase):
   """ Unit tests for get_triples. """
 
-  @mock.patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
+  @patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
   def test_multiple_dcids(self, urlopen_mock):
     """ Calling get_triples with proper dcids returns valid results. """
     # Call get_triples
@@ -484,7 +488,7 @@ class TestGetTriples(unittest.TestCase):
       ]
     })
 
-  @mock.patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
+  @patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
   def test_bad_dcids(self, urlopen_mock):
     """ Calling get_triples with dcids that do not exist returns empty
     results.
@@ -507,7 +511,7 @@ class TestGetTriples(unittest.TestCase):
       'dc/MadderDcid': []
     })
 
-  @mock.patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
+  @patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
   def test_no_dcids(self, urlopen_mock):
     """ Calling get_triples with no dcids returns empty results. """
     # Call get_triples with no dcids

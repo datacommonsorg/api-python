@@ -20,15 +20,17 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-from unittest import mock
-
+try:
+    from unittest.mock import patch
+except ImportError:
+    from mock import patch
 import datacommons as dc
 import datacommons.utils as utils
 
 import os
 import json
 import unittest
-import urllib
+import six.moves.urllib as urllib
 
 _TEST_API_KEY = 'TEST-API-KEY'
 
@@ -52,12 +54,12 @@ def request_mock(*args, **kwargs):
 
   req = args[0]
 
-  if req.full_url == _SEND_REQ_NO_KEY or json.loads(req.data) == {'sparql': _SPARQL_NO_KEY}:
+  if req.get_full_url() == _SEND_REQ_NO_KEY or json.loads(req.data) == {'sparql': _SPARQL_NO_KEY}:
     assert 'X-api-key' not in req.headers
   else:
     assert req.get_header('X-api-key') == _TEST_API_KEY
 
-  if req.full_url == utils._API_ROOT + utils._API_ENDPOINTS['query']:
+  if req.get_full_url() == utils._API_ROOT + utils._API_ENDPOINTS['query']:
     # Return a dummy response that will parse into [] by query()
     return MockResponse(json.dumps({
       'header': [
@@ -72,19 +74,19 @@ def request_mock(*args, **kwargs):
 
 class TestApiKey(unittest.TestCase):
   """Unit test for setting or not setting the API Key."""
-  @mock.patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
+  @patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
   def test_query_no_api_key(self, urlopen):
     del os.environ[utils._ENV_VAR_API_KEY]
     # Issue a dummy SPARQL query that tells the mock to not expect a key
     self.assertEqual(dc.query(_SPARQL_NO_KEY), [])
 
-  @mock.patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
+  @patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
   def test_send_request_no_api_key(self, urlopen):
     del os.environ[utils._ENV_VAR_API_KEY]
     # Issue a dummy url that tells the mock to not expect a key
     self.assertEqual(utils._send_request(_SEND_REQ_NO_KEY, {'foo': ['bar']}), {})
 
-  @mock.patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
+  @patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
   def test_query_w_api_key(self, urlopen):
     """ Handles row-less response. """
     # Set the API key	
@@ -93,7 +95,7 @@ class TestApiKey(unittest.TestCase):
     # Issue a dummy SPARQL query that tells the mock to expect a key
     self.assertEqual(dc.query(_SPARQL_W_KEY), [])
 
-  @mock.patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
+  @patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
   def test_send_request_w_api_key(self, urlopen):
     """ Handles row-less response. """
     # Set the API key	

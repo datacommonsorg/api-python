@@ -22,13 +22,17 @@ from __future__ import division
 from __future__ import print_function
 
 import base64
-from unittest import mock
+
+try:
+    from unittest.mock import patch
+except ImportError:
+    from mock import patch
 
 import datacommons as dc
 import datacommons.utils as utils
 import json
 import unittest
-import urllib
+import six.moves.urllib as urllib
 import zlib
 
 
@@ -58,10 +62,23 @@ def request_mock(*args, **kwargs):
     }
   ]
 
+  def compare_constraint_helper(constrained_props, data_pvs):
+    """Py2 workaround for unicode vs str comparison."""
+    for cpv in constrained_props:
+        satisfied = False
+        for k, v in cpv.items():
+            for pv in data_pvs:
+                if k in pv and pv[k] == cpv[k]:
+                    print("found ", k, v, " in", pv)
+                    satisfied = True
+        if satisfied == False:
+            return False
+    return True
+
   # Mock responses for urlopen request to get_populations.
-  if req.full_url == utils._API_ROOT + utils._API_ENDPOINTS['get_populations']\
+  if req.get_full_url() == utils._API_ROOT + utils._API_ENDPOINTS['get_populations']\
     and data['population_type'] == 'Person'\
-    and data['pvs'] == constrained_props:
+    and compare_constraint_helper(constrained_props, data['pvs']):
     if data['dcids'] == ['geoId/06085', 'geoId/4805000']:
       # Response returned when querying for multiple valid dcids.
       res_json = json.dumps([
@@ -91,7 +108,7 @@ def request_mock(*args, **kwargs):
       return MockResponse(json.dumps({'payload': res_json}))
 
   # Mock responses for urlopen request to get_observations
-  if req.full_url == utils._API_ROOT + utils._API_ENDPOINTS['get_observations']\
+  if req.get_full_url() == utils._API_ROOT + utils._API_ENDPOINTS['get_observations']\
     and data['measured_property'] == 'count'\
     and data['stats_type'] == 'measuredValue'\
     and data['observation_date'] == '2018-12'\
@@ -130,11 +147,11 @@ def request_mock(*args, **kwargs):
       return MockResponse(json.dumps({'payload': res_json}))
 
   # Mock responses for urlopen request to get_place_obs
-  if req.full_url == utils._API_ROOT + utils._API_ENDPOINTS['get_place_obs']\
+  if req.get_full_url() == utils._API_ROOT + utils._API_ENDPOINTS['get_place_obs']\
     and data['place_type'] == 'City'\
     and data['observation_date'] == '2017'\
     and data['population_type'] == 'Person'\
-    and data['pvs'] == constrained_props:
+    and compare_constraint_helper(constrained_props, data['pvs']):
     res_json = json.dumps({
       'places': [
         {
@@ -155,10 +172,10 @@ def request_mock(*args, **kwargs):
       ]
     })
     return MockResponse(json.dumps(
-      {'payload': base64.encodebytes(zlib.compress(res_json.encode('utf-8'))).decode('ascii')}))
+      {'payload': base64.b64encode(zlib.compress(res_json.encode('utf-8'))).decode('ascii')}))
 
   # Mock responses for get requests to get_pop_obs.
-  if req.full_url == utils._API_ROOT + utils._API_ENDPOINTS['get_pop_obs'] + '?dcid=geoId/06085':
+  if req.get_full_url() == utils._API_ROOT + utils._API_ENDPOINTS['get_pop_obs'] + '?dcid=geoId/06085':
     # Response returned when querying for a city in the graph.
     res_json = json.dumps({
       'name': 'Mountain View',
@@ -194,7 +211,7 @@ def request_mock(*args, **kwargs):
       }
     })
     return MockResponse(json.dumps(
-      {'payload': base64.encodebytes(zlib.compress(res_json.encode('utf-8'))).decode('ascii')}))
+      {'payload': base64.b64encode(zlib.compress(res_json.encode('utf-8'))).decode('ascii')}))
 
   # Otherwise, return an empty response and a 404.
   return urllib.error.HTTPError(None, 404, None, None, None)
@@ -207,7 +224,7 @@ class TestGetPopulations(unittest.TestCase):
     'age': 'Years5To17'
   }
 
-  @mock.patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
+  @patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
   def test_multiple_dcids(self, urlopen):
     """ Calling get_populations with proper dcids returns valid results. """
     # Call get_populations
@@ -219,7 +236,7 @@ class TestGetPopulations(unittest.TestCase):
     })
 
 
-  @mock.patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
+  @patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
   def test_bad_dcids(self, urlopen):
     """ Calling get_populations with dcids that do not exist returns empty
     results.
@@ -234,7 +251,7 @@ class TestGetPopulations(unittest.TestCase):
     self.assertDictEqual(pops_1, {'geoId/06085': 'dc/p/crgfn8blpvl35'})
     self.assertDictEqual(pops_2, {})
 
-  @mock.patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
+  @patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
   def test_no_dcids(self, urlopen):
     """ Calling get_populations with no dcids returns empty results. """
     pops = dc.get_populations(
@@ -244,7 +261,7 @@ class TestGetPopulations(unittest.TestCase):
 class TestGetObservations(unittest.TestCase):
   """ Unit tests for get_observations. """
 
-  @mock.patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
+  @patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
   def test_multiple_dcids(self, urlopen):
     """ Calling get_observations with proper dcids returns valid results. """
     dcids = ['dc/p/x6t44d8jd95rd', 'dc/p/lr52m1yr46r44', 'dc/p/fs929fynprzs']
@@ -258,7 +275,7 @@ class TestGetObservations(unittest.TestCase):
                                  measurement_method='BLSSeasonallyAdjusted')
     self.assertDictEqual(actual, expected)
 
-  @mock.patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
+  @patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
   def test_bad_dcids(self, urlopen):
     """ Calling get_observations with dcids that do not exist returns empty
     results.
@@ -279,7 +296,7 @@ class TestGetObservations(unittest.TestCase):
     self.assertDictEqual(actual_1, {'dc/p/x6t44d8jd95rd': 18704962.0})
     self.assertDictEqual(actual_2, {})
 
-  @mock.patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
+  @patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
   def test_no_dcids(self, urlopen):
     """ Calling get_observations with no dcids returns empty results. """
     actual = dc.get_observations([], 'count', 'measuredValue', '2018-12',
@@ -291,7 +308,7 @@ class TestGetObservations(unittest.TestCase):
 class TestGetPopObs(unittest.TestCase):
   """ Unit tests for get_pop_obs. """
 
-  @mock.patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
+  @patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
   def test_valid_dcid(self, urlopen):
     """ Calling get_pop_obs with valid dcid returns valid results. """
     # Call get_pop_obs
@@ -333,7 +350,7 @@ class TestGetPopObs(unittest.TestCase):
 class TestGetPlaceObs(unittest.TestCase):
   """ Unit tests for get_place_obs. """
 
-  @mock.patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
+  @patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
   def test_valid(self, urlopen):
     """ Calling get_place_obs with valid parameters returns a valid result. """
     # Call get_place_obs

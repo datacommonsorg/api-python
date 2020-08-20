@@ -20,14 +20,17 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-from unittest import mock
+try:
+    from unittest.mock import patch
+except ImportError:
+    from mock import patch
 
 import datacommons as dc
 import datacommons.utils as utils
 
 import json
 import unittest
-import urllib
+import six.moves.urllib as urllib
 
 
 def request_mock(*args, **kwargs):
@@ -63,7 +66,7 @@ WHERE {
   req = args[0]
   data = json.loads(req.data)
 
-  if req.full_url == utils._API_ROOT + utils._API_ENDPOINTS['query']:
+  if req.get_full_url() == utils._API_ROOT + utils._API_ENDPOINTS['query']:
     if data['sparql'] == accepted_query:
       return MockResponse(json.dumps({
         'header': [
@@ -118,7 +121,7 @@ WHERE {
 class TestQuery(unittest.TestCase):
   """ Unit tests for the Query object. """
 
-  @mock.patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
+  @patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
   def test_rows(self, urlopen):
     """ Sending a valid query returns the correct response. """
     # Create the SPARQL query
@@ -153,7 +156,7 @@ WHERE {
       if idx == 1:
         self.assertDictEqual(row, {'?name': 'Maryland', '?dcid': 'geoId/24'})
 
-  @mock.patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
+  @patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
   def test_no_rows(self, urlopen):
     """ Handles row-less response. """
     # Create a SPARQL query
