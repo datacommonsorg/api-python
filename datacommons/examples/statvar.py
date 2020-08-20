@@ -11,10 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-""" Data Commons Python API examples.
-
-Basic demo for get_stat_value.
-"""
+"""Basic examples for StatisticalVariable-based Data Commons API functions."""
 
 from __future__ import absolute_import
 from __future__ import division
@@ -45,8 +42,11 @@ def main():
 
     # Get stat series.
     print('get_stat_series Count_Person')
+    print(dc.get_stat_series(sc, 'Count_Person'))
+
     print('get_stat_series UnemploymentRate_Person')
     print(dc.get_stat_series(sc, 'UnemploymentRate_Person'))
+
     print('get_stat_series UnemploymentRate_Person for observationPeriod P1Y')
     print(
         dc.get_stat_series(sc,
@@ -61,12 +61,14 @@ def main():
                            'UnemploymentRate_Person',
                            measurement_method="BLSSeasonallyUnadjusted",
                            observation_period="P1Y"))
-    print('get_stat_series GDP')
+
+    print('get_stat_series Nominal GDP')
     print(
         dc.get_stat_series(
             'nuts/HU22',
             'Amount_EconomicActivity_GrossDomesticProduction_Nominal'))
-    print('get_stat_series GDP with unit PurchasingPowerStandard')
+
+    print('get_stat_series Nominal GDP with unit PurchasingPowerStandard')
     print(
         dc.get_stat_series(
             'nuts/HU22',

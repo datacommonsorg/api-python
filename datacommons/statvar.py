@@ -60,7 +60,7 @@ def get_stat_value(place,
     Args:
       place (:obj:`iterable` of :obj:`str`): The dcid of `Place` to query for.
       stat_var (:obj:`str`): The dcid of the `StatisticalVariable`.
-      obs_date (:obj:`str`): Optional, the preferred date of observation
+      date (:obj:`str`): Optional, the preferred date of observation
         in ISO 8601 format. If not specified, returns the latest observation.
       measurement_method (:obj:`str`): Optional, the dcid of the preferred
         `measurementMethod` value.
@@ -96,7 +96,7 @@ def get_stat_value(place,
     res_json = _send_get_stat_req(url)
 
     if 'value' not in res_json:
-        raise ValueError('No value in response.')
+        raise ValueError('No data in response.')
     return res_json['value']
 
 
@@ -143,5 +143,5 @@ def get_stat_series(place,
     res_json = _send_get_stat_req(url)
 
     if 'series' not in res_json:
-        raise ValueError('No response.')
+        raise ValueError('No data in response.')
     return res_json['series']

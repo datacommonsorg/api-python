@@ -14,8 +14,15 @@
 # limitations under the License.
 
 
+# Note that our mocking library is python3 specific.
+# Therefore, please make sure to run the examples
+# to make sure your client code is python2 compatible.
+
 python3 -m venv .env
 source .env/bin/activate
 
 pip3 install -r requirements.txt
 python3 -m pytest
+
+deactivate
+

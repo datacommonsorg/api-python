@@ -43,11 +43,12 @@ def request_mock(*args, **kwargs):
 
     req = args[0]
 
-    # Mock responses for urlopen requests to get_stat_value.
     stat_value_url_base = utils._API_ROOT + utils._API_ENDPOINTS[
         'get_stat_value']
     stat_series_url_base = utils._API_ROOT + utils._API_ENDPOINTS[
         'get_stat_series']
+
+    # Mock responses for urlopen requests to get_stat_value.
     if req.full_url == stat_value_url_base + '?place=geoId/06&stat_var=Count_Person':
         # Response returned when querying with basic args.
         return MockResponse(json.dumps({'value': 123}))
@@ -60,6 +61,8 @@ def request_mock(*args, **kwargs):
             'observation_period=P1Y&unit=RealPeople&scaling_factor=100'):
         # Response returned when querying with above optional params.
         return MockResponse(json.dumps({'value': 103}))
+
+    # Mock responses for urlopen requests to get_stat_value.
     if req.full_url == stat_series_url_base + '?place=geoId/06&stat_var=Count_Person':
         # Response returned when querying with basic args.
         return MockResponse(json.dumps({'series': {'2000': 1, '2001': 2}}))
@@ -68,17 +71,16 @@ def request_mock(*args, **kwargs):
             'measurement_method=CensusPEPSurvey&observation_period=P1Y&' +
             'unit=RealPeople&scaling_factor=100'):
 
-        # 'CensusPEPSurvey', 'P1Y', 'RealPeople', 100
         # Response returned when querying with above optional params.
         return MockResponse(json.dumps({'series': {'2000': 3, '2001': 42}}))
     if (req.full_url == stat_series_url_base +
             '?place=geoId/06&stat_var=Count_Person&' +
             'measurement_method=DNE'):
 
-        # 'CensusPEPSurvey', 'P1Y', 'RealPeople', 100
-        # Response returned when data not available for options.
+        # Response returned when data not available for optional parameters.
         # /stat/series?place=geoId/06&stat_var=Count_Person&measurement_method=DNE
         return MockResponse(json.dumps({'series': {}}))
+
     # Otherwise, return an empty response and a 404.
     return urllib.error.HTTPError
 
