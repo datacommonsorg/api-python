@@ -54,6 +54,14 @@ $ cloud-build-local --config=cloudbuild.yaml --dryrun=false .
 
 Both commands will run the same set of tests.
 
+To run the examples:
+
+```
+$ python -m datacommons.examples.XXX
+```
+
+where XXX is the module you want to run.
+
 ## Release to PyPI
 
 - Update "VERSION" in setup.py
