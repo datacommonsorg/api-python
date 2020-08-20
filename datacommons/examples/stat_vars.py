@@ -71,7 +71,7 @@ def main():
     ]
 
     def call_str(pvs):
-      """Helper function to print the minimal call string."""
+        """Helper function to print the minimal call string."""
         s = "'{}', '{}'".format(pvs.get('place'), pvs.get('stat_var'))
         if pvs.get('measurement_method'):
             s += ", measurement_method='{}'".format(
