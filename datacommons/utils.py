@@ -50,7 +50,7 @@ _API_ENDPOINTS = {
   'get_place_obs': '/bulk/place-obs',
   'get_stats': '/bulk/stats',
   'get_stat_value': '/stat/value',
-
+  'get_stat_series': '/stat/series',
 }
 
 # The default value to limit to

@@ -46,6 +46,8 @@ def request_mock(*args, **kwargs):
     # Mock responses for urlopen requests to get_stat_value.
     stat_value_url_base = utils._API_ROOT + utils._API_ENDPOINTS[
         'get_stat_value']
+    stat_series_url_base = utils._API_ROOT + utils._API_ENDPOINTS[
+        'get_stat_series']
     if req.full_url == stat_value_url_base + '?place=geoId/06&stat_var=Count_Person':
         # Response returned when querying with basic args.
         return MockResponse(json.dumps({'value': 123}))
@@ -54,10 +56,29 @@ def request_mock(*args, **kwargs):
         return MockResponse(json.dumps({'value': 133}))
     if (req.full_url == stat_value_url_base +
             '?place=geoId/06&stat_var=Count_Person&' +
-            'date=2010&measurement_method=CensusPEPSurvey&observation_period=P1Y&'
-            + 'unit=RealPeople&scaling_factor=100'):
-        # Response returned when querying with observationDate.
+            'date=2010&measurement_method=CensusPEPSurvey&' +
+            'observation_period=P1Y&unit=RealPeople&scaling_factor=100'):
+        # Response returned when querying with above optional params.
         return MockResponse(json.dumps({'value': 103}))
+    if req.full_url == stat_series_url_base + '?place=geoId/06&stat_var=Count_Person':
+        # Response returned when querying with basic args.
+        return MockResponse(json.dumps({'series': {'2000': 1, '2001': 2}}))
+    if (req.full_url == stat_series_url_base +
+            '?place=geoId/06&stat_var=Count_Person&' +
+            'measurement_method=CensusPEPSurvey&observation_period=P1Y&' +
+            'unit=RealPeople&scaling_factor=100'):
+
+        # 'CensusPEPSurvey', 'P1Y', 'RealPeople', 100
+        # Response returned when querying with above optional params.
+        return MockResponse(json.dumps({'series': {'2000': 3, '2001': 42}}))
+    if (req.full_url == stat_series_url_base +
+            '?place=geoId/06&stat_var=Count_Person&' +
+            'measurement_method=DNE'):
+
+        # 'CensusPEPSurvey', 'P1Y', 'RealPeople', 100
+        # Response returned when data not available for options.
+        # /stat/series?place=geoId/06&stat_var=Count_Person&measurement_method=DNE
+        return MockResponse(json.dumps({'series': {}}))
     # Otherwise, return an empty response and a 404.
     return urllib.error.HTTPError
 
@@ -83,6 +104,30 @@ class TestGetStatValue(unittest.TestCase):
         stat = dc.get_stat_value('geoId/06', 'Count_Person', '2010',
                                  'CensusPEPSurvey', 'P1Y', 'RealPeople', 100)
         self.assertEqual(stat, 103)
+
+
+class TestGetStatSeries(unittest.TestCase):
+    """Unit tests for get_stat_series."""
+
+    @mock.patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
+    def test_basic(self, urlopen):
+        """Calling get_stat_value with minimal and proper args."""
+        # Call get_stat_series
+        stats = dc.get_stat_series('geoId/06', 'Count_Person')
+        self.assertEqual(stats, {'2000': 1, '2001': 2})
+
+    @mock.patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
+    def test_opt_args(self, urlopen):
+        """Calling get_stat_value with optional args returns specific data."""
+
+        # Call get_stat_series with all optional args
+        stats = dc.get_stat_series('geoId/06', 'Count_Person',
+                                   'CensusPEPSurvey', 'P1Y', 'RealPeople', 100)
+        self.assertEqual(stats, {'2000': 3, '2001': 42})
+
+        # Call get_stat_series with non-satisfiable optional args
+        stats = dc.get_stat_series('geoId/06', 'Count_Person', 'DNE')
+        self.assertEqual(stats, {})
 
 
 if __name__ == '__main__':

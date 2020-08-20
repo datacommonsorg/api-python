@@ -31,13 +31,25 @@ def main():
     sc = 'geoId/06085'
 
     # Get population.
-    print('Get Count_Person')
+    print('get_stat_value Count_Person')
     print(dc.get_stat_value(sc, 'Count_Person'))
 
-    # TODO(boxu/tjann): better error msgs starting from REST
-    # e.g. stat/value?place=geoId/x06&stat_var=Count_Person&date=2010
-    print('Get Count_Person Fail')
-    print(dc.get_stat_value('bogus_id', 'Count_Person'))
+    print('get_stat_value Count_Person 2018')
+    print(dc.get_stat_value(sc, 'Count_Person', '2018'))
+    print('get_stat_value Count_Person 2018 from ACS 5 yr')
+    print(
+        dc.get_stat_value(sc,
+                          'Count_Person',
+                          '2018',
+                          measurement_method='CensusACS5yrSurvey'))
+
+    # Get population.
+    print('get_stat_series Count_Person')
+    print(dc.get_stat_series(sc, 'UnemploymentRate_Person'))
+    print(
+        dc.get_stat_series(sc,
+                           'UnemploymentRate_Person',
+                           observation_period="P1Y"))
 
 
 if __name__ == '__main__':
