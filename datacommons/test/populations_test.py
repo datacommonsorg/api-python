@@ -63,7 +63,7 @@ def request_mock(*args, **kwargs):
   ]
 
   def compare_constraint_helper(constrained_props, data_pvs):
-    """Py2 workaround for unicode vs str comparison."
+    """Py2 workaround for unicode vs str comparison."""
     for cpv in constrained_props:
         satisfied = False
         for k, v in cpv.items():
