@@ -38,17 +38,13 @@ Apache 2.0
 
 ## Development
 
-The Python API currently supports `python>=2.7`. However, our tests are
-currently written using `python3` dependent libraries.
+The Python API currently supports `python>=2.7`.
 
 To test, run:
 
 ```
 $ ./run_tests_local.sh
 ```
-
-which uses `python3`. Please also run through the examples using `python2`
-to make sure the library fully supports both python versions.
 
 To debug the continuous integration tests, run:
 

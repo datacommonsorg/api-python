@@ -20,7 +20,10 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-from unittest import mock
+try:
+    from unittest.mock import patch
+except ImportError:
+    from mock import patch
 
 import datacommons as dc
 import datacommons.utils as utils
@@ -43,7 +46,7 @@ def request_mock(*args, **kwargs):
   data = json.loads(req.data)
 
   # Mock responses for urlopen requests to get_places_in.
-  if req.full_url == utils._API_ROOT + utils._API_ENDPOINTS['get_places_in']:
+  if req.get_full_url() == utils._API_ROOT + utils._API_ENDPOINTS['get_places_in']:
     if (data['dcids'] == ['geoId/06085', 'geoId/24031']
       and data['place_type'] == 'City'):
       # Response returned when querying for multiple valid dcids.
@@ -84,7 +87,7 @@ def request_mock(*args, **kwargs):
 
 
   # Mock responses for urlopen requests to get_stats.
-  if req.full_url == utils._API_ROOT + utils._API_ENDPOINTS['get_stats']:
+  if req.get_full_url() == utils._API_ROOT + utils._API_ENDPOINTS['get_stats']:
     if (data['place'] == ['geoId/05', 'geoId/06'] and
         data['stats_var'] == 'dc/0hyp6tkn18vcb'):
       # Response returned when querying for multiple valid dcids.
@@ -214,7 +217,7 @@ def request_mock(*args, **kwargs):
 class TestGetPlacesIn(unittest.TestCase):
   """ Unit stests for get_places_in. """
 
-  @mock.patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
+  @patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
   def test_multiple_dcids(self, urlopen):
     """ Calling get_places_in with proper dcids returns valid results. """
     # Call get_places_in
@@ -224,7 +227,7 @@ class TestGetPlacesIn(unittest.TestCase):
       'geoId/24031': ['geoId/2467675', 'geoId/2476650']
     })
 
-  @mock.patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
+  @patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
   def test_bad_dcids(self, urlopen):
     """ Calling get_places_in with dcids that do not exist returns empty
       results.
@@ -243,7 +246,7 @@ class TestGetPlacesIn(unittest.TestCase):
       'dc/MadderDcid': []
     })
 
-  @mock.patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
+  @patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
   def test_no_dcids(self, urlopen):
     """ Calling get_places_in with no dcids returns empty results. """
     # Call get_places_in with no dcids.
@@ -257,7 +260,7 @@ class TestGetPlacesIn(unittest.TestCase):
 class TestGetStats(unittest.TestCase):
   """ Unit stests for get_stats. """
 
-  @mock.patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
+  @patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
   def test_multiple_dcids(self, urlopen):
     """ Calling get_stats with proper dcids returns valid results. """
     # Call get_stats
@@ -346,7 +349,7 @@ class TestGetStats(unittest.TestCase):
             }
         })
 
-  @mock.patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
+  @patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
   def test_opt_args(self, urlopen):
     """ Calling get_stats with mmethod, unit, and obs period returns specific data.
     """
@@ -390,7 +393,7 @@ class TestGetStats(unittest.TestCase):
         }
       })
 
-  @mock.patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
+  @patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
   def test_bad_dcids(self, urlopen):
     """ Calling get_stats with dcids that do not exist returns empty
       results.
@@ -412,21 +415,21 @@ class TestGetStats(unittest.TestCase):
                                'dc/0hyp6tkn18vcb')
     self.assertDictEqual({}, bad_dcids_2)
 
-  @mock.patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
+  @patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
   def test_no_dcids(self, urlopen):
     """ Calling get_stats with no dcids returns empty results. """
     # Call get_stats with no dcids.
     no_dcids = dc.get_stats([], 'dc/0hyp6tkn18vcb')
     self.assertDictEqual({}, no_dcids)
 
-  @mock.patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
+  @patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
   def test_no_data(self, urlopen):
     """ Calling get_stats with for None data. """
     # Call get_stats with no dcids.
     result = dc.get_stats(['geoId/00'], 'dc/0hyp6tkn18vcb')
     self.assertDictEqual({}, result)
 
-  @mock.patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
+  @patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
   def test_batch_request(self, mock_urlopen):
     """ Make multiple calls to REST API when number of geos exceeds the batch size. """
     save_batch_size = dc.utils._QUERY_BATCH_SIZE
