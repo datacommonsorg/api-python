@@ -69,7 +69,7 @@ def get_stat_value(place,
       unit (:obj:`str`): Optional, the dcid of the preferred `unit` value.
       scaling_factor (:obj:`int`): Optional, the preferred `scalingFactor` value.
     Returns:
-      A :obj:`double` the value of :code:`stat_var` for :code:`place`, filtered
+      A :obj:`float` the value of :code:`stat_var` for :code:`place`, filtered
       by optional args.
 
     Raises:
