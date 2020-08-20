@@ -21,57 +21,78 @@ import datacommons as dc
 
 
 def main():
-    # Dcid for Santa Clara County.
-    sc = 'geoId/06085'
+    data = [
+        {
+            'place': 'geoId/06085',
+            'stat_var': 'Count_Person',
+        },
+        {
+            'place': 'geoId/06085',
+            'stat_var': 'Count_Person',
+            'date': '2018',
+        },
+        {
+            'place': 'geoId/06085',
+            'stat_var': 'Count_Person',
+            'date': '2018',
+            'measurement_method': 'CensusACS5yrSurvey',
+        },
+        {
+            'place': 'geoId/06085',
+            'stat_var': 'UnemploymentRate_Person',
+        },
+        {
+            'place': 'geoId/06085',
+            'stat_var': 'UnemploymentRate_Person',
+            'observation_period': "P1Y",
+        },
+        {
+            'place': 'geoId/06085',
+            'stat_var': 'UnemploymentRate_Person',
+            'observation_period': "P1Y",
+            'measurement_method': "BLSSeasonallyUnadjusted",
+        },
+        {
+            'place':
+                'nuts/HU22',
+            'stat_var':
+                'Amount_EconomicActivity_GrossDomesticProduction_Nominal',
+        },
+        {
+            'place':
+                'nuts/HU22',
+            'stat_var':
+                'Amount_EconomicActivity_GrossDomesticProduction_Nominal',
+            'observation_period':
+                "P1Y",
+            'unit':
+                "PurchasingPowerStandard"
+        },
+    ]
 
-    # Get stat value.
-    print('get_stat_value Count_Person')
-    print(dc.get_stat_value(sc, 'Count_Person'))
-
-    print('get_stat_value Count_Person 2018')
-    print(dc.get_stat_value(sc, 'Count_Person', '2018'))
-    print('get_stat_value Count_Person 2018 from ACS 5 yr')
-    print(
-        dc.get_stat_value(sc,
-                          'Count_Person',
-                          '2018',
-                          measurement_method='CensusACS5yrSurvey'))
-
-    # Get stat series.
-    print('get_stat_series Count_Person')
-    print(dc.get_stat_series(sc, 'Count_Person'))
-
-    print('get_stat_series UnemploymentRate_Person')
-    print(dc.get_stat_series(sc, 'UnemploymentRate_Person'))
-
-    print('get_stat_series UnemploymentRate_Person for observationPeriod P1Y')
-    print(
-        dc.get_stat_series(sc,
-                           'UnemploymentRate_Person',
-                           observation_period="P1Y"))
-
-    print(
-        'get_stat_series UnemploymentRate_Person for observationPeriod P1Y and mmethod Unadjusted'
-    )
-    print(
-        dc.get_stat_series(sc,
-                           'UnemploymentRate_Person',
-                           measurement_method="BLSSeasonallyUnadjusted",
-                           observation_period="P1Y"))
-
-    print('get_stat_series Nominal GDP')
-    print(
-        dc.get_stat_series(
-            'nuts/HU22',
-            'Amount_EconomicActivity_GrossDomesticProduction_Nominal'))
-
-    print('get_stat_series Nominal GDP with unit PurchasingPowerStandard')
-    print(
-        dc.get_stat_series(
-            'nuts/HU22',
-            'Amount_EconomicActivity_GrossDomesticProduction_Nominal',
-            observation_period="P1Y",
-            unit="PurchasingPowerStandard"))
+    for d in data:
+        print('\n>>> get_stat_value: ',
+              [param for param in d.values() if param])
+        print(
+            '<<< ',
+            dc.get_stat_value(d.get('place'),
+                              d.get('stat_var'),
+                              date=d.get('date'),
+                              measurement_method=d.get('measurement_method'),
+                              observation_period=d.get('observation_period'),
+                              unit=d.get('unit'),
+                              scaling_factor=d.get('scaling_factor')))
+    for d in data:
+        print('\n>>> get_stat_series: ',
+              [d[k] for k in d.keys() if k != 'date' and d[k]])
+        print(
+            '<<< ',
+            dc.get_stat_series(d.get('place'),
+                               d.get('stat_var'),
+                               measurement_method=d.get('measurement_method'),
+                               observation_period=d.get('observation_period'),
+                               unit=d.get('unit'),
+                               scaling_factor=d.get('scaling_factor')))
 
 
 if __name__ == '__main__':
