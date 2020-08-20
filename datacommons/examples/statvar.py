@@ -30,7 +30,7 @@ def main():
     # Dcid for Santa Clara County.
     sc = 'geoId/06085'
 
-    # Get population.
+    # Get stat value.
     print('get_stat_value Count_Person')
     print(dc.get_stat_value(sc, 'Count_Person'))
 
@@ -43,13 +43,36 @@ def main():
                           '2018',
                           measurement_method='CensusACS5yrSurvey'))
 
-    # Get population.
+    # Get stat series.
     print('get_stat_series Count_Person')
+    print('get_stat_series UnemploymentRate_Person')
     print(dc.get_stat_series(sc, 'UnemploymentRate_Person'))
+    print('get_stat_series UnemploymentRate_Person for observationPeriod P1Y')
     print(
         dc.get_stat_series(sc,
                            'UnemploymentRate_Person',
                            observation_period="P1Y"))
+
+    print(
+        'get_stat_series UnemploymentRate_Person for observationPeriod P1Y and mmethod Unadjusted'
+    )
+    print(
+        dc.get_stat_series(sc,
+                           'UnemploymentRate_Person',
+                           measurement_method="BLSSeasonallyUnadjusted",
+                           observation_period="P1Y"))
+    print('get_stat_series GDP')
+    print(
+        dc.get_stat_series(
+            'nuts/HU22',
+            'Amount_EconomicActivity_GrossDomesticProduction_Nominal'))
+    print('get_stat_series GDP with unit PurchasingPowerStandard')
+    print(
+        dc.get_stat_series(
+            'nuts/HU22',
+            'Amount_EconomicActivity_GrossDomesticProduction_Nominal',
+            observation_period="P1Y",
+            unit="PurchasingPowerStandard"))
 
 
 if __name__ == '__main__':
