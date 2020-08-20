@@ -30,24 +30,6 @@ import six.moves.urllib.request
 import datacommons.utils as utils
 
 
-def _send_get_stat_req(url):
-
-    headers = {'Content-Type': 'application/json'}
-    if os.environ.get(_ENV_VAR_API_KEY):
-        headers['x-api-key'] = os.environ[_ENV_VAR_API_KEY]
-
-    req = six.moves.urllib.request.Request(url, headers=headers)
-
-    try:
-        res = six.moves.urllib.request.urlopen(req)
-    except six.moves.urllib.error.HTTPError as e:
-        raise ValueError('Response error {}:\n{}'.format(e.code, e.read()))
-
-    # Verify then store the results.
-    res_json = json.loads(res.read())
-    return res_json
-
-
 def get_stat_value(place,
                    stat_var,
                    date=None,
@@ -93,7 +75,7 @@ def get_stat_value(place,
     if scaling_factor:
         url += '&scaling_factor={}'.format(scaling_factor)
 
-    res_json = _send_get_stat_req(url)
+    res_json = utils._send_request(url, post=False, use_payload=False)
 
     if 'value' not in res_json:
         raise ValueError('No data in response.')
@@ -140,7 +122,7 @@ def get_stat_series(place,
     if scaling_factor:
         url += '&scaling_factor={}'.format(scaling_factor)
 
-    res_json = _send_get_stat_req(url)
+    res_json = utils._send_request(url, post=False, use_payload=False)
 
     if 'series' not in res_json:
         raise ValueError('No data in response.')
