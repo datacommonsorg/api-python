@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""Basic examples for StatisticalVariable-based Data Commons API functions."""
+"""Basic examples for StatisticalVariable-based param_set Commons API functions."""
 
 from __future__ import absolute_import
 from __future__ import division
@@ -21,7 +21,7 @@ import datacommons as dc
 
 
 def main():
-    data = [
+    param_sets = [
         {
             'place': 'geoId/06085',
             'stat_var': 'Count_Person',
@@ -70,29 +70,43 @@ def main():
         },
     ]
 
-    for d in data:
-        print('\n>>> get_stat_value: ',
-              [param for param in d.values() if param])
+    def call_str(pvs):
+      """Helper function to print the minimal call string."""
+        s = "'{}', '{}'".format(pvs.get('place'), pvs.get('stat_var'))
+        if pvs.get('measurement_method'):
+            s += ", measurement_method='{}'".format(
+                pvs.get('measurement_method'))
+        if pvs.get('observation_period'):
+            s += ", observation_period='{}'".format(
+                pvs.get('observation_period'))
+        if pvs.get('unit'):
+            s += ", unit='{}'".format(pvs.get('unit'))
+        if pvs.get('scaling_factor'):
+            s += ", scaling_factor={}".format(pvs.get('scaling_factor'))
+        return s
+
+    for pvs in param_sets:
+        print('\nget_stat_value({})'.format(call_str(pvs)))
         print(
-            '<<< ',
-            dc.get_stat_value(d.get('place'),
-                              d.get('stat_var'),
-                              date=d.get('date'),
-                              measurement_method=d.get('measurement_method'),
-                              observation_period=d.get('observation_period'),
-                              unit=d.get('unit'),
-                              scaling_factor=d.get('scaling_factor')))
-    for d in data:
-        print('\n>>> get_stat_series: ',
-              [d[k] for k in d.keys() if k != 'date' and d[k]])
+            '>>> ',
+            dc.get_stat_value(pvs.get('place'),
+                              pvs.get('stat_var'),
+                              date=pvs.get('date'),
+                              measurement_method=pvs.get('measurement_method'),
+                              observation_period=pvs.get('observation_period'),
+                              unit=pvs.get('unit'),
+                              scaling_factor=pvs.get('scaling_factor')))
+    for pvs in param_sets:
+        pvs.pop('date', None)
+        print('\nget_stat_series({})'.format(call_str(pvs)))
         print(
-            '<<< ',
-            dc.get_stat_series(d.get('place'),
-                               d.get('stat_var'),
-                               measurement_method=d.get('measurement_method'),
-                               observation_period=d.get('observation_period'),
-                               unit=d.get('unit'),
-                               scaling_factor=d.get('scaling_factor')))
+            '>>> ',
+            dc.get_stat_series(pvs.get('place'),
+                               pvs.get('stat_var'),
+                               measurement_method=pvs.get('measurement_method'),
+                               observation_period=pvs.get('observation_period'),
+                               unit=pvs.get('unit'),
+                               scaling_factor=pvs.get('scaling_factor')))
 
 
 if __name__ == '__main__':
