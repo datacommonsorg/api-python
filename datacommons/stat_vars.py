@@ -13,7 +13,7 @@
 # limitations under the License.
 """Data Commons Python API Stat Module.
 
-Provides functions for getting data on StatVars from Data Commons Graph.
+Provides functions for getting data on StatisticalVariables from Data Commons Graph.
 """
 
 from __future__ import absolute_import
@@ -38,21 +38,21 @@ def get_stat_value(place,
                    observation_period=None,
                    unit=None,
                    scaling_factor=None):
-    """Returns a value for :code:`place` based on the :code:`stat_var`.
+    """Returns a value for `place` based on the `stat_var`.
 
     Args:
-      place (:obj:`str`): The dcid of `Place` to query for.
-      stat_var (:obj:`str`): The dcid of the `StatisticalVariable`.
-      date (:obj:`str`): Optional, the preferred date of observation
+      place (`str`): The dcid of Place to query for.
+      stat_var (`str`): The dcid of the StatisticalVariable.
+      date (`str`): Optional, the preferred date of observation
         in ISO 8601 format. If not specified, returns the latest observation.
-      measurement_method (:obj:`str`): Optional, the dcid of the preferred
+      measurement_method (`str`): Optional, the dcid of the preferred
         `measurementMethod` value.
-      observation_period (:obj:`str`): Optional, the preferred
+      observation_period (`str`): Optional, the preferred
         `observationPeriod` value.
-      unit (:obj:`str`): Optional, the dcid of the preferred `unit` value.
-      scaling_factor (:obj:`int`): Optional, the preferred `scalingFactor` value.
+      unit (`str`): Optional, the dcid of the preferred `unit` value.
+      scaling_factor (`int`): Optional, the preferred `scalingFactor` value.
     Returns:
-      A :obj:`float` the value of :code:`stat_var` for :code:`place`, filtered
+      A `float` the value of `stat_var` for `place`, filtered
       by optional args.
 
     Raises:
@@ -89,19 +89,19 @@ def get_stat_series(place,
                     observation_period=None,
                     unit=None,
                     scaling_factor=None):
-    """Returns a :obj:`dict` mapping dates to value of :code:`stat_var` for :code:`place`.
+    """Returns a `dict` mapping dates to value of `stat_var` for `place`.
 
     Args:
-      place (:obj:`str`): The dcid of `Place` to query for.
-      stat_var (:obj:`str`): The dcid of the `StatisticalVariable`.
-      measurement_method (:obj:`str`): Optional, the dcid of the preferred
+      place (`str`): The dcid of Place to query for.
+      stat_var (`str`): The dcid of the StatisticalVariable.
+      measurement_method (`str`): Optional, the dcid of the preferred
         `measurementMethod` value.
-      observation_period (:obj:`str`): Optional, the preferred
+      observation_period (`str`): Optional, the preferred
         `observationPeriod` value.
-      unit (:obj:`str`): Optional, the dcid of the preferred `unit` value.
-      scaling_factor (:obj:`int`): Optional, the preferred `scalingFactor` value.
+      unit (`str`): Optional, the dcid of the preferred `unit` value.
+      scaling_factor (`int`): Optional, the preferred `scalingFactor` value.
     Returns:
-      A :obj:`dict` mapping dates to value of :code:`stat_var` for :code:`place`,
+      A `dict` mapping dates to value of `stat_var` for `place`,
       filtered by optional args.
 
     Raises:
@@ -131,14 +131,14 @@ def get_stat_series(place,
 
 
 def get_stat_all(places, stat_vars):
-    """Returns a nested :obj:`dict` of all time series for :code:`places` and :code:`stat_vars`.
+    """Returns a nested `dict` of all time series for `places` and `stat_vars`.
 
     Args:
-      places (:obj:`iterable` of :obj:`str`): The dcids of `Place`s to query for.
-      stat_vars (:obj:`iterable` of :obj:`str`): The dcids of the `StatisticalVariable`s.
+      places (`Iterable` of `str`): The dcids of Places to query for.
+      stat_vars (`Iterable` of `str`): The dcids of the StatisticalVariables.
     Returns:
-      A nested :obj:`dict` mapping `Place`s to `StatisticalVariable`s and all available
-      time series for each `Place` and `StatisticalVariable` pair.
+      A nested `dict` mapping Places to StatisticalVariables and all available
+      time series for each Place and StatisticalVariable pair.
 
     Raises:
       ValueError: If the payload returned by the Data Commons REST API is
