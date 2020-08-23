@@ -217,6 +217,39 @@ def request_mock(*args, **kwargs):
             }
             return MockResponse(json.dumps(resp))
 
+        if (data['places'] == ['geoId/06', 'nuts/HU22'] and
+                data['stat_vars'] == ['Count_Person']):
+            # Response returned when querying with above params.
+            resp = {
+                "placeData": {
+                    "geoId/06": {
+                        "statVarData": {
+                            "Count_Person": CA_COUNT_PERSON,
+                        }
+                    },
+                    "nuts/HU22": {
+                        "statVarData": {
+                            "Count_Person": HU22_COUNT_PERSON,
+                        }
+                    }
+                }
+            }
+            return MockResponse(json.dumps(resp))
+
+        if (data['places'] == ['geoId/06'] and
+                data['stat_vars'] == ['Count_Person']):
+            # Response returned when querying with above params.
+            resp = {
+                "placeData": {
+                    "geoId/06": {
+                        "statVarData": {
+                            "Count_Person": CA_COUNT_PERSON,
+                        }
+                    }
+                }
+            }
+            return MockResponse(json.dumps(resp))
+
         if (data['places'] == ['badPlaceId', 'nuts/HU22'] and
                 data['stat_vars'] == ['Count_Person', 'badStatVarId']):
             # Response returned when querying with above params.
@@ -340,6 +373,42 @@ class TestGetStatAll(unittest.TestCase):
             }
         }
         self.assertDictEqual(stats, exp)
+
+
+class TestRecordsPlaceByTime(unittest.TestCase):
+    """Unit tests for records_place_by_time."""
+
+    @patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
+    def test_basic(self, urlopen):
+        """Calling records_place_by_time with proper args."""
+        # Expecting at least one TS per Place+StatVar
+        rows = dc.records_place_by_time(['geoId/06', 'nuts/HU22'],
+                                        'Count_Person')
+        exp = [{
+            "1990": 23640,
+            "1991": 24100,
+            "1992": 25090,
+            "place": "geoId/06"
+        }, {
+            "1990": 2360,
+            "1991": 2410,
+            "1992": 2500,
+            "place": "nuts/HU22"
+        }]
+        self.assertEqual(rows, exp)
+
+    @patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
+    def test_tolerate_place_string(self, urlopen):
+        """Calling records_place_by_time with proper args."""
+        # Expecting at least one TS per Place+StatVar
+        rows = dc.records_place_by_time('geoId/06', 'Count_Person')
+        exp = [{
+            "1990": 23640,
+            "1991": 24100,
+            "1992": 25090,
+            "place": "geoId/06"
+        }]
+        self.assertEqual(rows, exp)
 
 
 if __name__ == '__main__':

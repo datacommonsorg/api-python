@@ -20,13 +20,8 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-from datacommons.utils import _API_ROOT, _API_ENDPOINTS, _ENV_VAR_API_KEY
-
 import collections
-import json
-import os
-import six.moves.urllib.error
-import six.moves.urllib.request
+import six
 
 import datacommons.utils as utils
 
@@ -215,3 +210,51 @@ def get_stat_all(places, stat_vars):
         for stat_var_dcid, stat_var in place['statVarData'].items():
             place_statvar_series[place_dcid][stat_var_dcid] = stat_var
     return dict(place_statvar_series)
+
+
+# Pandas Helpers
+# These functions are wrapper functions that create Python data structures
+# that are easily converted to Pandas DataFrames (and Series).
+
+
+def records_place_by_time(places, stat_var):
+    """Returns a `list` of `dict` per element of `places` based on the `stat_var`.
+
+    Args:
+      places (`str` or `iterable` of `str`): The dcid of Places to query for.
+      stat_var (`str`): The dcid of the StatisticalVariable.
+    Returns:
+      A `list` of `dict`, one per element of `places`. Each `dict` consists of
+      the time series and place identifier.
+
+    Raises:
+      ValueError: If the payload returned by the Data Commons REST API is
+        malformed.
+
+    Examples:
+      >>> records_place_by_time(["geoId/29", "geoId/33"], "Count_Person")
+          [
+            {'2020-03-07': 20, '2020-03-08': 40, 'place': 'geoId/29'},
+            {'2020-08-21': 428, '2020-08-22': 429, 'place': 'geoId/33'}
+          ]
+    """
+    try:
+        if isinstance(places, six.string_types):
+            places = [places]
+        else:
+            places = list(places)
+    except:
+        raise ValueError(
+            'Parameter `places` must a string object or list-like object.')
+    if not isinstance(stat_var, six.string_types):
+        raise ValueError('Parameter `stat_var` must be a string.')
+
+    stat_all = get_stat_all(places, [stat_var])
+    # Use the first time series result of each Place+StatVar pair.
+    # Create a list of rows to be passed into pd.DataFrame.from_records
+    rows = [
+        dict({'place': place},
+             **data[next(iter(data))]['sourceSeries'][0]['val'])
+        for place, data in stat_all.items()
+    ]
+    return rows

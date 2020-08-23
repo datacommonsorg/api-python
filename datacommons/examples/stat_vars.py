@@ -126,6 +126,15 @@ def main():
         dc.get_stat_all(['badPlaceId', 'country/FRA'],
                         ['Median_Age_Person', 'Count_Person']))
 
+    print(
+        'dc.records_place_by_time(["geoId/29", "geoId/33"], "CumulativeCount_MedicalConditionIncident_COVID_19_PatientDeceased")'
+    )
+    print('>>> ')
+    pp.pprint(
+        dc.records_place_by_time([
+            "geoId/29", "geoId/33"
+        ], "CumulativeCount_MedicalConditionIncident_COVID_19_PatientDeceased"))
+
 
 if __name__ == '__main__':
     main()
