@@ -217,6 +217,28 @@ def request_mock(*args, **kwargs):
             }
             return MockResponse(json.dumps(resp))
 
+        if (data['places'] == ['badPlaceId', 'nuts/HU22'] and
+                data['stat_vars'] == ['Count_Person', 'badStatVarId']):
+            # Response returned when querying with above params.
+            # Bad DCIDs for place or statvar.
+            resp = {
+                "placeData": {
+                    "badPlaceId": {
+                        "statVarData": {
+                            "Count_Person": {},
+                            "badStatVarId": {}
+                        }
+                    },
+                    "nuts/HU22": {
+                        "statVarData": {
+                            "Count_Person": HU22_COUNT_PERSON,
+                            "badStatVarId": {}
+                        }
+                    }
+                }
+            }
+            return MockResponse(json.dumps(resp))
+
     # Otherwise, return an empty response and a 404.
     return urllib.error.HTTPError
 
@@ -287,7 +309,7 @@ class TestGetStatAll(unittest.TestCase):
                 "Count_Person_Male": HU22_COUNT_PERSON_MALE
             }
         }
-        self.assertEqual(stats, exp)
+        self.assertDictEqual(stats, exp)
         # Expecting proper handling of no TS for Place+StatVar combo
         stats = dc.get_stat_all(['geoId/06', 'nuts/HU22'],
                                 ['Count_Person', 'Median_Age_Person'])
@@ -301,20 +323,23 @@ class TestGetStatAll(unittest.TestCase):
                 "Median_Age_Person": {}
             }
         }
-        self.assertEqual(stats, exp)
+        self.assertDictEqual(stats, exp)
 
     @patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
     def test_bad_dcids(self, urlopen):
         stats = dc.get_stat_all(['badPlaceId', 'nuts/HU22'],
                                 ['Count_Person', 'badStatVarId'])
         exp = {
-            "badPlaceId": {},
+            "badPlaceId": {
+                "Count_Person": {},
+                "badStatVarId": {}
+            },
             "nuts/HU22": {
                 "Count_Person": HU22_COUNT_PERSON,
                 "badStatVarId": {}
             }
         }
-        self.assertEqual(stats, exp)
+        self.assertDictEqual(stats, exp)
 
 
 if __name__ == '__main__':
