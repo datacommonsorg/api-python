@@ -31,6 +31,88 @@ import json
 import unittest
 import six.moves.urllib as urllib
 
+# Reusable parts of REST API /stat/all response.
+CA_COUNT_PERSON = {
+    "isDcAggregate":
+        "true",
+    "sourceSeries": [
+        {
+            "val": {
+                "1990": 23640,
+                "1991": 24100,
+                "1992": 25090,
+            },
+            "observationPeriod": "P1Y",
+            "importName": "WorldDevelopmentIndicators",
+            "provenanceDomain": "worldbank.org"
+        },
+        {
+            "val": {
+                "1790": 3929214,
+                "1800": 5308483,
+                "1810": 7239881,
+            },
+            "measurementMethod": "WikidataPopulation",
+            "importName": "WikidataPopulation",
+            "provenanceDomain": "wikidata.org"
+        },
+    ]
+}
+
+CA_COUNT_PERSON_MALE = {
+    "sourceSeries": [{
+        "val": {
+            "1990": 12000,
+            "1991": 14000,
+            "1992": 14000,
+        },
+        "measurementMethod": "WikidataPopulation",
+        "importName": "WikidataPopulation",
+        "provenanceDomain": "wikidata.org"
+    },]
+}
+
+HU22_COUNT_PERSON = {
+    "sourceSeries": [{
+        "val": {
+            "1990": 2360,
+            "1991": 2410,
+            "1992": 2500,
+        },
+        "measurementMethod": "OECDRegionalStatistics",
+        "observationPeriod": "P1Y",
+        "importName": "OECDRegionalDemography",
+        "provenanceDomain": "oecd.org"
+    }]
+}
+
+HU22_COUNT_PERSON_MALE = {
+    "sourceSeries": [{
+        "val": {
+            "1990": 1360,
+            "1991": 1410,
+            "1992": 1500,
+        },
+        "measurementMethod": "OECDRegionalStatistics",
+        "observationPeriod": "P1Y",
+        "importName": "OECDRegionalDemography",
+        "provenanceDomain": "oecd.org"
+    }]
+}
+
+HU22_MEDIAN_AGE_PERSON = {
+    "sourceSeries": [{
+        "val": {
+            "1990": 12,
+            "1991": 24,
+            "1992": 24,
+        },
+        "measurementMethod": "WikidataPopulation",
+        "importName": "WikidataPopulation",
+        "provenanceDomain": "wikidata.org"
+    }]
+}
+
 
 def request_mock(*args, **kwargs):
     """A mock urlopen requests sent in the requests package."""
@@ -50,6 +132,7 @@ def request_mock(*args, **kwargs):
         'get_stat_value']
     stat_series_url_base = utils._API_ROOT + utils._API_ENDPOINTS[
         'get_stat_series']
+    stat_all_url_base = utils._API_ROOT + utils._API_ENDPOINTS['get_stat_all']
 
     # Mock responses for urlopen requests to get_stat_value.
     if req.get_full_url(
@@ -67,7 +150,7 @@ def request_mock(*args, **kwargs):
         # Response returned when querying with above optional params.
         return MockResponse(json.dumps({'value': 103}))
 
-    # Mock responses for urlopen requests to get_stat_value.
+    # Mock responses for urlopen requests to get_stat_series.
     if req.get_full_url(
     ) == stat_series_url_base + '?place=geoId/06&stat_var=Count_Person':
         # Response returned when querying with basic args.
@@ -86,6 +169,53 @@ def request_mock(*args, **kwargs):
         # Response returned when data not available for optional parameters.
         # /stat/series?place=geoId/06&stat_var=Count_Person&measurement_method=DNE
         return MockResponse(json.dumps({'series': {}}))
+
+    # Mock responses for urlopen requests to get_stat_all.
+    if req.get_full_url() == stat_all_url_base:
+        data = json.loads(req.data)
+        if (data['places'] == ['geoId/06', 'nuts/HU22'] and
+                data['stat_vars'] == ['Count_Person', 'Count_Person_Male']):
+            # Response returned when querying with above params.
+            # Response with data for all Place+StatVar combos.
+            full_resp = {
+                "placeData": {
+                    "geoId/06": {
+                        "statVarData": {
+                            "Count_Person": CA_COUNT_PERSON,
+                            "Count_Person_Male": CA_COUNT_PERSON_MALE,
+                        }
+                    },
+                    "nuts/HU22": {
+                        "statVarData": {
+                            "Count_Person": HU22_COUNT_PERSON,
+                            "Count_Person_Male": HU22_COUNT_PERSON_MALE
+                        }
+                    }
+                }
+            }
+            return MockResponse(json.dumps(full_resp))
+
+        if (data['places'] == ['geoId/06', 'nuts/HU22'] and
+                data['stat_vars'] == ['Count_Person', 'Median_Age_Person']):
+            # Response returned when querying with above params.
+            # Median Age missing for HU22.
+            resp = {
+                "placeData": {
+                    "geoId/06": {
+                        "statVarData": {
+                            "Count_Person": CA_COUNT_PERSON,
+                            "Median_Age_Person": HU22_MEDIAN_AGE_PERSON
+                        }
+                    },
+                    "nuts/HU22": {
+                        "statVarData": {
+                            "Count_Person": HU22_COUNT_PERSON,
+                            "Median_Age_Person": {}
+                        }
+                    }
+                }
+            }
+            return MockResponse(json.dumps(resp))
 
     # Otherwise, return an empty response and a 404.
     return urllib.error.HTTPError
@@ -136,6 +266,55 @@ class TestGetStatSeries(unittest.TestCase):
         # Call get_stat_series with non-satisfiable optional args
         stats = dc.get_stat_series('geoId/06', 'Count_Person', 'DNE')
         self.assertEqual(stats, {})
+
+
+class TestGetStatAll(unittest.TestCase):
+    """Unit tests for get_stat_all."""
+
+    @patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
+    def test_basic(self, urlopen):
+        """Calling get_stat_all with proper args."""
+        # Expecting at least one TS per Place+StatVar
+        stats = dc.get_stat_all(['geoId/06', 'nuts/HU22'],
+                                ['Count_Person', 'Count_Person_Male'])
+        exp = {
+            "geoId/06": {
+                "Count_Person": CA_COUNT_PERSON,
+                "Count_Person_Male": CA_COUNT_PERSON_MALE,
+            },
+            "nuts/HU22": {
+                "Count_Person": HU22_COUNT_PERSON,
+                "Count_Person_Male": HU22_COUNT_PERSON_MALE
+            }
+        }
+        self.assertEqual(stats, exp)
+        # Expecting proper handling of no TS for Place+StatVar combo
+        stats = dc.get_stat_all(['geoId/06', 'nuts/HU22'],
+                                ['Count_Person', 'Median_Age_Person'])
+        exp = {
+            "geoId/06": {
+                "Count_Person": CA_COUNT_PERSON,
+                "Median_Age_Person": HU22_MEDIAN_AGE_PERSON
+            },
+            "nuts/HU22": {
+                "Count_Person": HU22_COUNT_PERSON,
+                "Median_Age_Person": {}
+            }
+        }
+        self.assertEqual(stats, exp)
+
+    @patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
+    def test_bad_dcids(self, urlopen):
+        stats = dc.get_stat_all(['badPlaceId', 'nuts/HU22'],
+                                ['Count_Person', 'badStatVarId'])
+        exp = {
+            "badPlaceId": {},
+            "nuts/HU22": {
+                "Count_Person": HU22_COUNT_PERSON,
+                "badStatVarId": {}
+            }
+        }
+        self.assertEqual(stats, exp)
 
 
 if __name__ == '__main__':
