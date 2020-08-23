@@ -13,7 +13,7 @@
 # limitations under the License.
 """Data Commons Python API Stat Module.
 
-Provides functions for getting data on StatVars from Data Commons Graph.
+Provides functions for getting data on StatisticalVariables from Data Commons Graph.
 """
 
 from __future__ import absolute_import
@@ -22,6 +22,7 @@ from __future__ import print_function
 
 from datacommons.utils import _API_ROOT, _API_ENDPOINTS, _ENV_VAR_API_KEY
 
+import collections
 import json
 import os
 import six.moves.urllib.error
@@ -37,21 +38,21 @@ def get_stat_value(place,
                    observation_period=None,
                    unit=None,
                    scaling_factor=None):
-    """Returns a value for :code:`place` based on the :code:`stat_var`.
+    """Returns a value for `place` based on the `stat_var`.
 
     Args:
-      place (:obj:`iterable` of :obj:`str`): The dcid of `Place` to query for.
-      stat_var (:obj:`str`): The dcid of the `StatisticalVariable`.
-      date (:obj:`str`): Optional, the preferred date of observation
+      place (`str`): The dcid of Place to query for.
+      stat_var (`str`): The dcid of the StatisticalVariable.
+      date (`str`): Optional, the preferred date of observation
         in ISO 8601 format. If not specified, returns the latest observation.
-      measurement_method (:obj:`str`): Optional, the dcid of the preferred
+      measurement_method (`str`): Optional, the dcid of the preferred
         `measurementMethod` value.
-      observation_period (:obj:`str`): Optional, the preferred
+      observation_period (`str`): Optional, the preferred
         `observationPeriod` value.
-      unit (:obj:`str`): Optional, the dcid of the preferred `unit` value.
-      scaling_factor (:obj:`int`): Optional, the preferred `scalingFactor` value.
+      unit (`str`): Optional, the dcid of the preferred `unit` value.
+      scaling_factor (`int`): Optional, the preferred `scalingFactor` value.
     Returns:
-      A :obj:`float` the value of :code:`stat_var` for :code:`place`, filtered
+      A `float` the value of `stat_var` for `place`, filtered
       by optional args.
 
     Raises:
@@ -88,19 +89,19 @@ def get_stat_series(place,
                     observation_period=None,
                     unit=None,
                     scaling_factor=None):
-    """Returns a :obj:`dict` for :code:`place` based on the :code:`stat_var`.
+    """Returns a `dict` mapping dates to value of `stat_var` for `place`.
 
     Args:
-      place (:obj:`iterable` of :obj:`str`): The dcid of `Place` to query for.
-      stat_var (:obj:`str`): The dcid of the `StatisticalVariable`.
-      measurement_method (:obj:`str`): Optional, the dcid of the preferred
+      place (`str`): The dcid of Place to query for.
+      stat_var (`str`): The dcid of the StatisticalVariable.
+      measurement_method (`str`): Optional, the dcid of the preferred
         `measurementMethod` value.
-      observation_period (:obj:`str`): Optional, the preferred
+      observation_period (`str`): Optional, the preferred
         `observationPeriod` value.
-      unit (:obj:`str`): Optional, the dcid of the preferred `unit` value.
-      scaling_factor (:obj:`int`): Optional, the preferred `scalingFactor` value.
+      unit (`str`): Optional, the dcid of the preferred `unit` value.
+      scaling_factor (`int`): Optional, the preferred `scalingFactor` value.
     Returns:
-      A :obj:`dict` mapping dates to value of :code:`stat_var` for :code:`place`,
+      A `dict` mapping dates to value of `stat_var` for `place`,
       filtered by optional args.
 
     Raises:
@@ -127,3 +128,90 @@ def get_stat_series(place,
     if 'series' not in res_json:
         raise ValueError('No data in response.')
     return res_json['series']
+
+
+def get_stat_all(places, stat_vars):
+    """Returns a nested `dict` of all time series for `places` and `stat_vars`.
+
+    Args:
+      places (`Iterable` of `str`): The dcids of Places to query for.
+      stat_vars (`Iterable` of `str`): The dcids of the StatisticalVariables.
+    Returns:
+      A nested `dict` mapping Places to StatisticalVariables and all available
+      time series for each Place and StatisticalVariable pair.
+
+    Raises:
+      ValueError: If the payload returned by the Data Commons REST API is
+        malformed.
+
+    Examples:
+      >>> get_stat_all(["geoId/05", "geoId/06"], ["Count_Person", "Count_Person_Male"])
+      {
+        "geoId/05": {
+          "Count_Person": [
+            {
+              "val": {
+                "2010": 1633,
+                "2011": 1509,
+                "2012": 1581,
+              },
+              "observationPeriod": "P1Y",
+              "importName": "Wikidata",
+              "provenanceDomain": "wikidata.org"
+            },
+            {
+              "val": {
+                "2010": 1333,
+                "2011": 1309,
+                "2012": 131,
+              },
+              "observationPeriod": "P1Y",
+              "importName": "CensusPEPSurvey",
+              "provenanceDomain": "census.gov"
+            }
+          ],
+          "Count_Person_Male": [
+            {
+              "val": {
+                "2010": 1633,
+                "2011": 1509,
+                "2012": 1581,
+              },
+              "observationPeriod": "P1Y",
+              "importName": "CensusPEPSurvey",
+              "provenanceDomain": "census.gov"
+            }
+          ],
+        },
+        "geoId/02": {
+          "Count_Person": [],
+          "Count_Person_Male": [
+            {
+              "val": {
+                "2010": 13,
+                "2011": 13,
+                "2012": 322,
+              },
+              "observationPeriod": "P1Y",
+              "importName": "CensusPEPSurvey",
+              "provenanceDomain": "census.gov"
+            }
+          ],
+        }
+      }
+    """
+    url = utils._API_ROOT + utils._API_ENDPOINTS['get_stat_all']
+    req_json = {'stat_vars': stat_vars, 'places': places}
+
+    # Send the request
+    res_json = utils._send_request(url, req_json=req_json, use_payload=False)
+
+    if 'placeData' not in res_json:
+        raise ValueError('No data in response.')
+
+    # Unnest the REST response for keys that have single-element values.
+    place_statvar_series = collections.defaultdict(dict)
+    for place_dcid, place in res_json['placeData'].items():
+        for stat_var_dcid, stat_var in place['statVarData'].items():
+            place_statvar_series[place_dcid][stat_var_dcid] = stat_var
+    return dict(place_statvar_series)

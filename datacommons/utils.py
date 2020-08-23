@@ -51,6 +51,7 @@ _API_ENDPOINTS = {
   'get_stats': '/bulk/stats',
   'get_stat_value': '/stat/value',
   'get_stat_series': '/stat/series',
+  'get_stat_all': '/stat/all',
 }
 
 # The default value to limit to

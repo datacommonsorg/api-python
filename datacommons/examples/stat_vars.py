@@ -18,6 +18,7 @@ from __future__ import division
 from __future__ import print_function
 
 import datacommons as dc
+import pprint
 
 
 def main():
@@ -44,13 +45,13 @@ def main():
         {
             'place': 'geoId/06085',
             'stat_var': 'UnemploymentRate_Person',
-            'observation_period': "P1Y",
+            'observation_period': 'P1Y',
         },
         {
             'place': 'geoId/06085',
             'stat_var': 'UnemploymentRate_Person',
-            'observation_period': "P1Y",
-            'measurement_method': "BLSSeasonallyUnadjusted",
+            'observation_period': 'P1Y',
+            'measurement_method': 'BLSSeasonallyUnadjusted',
         },
         {
             'place':
@@ -64,9 +65,9 @@ def main():
             'stat_var':
                 'Amount_EconomicActivity_GrossDomesticProduction_Nominal',
             'observation_period':
-                "P1Y",
+                'P1Y',
             'unit':
-                "PurchasingPowerStandard"
+                'PurchasingPowerStandard'
         },
     ]
 
@@ -107,6 +108,23 @@ def main():
                                observation_period=pvs.get('observation_period'),
                                unit=pvs.get('unit'),
                                scaling_factor=pvs.get('scaling_factor')))
+
+    pp = pprint.PrettyPrinter(indent=4)
+    print(
+        "\nget_stat_all(['geoId/06085', 'country/FRA'], ['Median_Age_Person', 'Count_Person'])"
+    )
+    print('>>> ')
+    pp.pprint(
+        dc.get_stat_all(['geoId/06085', 'country/FRA'],
+                        ['Median_Age_Person', 'Count_Person']))
+
+    print(
+        "\nget_stat_all(['badPlaceId', 'country/FRA'], ['Median_Age_Person', 'Count_Person'])"
+    )
+    print('>>> ')
+    pp.pprint(
+        dc.get_stat_all(['badPlaceId', 'country/FRA'],
+                        ['Median_Age_Person', 'Count_Person']))
 
 
 if __name__ == '__main__':
