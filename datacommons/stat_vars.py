@@ -89,7 +89,7 @@ def get_stat_series(place,
                     observation_period=None,
                     unit=None,
                     scaling_factor=None):
-    """Returns a :obj:`dict` for :code:`place` based on the :code:`stat_var`.
+    """Returns a :obj:`dict` mapping dates to value of :code:`stat_var` for :code:`place`.
 
     Args:
       place (:obj:`str`): The dcid of `Place` to query for.
