@@ -131,7 +131,7 @@ def get_stat_series(place,
 
 
 def get_stat_all(places, stat_vars):
-    """Returns a nested :obj:`dict` of time series for :code:`places` and :code:`stat_vars`.
+    """Returns a nested :obj:`dict` of all time series for :code:`places` and :code:`stat_vars`.
 
     Args:
       places (:obj:`iterable` of :obj:`str`): The dcids of `Place`s to query for.
