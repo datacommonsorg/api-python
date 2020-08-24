@@ -39,13 +39,13 @@ def build_time_series(place, stat_var):
     return pd.Series(dc.get_stat_series(place, stat_var))
 
 
-def _group_stat_all_by_obs_options(places, stat_vars, time_series=True):
+def _group_stat_all_by_obs_options(places, stat_vars, keep_series=True):
     """Groups the result of `get_stat_all` by Observation options for time series or covariates.
     
     Args:
       places (`str` or `iterable` of `str`): The dcids of Places to query for.
       stat_vars (`Iterable` of `str`): The dcids of the StatisticalVariables.
-      mode (`boolean`): if True, output time series grouped by Observation options; if False, output latest Observation grouped by Observation options.
+      keep_series (`boolean`): if True, output time series grouped by Observation options; if False, output latest Observation grouped by Observation options.
     Returns:
       A pandas Series with Place IDs as the index, and Observed statistics as values.
 
@@ -53,10 +53,10 @@ def _group_stat_all_by_obs_options(places, stat_vars, time_series=True):
       ValueError: If the payload returned by the Data Commons REST API is
         malformed.
     """
-    if time_series:
+    if keep_series:
         if len(stat_vars) != 1:
             raise ValueError(
-                'When `time_series` is set, only one StatisticalVariable for `stat_vars` is allowed.'
+                'When `keep_series` is set, only one StatisticalVariable for `stat_vars` is allowed.'
             )
         res = collections.defaultdict(list)
     else:
@@ -79,7 +79,7 @@ def _group_stat_all_by_obs_options(places, stat_vars, time_series=True):
                                ('unit', source_series.get('unit')),
                                ('scalingFactor',
                                 source_series.get('scalingFactor')))
-                if time_series:
+                if keep_series:
                     res[obs_options].append(dict({'place': place}, **series))
                 else:
                     date = max(series)
@@ -88,7 +88,7 @@ def _group_stat_all_by_obs_options(places, stat_vars, time_series=True):
                         'date': date,
                         'val': series[date]
                     })
-    if time_series:
+    if keep_series:
         return dict(res)
     else:
         return {k: dict(v) for k, v in res.items()}
@@ -117,7 +117,7 @@ def _time_series_pd_input(places, stat_var):
     """
 
     rows_dict = _group_stat_all_by_obs_options(places, [stat_var],
-                                               time_series=True)
+                                               keep_series=True)
     most_geos = []
     max_geos_so_far = 0
     latest_date = []
@@ -209,7 +209,7 @@ def _covariate_pd_input(places, stat_vars):
 
     rows_dict = _group_stat_all_by_obs_options(places,
                                                stat_vars,
-                                               time_series=False)
+                                               keep_series=False)
     place2cov = collections.defaultdict(dict)  # {geo: {var1: 3, var2: 33}}
 
     for stat_var, candidates_dict in rows_dict.items():
