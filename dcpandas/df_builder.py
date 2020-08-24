@@ -24,7 +24,7 @@ import collections
 import pandas as pd
 import six
 
-import dcpandas.stat_vars as dc
+import datacommons.stat_vars as dc
 
 
 def build_time_series(place, stat_var):
@@ -188,9 +188,7 @@ def build_time_series_dataframe(places, stat_var, desc_col=False):
     df = pd.DataFrame.from_records(_time_series_pd_input(places, stat_var))
     df.set_index('place', inplace=True)
     df.sort_index(inplace=True)
-    if desc_col:
-        return df[sorted(df.columns, reverse=desc_col)]
-    return df
+    return df[sorted(df.columns, reverse=desc_col)]
 
 
 def _covariate_pd_input(places, stat_vars):
