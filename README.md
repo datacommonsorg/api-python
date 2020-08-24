@@ -71,7 +71,7 @@ where XXX is the module you want to run.
 ## Support
 
 For general questions or issues about the API, please open an issue on our
-[issues](https://github.com/google/datacommons/issues) page. For all other
+[issues](https://github.com/datacommonsorg/api-python/issues) page. For all other
 questions, please send an email to `support@datacommons.org`.
 
 **Note** - This is not an officially supported Google product.

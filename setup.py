@@ -11,7 +11,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 """Install datacommons."""
 from setuptools import setup
 
@@ -25,7 +24,7 @@ URL = 'https://github.com/datacommonsorg/api-python'
 EMAIL = 'support@datacommons.org'
 AUTHOR = 'datacommons.org'
 REQUIRES_PYTHON = '>=2.7'
-VERSION = '1.3.0'
+VERSION = '1.4.0'
 
 REQUIRED = [
     'six',
