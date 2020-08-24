@@ -1,4 +1,4 @@
-# Copyright 2017 Google Inc.
+# Copyright 2020 Google Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -11,14 +11,14 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""Install dcpandas."""
-from setuptools import setup, find_packages
+"""Build and distrubute the datacommons_pandas package to PyPI."""
+from setuptools import setup
 
 with open('README.md', 'r') as fh:
     long_description = fh.read()
 
 # Package metadata.
-NAME = 'dcpandas'
+NAME = 'datacommons_pandas'
 DESCRIPTION = 'A library to create pandas objects using the Data Commons Python API.'
 URL = 'https://github.com/datacommonsorg/api-python'
 EMAIL = 'support@datacommons.org'

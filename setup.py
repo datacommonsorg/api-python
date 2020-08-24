@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""Install datacommons."""
+"""Build and distrubute the datacommons package to PyPI."""
 from setuptools import setup
 
 with open('README.md', 'r') as fh:
