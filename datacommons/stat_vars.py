@@ -223,13 +223,12 @@ def get_stat_all(places, stat_vars):
 # These functions are wrapper functions that create Python data structures
 # that are easily converted to Pandas DataFrames (and Series).
 
+# def _get_first_time_series(stat_var_data):
+#     """Helper function to return one time series."""
+#     return stat_var_data['sourceSeries'][0]['val']
 
-def _get_first_time_series(stat_var_data):
-    """Helper function to return one time series."""
-    return stat_var_data['sourceSeries'][0]['val']
 
-
-def time_series_pd_input_options(places, stat_var):
+def _time_series_pd_input_options(places, stat_var):
     """Returns a `dict` mapping StatVarObservation options to `list` of `dict` of time series for each Place.
     """
     res = collections.defaultdict(list)
@@ -258,7 +257,8 @@ def time_series_pd_input(places, stat_var):
     """Returns a `list` of `dict` per element of `places` based on the `stat_var`.
 
     Data Commons will pick a set of StatVarObservation options that covers the
-    maximum number of queried places.
+    maximum number of queried places. Among ties, Data Commons selects an option
+    set with the latest Observation.
 
     Args:
       places (`str` or `iterable` of `str`): The dcids of Places to query for.
@@ -289,11 +289,11 @@ def time_series_pd_input(places, stat_var):
     if not isinstance(stat_var, six.string_types):
         raise ValueError('Parameter `stat_var` must be a string.')
 
-    rows_dict = time_series_pd_input_options(places, stat_var)
+    rows_dict = _time_series_pd_input_options(places, stat_var)
     most_geos = []
     max_geos_so_far = 0
     latest_date = []
-    max_date_so_far = ''
+    latest_date_so_far = ''
     for svo, rows in rows_dict.items():
         current_geos = len(rows)
         if current_geos > max_geos_so_far:
@@ -301,7 +301,7 @@ def time_series_pd_input(places, stat_var):
             most_geos = [svo]
             # Reset tiebreaker stats. Recompute after this if-else block.
             latest_date = []
-            max_date_so_far = ''
+            latest_date_so_far = ''
         elif current_geos == max_geos_so_far:
             most_geos.append(svo)
         else:
@@ -311,10 +311,10 @@ def time_series_pd_input(places, stat_var):
             dates = set(row.keys())
             dates.remove('place')
             row_max_date = max(dates)
-            if row_max_date > max_date_so_far:
-                max_date_so_far = row_max_date
+            if row_max_date > latest_date_so_far:
+                latest_date_so_far = row_max_date
                 latest_date = [svo]
-            elif row_max_date == max_date_so_far:
+            elif row_max_date == latest_date_so_far:
                 latest_date.append(svo)
     for svo in most_geos:
         if svo in latest_date:

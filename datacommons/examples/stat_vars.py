@@ -131,7 +131,7 @@ def main():
     )
     print('>>> ')
     pp.pprint(
-        dc.cohort_time_series([
+        dc.time_series_pd_input([
             "geoId/29", "geoId/33"
         ], "CumulativeCount_MedicalConditionIncident_COVID_19_PatientDeceased"))
 
