@@ -225,39 +225,6 @@ def request_mock(*args, **kwargs):
             }
             return MockResponse(json.dumps(resp))
 
-        if (data['places'] == ['geoId/06', 'nuts/HU22'] and
-                data['stat_vars'] == ['Count_Person']):
-            # Response returned when querying with above params.
-            resp = {
-                "placeData": {
-                    "geoId/06": {
-                        "statVarData": {
-                            "Count_Person": CA_COUNT_PERSON,
-                        }
-                    },
-                    "nuts/HU22": {
-                        "statVarData": {
-                            "Count_Person": HU22_COUNT_PERSON,
-                        }
-                    }
-                }
-            }
-            return MockResponse(json.dumps(resp))
-
-        if (data['places'] == ['geoId/06'] and
-                data['stat_vars'] == ['Count_Person']):
-            # Response returned when querying with above params.
-            resp = {
-                "placeData": {
-                    "geoId/06": {
-                        "statVarData": {
-                            "Count_Person": CA_COUNT_PERSON,
-                        }
-                    }
-                }
-            }
-            return MockResponse(json.dumps(resp))
-
         if (data['places'] == ['badPlaceId', 'nuts/HU22'] and
                 data['stat_vars'] == ['Count_Person', 'badStatVarId']):
             # Response returned when querying with above params.
@@ -280,27 +247,6 @@ def request_mock(*args, **kwargs):
             }
             return MockResponse(json.dumps(resp))
 
-        if (data['places'] == ['geoId/06', 'nuts/HU22'] and
-                data['stat_vars'] == ['Count_Person', 'Median_Age_Person']):
-            # Response returned when querying with above params.
-            # Median Age missing for HU22.
-            resp = {
-                "placeData": {
-                    "geoId/06": {
-                        "statVarData": {
-                            "Count_Person": CA_COUNT_PERSON,
-                            "Median_Age_Person": CA_MEDIAN_AGE_PERSON
-                        }
-                    },
-                    "nuts/HU22": {
-                        "statVarData": {
-                            "Count_Person": HU22_COUNT_PERSON,
-                            "Median_Age_Person": {}
-                        }
-                    }
-                }
-            }
-            return MockResponse(json.dumps(resp))
     # Otherwise, return an empty response and a 404.
     return urllib.error.HTTPError
 
