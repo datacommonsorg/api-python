@@ -22,41 +22,33 @@ import dcpandas as dcpd
 
 def main():
 
-    print('\nBuild a pd.Series of time series for one variable and one place.')
-    print('dcpd.build_time_series("country/CAN", "Count_WildlandFireEvent")')
-    print('>>> ')
-    print(dcpd.build_time_series("country/CAN", "Count_WildlandFireEvent"))
+    print("""
+# Build a pd.Series of time series for one variable and one place.
+$ dcpd.build_time_series("country/CAN", "Count_WildlandFireEvent")
+{}""".format(dcpd.build_time_series("country/CAN", "Count_WildlandFireEvent")))
 
-    print(
-        '\nBuild a DataFrame of time series for one variable in multiple places.'
-    )
-    print(
-        'dcpd.build_time_series_dataframe(["geoId/29", "geoId/33"], "Median_Income_Person")'
-    )
-    print('>>> ')
-    print(
+    print("""
+# Build a DataFrame of time series for one variable in multiple places.
+$ dcpd.build_time_series_dataframe(["geoId/29", "geoId/33"], "Median_Income_Person")
+{}""".format(
         dcpd.build_time_series_dataframe(
-            ["geoId/33", "geoId/29", "country/USA"], "Median_Income_Person"))
-    print(
-        'dcpd.build_time_series_dataframe(["geoId/29", "geoId/33"], "CumulativeCount_MedicalConditionIncident_COVID_19_PatientDeceased")'
-    )
-    print('>>> ')
-    print(
+            ["geoId/33", "geoId/29", "country/USA"], "Median_Income_Person")))
+
+    print("""
+# Build a DataFrame of time series with columns sorted in descending order.
+$ dcpd.build_time_series_dataframe(["country/USA"], "Median_Income_Person", desc_col=True)
+{}""".format(
         dcpd.build_time_series_dataframe(["country/USA"],
                                          "Median_Income_Person",
-                                         desc_col=True))
-    print(
-        '\nBuild a DataFrame of latest observations for multiple variables in multiple places.'
-    )
+                                         desc_col=True)))
 
-    print(
-        'dcpd.build_covariate_dataframe(["geoId/06", "country/FRA"], ["Median_Age_Person", "Count_Person"])'
-    )
-    print('>>> ')
-    print(
+    print("""
+# Build a DataFrame of latest observations for multiple variables in multiple places.
+$ dcpd.build_covariate_dataframe(["geoId/06", "country/FRA"], ["Median_Age_Person", "Count_Person", "Count_Household"])
+{}""".format(
         dcpd.build_covariate_dataframe(
             ["geoId/06", "country/FRA"],
-            ["Median_Age_Person", "Count_Person", "Count_Household"]))
+            ["Median_Age_Person", "Count_Person", "Count_Household"])))
 
     print('\n\nExpect 4 errors, starting HERE:')
     try:
