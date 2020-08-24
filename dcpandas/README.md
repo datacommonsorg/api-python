@@ -13,9 +13,9 @@ Once the package is installed, import `dcpandas`.
 For more detail on getting started with the API, please visit our
 [API Overview](http://docs.datacommons.org/api/).
 
-After you're ready to use the API, you can refer to `dcpandas/examples` for
+When you are ready to use the API, you can refer to `dcpandas/examples` for
 examples on how to use this package to perform various tasks. More tutorials and
-documentation can be found at [tutorials](https://datacommons.org/colab)!
+documentation can be found on our [tutorials page](https://datacommons.org/colab)!
 
 ## About Data Commons
 

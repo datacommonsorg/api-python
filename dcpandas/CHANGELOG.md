@@ -11,8 +11,8 @@
 Added pandas wrapper functions.
 
 -   `build_time_series` will construct a pd.Series for a given StatisticalVariable and Place, where dates are the index for the time series.
--   `build_time_series_dataframe` will construct a pd.DataFrame for a given StatisticalVariable and a set of Places: where Places are the index and date are the columns.
--   `build_covariate_dataframe` will construct a covariate pd.DataFrame for a set of StatisticalVariables and a set of Places: with Places as index and StatisticalVariables as the columns. The values are the most recent values for the chosen StatVarObservation options.
+-   `build_time_series_dataframe` will construct a pd.DataFrame for a given StatisticalVariable and a set of Places. The DataFrame will have Places as the index and dates as the columns.
+-   `build_covariate_dataframe` will construct a covariate pd.DataFrame for a set of StatisticalVariables and a set of Places. The DataFrame will have  Places as index and StatisticalVariables as the columns. The values are the most recent values for the chosen StatVarObservation options.
 
 For multi-place functions, when a StatisticalVariable has multiple StatVarObservation options,
 Data Commons chooses a set of StatVarObservation options that covers the most geos. This
