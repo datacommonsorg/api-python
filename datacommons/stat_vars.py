@@ -319,3 +319,95 @@ def time_series_pd_input(places, stat_var):
     for svo in most_geos:
         if svo in latest_date:
             return rows_dict[svo]
+
+
+def _covariate_pd_input_options(places, stat_vars):
+    """Returns a `dict` mapping each stat_var to a `dict` of StatVarObservation options to `list` of `dict` of latest Observations for each Place. Note that the `observationDate` may differ across
+    Places, even if 
+    """
+    res = collections.defaultdict(lambda: collections.defaultdict(list))
+    stat_all = get_stat_all(places, stat_vars)
+    for place, place_data in stat_all.items():
+        if not place_data:
+            continue
+        for stat_var, stat_var_data in place_data.items():
+            if not stat_var_data:
+                continue
+            for source_series in stat_var_data['sourceSeries']:
+                time_series = source_series['val']
+                latest_obs = time_series[max(time_series)]
+                # Hashable SVO options.
+                svo_options = (('measurementMethod',
+                                source_series.get('measurementMethod')),
+                               ('observationPeriod',
+                                source_series.get('observationPeriod')),
+                               ('unit', source_series.get('unit')),
+                               ('scalingFactor',
+                                source_series.get('scalingFactor')))
+                res[stat_var][svo_options].append({
+                    'place': place,
+                    'val': latest_obs
+                })
+    return {k: dict(v) for k, v in res.items()}
+
+
+def covariate_pd_input(places, stat_vars):
+    """Returns a `list` of `dict` per element of `places` based on the `stat_var`.
+
+    Data Commons will pick a set of StatVarObservation options that covers the
+    maximum number of queried places. Among ties, Data Commons selects an option
+    set with the latest Observation.
+
+    Args:
+      places (`str` or `iterable` of `str`): The dcids of Places to query for.
+      stat_var (`str`): The dcid of the StatisticalVariable.
+    Returns:
+      A `list` of `dict`, one per element of `places`. Each `dict` consists of
+      the time series and place identifier.
+
+    Raises:
+      ValueError: If the payload returned by the Data Commons REST API is
+        malformed.
+
+    Examples:
+      >>> covariate_pd_input(["geoId/29", "geoId/33"], ["Count_Person", "Median_Income_Person"])
+          [
+            {'Count_Person': 20, 'Median_Income_Person': 40, 'place': 'geoId/29'},
+            {'Count_Person': 428, 'Median_Income_Person': 429, 'place': 'geoId/33'}
+          ]
+    """
+
+    try:
+        if isinstance(places, six.string_types):
+            places = [places]
+        else:
+            places = list(places)
+    except:
+        raise ValueError(
+            'Parameter `places` must be a string object or list-like object.')
+    try:
+        if isinstance(stat_vars, six.string_types):
+            stat_vars = [stat_vars]
+        else:
+            stat_vars = list(stat_vars)
+    except:
+        raise ValueError(
+            'Parameter `stat_vars` must be a string object or list-like object.'
+        )
+
+    rows_dict = _covariate_pd_input_options(places, stat_vars)
+    place2cov = collections.defaultdict({})  # {geo: {var1: 3, var2: 33}}
+    for stat_var, candidates_dict in rows_dict.items():
+        selected_rows = None
+        max_rows_so_far = 0
+        for svo, rows in candidates_dict.items():
+            current_geos = len(rows)
+            if current_geos > max_rows_so_far:
+                max_rows_so_far = current_geos
+                selected_rows = rows
+        for row in selected_rows:
+            place2cov[row['place']] = {stat_var: row['val']}
+    return [
+        dict({'place': place}, **covariates)
+        for place, covariates in place2cov.items()
+    ]
