@@ -12,26 +12,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Install datacommons."""
-from setuptools import setup
+from setuptools import setup, find_packages
 
 with open('README.md', 'r') as fh:
     long_description = fh.read()
 
 # Package metadata.
-NAME = 'datacommons'
-DESCRIPTION = 'A library to access Data Commons Python API.'
+NAME = 'dcpandas'
+DESCRIPTION = 'A library to create Pandas objects using the Data Commons Python API.'
 URL = 'https://github.com/datacommonsorg/api-python'
 EMAIL = 'support@datacommons.org'
 AUTHOR = 'datacommons.org'
 REQUIRES_PYTHON = '>=2.7'
-VERSION = '1.4.0'
+VERSION = '0.0.1'
 
 REQUIRED = [
     'six',
+    'pandas',
 ]
-
-PACKAGES = ['datacommons']
-PACKAGE_DIR = {'datacommons': 'datacommons'}
 
 setup(
     name=NAME,
@@ -45,8 +43,7 @@ setup(
     maintainer_email=EMAIL,
     python_requires=REQUIRES_PYTHON,
     url=URL,
-    packages=PACKAGES,
-    package_dir=PACKAGE_DIR,
+    packages=find_packages(),
     install_requires=REQUIRED,
     include_package_data=True,
     license='Apache 2.0',
