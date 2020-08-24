@@ -126,22 +126,6 @@ def main():
         dc.get_stat_all(["badPlaceId", "country/FRA"],
                         ["Median_Age_Person", "Count_Person"]))
 
-    print(
-        'dc.time_series_pd_input(["geoId/29", "geoId/33"], "CumulativeCount_MedicalConditionIncident_COVID_19_PatientDeceased")'
-    )
-    print('>>> ')
-    pp.pprint(
-        dc.time_series_pd_input(["geoId/29", "geoId/33"],
-                                "Median_Income_Person"))
-
-    print(
-        'dc.covariate_pd_input(["geoId/06", "country/FRA"], ["Median_Age_Person", "Count_Person"])'
-    )
-    print('>>> ')
-    pp.pprint(
-        dc.covariate_pd_input(["geoId/06", "country/FRA"],
-                              ["Median_Age_Person", "Count_Person"]))
-
 
 if __name__ == '__main__':
     main()
