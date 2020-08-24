@@ -19,7 +19,7 @@ with open('README.md', 'r') as fh:
 
 # Package metadata.
 NAME = 'dcpandas'
-DESCRIPTION = 'A library to create Pandas objects using the Data Commons Python API.'
+DESCRIPTION = 'A library to create pandas objects using the Data Commons Python API.'
 URL = 'https://github.com/datacommonsorg/api-python'
 EMAIL = 'support@datacommons.org'
 AUTHOR = 'datacommons.org'

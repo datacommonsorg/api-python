@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.01
+## 0.0.1
 
 **Date** - 08/24/2020
 
@@ -8,7 +8,7 @@
 
 **Release Status** - Current head of branch [`master`](https://github.com/datacommonsorg/api-python/tree/master)
 
-Added Pandas wrapper functions.
+Added pandas wrapper functions.
 
 -   `build_time_series` will construct a pd.Series for a given StatisticalVariable and Place, where dates are the index for the time series.
 -   `build_time_series_dataframe` will construct a pd.DataFrame for a given StatisticalVariable and a set of Places: where Places are the index and date are the columns.

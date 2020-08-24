@@ -11,9 +11,9 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""Data Commons Python API Stat Module.
+"""Data Commons Pandas API DataFrame Builder Module.
 
-Provides functions for getting data on StatisticalVariables from Data Commons Graph.
+Provides functions for building pandas DataFrames using the Data Commons Graph.
 """
 
 from __future__ import absolute_import
@@ -25,10 +25,6 @@ import pandas as pd
 import six
 
 import dcpandas.stat_vars as dc
-
-# Pandas Helpers
-# These functions are wrapper functions that create Python data structures
-# that are easily converted to Pandas DataFrames (and Series).
 
 
 def build_time_series(place, stat_var):

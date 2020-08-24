@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""Basic examples for building Pandas objects using the Data Commons Pandas API."""
+"""Basic examples for building pandas objects using the Data Commons Pandas API."""
 
 from __future__ import absolute_import
 from __future__ import division

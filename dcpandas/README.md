@@ -1,6 +1,6 @@
 # Data Commons Pandas API
 
-This is a Python library for creating Pandas objects with data in the
+This is a Python library for creating pandas objects with data in the
 Data Commons Graph.
 To get started, install this package from pip.
 
