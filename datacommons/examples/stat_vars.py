@@ -25,16 +25,16 @@ def main():
     param_sets = [
         {
             'place': 'geoId/06085',
-            'stat_var': 'Count_Person',
+            'stat_var': "Count_Person",
         },
         {
             'place': 'geoId/06085',
-            'stat_var': 'Count_Person',
+            'stat_var': "Count_Person",
             'date': '2018',
         },
         {
             'place': 'geoId/06085',
-            'stat_var': 'Count_Person',
+            'stat_var': "Count_Person",
             'date': '2018',
             'measurement_method': 'CensusACS5yrSurvey',
         },
@@ -111,20 +111,20 @@ def main():
 
     pp = pprint.PrettyPrinter(indent=4)
     print(
-        "\nget_stat_all(['geoId/06085', 'country/FRA'], ['Median_Age_Person', 'Count_Person'])"
+        '\nget_stat_all(["geoId/06085", "country/FRA"], ["Median_Age_Person", "Count_Person"])'
     )
     print('>>> ')
     pp.pprint(
-        dc.get_stat_all(['geoId/06085', 'country/FRA'],
-                        ['Median_Age_Person', 'Count_Person']))
+        dc.get_stat_all(["geoId/06085", "country/FRA"],
+                        ["Median_Age_Person", "Count_Person"]))
 
     print(
-        "\nget_stat_all(['badPlaceId', 'country/FRA'], ['Median_Age_Person', 'Count_Person'])"
+        '\nget_stat_all(["badPlaceId", "country/FRA"], ["Median_Age_Person", "Count_Person"])'
     )
     print('>>> ')
     pp.pprint(
-        dc.get_stat_all(['badPlaceId', 'country/FRA'],
-                        ['Median_Age_Person', 'Count_Person']))
+        dc.get_stat_all(["badPlaceId", "country/FRA"],
+                        ["Median_Age_Person", "Count_Person"]))
 
     print(
         'dc.time_series_pd_input(["geoId/29", "geoId/33"], "CumulativeCount_MedicalConditionIncident_COVID_19_PatientDeceased")'
@@ -135,12 +135,12 @@ def main():
                                 "Median_Income_Person"))
 
     print(
-        "dc.covariate_pd_input(['geoId/06', 'country/FRA'], 'Median_Age_Person', 'Count_Person'])"
+        'dc.covariate_pd_input(["geoId/06", "country/FRA"], ["Median_Age_Person", "Count_Person"])'
     )
     print('>>> ')
     pp.pprint(
-        dc.covariate_pd_input(['geoId/06', 'country/FRA'],
-                              ['Median_Age_Person', 'Count_Person']))
+        dc.covariate_pd_input(["geoId/06", "country/FRA"],
+                              ["Median_Age_Person", "Count_Person"]))
 
 
 if __name__ == '__main__':
