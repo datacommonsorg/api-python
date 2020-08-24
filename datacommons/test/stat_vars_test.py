@@ -29,6 +29,7 @@ import datacommons as dc
 import datacommons.utils as utils
 import json
 import unittest
+import six
 import six.moves.urllib as urllib
 
 # Reusable parts of REST API /stat/all response.
@@ -40,7 +41,7 @@ CA_COUNT_PERSON = {
             "val": {
                 "1990": 23640,
                 "1991": 24100,
-                "1992": 25090,
+                "1993": 25090,
             },
             "observationPeriod": "P1Y",
             "importName": "WorldDevelopmentIndicators",
@@ -375,37 +376,30 @@ class TestGetStatAll(unittest.TestCase):
         self.assertDictEqual(stats, exp)
 
 
-class TestRecordsPlaceByTime(unittest.TestCase):
-    """Unit tests for records_place_by_time."""
+class TestPdTimeSeries(unittest.TestCase):
+    """Unit tests for time_series_pd_input."""
 
     @patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
     def test_basic(self, urlopen):
-        """Calling records_place_by_time with proper args."""
-        # Expecting at least one TS per Place+StatVar
-        rows = dc.records_place_by_time(['geoId/06', 'nuts/HU22'],
-                                        'Count_Person')
+        """Calling time_series_pd_input with proper args."""
+        rows = dc.time_series_pd_input(['geoId/06', 'nuts/HU22'],
+                                       'Count_Person')
         exp = [{
             "1990": 23640,
             "1991": 24100,
-            "1992": 25090,
+            "1993": 25090,
             "place": "geoId/06"
-        }, {
-            "1990": 2360,
-            "1991": 2410,
-            "1992": 2500,
-            "place": "nuts/HU22"
         }]
-        self.assertEqual(rows, exp)
+        six.assertCountEqual(self, rows, exp)
 
     @patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
     def test_tolerate_place_string(self, urlopen):
-        """Calling records_place_by_time with proper args."""
-        # Expecting at least one TS per Place+StatVar
-        rows = dc.records_place_by_time('geoId/06', 'Count_Person')
+        """Calling time_series_pd_input with single string place arg."""
+        rows = dc.time_series_pd_input('geoId/06', 'Count_Person')
         exp = [{
             "1990": 23640,
             "1991": 24100,
-            "1992": 25090,
+            "1993": 25090,
             "place": "geoId/06"
         }]
         self.assertEqual(rows, exp)

@@ -143,55 +143,62 @@ def get_stat_all(places, stat_vars):
       >>> get_stat_all(["geoId/05", "geoId/06"], ["Count_Person", "Count_Person_Male"])
       {
         "geoId/05": {
-          "Count_Person": [
-            {
-              "val": {
-                "2010": 1633,
-                "2011": 1509,
-                "2012": 1581,
+          "Count_Person": {
+            "sourceSeries": [
+              {
+                "val": {
+                  "2010": 1633,
+                  "2011": 1509,
+                  "2012": 1581,
+                },
+                "observationPeriod": "P1Y",
+                "importName": "Wikidata",
+                "provenanceDomain": "wikidata.org"
               },
-              "observationPeriod": "P1Y",
-              "importName": "Wikidata",
-              "provenanceDomain": "wikidata.org"
-            },
-            {
-              "val": {
-                "2010": 1333,
-                "2011": 1309,
-                "2012": 131,
-              },
-              "observationPeriod": "P1Y",
-              "importName": "CensusPEPSurvey",
-              "provenanceDomain": "census.gov"
+              {
+                "val": {
+                  "2010": 1333,
+                  "2011": 1309,
+                  "2012": 131,
+                },
+                "observationPeriod": "P1Y",
+                "importName": "CensusPEPSurvey",
+                "provenanceDomain": "census.gov"
+              }
+            ],
             }
-          ],
-          "Count_Person_Male": [
-            {
-              "val": {
-                "2010": 1633,
-                "2011": 1509,
-                "2012": 1581,
-              },
-              "observationPeriod": "P1Y",
-              "importName": "CensusPEPSurvey",
-              "provenanceDomain": "census.gov"
-            }
-          ],
+          },
+          "Count_Person_Male": {
+            "sourceSeries": [
+              {
+                "val": {
+                  "2010": 1633,
+                  "2011": 1509,
+                  "2012": 1581,
+                },
+                "observationPeriod": "P1Y",
+                "importName": "CensusPEPSurvey",
+                "provenanceDomain": "census.gov"
+              }
+            ],
+          }
         },
         "geoId/02": {
-          "Count_Person": [],
-          "Count_Person_Male": [
-            {
-              "val": {
-                "2010": 13,
-                "2011": 13,
-                "2012": 322,
-              },
-              "observationPeriod": "P1Y",
-              "importName": "CensusPEPSurvey",
-              "provenanceDomain": "census.gov"
+          "Count_Person": {},
+          "Count_Person_Male": {
+              "sourceSeries": [
+                {
+                  "val": {
+                    "2010": 13,
+                    "2011": 13,
+                    "2012": 322,
+                  },
+                  "observationPeriod": "P1Y",
+                  "importName": "CensusPEPSurvey",
+                  "provenanceDomain": "census.gov"
+                }
+              ]
             }
-          ],
         }
       }
     """
@@ -217,11 +224,44 @@ def get_stat_all(places, stat_vars):
 # that are easily converted to Pandas DataFrames (and Series).
 
 
-def records_place_by_time(places, stat_var):
+def _get_first_time_series(stat_var_data):
+    """Helper function to return one time series."""
+    return stat_var_data['sourceSeries'][0]['val']
+
+
+def time_series_pd_input_options(places, stat_var):
+    """Returns a `dict` mapping StatVarObservation options to `list` of `dict` of time series for each Place.
+    """
+    res = collections.defaultdict(list)
+    stat_all = get_stat_all(places, [stat_var])
+    for place, place_data in stat_all.items():
+        if not place_data:
+            continue
+        stat_var_data = place_data[stat_var]
+        if not stat_var_data:
+            continue
+        for source_series in stat_var_data['sourceSeries']:
+            time_series = source_series['val']
+            # Hashable SVO options.
+            svo_options = (('measurementMethod',
+                            source_series.get('measurementMethod')),
+                           ('observationPeriod',
+                            source_series.get('observationPeriod')),
+                           ('unit', source_series.get('unit')),
+                           ('scalingFactor',
+                            source_series.get('scalingFactor')))
+            res[svo_options].append(dict({'place': place}, **time_series))
+    return dict(res)
+
+
+def time_series_pd_input(places, stat_var):
     """Returns a `list` of `dict` per element of `places` based on the `stat_var`.
 
+    Data Commons will pick a set of StatVarObservation options that covers the
+    maximum number of queried places.
+
     Args:
-      places (`str` or `iterable` of `str`): The dcid of Places to query for.
+      places (`str` or `iterable` of `str`): The dcids of Places to query for.
       stat_var (`str`): The dcid of the StatisticalVariable.
     Returns:
       A `list` of `dict`, one per element of `places`. Each `dict` consists of
@@ -232,7 +272,7 @@ def records_place_by_time(places, stat_var):
         malformed.
 
     Examples:
-      >>> records_place_by_time(["geoId/29", "geoId/33"], "Count_Person")
+      >>> time_series_pd_input(["geoId/29", "geoId/33"], "Count_Person")
           [
             {'2020-03-07': 20, '2020-03-08': 40, 'place': 'geoId/29'},
             {'2020-08-21': 428, '2020-08-22': 429, 'place': 'geoId/33'}
@@ -245,16 +285,37 @@ def records_place_by_time(places, stat_var):
             places = list(places)
     except:
         raise ValueError(
-            'Parameter `places` must a string object or list-like object.')
+            'Parameter `places` must be a string object or list-like object.')
     if not isinstance(stat_var, six.string_types):
         raise ValueError('Parameter `stat_var` must be a string.')
 
-    stat_all = get_stat_all(places, [stat_var])
-    # Use the first time series result of each Place+StatVar pair.
-    # Create a list of rows to be passed into pd.DataFrame.from_records
-    rows = [
-        dict({'place': place},
-             **data[next(iter(data))]['sourceSeries'][0]['val'])
-        for place, data in stat_all.items()
-    ]
-    return rows
+    rows_dict = time_series_pd_input_options(places, stat_var)
+    most_geos = []
+    max_geos_so_far = 0
+    latest_date = []
+    max_date_so_far = ''
+    for svo, rows in rows_dict.items():
+        current_geos = len(rows)
+        if current_geos > max_geos_so_far:
+            max_geos_so_far = current_geos
+            most_geos = [svo]
+            # Reset tiebreaker stats. Recompute after this if-else block.
+            latest_date = []
+            max_date_so_far = ''
+        elif current_geos == max_geos_so_far:
+            most_geos.append(svo)
+        else:
+            # Do not compute tiebreaker stats if not in most_geos.
+            continue
+        for row in rows:
+            dates = set(row.keys())
+            dates.remove('place')
+            row_max_date = max(dates)
+            if row_max_date > max_date_so_far:
+                max_date_so_far = row_max_date
+                latest_date = [svo]
+            elif row_max_date == max_date_so_far:
+                latest_date.append(svo)
+    for svo in most_geos:
+        if svo in latest_date:
+            return rows_dict[svo]

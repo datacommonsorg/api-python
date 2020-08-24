@@ -127,11 +127,11 @@ def main():
                         ['Median_Age_Person', 'Count_Person']))
 
     print(
-        'dc.records_place_by_time(["geoId/29", "geoId/33"], "CumulativeCount_MedicalConditionIncident_COVID_19_PatientDeceased")'
+        'dc.cohort_time_series(["geoId/29", "geoId/33"], "CumulativeCount_MedicalConditionIncident_COVID_19_PatientDeceased")'
     )
     print('>>> ')
     pp.pprint(
-        dc.records_place_by_time([
+        dc.cohort_time_series([
             "geoId/29", "geoId/33"
         ], "CumulativeCount_MedicalConditionIncident_COVID_19_PatientDeceased"))
 
