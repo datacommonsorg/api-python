@@ -36,28 +36,35 @@ import six.moves.urllib as urllib
 CA_COUNT_PERSON = {
     "isDcAggregate":
         "true",
-    "sourceSeries": [
-        {
-            "val": {
-                "1990": 23640,
-                "1991": 24100,
-                "1993": 25090,
-            },
-            "observationPeriod": "P1Y",
-            "importName": "WorldDevelopmentIndicators",
-            "provenanceDomain": "worldbank.org"
+    "sourceSeries": [{
+        "val": {
+            "1990": 23640,
+            "1991": 24100,
+            "1993": 25090,
         },
-        {
-            "val": {
-                "1790": 3929214,
-                "1800": 5308483,
-                "1810": 7239881,
-            },
-            "measurementMethod": "WikidataPopulation",
-            "importName": "WikidataPopulation",
-            "provenanceDomain": "wikidata.org"
+        "observationPeriod": "P1Y",
+        "importName": "WorldDevelopmentIndicators",
+        "provenanceDomain": "worldbank.org"
+    }, {
+        "val": {
+            "1790": 3929214,
+            "1800": 5308483,
+            "1810": 7239881,
         },
-    ]
+        "measurementMethod": "WikidataPopulation",
+        "importName": "WikidataPopulation",
+        "provenanceDomain": "wikidata.org"
+    }, {
+        "val": {
+            "1890": 28360,
+            "1891": 24910,
+            "1892": 25070,
+        },
+        "measurementMethod": "OECDRegionalStatistics",
+        "observationPeriod": "P1Y",
+        "importName": "OECDRegionalDemography",
+        "provenanceDomain": "oecd.org"
+    }]
 }
 
 CA_COUNT_PERSON_MALE = {
@@ -101,7 +108,7 @@ HU22_COUNT_PERSON_MALE = {
     }]
 }
 
-HU22_MEDIAN_AGE_PERSON = {
+CA_MEDIAN_AGE_PERSON = {
     "sourceSeries": [{
         "val": {
             "1990": 12,
@@ -205,7 +212,7 @@ def request_mock(*args, **kwargs):
                     "geoId/06": {
                         "statVarData": {
                             "Count_Person": CA_COUNT_PERSON,
-                            "Median_Age_Person": HU22_MEDIAN_AGE_PERSON
+                            "Median_Age_Person": CA_MEDIAN_AGE_PERSON
                         }
                     },
                     "nuts/HU22": {
@@ -273,6 +280,27 @@ def request_mock(*args, **kwargs):
             }
             return MockResponse(json.dumps(resp))
 
+        if (data['places'] == ['geoId/06', 'nuts/HU22'] and
+                data['stat_vars'] == ['Count_Person', 'Median_Age_Person']):
+            # Response returned when querying with above params.
+            # Median Age missing for HU22.
+            resp = {
+                "placeData": {
+                    "geoId/06": {
+                        "statVarData": {
+                            "Count_Person": CA_COUNT_PERSON,
+                            "Median_Age_Person": CA_MEDIAN_AGE_PERSON
+                        }
+                    },
+                    "nuts/HU22": {
+                        "statVarData": {
+                            "Count_Person": HU22_COUNT_PERSON,
+                            "Median_Age_Person": {}
+                        }
+                    }
+                }
+            }
+            return MockResponse(json.dumps(resp))
     # Otherwise, return an empty response and a 404.
     return urllib.error.HTTPError
 
@@ -350,7 +378,7 @@ class TestGetStatAll(unittest.TestCase):
         exp = {
             "geoId/06": {
                 "Count_Person": CA_COUNT_PERSON,
-                "Median_Age_Person": HU22_MEDIAN_AGE_PERSON
+                "Median_Age_Person": CA_MEDIAN_AGE_PERSON
             },
             "nuts/HU22": {
                 "Count_Person": HU22_COUNT_PERSON,
@@ -385,10 +413,15 @@ class TestPdTimeSeries(unittest.TestCase):
         rows = dc.time_series_pd_input(['geoId/06', 'nuts/HU22'],
                                        'Count_Person')
         exp = [{
-            "1990": 23640,
-            "1991": 24100,
-            "1993": 25090,
-            "place": "geoId/06"
+            '1890': 28360,
+            '1891': 24910,
+            '1892': 25070,
+            'place': 'geoId/06'
+        }, {
+            '1991': 2410,
+            '1990': 2360,
+            '1992': 2500,
+            'place': 'nuts/HU22'
         }]
         six.assertCountEqual(self, rows, exp)
 
@@ -402,6 +435,32 @@ class TestPdTimeSeries(unittest.TestCase):
             "1993": 25090,
             "place": "geoId/06"
         }]
+        self.assertEqual(rows, exp)
+
+
+class TestPdCovariates(unittest.TestCase):
+    """Unit tests for covariate_pd_input."""
+
+    @patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
+    def test_basic(self, urlopen):
+        """Calling covariate_pd_input with proper args."""
+        rows = dc.covariate_pd_input(['geoId/06', 'nuts/HU22'],
+                                     ['Count_Person', 'Median_Age_Person'])
+        exp = [{
+            "place": "geoId/06",
+            "Median_Age_Person": 24,
+            "Count_Person": 25070
+        }, {
+            "place": "nuts/HU22",
+            "Count_Person": 2500
+        }]
+        six.assertCountEqual(self, rows, exp)
+
+    @patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
+    def test_tolerate_place_string(self, urlopen):
+        """Calling covariate_pd_input with single string place arg."""
+        rows = dc.covariate_pd_input(['geoId/06'], 'Count_Person')
+        exp = [{"place": "geoId/06", "Count_Person": 25090}]
         self.assertEqual(rows, exp)
 
 

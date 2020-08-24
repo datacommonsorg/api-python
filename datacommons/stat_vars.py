@@ -335,7 +335,8 @@ def _covariate_pd_input_options(places, stat_vars):
                 continue
             for source_series in stat_var_data['sourceSeries']:
                 time_series = source_series['val']
-                latest_obs = time_series[max(time_series)]
+                latest_date = max(time_series)
+                latest_obs = time_series[latest_date]
                 # Hashable SVO options.
                 svo_options = (('measurementMethod',
                                 source_series.get('measurementMethod')),
@@ -346,6 +347,7 @@ def _covariate_pd_input_options(places, stat_vars):
                                 source_series.get('scalingFactor')))
                 res[stat_var][svo_options].append({
                     'place': place,
+                    'date': latest_date,
                     'val': latest_obs
                 })
     return {k: dict(v) for k, v in res.items()}
@@ -396,17 +398,40 @@ def covariate_pd_input(places, stat_vars):
         )
 
     rows_dict = _covariate_pd_input_options(places, stat_vars)
-    place2cov = collections.defaultdict({})  # {geo: {var1: 3, var2: 33}}
+    place2cov = collections.defaultdict(dict)  # {geo: {var1: 3, var2: 33}}
+
     for stat_var, candidates_dict in rows_dict.items():
         selected_rows = None
-        max_rows_so_far = 0
+        most_geos = []
+        max_geos_so_far = 0
+        latest_date = []
+        latest_date_so_far = ''
         for svo, rows in candidates_dict.items():
             current_geos = len(rows)
-            if current_geos > max_rows_so_far:
-                max_rows_so_far = current_geos
-                selected_rows = rows
+            if current_geos > max_geos_so_far:
+                max_geos_so_far = current_geos
+                most_geos = [svo]
+                # Reset tiebreaker stats. Recompute after this if-else block.
+                latest_date = []
+                latest_date_so_far = ''
+            elif current_geos == max_geos_so_far:
+                most_geos.append(svo)
+            else:
+                # Do not compute tiebreaker stats if not in most_geos.
+                continue
+            for row in rows:
+                row_date = row['date']
+                if row_date > latest_date_so_far:
+                    latest_date_so_far = row_date
+                    latest_date = [svo]
+                elif row_date == latest_date_so_far:
+                    latest_date.append(svo)
+        for svo in most_geos:
+            if svo in latest_date:
+                selected_rows = candidates_dict[svo]
+
         for row in selected_rows:
-            place2cov[row['place']] = {stat_var: row['val']}
+            place2cov[row['place']][stat_var] = row['val']
     return [
         dict({'place': place}, **covariates)
         for place, covariates in place2cov.items()
