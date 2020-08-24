@@ -70,7 +70,7 @@ def _group_stat_all_by_obs_options(places, stat_vars, time_series=True):
             if not stat_var_data:
                 continue
             for source_series in stat_var_data['sourceSeries']:
-                time_series = source_series['val']
+                series = source_series['val']
                 # Create a hashable for Observation options.
                 obs_options = (('measurementMethod',
                                 source_series.get('measurementMethod')),
@@ -80,14 +80,13 @@ def _group_stat_all_by_obs_options(places, stat_vars, time_series=True):
                                ('scalingFactor',
                                 source_series.get('scalingFactor')))
                 if time_series:
-                    res[obs_options].append(
-                        dict({'place': place}, **time_series))
+                    res[obs_options].append(dict({'place': place}, **series))
                 else:
-                    date = max(time_series)
+                    date = max(series)
                     res[stat_var][obs_options].append({
                         'place': place,
                         'date': date,
-                        'val': time_series[date]
+                        'val': series[date]
                     })
     if time_series:
         return dict(res)
@@ -136,6 +135,7 @@ def _time_series_pd_input(places, stat_var):
         else:
             # Do not compute tiebreaker stats if not in most_geos.
             continue
+
         for row in rows:
             dates = set(row.keys())
             dates.remove('place')
