@@ -4,16 +4,16 @@ This is a Python library for creating Pandas objects with data in the
 Data Commons Graph.
 To get started, install this package from pip.
 
-    pip install datacommons-pandas
+    pip install dcpandas
 
-Once the package is installed, import `datacommons-pandas`.
+Once the package is installed, import `dcpandas`.
 
-    import datacommons-pandas as dcpd
+    import dcpandas as dcpd
 
 For more detail on getting started with the API, please visit our
 [API Overview](http://docs.datacommons.org/api/).
 
-After you're ready to use the API, you can refer to `datacommons-pandas/examples` for
+After you're ready to use the API, you can refer to `dcpandas/examples` for
 examples on how to use this package to perform various tasks. More tutorials and
 documentation can be found at [tutorials](https://datacommons.org/colab)!
 
