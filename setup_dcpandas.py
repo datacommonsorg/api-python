@@ -18,13 +18,13 @@ with open('README.md', 'r') as fh:
     long_description = fh.read()
 
 # Package metadata.
-NAME = 'dcpandas_tjann'
+NAME = 'dcpandas'
 DESCRIPTION = 'A library to create pandas objects using the Data Commons Python API.'
 URL = 'https://github.com/datacommonsorg/api-python'
 EMAIL = 'support@datacommons.org'
 AUTHOR = 'datacommons.org'
 REQUIRES_PYTHON = '>=2.7'
-VERSION = '0.0.4'
+VERSION = '0.0.1'
 
 REQUIRED = [
     'six',
