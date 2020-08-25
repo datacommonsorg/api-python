@@ -72,9 +72,9 @@ def get_stat_value(place,
         url += '&scaling_factor={}'.format(scaling_factor)
 
     try:
-      res_json = utils._send_request(url, post=False, use_payload=False)
+        res_json = utils._send_request(url, post=False, use_payload=False)
     except ValueError:
-      raise ValueError('No data in response.')
+        raise ValueError('No data in response.')
     return res_json['value']
 
 
@@ -97,7 +97,7 @@ def get_stat_series(place,
       scaling_factor (`int`): Optional, the preferred `scalingFactor` value.
     Returns:
       A `dict` mapping dates to value of `stat_var` for `place`,
-      filtered by optional args.
+      representing a time series that satisfies all input parameters.
 
     Raises:
       ValueError: If the payload returned by the Data Commons REST API is

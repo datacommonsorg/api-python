@@ -38,8 +38,15 @@ def build_time_series(place,
     Args:
       place (`str`): The dcid of Place to query for.
       stat_var (`str`): The dcid of the StatisticalVariable.
+      measurement_method (`str`): Optional, the dcid of the preferred
+        `measurementMethod` value.
+      observation_period (`str`): Optional, the preferred
+        `observationPeriod` value.
+      unit (`str`): Optional, the dcid of the preferred `unit` value.
+      scaling_factor (`int`): Optional, the preferred `scalingFactor` value.
     Returns:
-      A pandas Series with Place IDs as the index, and observed statistics as values.
+      A pandas Series with Place IDs as the index and observed statistics as
+      values, representing a time series satisfying all optional args.
     """
     return pd.Series(
         dc.get_stat_series(place, stat_var, measurement_method,
