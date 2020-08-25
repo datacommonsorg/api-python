@@ -57,8 +57,8 @@ def _group_stat_all_by_obs_options(places, stat_vars, keep_series=True):
     """Groups the result of `get_stat_all` by StatVarObservation options for time series or multivariates.
 
     Note that this function does not preserve `(place, stat_var)` pairs that
-    yield no data `from get_stat_all`. In the extreme case, no data
-    for any pairs will return an empty dict.
+    yield no data `from get_stat_all`. In the extreme case that there is no
+    data for any pairs, raise a ValueError instead of returning an empty dict.
     
     Args:
       places (`str` or `iterable` of `str`): The dcids of Places to query for.
@@ -73,7 +73,8 @@ def _group_stat_all_by_obs_options(places, stat_vars, keep_series=True):
 
     Raises:
       ValueError: If the payload returned by the Data Commons REST API is
-        malformed.
+        malformed, or if there is no data for any (Place, StatisticalVariables)
+        pair.
     """
     if keep_series:
         if len(stat_vars) != 1:
