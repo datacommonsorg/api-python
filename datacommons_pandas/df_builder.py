@@ -24,7 +24,7 @@ import collections
 import pandas as pd
 import six
 
-import datacommons.stat_vars as dc
+import datacommons_pandas.stat_vars as dc
 
 
 def build_time_series(place, stat_var):

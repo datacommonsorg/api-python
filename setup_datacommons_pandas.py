@@ -14,7 +14,7 @@
 """Build and distrubute the datacommons_pandas package to PyPI."""
 from setuptools import setup
 
-with open('README.md', 'r') as fh:
+with open('datacommons_pandas/README.md', 'r') as fh:
     long_description = fh.read()
 
 # Package metadata.
@@ -31,8 +31,8 @@ REQUIRED = [
     'pandas',
 ]
 
-PACKAGES = ['dcpandas']
-PACKAGE_DIR = {'dcpandas': 'dcpandas'}
+PACKAGES = ['datacommons_pandas']
+PACKAGE_DIR = {'datacommons_pandas': 'datacommons_pandas'}
 setup(
     name=NAME,
     version=VERSION,

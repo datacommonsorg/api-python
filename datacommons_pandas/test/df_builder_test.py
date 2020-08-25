@@ -25,8 +25,8 @@ try:
 except ImportError:
     from mock import patch
 
-import dcpandas.df_builder as dcpd
-import dcpandas.utils as utils
+import datacommons_pandas.df_builder as dcpd
+import datacommons_pandas.utils as utils
 import json
 import unittest
 import six
