@@ -18,7 +18,8 @@
 # libraries for pd support. Please keep the below imports in sync with the   #
 # __init__.py in the datacommons_pandas/ dir, and add a simlink when         #
 # creating a new file.                                                       #
-##############################################@################################
+# TODO: https://github.com/datacommonsorg/api-python/issues/149              #
+##############################################################################
 
 # Data Commons SPARQL query support
 from datacommons.query import query

@@ -18,6 +18,7 @@ from datacommons_pandas.df_builder import build_time_series, build_time_series_d
 # We include simlinks to all user-facing functions from the datacommons pkg.  #
 # This is so that users do not need to import both libraries for pd support.  #
 # Please keep the below in sync with the __init__.py in the datacommons/ dir  #
+# TODO: enforce this. https://github.com/datacommonsorg/api-python/issues/149 #
 ##############################################@################################
 # Data Commons SPARQL query support
 from datacommons_pandas.query import query
