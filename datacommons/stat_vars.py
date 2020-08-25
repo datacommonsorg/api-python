@@ -71,10 +71,10 @@ def get_stat_value(place,
     if scaling_factor:
         url += '&scaling_factor={}'.format(scaling_factor)
 
-    res_json = utils._send_request(url, post=False, use_payload=False)
-
-    if 'value' not in res_json:
-        raise ValueError('No data in response.')
+    try:
+      res_json = utils._send_request(url, post=False, use_payload=False)
+    except ValueError:
+      raise ValueError('No data in response.')
     return res_json['value']
 
 
