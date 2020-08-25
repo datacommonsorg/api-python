@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""Build and distrubute the datacommons_pandas package to PyPI."""
+"""Build and distribute the datacommons_pandas package to PyPI."""
 from setuptools import setup
 
 with open('datacommons_pandas/README.md', 'r') as fh:

@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""Basic examples for StatisticalVariable-based param_set Data Commons API functions."""
+"""Basic examples for StatisticalVariable-based Data Commons API functions."""
 
 from __future__ import absolute_import
 from __future__ import division

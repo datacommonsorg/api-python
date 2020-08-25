@@ -12,6 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+################################## IMPORTANT #################################
+# All user-facing functions in this package must be simlinked to the         #
+# datacommons_pandas pkg. This is so that users do not need to import both   #
+# libraries for pd support. Please keep the below imports in sync with the   #
+# __init__.py in the datacommons_pandas/ dir, and add a simlink when         #
+# creating a new file.                                                       #
+##############################################@################################
+
 # Data Commons SPARQL query support
 from datacommons.query import query
 

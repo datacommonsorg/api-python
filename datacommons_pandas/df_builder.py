@@ -34,20 +34,23 @@ def build_time_series(place, stat_var):
       place (`str`): The dcid of Place to query for.
       stat_var (`str`): The dcid of the StatisticalVariable.
     Returns:
-      A pandas Series with Place IDs as the index, and Observed statistics as values.
+      A pandas Series with Place IDs as the index, and observed statistics as values.
     """
     return pd.Series(dc.get_stat_series(place, stat_var))
 
 
 def _group_stat_all_by_obs_options(places, stat_vars, keep_series=True):
-    """Groups the result of `get_stat_all` by Observation options for time series or covariates.
+    """Groups the result of `get_stat_all` by StatVarObservation options for time series or covariates.
     
     Args:
       places (`str` or `iterable` of `str`): The dcids of Places to query for.
       stat_vars (`Iterable` of `str`): The dcids of the StatisticalVariables.
-      keep_series (`boolean`): if True, output time series grouped by Observation options; if False, output latest Observation grouped by Observation options.
+      keep_series (`boolean`): if True, output time series grouped by
+        StatVarObservation options; if False, output latest statistics grouped
+        by StatVarObservation options.
     Returns:
-      A pandas Series with Place IDs as the index, and Observed statistics as values.
+      A pandas Series with Place IDs as the index, and observed statistics as
+      values.
 
     Raises:
       ValueError: If the payload returned by the Data Commons REST API is
@@ -97,7 +100,7 @@ def _group_stat_all_by_obs_options(places, stat_vars, keep_series=True):
 def _time_series_pd_input(places, stat_var):
     """Returns a `list` of `dict` per element of `places` based on the `stat_var`.
 
-    Data Commons will pick a set of Observation options that covers the
+    Data Commons will pick a set of StatVarObservation options that covers the
     maximum number of queried places. Among ties, Data Commons selects an option
     set with the latest Observation.
 
@@ -154,10 +157,10 @@ def build_time_series_dataframe(places, stat_var, desc_col=False):
     """Constructs a pandas DataFrame with `places` as the index and dates of the time series as the columns.
 
     To ensure statistics are comparable across all Places, when multiple
-    StatVarObservations are available for Place and StatVar combos, Data
-    Commons selects the Observation options that covers the most Places, and breaks
-    ties using the Observation options that yield the latest Observation for any
-    Place.
+    StatVarObservations options are available for Place and StatVar combos,
+    Data Commons selects the StatVarObservation options that covers the most
+    Places, and breaks ties using the StatVarObservation options that yield
+    the latest Observation for any Place.
     
     Args:
       places (`str` or `iterable` of `str`): The dcids of Places to query for.
@@ -200,7 +203,8 @@ def _covariate_pd_input(places, stat_vars):
       the time series and place identifier.
 
     Examples:
-      >>> _covariate_pd_input(["geoId/29", "geoId/33"], ["Count_Person", "Median_Income_Person"])
+      >>> _covariate_pd_input(["geoId/29", "geoId/33"],
+                              ["Count_Person", "Median_Income_Person"])
           [
             {'Count_Person': 20, 'Median_Income_Person': 40, 'place': 'geoId/29'},
             {'Count_Person': 428, 'Median_Income_Person': 429, 'place': 'geoId/33'}
@@ -254,10 +258,10 @@ def build_covariate_dataframe(places, stat_vars):
     """Constructs a pandas DataFrame with `places` as the index and `stat_vars` as the columns.
 
     To ensure statistics are comparable across all Places, when multiple
-    StatVarObservations are available for Place and StatVar combos, Data
-    Commons selects the Observation options that covers the most Places, and breaks
-    ties using the Observation options that yield the latest Observation for any
-    Place.
+    StatVarObservations options are available for Place and StatVar combos,
+    Data Commons selects the StatVarObservation options that covers the most
+    Places, and breaks ties using the StatVarObservation options that yield
+    the latest Observation for any Place.
     
     Args:
       places (`str` or `iterable` of `str`): The dcids of Places to query for.
