@@ -112,7 +112,8 @@ def _group_stat_all_by_obs_options(places, stat_vars, keep_series=True):
                         'val': series[date]
                     })
     if not res:
-        raise ValueError('No data for any of specified places and stat_vars.')
+        raise ValueError(
+            'No data for any of specified Places and StatisticalVariables.')
     if keep_series:
         return dict(res)
     else:
