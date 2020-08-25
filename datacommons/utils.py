@@ -113,7 +113,10 @@ def _send_request(req_url, req_json={}, compress=False, post=True, use_payload=T
     raise ValueError(
         'Response error: An HTTP {} code was returned by the mixer. Printing '
         'response\n\n{}'.format(e.code, e.read()))
-
+  if isinstance(res, six.moves.urllib.error.HTTPError):
+      raise ValueError(
+          'Response error: An HTTP {} code was returned by the mixer. Printing '
+          'response\n\n{}'.format(res.code, res.msg))
   # Get the JSON
   res_json = json.loads(res.read())
   if not use_payload:

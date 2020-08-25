@@ -216,7 +216,7 @@ def request_mock(*args, **kwargs):
             }
             return MockResponse(json.dumps(resp))
     # Otherwise, return an empty response and a 404.
-    return urllib.error.HTTPError
+    return urllib.error.HTTPError(None, 404, None, None, None)
 
 
 class TestPdTimeSeries(unittest.TestCase):
@@ -253,14 +253,14 @@ class TestPdTimeSeries(unittest.TestCase):
         self.assertEqual(rows, exp)
 
 
-class TestPdCovariates(unittest.TestCase):
-    """Unit tests for _covariate_pd_input."""
+class TestPdMultivariates(unittest.TestCase):
+    """Unit tests for _multivariate_pd_input."""
 
     @patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
     def test_basic(self, urlopen):
-        """Calling _covariate_pd_input with proper args."""
-        rows = dcpd._covariate_pd_input(['geoId/06', 'nuts/HU22'],
-                                        ['Count_Person', 'Median_Age_Person'])
+        """Calling _multivariate_pd_input with proper args."""
+        rows = dcpd._multivariate_pd_input(
+            ['geoId/06', 'nuts/HU22'], ['Count_Person', 'Median_Age_Person'])
         exp = [{
             "place": "geoId/06",
             "Median_Age_Person": 24,
@@ -273,10 +273,22 @@ class TestPdCovariates(unittest.TestCase):
 
     @patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
     def test_one_each(self, urlopen):
-        """Calling _covariate_pd_input with single place and var."""
-        rows = dcpd._covariate_pd_input(['geoId/06'], ['Count_Person'])
+        """Calling _multivariate_pd_input with single place and var."""
+        rows = dcpd._multivariate_pd_input(['geoId/06'], ['Count_Person'])
         exp = [{"place": "geoId/06", "Count_Person": 25090}]
         self.assertEqual(rows, exp)
+
+    @patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
+    def test_no_data(self, urlopen):
+        """Error if there is no data."""
+        with self.assertRaises(ValueError):
+            dcpd._group_stat_all_by_obs_options(
+                ['FOO/100'], ['Count_Person', 'Median_Age_Person'])
+        with self.assertRaises(ValueError):
+            dcpd._time_series_pd_input(['FOO/100', 'BAR/200'], ['Count_Person'])
+        with self.assertRaises(ValueError):
+            dcpd._multivariate_pd_input(['FOO/100', 'BAR/200'],
+                                        ['Count_Person', 'Median_Age_Person'])
 
 
 if __name__ == '__main__':

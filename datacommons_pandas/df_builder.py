@@ -54,7 +54,11 @@ def build_time_series(place,
 
 
 def _group_stat_all_by_obs_options(places, stat_vars, keep_series=True):
-    """Groups the result of `get_stat_all` by StatVarObservation options for time series or covariates.
+    """Groups the result of `get_stat_all` by StatVarObservation options for time series or multivariates.
+
+    Note that this function does not preserve `(place, stat_var)` pairs that
+    yield no data `from get_stat_all`. In the extreme case, no data
+    for any pairs will return an empty dict.
     
     Args:
       places (`str` or `iterable` of `str`): The dcids of Places to query for.
@@ -63,8 +67,9 @@ def _group_stat_all_by_obs_options(places, stat_vars, keep_series=True):
         StatVarObservation options; if False, output latest statistics grouped
         by StatVarObservation options.
     Returns:
-      A pandas Series with Place IDs as the index, and observed statistics as
-      values.
+      A nested dict mapping each StatisticalVariable in `stat_vars` to its
+      StatVarObservation options. In turn, each StatVarObservation option
+      maps to a list of rows, one per place, with the place id and stat data.
 
     Raises:
       ValueError: If the payload returned by the Data Commons REST API is
@@ -88,7 +93,7 @@ def _group_stat_all_by_obs_options(places, stat_vars, keep_series=True):
                 continue
             for source_series in stat_var_data['sourceSeries']:
                 series = source_series['val']
-                # Create a hashable for Observation options.
+                # Convert dict of SVO options into nested tuple (hashable key).
                 obs_options = (('measurementMethod',
                                 source_series.get('measurementMethod')),
                                ('observationPeriod',
@@ -105,6 +110,8 @@ def _group_stat_all_by_obs_options(places, stat_vars, keep_series=True):
                         'date': date,
                         'val': series[date]
                     })
+    if not res:
+        raise ValueError('No data for any of specified places and stat_vars.')
     if keep_series:
         return dict(res)
     else:
@@ -136,21 +143,22 @@ def _time_series_pd_input(places, stat_var):
     rows_dict = _group_stat_all_by_obs_options(places, [stat_var],
                                                keep_series=True)
     most_geos = []
-    max_geos_so_far = 0
+    max_geo_count_so_far = 0
     latest_date = []
     latest_date_so_far = ''
     for options, rows in rows_dict.items():
         current_geos = len(rows)
-        if current_geos > max_geos_so_far:
-            max_geos_so_far = current_geos
+        if current_geos > max_geo_count_so_far:
+            max_geo_count_so_far = current_geos
             most_geos = [options]
             # Reset tiebreaker stats. Recompute after this if-else block.
             latest_date = []
             latest_date_so_far = ''
-        elif current_geos == max_geos_so_far:
+        elif current_geos == max_geo_count_so_far:
             most_geos.append(options)
         else:
-            # Do not compute tiebreaker stats if not in most_geos.
+            # Do not compute tiebreaker stats if no change to most_geos.
+            # Skip to top of the for loop.
             continue
 
         for row in rows:
@@ -202,7 +210,7 @@ def build_time_series_dataframe(places, stat_var, desc_col=False):
     return df[sorted(df.columns, reverse=desc_col)]
 
 
-def _covariate_pd_input(places, stat_vars):
+def _multivariate_pd_input(places, stat_vars):
     """Returns a `list` of `dict` per element of `places` based on the `stat_var`.
 
     Data Commons will pick a set of StatVarObservation options that covers the
@@ -217,7 +225,7 @@ def _covariate_pd_input(places, stat_vars):
       the time series and place identifier.
 
     Examples:
-      >>> _covariate_pd_input(["geoId/29", "geoId/33"],
+      >>> _multivariate_pd_input(["geoId/29", "geoId/33"],
                               ["Count_Person", "Median_Income_Person"])
           [
             {'Count_Person': 20, 'Median_Income_Person': 40, 'place': 'geoId/29'},
@@ -233,22 +241,23 @@ def _covariate_pd_input(places, stat_vars):
     for stat_var, candidates_dict in rows_dict.items():
         selected_rows = None
         most_geos = []
-        max_geos_so_far = 0
+        max_geo_count_so_far = 0
         latest_date = []
         latest_date_so_far = ''
         for options, rows in candidates_dict.items():
             current_geos = len(rows)
-            if current_geos > max_geos_so_far:
-                max_geos_so_far = current_geos
+            if current_geos > max_geo_count_so_far:
+                max_geo_count_so_far = current_geos
                 most_geos = [options]
                 # Reset tiebreaker stats. Recompute after this if-else block.
                 latest_date = []
                 latest_date_so_far = ''
-            elif current_geos == max_geos_so_far:
+            elif current_geos == max_geo_count_so_far:
                 most_geos.append(options)
             else:
                 # Do not compute tiebreaker stats if not in most_geos.
                 continue
+
             for row in rows:
                 row_date = row['date']
                 if row_date > latest_date_so_far:
@@ -263,12 +272,12 @@ def _covariate_pd_input(places, stat_vars):
         for row in selected_rows:
             place2cov[row['place']][stat_var] = row['val']
     return [
-        dict({'place': place}, **covariates)
-        for place, covariates in place2cov.items()
+        dict({'place': place}, **multivariates)
+        for place, multivariates in place2cov.items()
     ]
 
 
-def build_covariate_dataframe(places, stat_vars):
+def build_multivariate_dataframe(places, stat_vars):
     """Constructs a pandas DataFrame with `places` as the index and `stat_vars` as the columns.
 
     To ensure statistics are comparable across all Places, when multiple
@@ -300,7 +309,7 @@ def build_covariate_dataframe(places, stat_vars):
         raise ValueError(
             'Parameter `places` and `stat_vars` must be string object or list-like object.'
         )
-    df = pd.DataFrame.from_records(_covariate_pd_input(places, stat_vars))
+    df = pd.DataFrame.from_records(_multivariate_pd_input(places, stat_vars))
     df.set_index('place', inplace=True)
     df.sort_index(inplace=True)
     return df

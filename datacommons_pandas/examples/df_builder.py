@@ -49,13 +49,13 @@ $ dcpd.build_time_series_dataframe(["country/USA"], "Median_Income_Person", desc
 
     print("""
 # Build a DataFrame of latest observations for multiple variables in multiple places.
-$ dcpd.build_covariate_dataframe(["geoId/06", "country/FRA"], ["Median_Age_Person", "Count_Person", "Count_Household"])
+$ dcpd.build_multivariate_dataframe(["geoId/06", "country/FRA"], ["Median_Age_Person", "Count_Person", "Count_Household"])
 {}""".format(
-        dcpd.build_covariate_dataframe(
+        dcpd.build_multivariate_dataframe(
             ["geoId/06", "country/FRA"],
             ["Median_Age_Person", "Count_Person", "Count_Household"])))
 
-    print('\n\nExpect 4 errors, starting HERE:')
+    print('\n\nExpect 6 errors, starting HERE:')
     try:
         dcpd.build_time_series_dataframe(
             ["geoId/33"], ["Median_Income_Person", "Count_Person"])
@@ -66,12 +66,25 @@ $ dcpd.build_covariate_dataframe(["geoId/06", "country/FRA"], ["Median_Age_Perso
     except ValueError as e:
         print("Successfully errored on: ", e)
     try:
-        dcpd.build_covariate_dataframe([3],
-                                       ["Median_Income_Person", "Count_Person"])
+        dcpd.build_multivariate_dataframe(
+            [3], ["Median_Income_Person", "Count_Person"])
     except ValueError as e:
         print("Successfully errored on: ", e)
     try:
-        dcpd.build_covariate_dataframe("country/USA", True)
+        dcpd.build_multivariate_dataframe("country/USA", True)
+    except ValueError as e:
+        print("Successfully errored on: ", e)
+    # If the following two do not error due to the addition of
+    # Median_Income_Person statistics for NUTS geos, then please
+    # replace either the places or the StatVar.
+    try:
+        dcpd.build_time_series_dataframe(['nuts/HU2', 'nuts/HU22'],
+                                         'Median_Income_Person')
+    except ValueError as e:
+        print("Successfully errored on: ", e)
+    try:
+        dcpd.build_multivariate_dataframe(['nuts/HU2', 'nuts/HU22'],
+                                          ['Median_Income_Person'])
     except ValueError as e:
         print("Successfully errored on: ", e)
     print('until HERE.')

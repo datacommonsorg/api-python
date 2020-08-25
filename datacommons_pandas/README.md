@@ -2,6 +2,7 @@
 
 This is a Python library for creating pandas objects with data in the
 Data Commons Graph.
+
 To get started, install this package from pip.
 
     pip install datacommons_pandas

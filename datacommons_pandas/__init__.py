@@ -12,10 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from datacommons_pandas.df_builder import build_time_series, build_time_series_dataframe, build_covariate_dataframe
+from datacommons_pandas.df_builder import build_time_series, build_time_series_dataframe, build_multivariate_dataframe
 
-################################ SIMLINK FILES ################################
-# We include simlinks to all user-facing functions from the datacommons pkg.  #
+################################ SYMLINK FILES ################################
+# We include symlinks to all user-facing functions from the datacommons pkg.  #
 # This is so that users do not need to import both libraries for pd support.  #
 # Please keep the below in sync with the __init__.py in the datacommons/ dir  #
 # TODO: enforce this. https://github.com/datacommonsorg/api-python/issues/149 #

@@ -311,7 +311,7 @@ def request_mock(*args, **kwargs):
       return MockResponse(json.dumps({'payload': res_json}))
 
   # Otherwise, return an empty response and a 404.
-  return urllib.error.HTTPError
+  return urllib.error.HTTPError(None, 404, None, None, None)
 
 
 class TestGetPropertyLabels(unittest.TestCase):
