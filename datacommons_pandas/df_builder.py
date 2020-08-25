@@ -27,7 +27,12 @@ import six
 import datacommons_pandas.stat_vars as dc
 
 
-def build_time_series(place, stat_var):
+def build_time_series(place,
+                      stat_var,
+                      measurement_method=None,
+                      observation_period=None,
+                      unit=None,
+                      scaling_factor=None):
     """Constructs a pandas Series with `dates` as the index and corresponding `stat_var` statistics as values.
     
     Args:
@@ -36,7 +41,9 @@ def build_time_series(place, stat_var):
     Returns:
       A pandas Series with Place IDs as the index, and observed statistics as values.
     """
-    return pd.Series(dc.get_stat_series(place, stat_var))
+    return pd.Series(
+        dc.get_stat_series(place, stat_var, measurement_method,
+                           observation_period, unit, scaling_factor))
 
 
 def _group_stat_all_by_obs_options(places, stat_vars, keep_series=True):

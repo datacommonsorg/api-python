@@ -28,6 +28,11 @@ $ dcpd.build_time_series("country/CAN", "Count_WildlandFireEvent")
 {}""".format(dcpd.build_time_series("country/CAN", "Count_WildlandFireEvent")))
 
     print("""
+# Build a pd.Series of time series for one variable and one place and optional args.
+$ dcpd.build_time_series("country/USA", "Count_Person", "CensusPEPSurvey")
+{}""".format(dcpd.build_time_series("country/CAN", "Count_WildlandFireEvent")))
+
+    print("""
 # Build a DataFrame of time series for one variable in multiple places.
 $ dcpd.build_time_series_dataframe(["geoId/29", "geoId/33"], "Median_Income_Person")
 {}""".format(
