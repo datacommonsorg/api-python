@@ -20,13 +20,8 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-from datacommons.utils import _API_ROOT, _API_ENDPOINTS, _ENV_VAR_API_KEY
-
 import collections
-import json
-import os
-import six.moves.urllib.error
-import six.moves.urllib.request
+import six
 
 import datacommons.utils as utils
 
@@ -77,9 +72,9 @@ def get_stat_value(place,
         url += '&scaling_factor={}'.format(scaling_factor)
 
     try:
-      res_json = utils._send_request(url, post=False, use_payload=False)
+        res_json = utils._send_request(url, post=False, use_payload=False)
     except ValueError:
-      raise ValueError('No data in response.')
+        raise ValueError('No data in response.')
     return res_json['value']
 
 
@@ -102,7 +97,7 @@ def get_stat_series(place,
       scaling_factor (`int`): Optional, the preferred `scalingFactor` value.
     Returns:
       A `dict` mapping dates to value of `stat_var` for `place`,
-      filtered by optional args.
+      representing a time series that satisfies all input parameters.
 
     Raises:
       ValueError: If the payload returned by the Data Commons REST API is
@@ -148,55 +143,62 @@ def get_stat_all(places, stat_vars):
       >>> get_stat_all(["geoId/05", "geoId/06"], ["Count_Person", "Count_Person_Male"])
       {
         "geoId/05": {
-          "Count_Person": [
-            {
-              "val": {
-                "2010": 1633,
-                "2011": 1509,
-                "2012": 1581,
+          "Count_Person": {
+            "sourceSeries": [
+              {
+                "val": {
+                  "2010": 1633,
+                  "2011": 1509,
+                  "2012": 1581,
+                },
+                "observationPeriod": "P1Y",
+                "importName": "Wikidata",
+                "provenanceDomain": "wikidata.org"
               },
-              "observationPeriod": "P1Y",
-              "importName": "Wikidata",
-              "provenanceDomain": "wikidata.org"
-            },
-            {
-              "val": {
-                "2010": 1333,
-                "2011": 1309,
-                "2012": 131,
-              },
-              "observationPeriod": "P1Y",
-              "importName": "CensusPEPSurvey",
-              "provenanceDomain": "census.gov"
+              {
+                "val": {
+                  "2010": 1333,
+                  "2011": 1309,
+                  "2012": 131,
+                },
+                "observationPeriod": "P1Y",
+                "importName": "CensusPEPSurvey",
+                "provenanceDomain": "census.gov"
+              }
+            ],
             }
-          ],
-          "Count_Person_Male": [
-            {
-              "val": {
-                "2010": 1633,
-                "2011": 1509,
-                "2012": 1581,
-              },
-              "observationPeriod": "P1Y",
-              "importName": "CensusPEPSurvey",
-              "provenanceDomain": "census.gov"
-            }
-          ],
+          },
+          "Count_Person_Male": {
+            "sourceSeries": [
+              {
+                "val": {
+                  "2010": 1633,
+                  "2011": 1509,
+                  "2012": 1581,
+                },
+                "observationPeriod": "P1Y",
+                "importName": "CensusPEPSurvey",
+                "provenanceDomain": "census.gov"
+              }
+            ],
+          }
         },
         "geoId/02": {
-          "Count_Person": [],
-          "Count_Person_Male": [
-            {
-              "val": {
-                "2010": 13,
-                "2011": 13,
-                "2012": 322,
-              },
-              "observationPeriod": "P1Y",
-              "importName": "CensusPEPSurvey",
-              "provenanceDomain": "census.gov"
+          "Count_Person": {},
+          "Count_Person_Male": {
+              "sourceSeries": [
+                {
+                  "val": {
+                    "2010": 13,
+                    "2011": 13,
+                    "2012": 322,
+                  },
+                  "observationPeriod": "P1Y",
+                  "importName": "CensusPEPSurvey",
+                  "provenanceDomain": "census.gov"
+                }
+              ]
             }
-          ],
         }
       }
     """

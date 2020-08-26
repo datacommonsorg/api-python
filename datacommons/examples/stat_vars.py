@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""Basic examples for StatisticalVariable-based param_set Commons API functions."""
+"""Basic examples for StatisticalVariable-based Data Commons API functions."""
 
 from __future__ import absolute_import
 from __future__ import division
@@ -25,16 +25,16 @@ def main():
     param_sets = [
         {
             'place': 'geoId/06085',
-            'stat_var': 'Count_Person',
+            'stat_var': "Count_Person",
         },
         {
             'place': 'geoId/06085',
-            'stat_var': 'Count_Person',
+            'stat_var': "Count_Person",
             'date': '2018',
         },
         {
             'place': 'geoId/06085',
-            'stat_var': 'Count_Person',
+            'stat_var': "Count_Person",
             'date': '2018',
             'measurement_method': 'CensusACS5yrSurvey',
         },
@@ -111,20 +111,20 @@ def main():
 
     pp = pprint.PrettyPrinter(indent=4)
     print(
-        "\nget_stat_all(['geoId/06085', 'country/FRA'], ['Median_Age_Person', 'Count_Person'])"
+        '\nget_stat_all(["geoId/06085", "country/FRA"], ["Median_Age_Person", "Count_Person"])'
     )
     print('>>> ')
     pp.pprint(
-        dc.get_stat_all(['geoId/06085', 'country/FRA'],
-                        ['Median_Age_Person', 'Count_Person']))
+        dc.get_stat_all(["geoId/06085", "country/FRA"],
+                        ["Median_Age_Person", "Count_Person"]))
 
     print(
-        "\nget_stat_all(['badPlaceId', 'country/FRA'], ['Median_Age_Person', 'Count_Person'])"
+        '\nget_stat_all(["badPlaceId", "country/FRA"], ["Median_Age_Person", "Count_Person"])'
     )
     print('>>> ')
     pp.pprint(
-        dc.get_stat_all(['badPlaceId', 'country/FRA'],
-                        ['Median_Age_Person', 'Count_Person']))
+        dc.get_stat_all(["badPlaceId", "country/FRA"],
+                        ["Median_Age_Person", "Count_Person"]))
 
 
 if __name__ == '__main__':
