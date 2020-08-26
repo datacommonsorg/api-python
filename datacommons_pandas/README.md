@@ -31,12 +31,12 @@ Apache 2.0
 
 ## Development
 
-Please follow the Development instructions from the root directory.
+Please follow the [Development instructions](../README.md#development).
 
 ## Release to PyPI
 
-- Update "VERSION" in setup.py
-- Update CHANGELOG.md for a new version
+- Update "VERSION" in [setup_datacommons_pandas.py](../setup_datacommons_pandas.py)
+- Update [CHANGELOG.md](CHANGELOG.md) for a new version
 - Upload a new package using steps for [generating distribution archives](https://packaging.python.org/tutorials/packaging-projects/#generating-distribution-archives) and [uploading the distribution archives](https://packaging.python.org/tutorials/packaging-projects/#uploading-the-distribution-archives)
 
 ## Support
