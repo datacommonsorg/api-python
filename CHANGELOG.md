@@ -1,5 +1,19 @@
 # Changelog
 
+## 1.4.1
+
+**Date** - 08/25/2020
+
+**Release Tag** - [py1.4.1](https://github.com/datacommonsorg/api-python/releases/tag/py1.4.1)
+
+**Release Status** - Current head of branch [`master`](https://github.com/datacommonsorg/api-python/tree/master)
+
+New features added to the Python API
+
+-   `get_stat_value`: returns a single value for the specified Place and StatisticalVariable.
+-   `get_stat_series`: returns a single time series dict for the specified Place and StatisticalVariable.
+-   `get_stat_all`: returns a nested dictionary of all possible time series for each Place and StatisticalVariable pair.
+
 ## 1.3.0
 
 **Date** - 07/28/2020
