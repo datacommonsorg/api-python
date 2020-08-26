@@ -122,3 +122,6 @@ Temporary Items
 .Ruserdata
 datacommons.RCheck
 *tar.gz
+
+## VSCode
+.vscode/
