@@ -127,7 +127,7 @@ def main():
                         ["Median_Age_Person", "Count_Person"]))
 
     print('\nSTRESS TEST FOR GET_STAT_ALL')
-    pp.pprint(
+    try:
         dc.get_stat_all(
             dc.get_places_in(['country/USA'], 'County')['country/USA'], [
                 'Count_Person_Unemployed', 'Median_Age_Person', 'Count_Death',
@@ -151,7 +151,11 @@ def main():
                 'Median_Income_Household_HouseholderRaceHispanicOrLatino,',
                 'Count_HousingUnit_RenterOccupied',
                 'Count_Worker_NAICSInformation'
-            ]))
+            ])
+    except ValueError:
+        print('Stress test for get_stat_all FAILED!')
+    else:
+        print('Stress test for get_stat_all succeeded.')
 
 
 if __name__ == '__main__':
