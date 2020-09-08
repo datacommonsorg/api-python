@@ -126,6 +126,37 @@ def main():
         dc.get_stat_all(["badPlaceId", "country/FRA"],
                         ["Median_Age_Person", "Count_Person"]))
 
+    print('\nSTRESS TEST FOR GET_STAT_ALL')
+    try:
+        dc.get_stat_all(
+            dc.get_places_in(['country/USA'], 'County')['country/USA'], [
+                'Count_Person_Unemployed', 'Median_Age_Person', 'Count_Death',
+                'Count_Death_CertainInfectiousParasiticDiseases',
+                'Count_UnemploymentInsuranceClaim_StateUnemploymentInsurance',
+                'Count_Worker_NAICSAccommodationFoodServices',
+                'Count_Household_With0AvailableVehicles',
+                'Count_Person_WhiteAlone', 'Count_Person_WorkedFullTime',
+                'Count_Person_Employed', 'Count_Person_EnrolledInSchool',
+                'Count_Person_EnrolledInGrade9ToGrade12',
+                'Count_Person_ResidesInGroupQuarters',
+                'Count_Person_NowMarried',
+                'RetailDrugDistribution_DrugDistribution_DMethamphetamine',
+                'Count_Household_With2Person',
+                'Count_Person_EducationalAttainment2NdGrade',
+                'Count_Person_EducationalAttainmentGedOrAlternativeCredential',
+                'Count_Person_EducationalAttainmentKindergarten',
+                'Count_Person_EducationalAttainmentRegularHighSchoolDiploma',
+                'Count_Death_DiseasesOfBloodAndBloodFormingOrgansAndImmuneDisorders',
+                'Count_Household_NoComputer',
+                'Median_Income_Household_HouseholderRaceHispanicOrLatino,',
+                'Count_HousingUnit_RenterOccupied',
+                'Count_Worker_NAICSInformation'
+            ])
+    except ValueError:
+        print('Stress test for get_stat_all FAILED!')
+    else:
+        print('Stress test for get_stat_all succeeded.')
+
 
 if __name__ == '__main__':
     main()
