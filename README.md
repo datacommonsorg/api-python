@@ -1,6 +1,10 @@
 # Data Commons Python API
 
 This is a Python library for accessing data in the Data Commons Graph.
+
+> See also: [Data Commons Pandas API](datacommons_pandas/README.md).
+
+
 To get started, install this package from pip.
 
     pip install datacommons
@@ -64,8 +68,8 @@ where XXX is the module you want to run.
 
 ## Release to PyPI
 
-- Update "VERSION" in setup.py
-- Update CHANGELOG.md for a new version
+- Update "VERSION" in [setup_datacommons.py](setup_datacommons.py)
+- Update [CHANGELOG.md](CHANGELOG.md) for a new version
 - Upload a new package using steps for [generating distribution archives](https://packaging.python.org/tutorials/packaging-projects/#generating-distribution-archives) and [uploading the distribution archives](https://packaging.python.org/tutorials/packaging-projects/#uploading-the-distribution-archives)
 
 ## Support
