@@ -203,17 +203,46 @@ def get_stat_all(places, stat_vars):
       }
     """
     url = utils._API_ROOT + utils._API_ENDPOINTS['get_stat_all']
-    req_json = {'stat_vars': stat_vars, 'places': places}
+    places = list(places)
+    # Get number of batches via an arithmetic ceiling trick:
+    # 11//10 rounds down to 1.
+    # -11//10 rounds down to -2.
+    # We can divide with, then remove the negative to get the ceiling.
+    batches = -(-len(places) // utils._QUERY_BATCH_SIZE)
+    res = {}
+    for i in range(batches):
+        req_json = {
+            'stat_vars':
+                stat_vars,
+            'places':
+                places[i * utils._QUERY_BATCH_SIZE:(i + 1) *
+                       utils._QUERY_BATCH_SIZE]
+        }
+        # Send the request
+        res_json = utils._send_request(url,
+                                       req_json=req_json,
+                                       use_payload=False)
+        if 'placeData' not in res_json:
+            # The REST API spec will always return a dictionary under
+            # placeData, even if no places exist or have no
+            # data. If no Places are provided, REST will return an
+            # error, which will have been caught and passed on in
+            # _send_request.
+            raise ValueError("Unexpected response from REST stat/all API.")
 
-    # Send the request
-    res_json = utils._send_request(url, req_json=req_json, use_payload=False)
+        # Unnest the REST response for keys that have single-element values.
+        place_statvar_series = collections.defaultdict(dict)
+        for place_dcid, place in res_json['placeData'].items():
+            stat_var_data = place.get('statVarData')
+            if not stat_var_data:
+                # The REST API spec will always return a dictionary under
+                # statVarData, even if no StatVars exist or have no
+                # data. If no StatVars are provided, REST will return an
+                # error, which will have been caught and passed on in
+                # _send_request.
+                raise ValueError("Unexpected response from REST stat/all API.")
+            for stat_var_dcid, stat_var in stat_var_data.items():
+                place_statvar_series[place_dcid][stat_var_dcid] = stat_var
+        res.update(dict(place_statvar_series))
 
-    if 'placeData' not in res_json:
-        raise ValueError('No data in response.')
-
-    # Unnest the REST response for keys that have single-element values.
-    place_statvar_series = collections.defaultdict(dict)
-    for place_dcid, place in res_json['placeData'].items():
-        for stat_var_dcid, stat_var in place['statVarData'].items():
-            place_statvar_series[place_dcid][stat_var_dcid] = stat_var
-    return dict(place_statvar_series)
+    return res

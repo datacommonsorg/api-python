@@ -111,12 +111,12 @@ def _send_request(req_url, req_json={}, compress=False, post=True, use_payload=T
     res = six.moves.urllib.request.urlopen(req)
   except six.moves.urllib.error.HTTPError as e:
     raise ValueError(
-        'Response error: An HTTP {} code was returned by the mixer. Printing '
-        'response\n\n{}'.format(e.code, e.read()))
+        'Response error: An HTTP {} code was returned by the REST API. '
+        'Printing response\n\n{}'.format(e.code, e.read()))
   if isinstance(res, six.moves.urllib.error.HTTPError):
       raise ValueError(
-          'Response error: An HTTP {} code was returned by the mixer. Printing '
-          'response\n\n{}'.format(res.code, res.msg))
+          'Response error: An HTTP {} code was returned by the REST API. '
+          'Printing response\n\n{}'.format(res.code, res.msg))
   # Get the JSON
   res_json = json.loads(res.read())
   if not use_payload:
