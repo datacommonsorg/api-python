@@ -68,9 +68,33 @@ where XXX is the module you want to run.
 
 ## Release to PyPI
 
+Note: Always release `datacommons_pandas` when `datacommons` is released.
+See the [datacommons_pandas README](datacommons_pandas/README.md).
+
 - Update "VERSION" in [setup_datacommons.py](setup_datacommons.py)
 - Update [CHANGELOG.md](CHANGELOG.md) for a new version
 - Upload a new package using steps for [generating distribution archives](https://packaging.python.org/tutorials/packaging-projects/#generating-distribution-archives) and [uploading the distribution archives](https://packaging.python.org/tutorials/packaging-projects/#uploading-the-distribution-archives)
+
+### To test on TestPyPI
+
+Similar to regular PyPI release, except:
+
+1. Append "-USERNAME" to the package NAME. For example,
+`NAME = 'datacommons-foobar'`.
+1. Increment the version code to something that has not been used in your test
+  project. This will not affect the production PyPI versioning.
+
+Here are some helpful commands:
+- Build the dist
+  ```
+  python3 -m pip install --user --upgrade setuptools wheel
+  python3 setup_datacommons.py sdist bdist_wheel
+  ```
+- Release the dist to TestPyPI.
+  ```
+  python3 -m pip install --user --upgrade twine
+  python3 -m twine upload --repository testpypi dist/*
+  ```
 
 ## Support
 
