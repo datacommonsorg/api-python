@@ -210,9 +210,9 @@ def get_stat_all(places, stat_vars):
     places = list(places)
     stat_vars = list(stat_vars)
 
-    # Aiming for 2000 entries total.
-    # 2000 = num places x num stat_vars, so aim for
-    # 2000/len(stat_vars) places per batch.
+    # Aiming for _STAT_BATCH_SIZE entries total.
+    # _STAT_BATCH_SIZE = num places x num stat_vars, so aim for
+    # _STAT_BATCH_SIZE/len(stat_vars) places per batch.
     places_per_batch = _STAT_BATCH_SIZE // len(stat_vars)
     # Get number of batches via an arithmetic ceiling trick:
     # 11//10 rounds down to 1.
