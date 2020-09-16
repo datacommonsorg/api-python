@@ -25,6 +25,9 @@ import six
 
 import datacommons.utils as utils
 
+# stat_var specific batch size.
+_STAT_BATCH_SIZE = 2000
+
 
 def get_stat_value(place,
                    stat_var,
@@ -203,20 +206,24 @@ def get_stat_all(places, stat_vars):
       }
     """
     url = utils._API_ROOT + utils._API_ENDPOINTS['get_stat_all']
+    # Cast iterable-like to list.
     places = list(places)
+    stat_vars = list(stat_vars)
+
+    # Aiming for 2000 entries total.
+    # 2000 = num places x num stat_vars, so aim for
+    # 2000/len(stat_vars) places per batch.
+    places_per_batch = _STAT_BATCH_SIZE // len(stat_vars)
     # Get number of batches via an arithmetic ceiling trick:
     # 11//10 rounds down to 1.
     # -11//10 rounds down to -2.
     # We can divide with, then remove the negative to get the ceiling.
-    batches = -(-len(places) // utils._QUERY_BATCH_SIZE)
+    batches = -(-len(places) // places_per_batch)
     res = {}
     for i in range(batches):
         req_json = {
-            'stat_vars':
-                stat_vars,
-            'places':
-                places[i * utils._QUERY_BATCH_SIZE:(i + 1) *
-                       utils._QUERY_BATCH_SIZE]
+            'stat_vars': stat_vars,
+            'places': places[i * places_per_batch:(i + 1) * places_per_batch]
         }
         # Send the request
         res_json = utils._send_request(url,
