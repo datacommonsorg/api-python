@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.0.2
+
+**Date** - 09/16/2020
+
+**Release Tag** - [pd.0.0.2](https://github.com/datacommonsorg/api-python/releases/tag/pd0.0.2)
+
+**Release Status** - Current head of branch [`master`](https://github.com/datacommonsorg/api-python/tree/master)
+
+Update to use datacommons Python API 1.4.2, which adds batching to the get_stat_all function used by build_time_series_dataframe and build_multivariate_dataframe.
+
 ## 0.0.1
 
 **Date** - 08/25/2020
