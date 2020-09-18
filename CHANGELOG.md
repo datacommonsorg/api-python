@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.4.2
+
+**Date** - 09/16/2020
+
+**Release Tag** - [py1.4.2](https://github.com/datacommonsorg/api-python/releases/tag/py1.4.2)
+
+**Release Status** - Current head of branch [`master`](https://github.com/datacommonsorg/api-python/tree/master)
+
+New features added to the Python API
+
+-   Added batching to `get_stat_all` to handle querying for many StatisticalVariables across many Places.
+
 ## 1.4.1
 
 **Date** - 08/25/2020
