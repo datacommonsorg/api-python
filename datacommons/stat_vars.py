@@ -51,7 +51,7 @@ def get_stat_value(place,
       scaling_factor (`int`): Optional, the preferred `scalingFactor` value.
     Returns:
       A `float` the value of `stat_var` for `place`, filtered
-      by optional args.
+      by optional args. If no data, returns nan.
 
     Raises:
       ValueError: If the payload returned by the Data Commons REST API is
@@ -78,6 +78,8 @@ def get_stat_value(place,
         res_json = utils._send_request(url, post=False, use_payload=False)
     except ValueError:
         raise ValueError('No data in response.')
+    if 'value' not in res_json:
+        return float('nan')
     return res_json['value']
 
 
@@ -124,7 +126,7 @@ def get_stat_series(place,
     res_json = utils._send_request(url, post=False, use_payload=False)
 
     if 'series' not in res_json:
-        raise ValueError('No data in response.')
+        return {}
     return res_json['series']
 
 
