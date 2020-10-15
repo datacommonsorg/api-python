@@ -77,7 +77,7 @@ def get_stat_value(place,
     try:
         res_json = utils._send_request(url, post=False, use_payload=False)
     except ValueError:
-        raise ValueError('No data in response.')
+        return float('nan')
     if 'value' not in res_json:
         return float('nan')
     return res_json['value']
@@ -122,8 +122,11 @@ def get_stat_series(place,
         url += '&unit={}'.format(unit)
     if scaling_factor:
         url += '&scaling_factor={}'.format(scaling_factor)
-
-    res_json = utils._send_request(url, post=False, use_payload=False)
+    
+    try:
+        res_json = utils._send_request(url, post=False, use_payload=False)
+    except ValueError:
+        return {}
 
     if 'series' not in res_json:
         return {}
