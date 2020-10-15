@@ -275,7 +275,7 @@ class TestGetStatValue(unittest.TestCase):
         self.assertEqual(stat, 103)
 
         # Call get_stat_series with bogus required args
-        stat = dc.get_stat_value('foo', 'bar')
+        stat = dc.get_stat_value('foofoo', 'barrbar')
         self.assertTrue(math.isnan(stat))
 
 class TestGetStatSeries(unittest.TestCase):
@@ -298,7 +298,7 @@ class TestGetStatSeries(unittest.TestCase):
         self.assertEqual(stats, {"2000": 3, "2001": 42})
 
         # Call get_stat_series with bogus required args
-        stats = dc.get_stat_series('foo', 'bar')
+        stats = dc.get_stat_series('foofoofoo', 'barfoobar')
         self.assertEqual(stats, {})
 
         # Call get_stat_series with non-satisfiable optional args
