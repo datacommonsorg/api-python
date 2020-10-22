@@ -27,6 +27,7 @@ except ImportError:
 
 import datacommons as dc
 import datacommons.utils as utils
+import math
 import json
 import unittest
 import six
@@ -273,6 +274,9 @@ class TestGetStatValue(unittest.TestCase):
                                  'CensusPEPSurvey', 'P1Y', 'RealPeople', 100)
         self.assertEqual(stat, 103)
 
+        # Call get_stat_series with bogus required args
+        stat = dc.get_stat_value('foofoo', 'barrbar')
+        self.assertTrue(math.isnan(stat))
 
 class TestGetStatSeries(unittest.TestCase):
     """Unit tests for get_stat_series."""
@@ -292,6 +296,10 @@ class TestGetStatSeries(unittest.TestCase):
         stats = dc.get_stat_series('geoId/06', 'Count_Person',
                                    'CensusPEPSurvey', 'P1Y', 'RealPeople', 100)
         self.assertEqual(stats, {"2000": 3, "2001": 42})
+
+        # Call get_stat_series with bogus required args
+        stats = dc.get_stat_series('foofoofoo', 'barfoobar')
+        self.assertEqual(stats, {})
 
         # Call get_stat_series with non-satisfiable optional args
         stats = dc.get_stat_series('geoId/06', 'Count_Person', 'DNE')

@@ -126,6 +126,13 @@ def main():
         dc.get_stat_all(["badPlaceId", "country/FRA"],
                         ["Median_Age_Person", "Count_Person"]))
 
+
+    print('\nWhen no data for get_stat_value')
+    pp.pprint(dc.get_stat_value('foooo', 'barrrr'))
+
+    print('\nWhen no data for get_stat_series')
+    pp.pprint(dc.get_stat_series('foobarbar', 'barfoo'))
+
     print('\nSTRESS TEST FOR GET_STAT_ALL')
     try:
         dc.get_stat_all(
