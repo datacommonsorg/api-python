@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.0.3
+
+**Date** - 11/10/2020
+
+**Release Tag** - [pd.0.0.3](https://github.com/datacommonsorg/api-python/releases/tag/pd0.0.3)
+
+**Release Status** - Current head of branch [`master`](https://github.com/datacommonsorg/api-python/tree/master)
+
+Update to use datacommons Python API 1.4.3, which returns empty data structures instead of erroring when no data is available.
+
 ## 0.0.2
 
 **Date** - 09/16/2020
