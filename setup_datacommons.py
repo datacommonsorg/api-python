@@ -24,7 +24,7 @@ URL = 'https://github.com/datacommonsorg/api-python'
 EMAIL = 'support@datacommons.org'
 AUTHOR = 'datacommons.org'
 REQUIRES_PYTHON = '>=2.7'
-VERSION = '1.4.2'
+VERSION = '1.4.3'
 
 REQUIRED = [
     'six',
