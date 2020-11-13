@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.4.3
+
+**Date** - 11/10/2020
+
+**Release Tag** - [py1.4.3](https://github.com/datacommonsorg/api-python/releases/tag/py1.4.3)
+
+**Release Status** - Current head of branch [`master`](https://github.com/datacommonsorg/api-python/tree/master)
+
+Bugs fixed in new release
+
+- Return empty data structures instead of erroring when no data is available.
+
 ## 1.4.2
 
 **Date** - 09/16/2020
