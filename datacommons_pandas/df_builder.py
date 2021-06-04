@@ -46,7 +46,7 @@ def build_time_series(place,
       scaling_factor (`int`): Optional, the preferred `scalingFactor` value.
     Returns:
       A pandas Series with Place IDs as the index and observed statistics as
-      values, representing a time series satisfying all optional args.
+      values, representing a sorted time series satisfying all optional args.
     """
     return pd.Series(
         dc.get_stat_series(place, stat_var, measurement_method,
