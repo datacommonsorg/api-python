@@ -50,7 +50,7 @@ def build_time_series(place,
     """
     return pd.Series(
         dc.get_stat_series(place, stat_var, measurement_method,
-                           observation_period, unit, scaling_factor))
+                           observation_period, unit, scaling_factor)).sort_index()
 
 
 def _group_stat_all_by_obs_options(places, stat_vars, keep_series=True):
