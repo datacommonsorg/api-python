@@ -48,9 +48,13 @@ def build_time_series(place,
       A pandas Series with Place IDs as the index and observed statistics as
       values, representing a sorted time series satisfying all optional args.
     """
-    return pd.Series(
-        dc.get_stat_series(place, stat_var, measurement_method,
-                           observation_period, unit, scaling_factor)).sort_index()
+    result_dict = dc.get_stat_series(place, stat_var, measurement_method,observation_period, unit, scaling_factor)
+    
+    # Explicit dtype to avoid warning thrown by pd.Series({})
+    if not result_dict:
+        return pd.Series(result_dict,dtype=object)
+    else:
+        return pd.Series(result_dict).sort_index()
 
 
 def _group_stat_all_by_obs_options(places, stat_vars, keep_series=True):
