@@ -76,13 +76,15 @@ class TestApiKey(unittest.TestCase):
   """Unit test for setting or not setting the API Key."""
   @patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
   def test_query_no_api_key(self, urlopen):
-    del os.environ[utils._ENV_VAR_API_KEY]
+    if os.getenv(utils._ENV_VAR_API_KEY):
+      del os.environ[utils._ENV_VAR_API_KEY]
     # Issue a dummy SPARQL query that tells the mock to not expect a key
     self.assertEqual(dc.query(_SPARQL_NO_KEY), [])
 
   @patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
   def test_send_request_no_api_key(self, urlopen):
-    del os.environ[utils._ENV_VAR_API_KEY]
+    if os.getenv(utils._ENV_VAR_API_KEY):
+      del os.environ[utils._ENV_VAR_API_KEY]
     # Issue a dummy url that tells the mock to not expect a key
     self.assertEqual(utils._send_request(_SEND_REQ_NO_KEY, {'foo': ['bar']}), {})
 
