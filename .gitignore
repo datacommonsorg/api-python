@@ -125,7 +125,3 @@ datacommons.RCheck
 
 ## VSCode
 .vscode/
-.idea/api-python.iml
-.idea/inspectionProfiles/profiles_settings.xml
-.idea/inspectionProfiles/Project_Default.xml
-.idea/modules.xml
