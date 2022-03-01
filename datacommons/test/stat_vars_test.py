@@ -30,7 +30,6 @@ import datacommons.utils as utils
 import math
 import json
 import unittest
-import six
 import six.moves.urllib as urllib
 
 # Reusable parts of REST API /stat/all response.
@@ -277,6 +276,7 @@ class TestGetStatValue(unittest.TestCase):
         # Call get_stat_series with bogus required args
         stat = dc.get_stat_value('foofoo', 'barrbar')
         self.assertTrue(math.isnan(stat))
+
 
 class TestGetStatSeries(unittest.TestCase):
     """Unit tests for get_stat_series."""
