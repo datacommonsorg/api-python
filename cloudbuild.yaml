@@ -1,8 +1,7 @@
 steps:
-
-- id: api_python
-  name: python:3.7-slim
-  entrypoint: /bin/sh
-  args:
-  - -c
-  - 'pip3 install -r requirements.txt && python3 -m pytest'
+  - id: api_python
+    name: python:3.7-slim
+    entrypoint: /bin/sh
+    args:
+      - -c
+      - "pip3 install -r requirements.txt && python3 -m pytest"
