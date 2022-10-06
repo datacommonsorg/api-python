@@ -110,7 +110,7 @@ def _send_request(req_url,
     if isinstance(res, six.moves.urllib.error.HTTPError):
         raise ValueError(
             'Response error: An HTTP {} code was returned by the REST API. '
-            'Printing response\n\n{}'.format(res.code, res.msg))
+            'Printing response\n\n{}'.format(res.code, res.reason))
     # Get the JSON
     res_json = json.loads(res.read())
     if not use_payload:
@@ -141,3 +141,7 @@ def _format_expand_payload(payload, new_key, must_exist=[]):
     for dcid in must_exist:
         results[dcid]
     return {k: sorted(list(v)) for k, v in results.items()}
+
+
+def _get_direction(out: bool):
+    return "out" if out else "in"
