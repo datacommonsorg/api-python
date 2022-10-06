@@ -12,9 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Build and distribute the datacommons_pandas package to PyPI."""
+import os
 from setuptools import setup
 
-with open('README.md', 'r') as fh:
+dir_path = os.path.dirname(os.path.realpath(__file__))
+with open(os.path.join(dir_path, 'README.md'), 'r') as fh:
     long_description = fh.read()
 
 # Package metadata.

@@ -30,6 +30,4 @@ from datacommons.places import get_places_in, get_related_places, get_stats
 from datacommons.stat_vars import get_stat_value, get_stat_series, get_stat_all
 
 from datacommons.key import set_api_key
-from datacommons.triples import triples
-from datacommons.properties import properties
-from datacommons.property_values import property_values
+from datacommons.node import properties, property_values, triples
