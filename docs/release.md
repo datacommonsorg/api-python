@@ -4,7 +4,17 @@ Note: Always release `datacommons_pandas` when `datacommons` is released.
 
 **If this is your first time releasing to PyPI**, please review the PyPI guide
 starting from the
-[setup section](https://packaging.python.org/tutorials/packaging-projects/#creating-setup-py).
+[setup
+section](https://packaging.python.org/tutorials/packaging-projects/#creating-setup-py).
+
+## Prepare release tools
+
+```bash
+python3 -m venv .env
+source .env/bin/activate
+python3 -m pip install --upgrade setuptools wheel
+python3 -m pip install --upgrade twine
+```
 
 ## Release to Test PyPI
 
@@ -15,19 +25,12 @@ starting from the
    - Increment the "VERSION" codes to something that has not been used in your
      test project. This will not affect the production PyPI versioning.
 
-1. Build the dists:
+1. In the repo root directly, build the dists and release to TestPyPI:
 
    ```bash
    rm dist/*
-   python3 -m pip install --user --upgrade setuptools wheel
    python3 datacommons/setup.py sdist bdist_wheel
    python3 datacommons_pandas/setup.py sdist bdist_wheel
-   ```
-
-1. Release the dists to TestPyPI:
-
-   ```bash
-   python3 -m pip install --user --upgrade twine
    python3 -m twine upload --repository testpypi dist/*
    ```
 
@@ -39,20 +42,13 @@ starting from the
    - Revert the package name to `datacommons` and `datacommons_pandas`
    - Update and double check "VERSION"
 
-2. Update [datacommons/CHANGELOG.md](../datacommons/CHANGELOG.md) and [datacommons_pandas/CHANGELOG.md](../datacommons_pandas/CHANGELOG.md)
+1. Update [datacommons/CHANGELOG.md](../datacommons/CHANGELOG.md) and [datacommons_pandas/CHANGELOG.md](../datacommons_pandas/CHANGELOG.md)
 
-3. Build the dists:
+1. Build the dists and release to PyPI:
 
    ```bash
    rm dist/*
-   python3 -m pip install --user --upgrade setuptools wheel
    python3 datacommons/setup.py sdist bdist_wheel
    python3 datacommons_pandas/setup.py sdist bdist_wheel
-   ```
-
-4. Release the dists to PyPI:
-
-   ```bash
-   python3 -m pip install --user --upgrade twine
-   twine upload dist/*
+   python3 -m twine upload dist/*
    ```

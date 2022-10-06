@@ -12,9 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Build and distribute the datacommons package to PyPI."""
+import os
 from setuptools import setup
 
-with open('README.md', 'r') as fh:
+dir_path = os.path.dirname(os.path.realpath(__file__))
+with open(os.path.join(dir_path, 'README.md'), 'r') as fh:
     long_description = fh.read()
 
 # Package metadata.
@@ -26,6 +28,7 @@ AUTHOR = 'datacommons.org'
 REQUIRES_PYTHON = '>=3.7'
 VERSION = '1.4.3'
 REQUIRED = ['six', 'requests']
+PACKAGES = ['datacommons']
 
 setup(
     name=NAME,
@@ -38,6 +41,7 @@ setup(
     maintainer=AUTHOR,
     maintainer_email=EMAIL,
     python_requires=REQUIRES_PYTHON,
+    packages=PACKAGES,
     url=URL,
     install_requires=REQUIRED,
     include_package_data=True,

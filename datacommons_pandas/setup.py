@@ -26,6 +26,7 @@ AUTHOR = 'datacommons.org'
 REQUIRES_PYTHON = '>=3.7'
 VERSION = '0.0.3'
 REQUIRED = ['pandas', 'six', 'requests']
+PACKAGES = ['datacommons_pandas']
 
 setup(
     name=NAME,
@@ -39,6 +40,7 @@ setup(
     maintainer_email=EMAIL,
     python_requires=REQUIRES_PYTHON,
     url=URL,
+    packages=PACKAGES,
     install_requires=REQUIRED,
     include_package_data=True,
     license='Apache 2.0',

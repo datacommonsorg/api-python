@@ -1,1 +1,1 @@
-datacommons/properties.py
+../datacommons/properties.py
