@@ -14,13 +14,13 @@
 """ API to request node information.
 """
 
-from typing import List
+from typing import Dict, List
 
 from datacommons.requests import _post
 from datacommons.utils import _get_direction
 
 
-def properties(nodes: List[str], out: bool = True):
+def properties(nodes: List[str], out: bool = True) -> Dict[str, List[str]]:
     """Retrieves all the properties for a list of nodes.
     Args:
         nodes: Node DCIDs.
@@ -36,7 +36,9 @@ def properties(nodes: List[str], out: bool = True):
     return result
 
 
-def property_values(nodes: List[str], property: str, out: bool = True):
+def property_values(nodes: List[str],
+                    property: str,
+                    out: bool = True) -> Dict[str, List[str]]:
     """Retrieves the property values for a list of nodes.
     Args:
         nodes: Node DCIDs.
@@ -59,7 +61,8 @@ def property_values(nodes: List[str], property: str, out: bool = True):
     return result
 
 
-def triples(nodes: List[str], out: bool = True):
+def triples(nodes: List[str],
+            out: bool = True) -> Dict[str, Dict[str, List[object]]]:
     """Retrieves the triples for a node.
     Args:
         node: Node DCID.
