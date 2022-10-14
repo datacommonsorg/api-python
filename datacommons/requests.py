@@ -36,6 +36,6 @@ def _post(path: str, data={}) -> Dict:
                 f'{resp.status_code}: {resp.reason}\n{resp.json()["message"]}')
         return resp.json()
     except requests.exceptions.Timeout:
-        raise Exception('data request timeout')
+        raise Exception('Data request timed out, please try again.')
     except requests.exceptions.RequestException as e:
         raise e

@@ -70,6 +70,33 @@ class TestPropertyValues(unittest.TestCase):
         response = datacommons.property_values(["geoId/06"], "name")
         assert response == {"geoId/06": ["California"]}
 
+    @mock.patch("datacommons.node._post")
+    def test_multiple_values(self, _post):
+
+        def side_effect(path, data):
+            print(path)
+            if path == "/v1/bulk/property/values/out" and data == {
+                    "nodes": ["geoId/06"],
+                    "property": "geoOverlaps",
+            }:
+                return {
+                    "data": [{
+                        "node":
+                            "geoId/06",
+                        "values": [{
+                            "provenanceId": "dc/5n63hr1",
+                            "value": "geoId/05"
+                        }, {
+                            "provenanceId": "dc/5n63hr1",
+                            "value": "geoId/07"
+                        }]
+                    }]
+                }
+
+        _post.side_effect = side_effect
+        response = datacommons.property_values(["geoId/06"], "geoOverlaps")
+        assert response == {"geoId/06": ["geoId/05", "geoId/07"]}
+
 
 class TestTriples(unittest.TestCase):
 
