@@ -12,9 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """Build and distribute the datacommons package to PyPI."""
+import os
 from setuptools import setup
 
-with open('README.md', 'r') as fh:
+dir_path = os.path.dirname(os.path.realpath(__file__))
+with open(os.path.join(dir_path, 'README.md'), 'r') as fh:
     long_description = fh.read()
 
 # Package metadata.
@@ -23,15 +25,10 @@ DESCRIPTION = 'A library to access Data Commons Python API.'
 URL = 'https://github.com/datacommonsorg/api-python'
 EMAIL = 'support@datacommons.org'
 AUTHOR = 'datacommons.org'
-REQUIRES_PYTHON = '>=2.7'
+REQUIRES_PYTHON = '>=3.7'
 VERSION = '1.4.3'
-
-REQUIRED = [
-    'six',
-]
-
+REQUIRED = ['six', 'requests']
 PACKAGES = ['datacommons']
-PACKAGE_DIR = {'datacommons': 'datacommons'}
 
 setup(
     name=NAME,
@@ -46,7 +43,6 @@ setup(
     python_requires=REQUIRES_PYTHON,
     url=URL,
     packages=PACKAGES,
-    package_dir=PACKAGE_DIR,
     install_requires=REQUIRED,
     include_package_data=True,
     license='Apache 2.0',
@@ -54,8 +50,7 @@ setup(
         'Intended Audience :: Developers',
         'License :: OSI Approved :: Apache Software License',
         'Programming Language :: Python',
-        'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: Implementation :: CPython',
         'Topic :: Software Development',
     ],

@@ -57,25 +57,6 @@ _QUERY_BATCH_SIZE = 500
 # Environment variable names used by the package
 _ENV_VAR_API_KEY = 'DC_API_KEY'
 
-# --------------------------- API UTILITY FUNCTIONS ---------------------------
-
-
-def set_api_key(api_key):
-    """Sets an environment variable :code:`"DC_API_KEY"` to given :code:`api_key`.
-
-  Users may supply an API key to the Python API, which simply passes it on to
-  the REST API for handling. The API key can be provided to the API after
-  importing the library, or set as an environment variable
-  :code:`"DC_API_KEY"`.
-
-  For more details about how to get an API key and provide it to the Python
-  Client API, please visit :ref:`getting_started`.
-  Args:
-    api_key (:obj:`str`): The API key.
-  """
-    os.environ[_ENV_VAR_API_KEY] = api_key
-
-
 # ------------------------- INTERNAL HELPER FUNCTIONS -------------------------
 
 
@@ -110,7 +91,7 @@ def _send_request(req_url,
     if isinstance(res, six.moves.urllib.error.HTTPError):
         raise ValueError(
             'Response error: An HTTP {} code was returned by the REST API. '
-            'Printing response\n\n{}'.format(res.code, res.msg))
+            'Printing response\n\n{}'.format(res.code, res.reason))
     # Get the JSON
     res_json = json.loads(res.read())
     if not use_payload:
@@ -141,3 +122,7 @@ def _format_expand_payload(payload, new_key, must_exist=[]):
     for dcid in must_exist:
         results[dcid]
     return {k: sorted(list(v)) for k, v in results.items()}
+
+
+def _get_direction(out: bool):
+    return "out" if out else "in"
