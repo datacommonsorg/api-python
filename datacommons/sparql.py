@@ -1,4 +1,4 @@
-# Copyright 2017 Google Inc.
+# Copyright 2022 Google Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,22 +16,11 @@
 Implements functions for sending graph queries to the Data Commons Graph.
 """
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
-from datacommons.utils import _API_ROOT, _API_ENDPOINTS, _ENV_VAR_API_KEY
-
-import json
-import os
-import six.moves.urllib.error
-import six.moves.urllib.request
-
-# ----------------------------- WRAPPER FUNCTIONS -----------------------------
+from datacommons.requests import _post
 
 
 def query(query_string, select=None):
-  """ Returns the results of executing a SPARQL query on the Data Commons graph.
+    """ Returns the results of executing a SPARQL query on the Data Commons graph.
 
   Args:
     query_string (:obj:`str`): The SPARQL query string.
@@ -85,45 +74,24 @@ def query(query_string, select=None):
     ...   print(r)
     {"?name": "Maryland", "?dcid": "geoId/24"}
   """
-
-  req_url = _API_ROOT + _API_ENDPOINTS['query']
-  headers = {
-    'Content-Type': 'application/json'
-  }
-  if os.environ.get(_ENV_VAR_API_KEY):
-    headers['x-api-key'] = os.environ[_ENV_VAR_API_KEY]
-
-  req = six.moves.urllib.request.Request(
-    req_url,
-    data=json.dumps({'sparql': query_string}).encode("utf-8"),
-    headers=headers)
-
-  try:
-    res = six.moves.urllib.request.urlopen(req)
-  except six.moves.urllib.error.HTTPError as e:
-    raise ValueError('Response error {}:\n{}'.format(e.code, e.read()))
-
-  # Verify then store the results.
-  res_json = json.loads(res.read())
-
-  # Iterate through the query results
-  header = res_json.get('header')
-  if header is None:
-    raise ValueError('Ill-formatted response: does not contain a header.')
-  result_rows = []
-  for row in res_json.get('rows', []):
-    # Construct the map from query variable to cell value.
-    row_map = {}
-    for idx, cell in enumerate(row.get('cells', [])):
-      if idx > len(header):
-        raise ValueError(
-          'Query error: unexpected cell {}'.format(cell))
-      if 'value' not in cell:
-        raise ValueError(
-          'Query error: cell missing value {}'.format(cell))
-      cell_var = header[idx]
-      row_map[cell_var] = cell['value']
-    # Add the row to the result rows if it is selected
-    if select is None or select(row_map):
-      result_rows.append(row_map)
-  return result_rows
+    resp = _post('/query', {'sparql': query_string})
+    # Iterate through the query results
+    header = resp.get('header')
+    if header is None:
+        raise ValueError('Ill-formatted response: does not contain a header.')
+    result_rows = []
+    for row in resp.get('rows', []):
+        # Construct the map from query variable to cell value.
+        row_map = {}
+        for idx, cell in enumerate(row.get('cells', [])):
+            if idx > len(header):
+                raise ValueError('Query error: unexpected cell {}'.format(cell))
+            if 'value' not in cell:
+                raise ValueError(
+                    'Query error: cell missing value {}'.format(cell))
+            cell_var = header[idx]
+            row_map[cell_var] = cell['value']
+        # Add the row to the result rows if it is selected
+        if select is None or select(row_map):
+            result_rows.append(row_map)
+    return result_rows

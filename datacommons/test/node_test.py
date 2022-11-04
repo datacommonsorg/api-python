@@ -13,14 +13,14 @@
 # limitations under the License.
 
 import unittest
-from unittest import mock
+from unittest.mock import patch
 
 import datacommons
 
 
 class TestProperties(unittest.TestCase):
 
-    @mock.patch("datacommons.node._post")
+    @patch("datacommons.node._post")
     def test_with_data(self, _post):
 
         def side_effect(path, data):
@@ -46,7 +46,7 @@ class TestProperties(unittest.TestCase):
 
 class TestPropertyValues(unittest.TestCase):
 
-    @mock.patch("datacommons.node._post")
+    @patch("datacommons.node._post")
     def test_with_data(self, _post):
 
         def side_effect(path, data):
@@ -70,7 +70,7 @@ class TestPropertyValues(unittest.TestCase):
         response = datacommons.property_values(["geoId/06"], "name")
         assert response == {"geoId/06": ["California"]}
 
-    @mock.patch("datacommons.node._post")
+    @patch("datacommons.node._post")
     def test_multiple_values(self, _post):
 
         def side_effect(path, data):
@@ -100,7 +100,7 @@ class TestPropertyValues(unittest.TestCase):
 
 class TestTriples(unittest.TestCase):
 
-    @mock.patch("datacommons.node._post")
+    @patch("datacommons.node._post")
     def test_with_data(self, _post):
 
         def side_effect(path, data):
