@@ -24,9 +24,9 @@ def query(query_string, select=None):
 
     Args:
       query_string (:obj:`str`): The SPARQL query string.
-      select (:obj:`func` accepting a row in the query result): A function that
+      select (:obj:`func` accepting a row of the query result): A function that
         selects rows to be returned by :code:`query`. This function accepts a row
-        in the results of executing :code:`query_string` and return True if and
+        on the results of executing :code:`query_string` and returns True if and
         only if the row is to be returned by :code:`query`. The row passed in as
         an argument is represented as a :obj:`dict` that maps a query variable in
         :code:`query_string` to its value in the given row.
