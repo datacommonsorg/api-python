@@ -13,18 +13,24 @@
 # limitations under the License.
 """ API to get statistical observation data."""
 
+from typing import List
 
-def observation_series():
+
+def observation_series(variable: str, entities: List[str]):
     return None
 
 
-def observation_series_of_entities_within_place():
+def observation_series_of_entities_within_place(variable: str, entity_type: str,
+                                                containing_place: str):
     return None
 
 
-def observation_point():
+def observation_point(variable: str, entities: List[str], date: str = ""):
     return None
 
 
-def observation_point_of_entities_within_place():
+def observation_point_of_entities_within_place(variable: str,
+                                               entity_type: str,
+                                               containing_place: str,
+                                               date: str = ""):
     return None

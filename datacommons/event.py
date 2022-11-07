@@ -14,9 +14,6 @@
 """ API to get event data."""
 
 
-def event_series_within_place():
-    return None
-
-
-def event_point_within_place():
+def event_series_within_place(event_type: str, containing_place: str,
+                              date: str):
     return None
