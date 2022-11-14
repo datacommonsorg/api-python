@@ -22,7 +22,7 @@
 ##############################################################################
 
 # Data Commons SPARQL query support
-from datacommons.query import query
+from datacommons.sparql import query
 
 # Data Commons Python API
 from datacommons.core import get_property_labels, get_property_values, get_triples
