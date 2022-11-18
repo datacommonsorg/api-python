@@ -27,39 +27,39 @@ import datacommons.utils as utils
 
 def get_places_in(dcids, place_type):
   """ Returns :obj:`Place`s contained in :code:`dcids` of type
-      :code:`place_type`.
+    :code:`place_type`.
 
-    Args:
-      dcids (:obj:`iterable` of :obj:`str`): Dcids to get contained in places.
-      place_type (:obj:`str`): The type of places contained in the given dcids to
-      filter by.
+  Args:
+    dcids (:obj:`iterable` of :obj:`str`): Dcids to get contained in places.
+    place_type (:obj:`str`): The type of places contained in the given dcids to
+    filter by.
 
-    Returns:
-      The returned :obj:`Place`'s are formatted as a :obj:`dict` from a given
-      dcid to a list of places identified by dcids of the given `place_type`.
+  Returns:
+    The returned :obj:`Place`'s are formatted as a :obj:`dict` from a given
+    dcid to a list of places identified by dcids of the given `place_type`.
 
-    Raises:
-      ValueError: If the payload returned by the Data Commons REST API is
-      malformed.
+  Raises:
+    ValueError: If the payload returned by the Data Commons REST API is
+    malformed.
 
-    Examples:
-      We would like to get all Counties contained in
-      `California <https://browser.datacommons.org/kg?dcid=geoId/06>`_. Specifying
-      the :code:`dcids` as a :obj:`list` result in the following.
+  Examples:
+    We would like to get all Counties contained in
+    `California <https://browser.datacommons.org/kg?dcid=geoId/06>`_. Specifying
+    the :code:`dcids` as a :obj:`list` result in the following.
 
-      >>> get_places_in(["geoId/06"], "County")
-      {
-        'geoId/06': [
-          'geoId/06041',
-          'geoId/06089',
-          'geoId/06015',
-          'geoId/06023',
-          'geoId/06067',
-          ...
-          # and 53 more
-        ]
-      }
-    """
+    >>> get_places_in(["geoId/06"], "County")
+    {
+      'geoId/06': [
+        'geoId/06041',
+        'geoId/06089',
+        'geoId/06015',
+        'geoId/06023',
+        'geoId/06067',
+        ...
+        # and 53 more
+      ]
+    }
+  """
   dcids = filter(lambda v: v == v, dcids)  # Filter out NaN values
   dcids = list(dcids)
   url = utils._API_ROOT + utils._API_ENDPOINTS['get_places_in']
@@ -205,48 +205,48 @@ def get_related_places(dcids,
                        same_place_type=False):
   """ Returns :obj:`Place`s related to :code:`dcids` for the given constraints.
 
-    Args:
-      dcids (:obj:`iterable` of :obj:`str`): Dcids to get related places.
-      population_type (:obj:`str`): The type of statistical population.
-      measured_property (:obj:`str`): The measured property.
-      measurement_method(:obj:`str`): The measurement method for the observation.
-      stat_type (:obj:`str`): The statistical type for the observation.
-      constraining_properties (:obj:`map` from :obj:`str` to :obj:`str`, optional):
-        A map from constraining property to the value that the
-        :obj:`StatisticalPopulation` should be constrained by.
-      within_place(:obj:`str`): Optional, the DCID of the place that all the
-        related places are contained in.
-      per_capita(:obj:`bool`): Optional, whether to take into account
-        `PerCapita` when compute the relatedness.
-      same_place_type(:obj:`bool`): Optional, whether to require all the
-        related places under the same place type.
+  Args:
+    dcids (:obj:`iterable` of :obj:`str`): Dcids to get related places.
+    population_type (:obj:`str`): The type of statistical population.
+    measured_property (:obj:`str`): The measured property.
+    measurement_method(:obj:`str`): The measurement method for the observation.
+    stat_type (:obj:`str`): The statistical type for the observation.
+    constraining_properties (:obj:`map` from :obj:`str` to :obj:`str`, optional):
+      A map from constraining property to the value that the
+      :obj:`StatisticalPopulation` should be constrained by.
+    within_place(:obj:`str`): Optional, the DCID of the place that all the
+      related places are contained in.
+    per_capita(:obj:`bool`): Optional, whether to take into account
+      `PerCapita` when compute the relatedness.
+    same_place_type(:obj:`bool`): Optional, whether to require all the
+      related places under the same place type.
 
-    Returns:
-      The returned :obj:`Place`'s are formatted as a :obj:`dict` from a given
-      dcid to a list of related places for the given constraints.
+  Returns:
+    The returned :obj:`Place`'s are formatted as a :obj:`dict` from a given
+    dcid to a list of related places for the given constraints.
 
-    Raises:
-      ValueError: If the payload returned by the Data Commons REST API is
-      malformed.
+  Raises:
+    ValueError: If the payload returned by the Data Commons REST API is
+    malformed.
 
-    Examples:
-      We would like to get all related places of
-      `Santa Clara county <https://browser.datacommons.org/kg?dcid=geoId/06085>`
-      Specifying the :code:`dcids` as a :obj:`list` result in the following.
+  Examples:
+    We would like to get all related places of
+    `Santa Clara county <https://browser.datacommons.org/kg?dcid=geoId/06085>`
+    Specifying the :code:`dcids` as a :obj:`list` result in the following.
 
-      >>> get_related_places(["geoId/06"], "Person", {
-      "age": "Years21To64",
-      "gender": "Female"
-      }, "count", "CenusACS5yrSurvey", "measuredValue")
-      {
-        'geoId/06085': [
-          'geoId/06041',
-          'geoId/06089',
-          'geoId/06015',
-          'geoId/06023',
-        ]
-      }
-    """
+    >>> get_related_places(["geoId/06"], "Person", {
+    "age": "Years21To64",
+    "gender": "Female"
+    }, "count", "CenusACS5yrSurvey", "measuredValue")
+    {
+      'geoId/06085': [
+        'geoId/06041',
+        'geoId/06089',
+        'geoId/06015',
+        'geoId/06023',
+      ]
+    }
+  """
   dcids = filter(lambda v: v == v, dcids)  # Filter out NaN values
   dcids = list(dcids)
   url = utils._API_ROOT + utils._API_ENDPOINTS['get_related_places']

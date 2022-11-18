@@ -45,14 +45,14 @@ def property_values(nodes: List[str],
                     property: str,
                     is_out: bool = True) -> Dict[str, List[str]]:
   """Retrieves the property values for a list of nodes.
-    Args:
-        nodes: List of DCIDs.
-        property: The property label to query for.
-        is_out: Whether the property is out going.
-    Returns:
-        A dict keyed by node DCID, with the values being a list of values
-        for the queried property.
-    """
+  Args:
+      nodes: List of DCIDs.
+      property: The property label to query for.
+      is_out: Whether the property is out going.
+  Returns:
+      A dict keyed by node DCID, with the values being a list of values
+      for the queried property.
+  """
   resp = _post(f'/v1/bulk/property/values/{_get_direction(is_out)}', {
       'nodes': nodes,
       'property': property,
@@ -72,14 +72,14 @@ def property_values(nodes: List[str],
 def triples(nodes: List[str],
             is_out: bool = True) -> Dict[str, Dict[str, List[object]]]:
   """Retrieves the triples for a node.
-    Args:
-        nodes: List of DCIDs.
-        is_out: Whether the returned property is out going for the queried
-            nodes.
-    Returns:
-        A two level dict keyed by node DCID, then by the arc property, with
-        a list of values or DCIDs.
-    """
+  Args:
+      nodes: List of DCIDs.
+      is_out: Whether the returned property is out going for the queried
+          nodes.
+  Returns:
+      A two level dict keyed by node DCID, then by the arc property, with
+      a list of values or DCIDs.
+  """
   resp = _post(f'/v1/bulk/triples/{_get_direction(is_out)}',
                data={'nodes': nodes})
   result = {}
