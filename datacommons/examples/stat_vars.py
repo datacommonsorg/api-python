@@ -126,7 +126,6 @@ def main():
         dc.get_stat_all(["badPlaceId", "country/FRA"],
                         ["Median_Age_Person", "Count_Person"]))
 
-
     print('\nWhen no data for get_stat_value')
     pp.pprint(dc.get_stat_value('foooo', 'barrrr'))
 

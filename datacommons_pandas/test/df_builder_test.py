@@ -222,19 +222,21 @@ def request_mock(*args, **kwargs):
 
 class TestBuildTimeSeries(unittest.TestCase):
     """Unit tests for build_time_series."""
-    
+
     @patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
     def test_basic(self, urlopen):
         """Calling build_time_series with basic args."""
         series = dcpd.build_time_series('geoId/06', 'Count_Person')
         exp = pd.Series({"2000": 1, "2001": 2})
-        
+
         self.assertCountEqual(series, exp)
 
     @patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
     def test_multi_option(self, urlopen):
         """Calling build_time_series with basic args."""
-        series = dcpd.build_time_series('geoId/06', 'Count_Person', 'CensusPEPSurvey', 'P1Y', 'RealPeople', '100')
+        series = dcpd.build_time_series('geoId/06', 'Count_Person',
+                                        'CensusPEPSurvey', 'P1Y', 'RealPeople',
+                                        '100')
         exp = pd.Series({"2000": 3, "2001": 42})
 
         self.assertCountEqual(series, exp)

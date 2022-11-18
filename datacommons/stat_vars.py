@@ -122,7 +122,7 @@ def get_stat_series(place,
         url += '&unit={}'.format(unit)
     if scaling_factor:
         url += '&scaling_factor={}'.format(scaling_factor)
-    
+
     try:
         res_json = utils._send_request(url, post=False, use_payload=False)
     except ValueError:

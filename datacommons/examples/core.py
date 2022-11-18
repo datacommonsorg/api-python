@@ -22,35 +22,38 @@ from __future__ import print_function
 
 import datacommons as dc
 
+
 def main():
-  # Set the dcid to be that of Santa Clara County.
-  dcids = ['geoId/06085', 'dc/p/zsb968m3v1f97']
+    # Set the dcid to be that of Santa Clara County.
+    dcids = ['geoId/06085', 'dc/p/zsb968m3v1f97']
 
-  # Print all incoming and outgoing properties from Santa Clara County.
-  print('Property Labels for Santa Clara County')
-  in_labels = dc.get_property_labels(dcids)
-  out_labels = dc.get_property_labels(dcids, out=False)
-  print('> Printing properties for {}'.format(dcids))
-  print('> Incoming properties: {}'.format(in_labels))
-  print('> Outgoing properties: {}'.format(out_labels))
+    # Print all incoming and outgoing properties from Santa Clara County.
+    print('Property Labels for Santa Clara County')
+    in_labels = dc.get_property_labels(dcids)
+    out_labels = dc.get_property_labels(dcids, out=False)
+    print('> Printing properties for {}'.format(dcids))
+    print('> Incoming properties: {}'.format(in_labels))
+    print('> Outgoing properties: {}'.format(out_labels))
 
-  # Print all property values for "containedInPlace" for Santa Clara County.
-  print('Property Values for "containedInPlace" of Santa Clara County')
-  prop_vals = dc.get_property_values(
-    dcids, 'containedInPlace', out=False, value_type='City')
-  print('> Cities contained in {}'.format(dcids))
-  for dcid in dcids:
-    for city_dcid in prop_vals[dcid]:
-      print('  - {}'.format(city_dcid))
+    # Print all property values for "containedInPlace" for Santa Clara County.
+    print('Property Values for "containedInPlace" of Santa Clara County')
+    prop_vals = dc.get_property_values(dcids,
+                                       'containedInPlace',
+                                       out=False,
+                                       value_type='City')
+    print('> Cities contained in {}'.format(dcids))
+    for dcid in dcids:
+        for city_dcid in prop_vals[dcid]:
+            print('  - {}'.format(city_dcid))
 
-  # Print the first 10 triples associated with Santa Clara County
-  print('Triples for Santa Clara County')
-  triples = dc.get_triples(dcids)
-  for dcid in dcids:
-    print('> Triples for {}'.format(dcid))
-    for s, p, o in triples[dcid][:5]:
-      print('  - ("{}", {}, "{}")'.format(s, p, o))
+    # Print the first 10 triples associated with Santa Clara County
+    print('Triples for Santa Clara County')
+    triples = dc.get_triples(dcids)
+    for dcid in dcids:
+        print('> Triples for {}'.format(dcid))
+        for s, p, o in triples[dcid][:5]:
+            print('  - ("{}", {}, "{}")'.format(s, p, o))
 
 
 if __name__ == '__main__':
-  main()
+    main()
