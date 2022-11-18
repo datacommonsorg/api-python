@@ -36,65 +36,65 @@ import datacommons.utils as utils
 def get_property_labels(dcids, out=True):
   """ Returns the labels of properties defined for the given :code:`dcids`.
 
-    Args:
-      dcids (:obj:`iterable` of :obj:`str`): A list of nodes identified by their
-        dcids.
-      out (:obj:`bool`, optional): Whether or not the property points away from
-        the given list of nodes.
+  Args:
+    dcids (:obj:`iterable` of :obj:`str`): A list of nodes identified by their
+      dcids.
+    out (:obj:`bool`, optional): Whether or not the property points away from
+      the given list of nodes.
 
-    Returns:
-      A :obj:`dict` mapping dcids to lists of property labels. If `out` is `True`,
-      then property labels correspond to edges directed away from given nodes.
-      Otherwise, they correspond to edges directed towards the given nodes.
+  Returns:
+    A :obj:`dict` mapping dcids to lists of property labels. If `out` is `True`,
+    then property labels correspond to edges directed away from given nodes.
+    Otherwise, they correspond to edges directed towards the given nodes.
 
-    Raises:
-      ValueError: If the payload returned by the Data Commons REST API is
-        malformed.
+  Raises:
+    ValueError: If the payload returned by the Data Commons REST API is
+      malformed.
 
-    Examples:
-      To get all outgoing property labels for
-      `California <https://browser.datacommons.org/kg?dcid=geoId/06>`_ and
-      `Colorado <https://browser.datacommons.org/kg?dcid=geoId/08>`_, we can write
-      the following.
+  Examples:
+    To get all outgoing property labels for
+    `California <https://browser.datacommons.org/kg?dcid=geoId/06>`_ and
+    `Colorado <https://browser.datacommons.org/kg?dcid=geoId/08>`_, we can write
+    the following.
 
-      >>> get_property_labels(['geoId/06', 'geoId/08'])
-      {
-        "geoId/06": [
-          "containedInPlace",
-          "geoId",
-          "kmlCoordinates",
-          "name",
-          "provenance",
-          "typeOf"
-        ],
-        "geoId/08",: [
-          "containedInPlace",
-          "geoId",
-          "kmlCoordinates",
-          "name",
-          "provenance",
-          "typeOf"
-        ]
-      }
+    >>> get_property_labels(['geoId/06', 'geoId/08'])
+    {
+      "geoId/06": [
+        "containedInPlace",
+        "geoId",
+        "kmlCoordinates",
+        "name",
+        "provenance",
+        "typeOf"
+      ],
+      "geoId/08",: [
+        "containedInPlace",
+        "geoId",
+        "kmlCoordinates",
+        "name",
+        "provenance",
+        "typeOf"
+      ]
+    }
 
-      We can also get incoming property labels by setting `out=False`.
+    We can also get incoming property labels by setting `out=False`.
 
-      >>> get_property_labels(['geoId/06', 'geoId/08'], out=False)
-      {
-        "geoId/06": [
-          "addressRegion",
-          "containedInPlace",
-          "location",
-          "overlapsWith"
-        ],
-        "geoId/08",: [
-          "addressRegion",
-          "containedInPlace",
-          "location",
-          "overlapsWith"
-        ]
-      }
-    """
+    >>> get_property_labels(['geoId/06', 'geoId/08'], out=False)
+    {
+      "geoId/06": [
+        "addressRegion",
+        "containedInPlace",
+        "location",
+        "overlapsWith"
+      ],
+      "geoId/08",: [
+        "addressRegion",
+        "containedInPlace",
+        "location",
+        "overlapsWith"
+      ]
+    }
+  """
   # Generate the GetProperty query and send the request
   dcids = filter(lambda v: v == v, dcids)  # Filter out NaN values
   dcids = list(dcids)

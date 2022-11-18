@@ -81,69 +81,69 @@ def get_stats(dcids,
               unit=None,
               obs_period=None):
   """ Returns :obj:`TimeSeries` for :code:`dcids` \
-    based on the :code:`stats_var`.
+  based on the :code:`stats_var`.
 
-    Args:
-      dcids (:obj:`iterable` of :obj:`str`): Dcids of places to query for.
-      stats_var (:obj:`str`): The dcid of the :obj:StatisticalVariable.
-      obs_dates (:obj:`str` or :obj:`iterable` of :obj:`str`):
-        Which observation to return.
-        Can be 'latest', 'all', or an iterable of dates in 'YYYY-MM-DD' format.
-      measurement_method (:obj:`str`): Optional, the dcid of the preferred
-        `measurementMethod` value.
-      unit (:obj:`str`): Optional, the dcid of the preferred `unit` value.
-      obs_period (:obj:`str`): Optional, the dcid of the preferred
-        `observationPeriod` value.
-    Returns:
-      A :obj:`dict` mapping the :obj:`Place` identified by the given :code:`dcid`
-      to its place name and the :obj:`TimeSeries` associated with the
-      :obj:`StatisticalVariable` identified by the given :code:`stats_var`
-      and filtered by :code:`obs_dates` and optional args.
-      See example below for more detail about how the returned :obj:`dict` is
-      structured.
+  Args:
+    dcids (:obj:`iterable` of :obj:`str`): Dcids of places to query for.
+    stats_var (:obj:`str`): The dcid of the :obj:StatisticalVariable.
+    obs_dates (:obj:`str` or :obj:`iterable` of :obj:`str`):
+      Which observation to return.
+      Can be 'latest', 'all', or an iterable of dates in 'YYYY-MM-DD' format.
+    measurement_method (:obj:`str`): Optional, the dcid of the preferred
+      `measurementMethod` value.
+    unit (:obj:`str`): Optional, the dcid of the preferred `unit` value.
+    obs_period (:obj:`str`): Optional, the dcid of the preferred
+      `observationPeriod` value.
+  Returns:
+    A :obj:`dict` mapping the :obj:`Place` identified by the given :code:`dcid`
+    to its place name and the :obj:`TimeSeries` associated with the
+    :obj:`StatisticalVariable` identified by the given :code:`stats_var`
+    and filtered by :code:`obs_dates` and optional args.
+    See example below for more detail about how the returned :obj:`dict` is
+    structured.
 
-    Raises:
-      ValueError: If the payload returned by the Data Commons REST API is
-        malformed.
+  Raises:
+    ValueError: If the payload returned by the Data Commons REST API is
+      malformed.
 
-    Examples:
-      We would like to get the :obj:`TimeSeries` of the number of males
-      at least 25 years old that attended 12th grade but did not receive
-      a high school diploma
-      (`dc/0hyp6tkn18vcb <https://browser.datacommons.org/kg?dcid=dc/0hyp6tkn18vcb>`_)
-      in `Arkansas <https://browser.datacommons.org/kg?dcid=geoId/05>`_
-      and `California <https://browser.datacommons.org/kg?dcid=geoId/06>`_.
+  Examples:
+    We would like to get the :obj:`TimeSeries` of the number of males
+    at least 25 years old that attended 12th grade but did not receive
+    a high school diploma
+    (`dc/0hyp6tkn18vcb <https://browser.datacommons.org/kg?dcid=dc/0hyp6tkn18vcb>`_)
+    in `Arkansas <https://browser.datacommons.org/kg?dcid=geoId/05>`_
+    and `California <https://browser.datacommons.org/kg?dcid=geoId/06>`_.
 
-      >>> get_stats(["geoId/05", "geoId/06"], "dc/0hyp6tkn18vcb")
-      {
-        'geoId/05': {
-          'place_name': 'Arkansas'
-          'data': {
-            '2011':18136,
-            '2012':17279,
-            '2013':17459,
-            '2014':16966,
-            '2015':17173,
-            '2016':17041,
-            '2017':17783,
-            '2018':18003
-          },
+    >>> get_stats(["geoId/05", "geoId/06"], "dc/0hyp6tkn18vcb")
+    {
+      'geoId/05': {
+        'place_name': 'Arkansas'
+        'data': {
+          '2011':18136,
+          '2012':17279,
+          '2013':17459,
+          '2014':16966,
+          '2015':17173,
+          '2016':17041,
+          '2017':17783,
+          '2018':18003
         },
-        'geoId/05': {
-          'place_name': 'California'
-          'data': {
-            '2011':316667,
-            '2012':324116,
-            '2013':331853,
-            '2014':342818,
-            '2015':348979,
-            '2016':354806,
-            '2017':360645,
-            '2018':366331
-          },
+      },
+      'geoId/05': {
+        'place_name': 'California'
+        'data': {
+          '2011':316667,
+          '2012':324116,
+          '2013':331853,
+          '2014':342818,
+          '2015':348979,
+          '2016':354806,
+          '2017':360645,
+          '2018':366331
         },
-      }
-    """
+      },
+    }
+  """
   dcids = filter(lambda v: v == v, dcids)  # Filter out NaN values
   dcids = list(dcids)
   url = utils._API_ROOT + utils._API_ENDPOINTS['get_stats']

@@ -38,29 +38,29 @@ def get_stat_value(place,
                    scaling_factor=None):
   """Returns a value for `place` based on the `stat_var`.
 
-    Args:
-      place (`str`): The dcid of Place to query for.
-      stat_var (`str`): The dcid of the StatisticalVariable.
-      date (`str`): Optional, the preferred date of observation
-        in ISO 8601 format. If not specified, returns the latest observation.
-      measurement_method (`str`): Optional, the dcid of the preferred
-        `measurementMethod` value.
-      observation_period (`str`): Optional, the preferred
-        `observationPeriod` value.
-      unit (`str`): Optional, the dcid of the preferred `unit` value.
-      scaling_factor (`int`): Optional, the preferred `scalingFactor` value.
-    Returns:
-      A `float` the value of `stat_var` for `place`, filtered
-      by optional args. If no data, returns nan.
+  Args:
+    place (`str`): The dcid of Place to query for.
+    stat_var (`str`): The dcid of the StatisticalVariable.
+    date (`str`): Optional, the preferred date of observation
+      in ISO 8601 format. If not specified, returns the latest observation.
+    measurement_method (`str`): Optional, the dcid of the preferred
+      `measurementMethod` value.
+    observation_period (`str`): Optional, the preferred
+      `observationPeriod` value.
+    unit (`str`): Optional, the dcid of the preferred `unit` value.
+    scaling_factor (`int`): Optional, the preferred `scalingFactor` value.
+  Returns:
+    A `float` the value of `stat_var` for `place`, filtered
+    by optional args. If no data, returns nan.
 
-    Raises:
-      ValueError: If the payload returned by the Data Commons REST API is
-        malformed.
+  Raises:
+    ValueError: If the payload returned by the Data Commons REST API is
+      malformed.
 
-    Examples:
-      >>> get_stat_value("geoId/05", "Count_Person")
-          366331
-    """
+  Examples:
+    >>> get_stat_value("geoId/05", "Count_Person")
+        366331
+  """
   url = utils._API_ROOT + utils._API_ENDPOINTS['get_stat_value']
   url += '?place={}&stat_var={}'.format(place, stat_var)
   if date:
@@ -91,27 +91,27 @@ def get_stat_series(place,
                     scaling_factor=None):
   """Returns a `dict` mapping dates to value of `stat_var` for `place`.
 
-    Args:
-      place (`str`): The dcid of Place to query for.
-      stat_var (`str`): The dcid of the StatisticalVariable.
-      measurement_method (`str`): Optional, the dcid of the preferred
-        `measurementMethod` value.
-      observation_period (`str`): Optional, the preferred
-        `observationPeriod` value.
-      unit (`str`): Optional, the dcid of the preferred `unit` value.
-      scaling_factor (`int`): Optional, the preferred `scalingFactor` value.
-    Returns:
-      A `dict` mapping dates to value of `stat_var` for `place`,
-      representing a time series that satisfies all input parameters.
+  Args:
+    place (`str`): The dcid of Place to query for.
+    stat_var (`str`): The dcid of the StatisticalVariable.
+    measurement_method (`str`): Optional, the dcid of the preferred
+      `measurementMethod` value.
+    observation_period (`str`): Optional, the preferred
+      `observationPeriod` value.
+    unit (`str`): Optional, the dcid of the preferred `unit` value.
+    scaling_factor (`int`): Optional, the preferred `scalingFactor` value.
+  Returns:
+    A `dict` mapping dates to value of `stat_var` for `place`,
+    representing a time series that satisfies all input parameters.
 
-    Raises:
-      ValueError: If the payload returned by the Data Commons REST API is
-        malformed.
+  Raises:
+    ValueError: If the payload returned by the Data Commons REST API is
+      malformed.
 
-    Examples:
-      >>> get_stat_series("geoId/05", "Count_Person")
-          {"1962":17072000,"2009":36887615,"1929":5531000,"1930":5711000}
-    """
+  Examples:
+    >>> get_stat_series("geoId/05", "Count_Person")
+        {"1962":17072000,"2009":36887615,"1929":5531000,"1930":5711000}
+  """
   url = utils._API_ROOT + utils._API_ENDPOINTS['get_stat_series']
   url += '?place={}&stat_var={}'.format(place, stat_var)
   if measurement_method:
@@ -136,80 +136,80 @@ def get_stat_series(place,
 def get_stat_all(places, stat_vars):
   """Returns a nested `dict` of all time series for `places` and `stat_vars`.
 
-    Args:
-      places (`Iterable` of `str`): The dcids of Places to query for.
-      stat_vars (`Iterable` of `str`): The dcids of the StatisticalVariables.
-    Returns:
-      A nested `dict` mapping Places to StatisticalVariables and all available
-      time series for each Place and StatisticalVariable pair.
+  Args:
+    places (`Iterable` of `str`): The dcids of Places to query for.
+    stat_vars (`Iterable` of `str`): The dcids of the StatisticalVariables.
+  Returns:
+    A nested `dict` mapping Places to StatisticalVariables and all available
+    time series for each Place and StatisticalVariable pair.
 
-    Raises:
-      ValueError: If the payload returned by the Data Commons REST API is
-        malformed.
+  Raises:
+    ValueError: If the payload returned by the Data Commons REST API is
+      malformed.
 
-    Examples:
-      >>> get_stat_all(["geoId/05", "geoId/06"], ["Count_Person", "Count_Person_Male"])
-      {
-        "geoId/05": {
-          "Count_Person": {
-            "sourceSeries": [
-              {
-                "val": {
-                  "2010": 1633,
-                  "2011": 1509,
-                  "2012": 1581,
-                },
-                "observationPeriod": "P1Y",
-                "importName": "Wikidata",
-                "provenanceDomain": "wikidata.org"
+  Examples:
+    >>> get_stat_all(["geoId/05", "geoId/06"], ["Count_Person", "Count_Person_Male"])
+    {
+      "geoId/05": {
+        "Count_Person": {
+          "sourceSeries": [
+            {
+              "val": {
+                "2010": 1633,
+                "2011": 1509,
+                "2012": 1581,
               },
-              {
-                "val": {
-                  "2010": 1333,
-                  "2011": 1309,
-                  "2012": 131,
-                },
-                "observationPeriod": "P1Y",
-                "importName": "CensusPEPSurvey",
-                "provenanceDomain": "census.gov"
-              }
-            ],
+              "observationPeriod": "P1Y",
+              "importName": "Wikidata",
+              "provenanceDomain": "wikidata.org"
+            },
+            {
+              "val": {
+                "2010": 1333,
+                "2011": 1309,
+                "2012": 131,
+              },
+              "observationPeriod": "P1Y",
+              "importName": "CensusPEPSurvey",
+              "provenanceDomain": "census.gov"
             }
-          },
-          "Count_Person_Male": {
-            "sourceSeries": [
-              {
-                "val": {
-                  "2010": 1633,
-                  "2011": 1509,
-                  "2012": 1581,
-                },
-                "observationPeriod": "P1Y",
-                "importName": "CensusPEPSurvey",
-                "provenanceDomain": "census.gov"
-              }
-            ],
+          ],
           }
         },
-        "geoId/02": {
-          "Count_Person": {},
-          "Count_Person_Male": {
-              "sourceSeries": [
-                {
-                  "val": {
-                    "2010": 13,
-                    "2011": 13,
-                    "2012": 322,
-                  },
-                  "observationPeriod": "P1Y",
-                  "importName": "CensusPEPSurvey",
-                  "provenanceDomain": "census.gov"
-                }
-              ]
+        "Count_Person_Male": {
+          "sourceSeries": [
+            {
+              "val": {
+                "2010": 1633,
+                "2011": 1509,
+                "2012": 1581,
+              },
+              "observationPeriod": "P1Y",
+              "importName": "CensusPEPSurvey",
+              "provenanceDomain": "census.gov"
             }
+          ],
         }
+      },
+      "geoId/02": {
+        "Count_Person": {},
+        "Count_Person_Male": {
+            "sourceSeries": [
+              {
+                "val": {
+                  "2010": 13,
+                  "2011": 13,
+                  "2012": 322,
+                },
+                "observationPeriod": "P1Y",
+                "importName": "CensusPEPSurvey",
+                "provenanceDomain": "census.gov"
+              }
+            ]
+          }
       }
-    """
+    }
+  """
   url = utils._API_ROOT + utils._API_ENDPOINTS['get_stat_all']
   # Cast iterable-like to list.
   places = list(places)

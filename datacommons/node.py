@@ -23,14 +23,14 @@ from datacommons.utils import _get_direction
 def properties(nodes: List[str], is_out: bool = True) -> Dict[str, List[str]]:
   """Retrieves all the properties for a list of nodes.
 
-    Note this only returns the property labels, not the values.
-    Args:
-        nodes: List of DCIDs.
-        is_out: Whether to return out going properties.
-    Returns:
-        A dict keyed by node DCID, with the values being a list of properties
-        for the queried node.
-    """
+  Note this only returns the property labels, not the values.
+  Args:
+      nodes: List of DCIDs.
+      is_out: Whether to return out going properties.
+  Returns:
+      A dict keyed by node DCID, with the values being a list of properties
+      for the queried node.
+  """
   resp = _post(f'/v1/bulk/properties/{_get_direction(is_out)}', {
       'nodes': nodes,
   })

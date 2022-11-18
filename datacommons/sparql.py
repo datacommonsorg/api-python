@@ -22,58 +22,58 @@ from datacommons.requests import _post
 def query(query_string, select=None):
   """ Returns the results of executing a SPARQL query on the Data Commons graph.
 
-    Args:
-      query_string (:obj:`str`): The SPARQL query string.
-      select (:obj:`func` accepting a row of the query result): A function that
-        selects rows to be returned by :code:`query`. This function accepts a row
-        on the results of executing :code:`query_string` and returns True if and
-        only if the row is to be returned by :code:`query`. The row passed in as
-        an argument is represented as a :obj:`dict` that maps a query variable in
-        :code:`query_string` to its value in the given row.
+  Args:
+    query_string (:obj:`str`): The SPARQL query string.
+    select (:obj:`func` accepting a row of the query result): A function that
+      selects rows to be returned by :code:`query`. This function accepts a row
+      on the results of executing :code:`query_string` and returns True if and
+      only if the row is to be returned by :code:`query`. The row passed in as
+      an argument is represented as a :obj:`dict` that maps a query variable in
+      :code:`query_string` to its value in the given row.
 
-    Returns:
-      A table, represented as a :obj:`list` of rows, resulting from executing the
-      given SPARQL query. Each row is a :obj:`dict` mapping query variable to its
-      value in the row. If `select` is not `None`, then a row is included in the
-      returned :obj:`list` if and only if `select` returns :obj:`True` for that
-      row.
+  Returns:
+    A table, represented as a :obj:`list` of rows, resulting from executing the
+    given SPARQL query. Each row is a :obj:`dict` mapping query variable to its
+    value in the row. If `select` is not `None`, then a row is included in the
+    returned :obj:`list` if and only if `select` returns :obj:`True` for that
+    row.
 
-    Raises:
-      ValueError: If the payload returned by the Data Commons REST API is
-        malformed.
+  Raises:
+    ValueError: If the payload returned by the Data Commons REST API is
+      malformed.
 
-    Examples:
-      We would like to query for the name associated with three states identified
-      by their dcids
-      `California <https://browser.datacommons.org/kg?dcid=geoId/06>`_,
-      `Kentucky <https://browser.datacommons.org/kg?dcid=geoId/21>`_, and
-      `Maryland <https://browser.datacommons.org/kg?dcid=geoId/24>`_.
+  Examples:
+    We would like to query for the name associated with three states identified
+    by their dcids
+    `California <https://browser.datacommons.org/kg?dcid=geoId/06>`_,
+    `Kentucky <https://browser.datacommons.org/kg?dcid=geoId/21>`_, and
+    `Maryland <https://browser.datacommons.org/kg?dcid=geoId/24>`_.
 
-      >>> query_str = '''
-      ... SELECT ?name ?dcid
-      ... WHERE {
-      ...   ?a typeOf Place .
-      ...   ?a name ?name .
-      ...   ?a dcid ("geoId/06" "geoId/21" "geoId/24") .
-      ...   ?a dcid ?dcid
-      ... }
-      ... '''
-      >>> result = query(query_str)
-      >>> for r in result:
-      ...   print(r)
-      {"?name": "Maryland", "?dcid": "geoId/24"}
-      {"?name": "Kentucky", "?dcid": "geoId/21"}
-      {"?name": "California", "?dcid": "geoId/06"}
+    >>> query_str = '''
+    ... SELECT ?name ?dcid
+    ... WHERE {
+    ...   ?a typeOf Place .
+    ...   ?a name ?name .
+    ...   ?a dcid ("geoId/06" "geoId/21" "geoId/24") .
+    ...   ?a dcid ?dcid
+    ... }
+    ... '''
+    >>> result = query(query_str)
+    >>> for r in result:
+    ...   print(r)
+    {"?name": "Maryland", "?dcid": "geoId/24"}
+    {"?name": "Kentucky", "?dcid": "geoId/21"}
+    {"?name": "California", "?dcid": "geoId/06"}
 
-      Optionally, we can specify which rows are returned by setting :code:`select`
-      like so. The following returns all rows where the name is "Maryland".
+    Optionally, we can specify which rows are returned by setting :code:`select`
+    like so. The following returns all rows where the name is "Maryland".
 
-      >>> selector = lambda row: row['?name'] == 'Maryland'
-      >>> result = query(query_str, select=selector)
-      >>> for r in result:
-      ...   print(r)
-      {"?name": "Maryland", "?dcid": "geoId/24"}
-    """
+    >>> selector = lambda row: row['?name'] == 'Maryland'
+    >>> result = query(query_str, select=selector)
+    >>> for r in result:
+    ...   print(r)
+    {"?name": "Maryland", "?dcid": "geoId/24"}
+  """
   resp = _post('/query', {'sparql': query_string})
   # Iterate through the query results
   header = resp.get('header')
