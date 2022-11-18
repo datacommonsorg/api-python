@@ -24,7 +24,7 @@ function run_py_test {
   setup_python
   python3 -m pytest -vv
   echo -e "#### Checking Python style"
-  if ! yapf --recursive --diff --style=google -p datacommons/ datacommons_pandas/; then
+  if ! yapf --recursive --diff --style='{based_on_style: google, indent_width: 2}' -p datacommons/ datacommons_pandas/; then
     echo "Fix lint errors by running: ./run_test.sh -f"
     exit 1
   fi
@@ -37,7 +37,7 @@ function run_lint_fix {
   then
     pip3 install yapf -q
   fi
-  yapf -r -i -p --style=google datacommons/ datacommons_pandas/
+  yapf -r -i -p --style='{based_on_style: google, indent_width: 2}' datacommons/ datacommons_pandas/
   deactivate
 }
 

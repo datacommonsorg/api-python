@@ -43,89 +43,74 @@ WHERE {
 
 
 def _post_mock(path, data):
-    """ A mock function for _post. """
-    if path == "/query" and data['sparql'] == _QUERY1:
-        return {
-            'header': ['?name', '?dcid'],
-            'rows': [{
-                'cells': [{
-                    'value': 'California'
-                }, {
-                    'value': 'geoId/06'
-                }]
+  """ A mock function for _post. """
+  if path == "/query" and data['sparql'] == _QUERY1:
+    return {
+        'header': ['?name', '?dcid'],
+        'rows': [{
+            'cells': [{
+                'value': 'California'
             }, {
-                'cells': [{
-                    'value': 'Kentucky'
-                }, {
-                    'value': 'geoId/21'
-                }]
-            }, {
-                'cells': [{
-                    'value': 'Maryland'
-                }, {
-                    'value': 'geoId/24'
-                }]
+                'value': 'geoId/06'
             }]
-        }
-    if path == "/query" and data['sparql'] == _QUERY2:
-        return {
-            'header': ['?name', '?dcid'],
-        }
+        }, {
+            'cells': [{
+                'value': 'Kentucky'
+            }, {
+                'value': 'geoId/21'
+            }]
+        }, {
+            'cells': [{
+                'value': 'Maryland'
+            }, {
+                'value': 'geoId/24'
+            }]
+        }]
+    }
+  if path == "/query" and data['sparql'] == _QUERY2:
+    return {
+        'header': ['?name', '?dcid'],
+    }
 
-    # Otherwise, return an empty response and a 404.
-    return Exception('mock exception')
+  # Otherwise, return an empty response and a 404.
+  return Exception('mock exception')
 
 
 class TestQuery(unittest.TestCase):
-    """ Unit tests for the Query object. """
+  """ Unit tests for the Query object. """
 
-    @patch('datacommons.sparql._post')
-    def test_rows(self, _post):
-        """ Sending a valid query returns the correct response. """
-        _post.side_effect = _post_mock
-        # Create the SPARQL query
-        selector = lambda row: row['?name'] != 'California'
-        # Issue the query
-        results = datacommons.query(_QUERY1)
-        selected_results = datacommons.query(_QUERY2, select=selector)
-        # Execute the query and iterate through the results.
-        for idx, row in enumerate(results):
-            if idx == 0:
-                self.assertDictEqual(row, {
-                    '?name': 'California',
-                    '?dcid': 'geoId/06'
-                })
-            if idx == 1:
-                self.assertDictEqual(row, {
-                    '?name': 'Kentucky',
-                    '?dcid': 'geoId/21'
-                })
-            if idx == 2:
-                self.assertDictEqual(row, {
-                    '?name': 'Maryland',
-                    '?dcid': 'geoId/24'
-                })
+  @patch('datacommons.sparql._post')
+  def test_rows(self, _post):
+    """ Sending a valid query returns the correct response. """
+    _post.side_effect = _post_mock
+    # Create the SPARQL query
+    selector = lambda row: row['?name'] != 'California'
+    # Issue the query
+    results = datacommons.query(_QUERY1)
+    selected_results = datacommons.query(_QUERY2, select=selector)
+    # Execute the query and iterate through the results.
+    for idx, row in enumerate(results):
+      if idx == 0:
+        self.assertDictEqual(row, {'?name': 'California', '?dcid': 'geoId/06'})
+      if idx == 1:
+        self.assertDictEqual(row, {'?name': 'Kentucky', '?dcid': 'geoId/21'})
+      if idx == 2:
+        self.assertDictEqual(row, {'?name': 'Maryland', '?dcid': 'geoId/24'})
 
-        # Verify that the select function works.
-        for idx, row in enumerate(selected_results):
-            if idx == 0:
-                self.assertDictEqual(row, {
-                    '?name': 'Kentucky',
-                    '?dcid': 'geoId/21'
-                })
-            if idx == 1:
-                self.assertDictEqual(row, {
-                    '?name': 'Maryland',
-                    '?dcid': 'geoId/24'
-                })
+    # Verify that the select function works.
+    for idx, row in enumerate(selected_results):
+      if idx == 0:
+        self.assertDictEqual(row, {'?name': 'Kentucky', '?dcid': 'geoId/21'})
+      if idx == 1:
+        self.assertDictEqual(row, {'?name': 'Maryland', '?dcid': 'geoId/24'})
 
-    @patch('datacommons.sparql._post')
-    def test_no_rows(self, _post):
-        """ Handles row-less response. """
-        _post.side_effect = _post_mock
-        # Issue the query
-        self.assertEqual(datacommons.query(_QUERY2), [])
+  @patch('datacommons.sparql._post')
+  def test_no_rows(self, _post):
+    """ Handles row-less response. """
+    _post.side_effect = _post_mock
+    # Issue the query
+    self.assertEqual(datacommons.query(_QUERY2), [])
 
 
 if __name__ == '__main__':
-    unittest.main()
+  unittest.main()

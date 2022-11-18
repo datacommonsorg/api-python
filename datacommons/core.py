@@ -34,7 +34,7 @@ import datacommons.utils as utils
 
 
 def get_property_labels(dcids, out=True):
-    """ Returns the labels of properties defined for the given :code:`dcids`.
+  """ Returns the labels of properties defined for the given :code:`dcids`.
 
     Args:
       dcids (:obj:`iterable` of :obj:`str`): A list of nodes identified by their
@@ -95,20 +95,20 @@ def get_property_labels(dcids, out=True):
         ]
       }
     """
-    # Generate the GetProperty query and send the request
-    dcids = filter(lambda v: v == v, dcids)  # Filter out NaN values
-    dcids = list(dcids)
-    url = utils._API_ROOT + utils._API_ENDPOINTS['get_property_labels']
-    payload = utils._send_request(url, req_json={'dcids': dcids})
+  # Generate the GetProperty query and send the request
+  dcids = filter(lambda v: v == v, dcids)  # Filter out NaN values
+  dcids = list(dcids)
+  url = utils._API_ROOT + utils._API_ENDPOINTS['get_property_labels']
+  payload = utils._send_request(url, req_json={'dcids': dcids})
 
-    # Return the results based on the orientation
-    results = {}
-    for dcid in dcids:
-        if out:
-            results[dcid] = payload[dcid]['outLabels']
-        else:
-            results[dcid] = payload[dcid]['inLabels']
-    return results
+  # Return the results based on the orientation
+  results = {}
+  for dcid in dcids:
+    if out:
+      results[dcid] = payload[dcid]['outLabels']
+    else:
+      results[dcid] = payload[dcid]['inLabels']
+  return results
 
 
 def get_property_values(dcids,
@@ -116,7 +116,7 @@ def get_property_values(dcids,
                         out=True,
                         value_type=None,
                         limit=utils._MAX_LIMIT):
-    """ Returns property values of given :code:`dcids` along the given property.
+  """ Returns property values of given :code:`dcids` along the given property.
 
     Args:
       dcids (:obj:`iterable` of :obj:`str`): dcids to get property values for.
@@ -152,54 +152,54 @@ def get_property_values(dcids,
         "geoId/24": ["Maryland"],
       }
     """
-    # Convert the dcids field and format the request to GetPropertyValue
-    dcids = filter(lambda v: v == v, dcids)  # Filter out NaN values
-    dcids = list(dcids)
+  # Convert the dcids field and format the request to GetPropertyValue
+  dcids = filter(lambda v: v == v, dcids)  # Filter out NaN values
+  dcids = list(dcids)
+  if out:
+    direction = 'out'
+  else:
+    direction = 'in'
+
+  req_json = {
+      'dcids': dcids,
+      'property': prop,
+      'limit': limit,
+      'direction': direction
+  }
+  if value_type:
+    req_json['value_type'] = value_type
+
+  # Send the request
+  url = utils._API_ROOT + utils._API_ENDPOINTS['get_property_values']
+  payload = utils._send_request(url, req_json=req_json)
+
+  # Create the result format for when dcids is provided as a list.
+  unique_results = defaultdict(set)
+  for dcid in dcids:
+    # Get the list of nodes based on the direction given.
+    nodes = []
     if out:
-        direction = 'out'
+      if dcid in payload and 'out' in payload[dcid]:
+        nodes = payload[dcid]['out']
     else:
-        direction = 'in'
+      if dcid in payload and 'in' in payload[dcid]:
+        nodes = payload[dcid]['in']
 
-    req_json = {
-        'dcids': dcids,
-        'property': prop,
-        'limit': limit,
-        'direction': direction
-    }
-    if value_type:
-        req_json['value_type'] = value_type
+    # Add nodes to unique_results if it is not empty
+    for node in nodes:
+      if 'dcid' in node:
+        unique_results[dcid].add(node['dcid'])
+      elif 'value' in node:
+        unique_results[dcid].add(node['value'])
 
-    # Send the request
-    url = utils._API_ROOT + utils._API_ENDPOINTS['get_property_values']
-    payload = utils._send_request(url, req_json=req_json)
+  # Make sure each dcid is in the results dict, and convert all sets to lists.
+  results = {dcid: sorted(list(unique_results[dcid])) for dcid in dcids}
 
-    # Create the result format for when dcids is provided as a list.
-    unique_results = defaultdict(set)
-    for dcid in dcids:
-        # Get the list of nodes based on the direction given.
-        nodes = []
-        if out:
-            if dcid in payload and 'out' in payload[dcid]:
-                nodes = payload[dcid]['out']
-        else:
-            if dcid in payload and 'in' in payload[dcid]:
-                nodes = payload[dcid]['in']
-
-        # Add nodes to unique_results if it is not empty
-        for node in nodes:
-            if 'dcid' in node:
-                unique_results[dcid].add(node['dcid'])
-            elif 'value' in node:
-                unique_results[dcid].add(node['value'])
-
-    # Make sure each dcid is in the results dict, and convert all sets to lists.
-    results = {dcid: sorted(list(unique_results[dcid])) for dcid in dcids}
-
-    return results
+  return results
 
 
 def get_triples(dcids, limit=utils._MAX_LIMIT):
-    """ Returns all triples associated with the given :code:`dcids`.
+  """ Returns all triples associated with the given :code:`dcids`.
 
     A knowledge graph can be described as a collection of `triples` which are
     3-tuples that take the form `(s, p, o)`. Here `s` and `o` are nodes in the
@@ -235,28 +235,22 @@ def get_triples(dcids, limit=utils._MAX_LIMIT):
         ]
       }
     """
-    # Generate the GetTriple query and send the request.
-    dcids = filter(lambda v: v == v, dcids)  # Filter out NaN values
-    dcids = list(dcids)
-    url = utils._API_ROOT + utils._API_ENDPOINTS['get_triples']
-    payload = utils._send_request(url,
-                                  req_json={
-                                      'dcids': dcids,
-                                      'limit': limit
-                                  })
+  # Generate the GetTriple query and send the request.
+  dcids = filter(lambda v: v == v, dcids)  # Filter out NaN values
+  dcids = list(dcids)
+  url = utils._API_ROOT + utils._API_ENDPOINTS['get_triples']
+  payload = utils._send_request(url, req_json={'dcids': dcids, 'limit': limit})
 
-    # Create a map from dcid to list of triples.
-    results = defaultdict(list)
-    for dcid in dcids:
-        # Make sure each dcid is mapped to an empty list.
-        results[dcid]
+  # Create a map from dcid to list of triples.
+  results = defaultdict(list)
+  for dcid in dcids:
+    # Make sure each dcid is mapped to an empty list.
+    results[dcid]
 
-        # Add triples as appropriate
-        for t in payload[dcid]:
-            if 'objectId' in t:
-                results[dcid].append(
-                    (t['subjectId'], t['predicate'], t['objectId']))
-            elif 'objectValue' in t:
-                results[dcid].append(
-                    (t['subjectId'], t['predicate'], t['objectValue']))
-    return dict(results)
+    # Add triples as appropriate
+    for t in payload[dcid]:
+      if 'objectId' in t:
+        results[dcid].append((t['subjectId'], t['predicate'], t['objectId']))
+      elif 'objectValue' in t:
+        results[dcid].append((t['subjectId'], t['predicate'], t['objectValue']))
+  return dict(results)

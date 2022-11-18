@@ -24,18 +24,18 @@ _API_ROOT = "https://api.datacommons.org"
 
 
 def _post(path: str, data={}) -> Dict:
-    url = _API_ROOT + path
-    headers = {'Content-Type': 'application/json'}
-    api_key = key.get_api_key()
-    if api_key:
-        headers['x-api-key'] = api_key
-    try:
-        resp = requests.post(url, json=data, headers=headers)
-        if resp.status_code != 200:
-            raise Exception(
-                f'{resp.status_code}: {resp.reason}\n{resp.json()["message"]}')
-        return resp.json()
-    except requests.exceptions.Timeout:
-        raise Exception('Data request timed out, please try again.')
-    except requests.exceptions.RequestException as e:
-        raise e
+  url = _API_ROOT + path
+  headers = {'Content-Type': 'application/json'}
+  api_key = key.get_api_key()
+  if api_key:
+    headers['x-api-key'] = api_key
+  try:
+    resp = requests.post(url, json=data, headers=headers)
+    if resp.status_code != 200:
+      raise Exception(
+          f'{resp.status_code}: {resp.reason}\n{resp.json()["message"]}')
+    return resp.json()
+  except requests.exceptions.Timeout:
+    raise Exception('Data request timed out, please try again.')
+  except requests.exceptions.RequestException as e:
+    raise e

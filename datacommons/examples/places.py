@@ -24,53 +24,53 @@ import datacommons as dc
 
 
 def main():
-    # Create a list of dcids for Santa Clara and Montgomery County.
-    sc, mc = 'geoId/06085', 'geoId/24031'
-    dcids = [sc, mc]
+  # Create a list of dcids for Santa Clara and Montgomery County.
+  sc, mc = 'geoId/06085', 'geoId/24031'
+  dcids = [sc, mc]
 
-    # Get all CensusTracts in these two counties.
-    print('Get Census Tracts')
-    tracts = dc.get_places_in(dcids, 'CensusTract')
-    if sc in tracts:
-        print('> 10 CensusTracts in Santa Clara County')
-        for dcid in tracts[sc][:10]:
-            print('  - {}'.format(dcid))
-    if mc in tracts:
-        print('> 10 CensusTracts in Montgomery County')
-        for dcid in tracts[mc][:10]:
-            print('  - {}'.format(dcid))
+  # Get all CensusTracts in these two counties.
+  print('Get Census Tracts')
+  tracts = dc.get_places_in(dcids, 'CensusTract')
+  if sc in tracts:
+    print('> 10 CensusTracts in Santa Clara County')
+    for dcid in tracts[sc][:10]:
+      print('  - {}'.format(dcid))
+  if mc in tracts:
+    print('> 10 CensusTracts in Montgomery County')
+    for dcid in tracts[mc][:10]:
+      print('  - {}'.format(dcid))
 
-    # Get place stats.
-    print('Get place stats -- all')
-    stats = dc.get_stats(['geoId/05', 'geoId/06', 'dc/madDcid'],
-                         'dc/0hyp6tkn18vcb',
-                         obs_dates='all')
-    print(stats)
+  # Get place stats.
+  print('Get place stats -- all')
+  stats = dc.get_stats(['geoId/05', 'geoId/06', 'dc/madDcid'],
+                       'dc/0hyp6tkn18vcb',
+                       obs_dates='all')
+  print(stats)
 
-    print('Get place stats -- latest')
-    stats = dc.get_stats(['geoId/05', 'geoId/06', 'dc/madDcid'],
-                         'dc/0hyp6tkn18vcb')
-    print(stats)
+  print('Get place stats -- latest')
+  stats = dc.get_stats(['geoId/05', 'geoId/06', 'dc/madDcid'],
+                       'dc/0hyp6tkn18vcb')
+  print(stats)
 
-    print('Get place stats -- 2014')
-    stats = dc.get_stats(['geoId/05', 'geoId/06', 'dc/madDcid'],
-                         'dc/0hyp6tkn18vcb',
-                         obs_dates=['2014'])
-    print(stats)
+  print('Get place stats -- 2014')
+  stats = dc.get_stats(['geoId/05', 'geoId/06', 'dc/madDcid'],
+                       'dc/0hyp6tkn18vcb',
+                       obs_dates=['2014'])
+  print(stats)
 
-    print('Get place stats -- 2014 badly formatted')
-    stats = dc.get_stats(['geoId/05', 'geoId/06', 'dc/madDcid'],
-                         'dc/0hyp6tkn18vcb',
-                         obs_dates='2014')
-    print(stats)
+  print('Get place stats -- 2014 badly formatted')
+  stats = dc.get_stats(['geoId/05', 'geoId/06', 'dc/madDcid'],
+                       'dc/0hyp6tkn18vcb',
+                       obs_dates='2014')
+  print(stats)
 
-    print('Get place stats -- 2015-2016')
-    stats = dc.get_stats(['geoId/05', 'geoId/06', 'dc/madDcid'],
-                         'dc/0hyp6tkn18vcb',
-                         obs_dates=['2015', '2016'])
-    print(stats)
+  print('Get place stats -- 2015-2016')
+  stats = dc.get_stats(['geoId/05', 'geoId/06', 'dc/madDcid'],
+                       'dc/0hyp6tkn18vcb',
+                       obs_dates=['2015', '2016'])
+  print(stats)
 
-    # Get related places.
+  # Get related places.
 
 
 # TODO(*): Fix the related places example.
@@ -80,4 +80,4 @@ def main():
 #   print(related_places)
 
 if __name__ == '__main__':
-    main()
+  main()

@@ -17,7 +17,7 @@ from setuptools import setup
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 with open(os.path.join(dir_path, 'README.md'), 'r') as fh:
-    long_description = fh.read()
+  long_description = fh.read()
 
 # Package metadata.
 NAME = 'datacommons_pandas'

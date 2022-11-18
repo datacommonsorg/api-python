@@ -21,9 +21,9 @@ from __future__ import division
 from __future__ import print_function
 
 try:
-    from unittest.mock import patch
+  from unittest.mock import patch
 except ImportError:
-    from mock import patch
+  from mock import patch
 
 import datacommons_pandas.df_builder as dcpd
 import datacommons_pandas.utils as utils
@@ -97,230 +97,222 @@ CA_MEDIAN_AGE_PERSON = {
 
 
 def request_mock(*args, **kwargs):
-    """A mock urlopen requests sent in the requests package."""
+  """A mock urlopen requests sent in the requests package."""
 
-    # Create the mock response object.
-    class MockResponse:
+  # Create the mock response object.
+  class MockResponse:
 
-        def __init__(self, json_data):
-            self.json_data = json_data
+    def __init__(self, json_data):
+      self.json_data = json_data
 
-        def read(self):
-            return self.json_data
+    def read(self):
+      return self.json_data
 
-    req = args[0]
+  req = args[0]
 
-    stat_value_url_base = utils._API_ROOT + utils._API_ENDPOINTS[
-        'get_stat_value']
-    stat_series_url_base = utils._API_ROOT + utils._API_ENDPOINTS[
-        'get_stat_series']
-    stat_all_url_base = utils._API_ROOT + utils._API_ENDPOINTS['get_stat_all']
+  stat_value_url_base = utils._API_ROOT + utils._API_ENDPOINTS['get_stat_value']
+  stat_series_url_base = utils._API_ROOT + utils._API_ENDPOINTS[
+      'get_stat_series']
+  stat_all_url_base = utils._API_ROOT + utils._API_ENDPOINTS['get_stat_all']
 
-    # Mock responses for urlopen requests to get_stat_series.
-    if req.get_full_url(
-    ) == stat_series_url_base + '?place=geoId/06&stat_var=Count_Person':
-        # Response returned when querying with basic args.
-        return MockResponse(json.dumps({"series": {"2000": 1, "2001": 2}}))
-    if (req.get_full_url() == stat_series_url_base +
-            '?place=geoId/06&stat_var=Count_Person&' +
-            'measurement_method=CensusPEPSurvey&observation_period=P1Y&' +
-            'unit=RealPeople&scaling_factor=100'):
+  # Mock responses for urlopen requests to get_stat_series.
+  if req.get_full_url(
+  ) == stat_series_url_base + '?place=geoId/06&stat_var=Count_Person':
+    # Response returned when querying with basic args.
+    return MockResponse(json.dumps({"series": {"2000": 1, "2001": 2}}))
+  if (req.get_full_url() == stat_series_url_base +
+      '?place=geoId/06&stat_var=Count_Person&' +
+      'measurement_method=CensusPEPSurvey&observation_period=P1Y&' +
+      'unit=RealPeople&scaling_factor=100'):
 
-        # Response returned when querying with above optional params.
-        return MockResponse(json.dumps({"series": {"2000": 3, "2001": 42}}))
-    if (req.get_full_url() == stat_series_url_base +
-            '?place=geoId/06&stat_var=Count_Person&' +
-            'measurement_method=DNE'):
+    # Response returned when querying with above optional params.
+    return MockResponse(json.dumps({"series": {"2000": 3, "2001": 42}}))
+  if (req.get_full_url() == stat_series_url_base +
+      '?place=geoId/06&stat_var=Count_Person&' + 'measurement_method=DNE'):
 
-        # Response returned when data not available for optional parameters.
-        # /stat/series?place=geoId/06&stat_var=Count_Person&measurement_method=DNE
-        return MockResponse(json.dumps({"series": {}}))
+    # Response returned when data not available for optional parameters.
+    # /stat/series?place=geoId/06&stat_var=Count_Person&measurement_method=DNE
+    return MockResponse(json.dumps({"series": {}}))
 
-    # Mock responses for urlopen requests to get_stat_all.
-    if req.get_full_url() == stat_all_url_base:
-        data = json.loads(req.data)
+  # Mock responses for urlopen requests to get_stat_all.
+  if req.get_full_url() == stat_all_url_base:
+    data = json.loads(req.data)
 
-        if (data['places'] == ['geoId/06', 'nuts/HU22'] and
-                data['stat_vars'] == ['Count_Person', 'Median_Age_Person']):
-            # Response returned when querying with above params.
-            # Median Age missing for HU22.
-            resp = {
-                "placeData": {
-                    "geoId/06": {
-                        "statVarData": {
-                            "Count_Person": CA_COUNT_PERSON,
-                            "Median_Age_Person": CA_MEDIAN_AGE_PERSON
-                        }
-                    },
-                    "nuts/HU22": {
-                        "statVarData": {
-                            "Count_Person": HU22_COUNT_PERSON,
-                            "Median_Age_Person": {}
-                        }
-                    }
-                }
-            }
-            return MockResponse(json.dumps(resp))
+    if (data['places'] == ['geoId/06', 'nuts/HU22'] and
+        data['stat_vars'] == ['Count_Person', 'Median_Age_Person']):
+      # Response returned when querying with above params.
+      # Median Age missing for HU22.
+      resp = {
+          "placeData": {
+              "geoId/06": {
+                  "statVarData": {
+                      "Count_Person": CA_COUNT_PERSON,
+                      "Median_Age_Person": CA_MEDIAN_AGE_PERSON
+                  }
+              },
+              "nuts/HU22": {
+                  "statVarData": {
+                      "Count_Person": HU22_COUNT_PERSON,
+                      "Median_Age_Person": {}
+                  }
+              }
+          }
+      }
+      return MockResponse(json.dumps(resp))
 
-        if (data['places'] == ['geoId/06', 'nuts/HU22'] and
-                data['stat_vars'] == ['Count_Person']):
-            # Response returned when querying with above params.
-            resp = {
-                "placeData": {
-                    "geoId/06": {
-                        "statVarData": {
-                            "Count_Person": CA_COUNT_PERSON,
-                        }
-                    },
-                    "nuts/HU22": {
-                        "statVarData": {
-                            "Count_Person": HU22_COUNT_PERSON,
-                        }
-                    }
-                }
-            }
-            return MockResponse(json.dumps(resp))
+    if (data['places'] == ['geoId/06', 'nuts/HU22'] and
+        data['stat_vars'] == ['Count_Person']):
+      # Response returned when querying with above params.
+      resp = {
+          "placeData": {
+              "geoId/06": {
+                  "statVarData": {
+                      "Count_Person": CA_COUNT_PERSON,
+                  }
+              },
+              "nuts/HU22": {
+                  "statVarData": {
+                      "Count_Person": HU22_COUNT_PERSON,
+                  }
+              }
+          }
+      }
+      return MockResponse(json.dumps(resp))
 
-        if (data['places'] == ['geoId/06'] and
-                data['stat_vars'] == ['Count_Person']):
-            # Response returned when querying with above params.
-            resp = {
-                "placeData": {
-                    "geoId/06": {
-                        "statVarData": {
-                            "Count_Person": CA_COUNT_PERSON,
-                        }
-                    }
-                }
-            }
-            return MockResponse(json.dumps(resp))
+    if (data['places'] == ['geoId/06'] and
+        data['stat_vars'] == ['Count_Person']):
+      # Response returned when querying with above params.
+      resp = {
+          "placeData": {
+              "geoId/06": {
+                  "statVarData": {
+                      "Count_Person": CA_COUNT_PERSON,
+                  }
+              }
+          }
+      }
+      return MockResponse(json.dumps(resp))
 
-        if (data['places'] == ['geoId/06', 'nuts/HU22'] and
-                data['stat_vars'] == ['Count_Person', 'Median_Age_Person']):
-            # Response returned when querying with above params.
-            # Median Age missing for HU22.
-            resp = {
-                "placeData": {
-                    "geoId/06": {
-                        "statVarData": {
-                            "Count_Person": CA_COUNT_PERSON,
-                            "Median_Age_Person": CA_MEDIAN_AGE_PERSON
-                        }
-                    },
-                    "nuts/HU22": {
-                        "statVarData": {
-                            "Count_Person": HU22_COUNT_PERSON,
-                            "Median_Age_Person": {}
-                        }
-                    }
-                }
-            }
-            return MockResponse(json.dumps(resp))
-    # Otherwise, return an empty response and a 404.
-    return urllib.error.HTTPError(None, 404, None, None, None)
+    if (data['places'] == ['geoId/06', 'nuts/HU22'] and
+        data['stat_vars'] == ['Count_Person', 'Median_Age_Person']):
+      # Response returned when querying with above params.
+      # Median Age missing for HU22.
+      resp = {
+          "placeData": {
+              "geoId/06": {
+                  "statVarData": {
+                      "Count_Person": CA_COUNT_PERSON,
+                      "Median_Age_Person": CA_MEDIAN_AGE_PERSON
+                  }
+              },
+              "nuts/HU22": {
+                  "statVarData": {
+                      "Count_Person": HU22_COUNT_PERSON,
+                      "Median_Age_Person": {}
+                  }
+              }
+          }
+      }
+      return MockResponse(json.dumps(resp))
+  # Otherwise, return an empty response and a 404.
+  return urllib.error.HTTPError(None, 404, None, None, None)
 
 
 class TestBuildTimeSeries(unittest.TestCase):
-    """Unit tests for build_time_series."""
+  """Unit tests for build_time_series."""
 
-    @patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
-    def test_basic(self, urlopen):
-        """Calling build_time_series with basic args."""
-        series = dcpd.build_time_series('geoId/06', 'Count_Person')
-        exp = pd.Series({"2000": 1, "2001": 2})
+  @patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
+  def test_basic(self, urlopen):
+    """Calling build_time_series with basic args."""
+    series = dcpd.build_time_series('geoId/06', 'Count_Person')
+    exp = pd.Series({"2000": 1, "2001": 2})
 
-        self.assertCountEqual(series, exp)
+    self.assertCountEqual(series, exp)
 
-    @patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
-    def test_multi_option(self, urlopen):
-        """Calling build_time_series with basic args."""
-        series = dcpd.build_time_series('geoId/06', 'Count_Person',
-                                        'CensusPEPSurvey', 'P1Y', 'RealPeople',
-                                        '100')
-        exp = pd.Series({"2000": 3, "2001": 42})
+  @patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
+  def test_multi_option(self, urlopen):
+    """Calling build_time_series with basic args."""
+    series = dcpd.build_time_series('geoId/06', 'Count_Person',
+                                    'CensusPEPSurvey', 'P1Y', 'RealPeople',
+                                    '100')
+    exp = pd.Series({"2000": 3, "2001": 42})
 
-        self.assertCountEqual(series, exp)
+    self.assertCountEqual(series, exp)
 
-    @patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
-    def test_no_data(self, urlopen):
-        """Error if there is no data."""
-        series = dcpd.build_time_series('geoId/06', 'Count_Person', 'DNE')
-        exp = pd.Series({}, dtype=object)
+  @patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
+  def test_no_data(self, urlopen):
+    """Error if there is no data."""
+    series = dcpd.build_time_series('geoId/06', 'Count_Person', 'DNE')
+    exp = pd.Series({}, dtype=object)
 
-        self.assertCountEqual(series, exp)
+    self.assertCountEqual(series, exp)
 
 
 class TestPdTimeSeries(unittest.TestCase):
-    """Unit tests for _time_series_pd_input."""
+  """Unit tests for _time_series_pd_input."""
 
-    @patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
-    def test_basic(self, urlopen):
-        """Calling _time_series_pd_input with proper args."""
-        rows = dcpd._time_series_pd_input(['geoId/06', 'nuts/HU22'],
-                                          'Count_Person')
-        exp = [{
-            "1890": 28360,
-            "1891": 24910,
-            "1892": 25070,
-            "place": "geoId/06"
-        }, {
-            "1991": 2410,
-            "1990": 2360,
-            "1992": 2500,
-            "place": "nuts/HU22"
-        }]
-        six.assertCountEqual(self, rows, exp)
+  @patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
+  def test_basic(self, urlopen):
+    """Calling _time_series_pd_input with proper args."""
+    rows = dcpd._time_series_pd_input(['geoId/06', 'nuts/HU22'], 'Count_Person')
+    exp = [{
+        "1890": 28360,
+        "1891": 24910,
+        "1892": 25070,
+        "place": "geoId/06"
+    }, {
+        "1991": 2410,
+        "1990": 2360,
+        "1992": 2500,
+        "place": "nuts/HU22"
+    }]
+    six.assertCountEqual(self, rows, exp)
 
-    @patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
-    def test_one_place(self, urlopen):
-        """Calling _time_series_pd_input with single place."""
-        rows = dcpd._time_series_pd_input(['geoId/06'], 'Count_Person')
-        exp = [{
-            "1990": 23640,
-            "1991": 24100,
-            "1993": 25090,
-            "place": "geoId/06"
-        }]
-        self.assertEqual(rows, exp)
+  @patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
+  def test_one_place(self, urlopen):
+    """Calling _time_series_pd_input with single place."""
+    rows = dcpd._time_series_pd_input(['geoId/06'], 'Count_Person')
+    exp = [{"1990": 23640, "1991": 24100, "1993": 25090, "place": "geoId/06"}]
+    self.assertEqual(rows, exp)
 
 
 class TestPdMultivariates(unittest.TestCase):
-    """Unit tests for _multivariate_pd_input."""
+  """Unit tests for _multivariate_pd_input."""
 
-    @patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
-    def test_basic(self, urlopen):
-        """Calling _multivariate_pd_input with proper args."""
-        rows = dcpd._multivariate_pd_input(
-            ['geoId/06', 'nuts/HU22'], ['Count_Person', 'Median_Age_Person'])
-        exp = [{
-            "place": "geoId/06",
-            "Median_Age_Person": 24,
-            "Count_Person": 25070
-        }, {
-            "place": "nuts/HU22",
-            "Count_Person": 2500
-        }]
-        six.assertCountEqual(self, rows, exp)
+  @patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
+  def test_basic(self, urlopen):
+    """Calling _multivariate_pd_input with proper args."""
+    rows = dcpd._multivariate_pd_input(['geoId/06', 'nuts/HU22'],
+                                       ['Count_Person', 'Median_Age_Person'])
+    exp = [{
+        "place": "geoId/06",
+        "Median_Age_Person": 24,
+        "Count_Person": 25070
+    }, {
+        "place": "nuts/HU22",
+        "Count_Person": 2500
+    }]
+    six.assertCountEqual(self, rows, exp)
 
-    @patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
-    def test_one_each(self, urlopen):
-        """Calling _multivariate_pd_input with single place and var."""
-        rows = dcpd._multivariate_pd_input(['geoId/06'], ['Count_Person'])
-        exp = [{"place": "geoId/06", "Count_Person": 25090}]
-        self.assertEqual(rows, exp)
+  @patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
+  def test_one_each(self, urlopen):
+    """Calling _multivariate_pd_input with single place and var."""
+    rows = dcpd._multivariate_pd_input(['geoId/06'], ['Count_Person'])
+    exp = [{"place": "geoId/06", "Count_Person": 25090}]
+    self.assertEqual(rows, exp)
 
-    @patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
-    def test_no_data(self, urlopen):
-        """Error if there is no data."""
-        with self.assertRaises(ValueError):
-            dcpd._group_stat_all_by_obs_options(
-                ['FOO/100'], ['Count_Person', 'Median_Age_Person'])
-        with self.assertRaises(ValueError):
-            dcpd._time_series_pd_input(['FOO/100', 'BAR/200'], ['Count_Person'])
-        with self.assertRaises(ValueError):
-            dcpd._multivariate_pd_input(['FOO/100', 'BAR/200'],
-                                        ['Count_Person', 'Median_Age_Person'])
+  @patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
+  def test_no_data(self, urlopen):
+    """Error if there is no data."""
+    with self.assertRaises(ValueError):
+      dcpd._group_stat_all_by_obs_options(['FOO/100'],
+                                          ['Count_Person', 'Median_Age_Person'])
+    with self.assertRaises(ValueError):
+      dcpd._time_series_pd_input(['FOO/100', 'BAR/200'], ['Count_Person'])
+    with self.assertRaises(ValueError):
+      dcpd._multivariate_pd_input(['FOO/100', 'BAR/200'],
+                                  ['Count_Person', 'Median_Age_Person'])
 
 
 if __name__ == '__main__':
-    unittest.main()
+  unittest.main()

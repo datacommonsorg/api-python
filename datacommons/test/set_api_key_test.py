@@ -23,12 +23,12 @@ _KEY = "test-api-key"
 
 
 class TestApiKey(unittest.TestCase):
-    """Unit test for setting or not setting the API Key."""
+  """Unit test for setting or not setting the API Key."""
 
-    def test_set_api_key(self):
-        key.set_api_key(_KEY)
-        self.assertEqual(key.get_api_key(), _KEY)
+  def test_set_api_key(self):
+    key.set_api_key(_KEY)
+    self.assertEqual(key.get_api_key(), _KEY)
 
 
 if __name__ == '__main__':
-    unittest.main()
+  unittest.main()

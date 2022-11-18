@@ -24,8 +24,8 @@ import datacommons as dc
 
 
 def main():
-    # Create a SPARQL query querying for the name of some states
-    query = ('''
+  # Create a SPARQL query querying for the name of some states
+  query = ('''
 SELECT  ?name ?dcid
 WHERE {
   ?a typeOf Place .
@@ -34,13 +34,13 @@ WHERE {
   ?a dcid ?dcid
 }
 ''')
-    print('> Issuing query.\n{}'.format(query))
+  print('> Issuing query.\n{}'.format(query))
 
-    # Iterate through all the rows in the results.
-    print('> Printing results.\n')
-    for row in dc.query(query_string=query):
-        print('  {}'.format(row))
+  # Iterate through all the rows in the results.
+  print('> Printing results.\n')
+  for row in dc.query(query_string=query):
+    print('  {}'.format(row))
 
 
 if __name__ == '__main__':
-    main()
+  main()
