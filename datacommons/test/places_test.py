@@ -21,9 +21,9 @@ from __future__ import division
 from __future__ import print_function
 
 try:
-    from unittest.mock import patch
+  from unittest.mock import patch
 except ImportError:
-    from mock import patch
+  from mock import patch
 
 import datacommons as dc
 import datacommons.utils as utils
@@ -34,8 +34,10 @@ import six.moves.urllib as urllib
 
 def request_mock(*args, **kwargs):
   """ A mock urlopen requests sent in the requests package. """
+
   # Create the mock response object.
   class MockResponse:
+
     def __init__(self, json_data):
       self.json_data = json_data
 
@@ -46,33 +48,34 @@ def request_mock(*args, **kwargs):
   data = json.loads(req.data)
 
   # Mock responses for urlopen requests to get_places_in.
-  if req.get_full_url() == utils._API_ROOT + utils._API_ENDPOINTS['get_places_in']:
-    if (data['dcids'] == ['geoId/06085', 'geoId/24031']
-      and data['place_type'] == 'City'):
+  if req.get_full_url(
+  ) == utils._API_ROOT + utils._API_ENDPOINTS['get_places_in']:
+    if (data['dcids'] == ['geoId/06085', 'geoId/24031'] and
+        data['place_type'] == 'City'):
       # Response returned when querying for multiple valid dcids.
       res_json = json.dumps([
-        {
-          'dcid': 'geoId/06085',
-          'place': 'geoId/0649670',
-        },
-        {
-          'dcid': 'geoId/24031',
-          'place': 'geoId/2467675',
-        },
-        {
-          'dcid': 'geoId/24031',
-          'place': 'geoId/2476650',
-        },
+          {
+              'dcid': 'geoId/06085',
+              'place': 'geoId/0649670',
+          },
+          {
+              'dcid': 'geoId/24031',
+              'place': 'geoId/2467675',
+          },
+          {
+              'dcid': 'geoId/24031',
+              'place': 'geoId/2476650',
+          },
       ])
       return MockResponse(json.dumps({'payload': res_json}))
-    if (data['dcids'] == ['geoId/06085', 'dc/MadDcid']
-      and data['place_type'] == 'City'):
+    if (data['dcids'] == ['geoId/06085', 'dc/MadDcid'] and
+        data['place_type'] == 'City'):
       # Response returned when querying for a dcid that does not exist.
       res_json = json.dumps([
-        {
-          'dcid': 'geoId/06085',
-          'place': 'geoId/0649670',
-        },
+          {
+              'dcid': 'geoId/06085',
+              'place': 'geoId/0649670',
+          },
       ])
       return MockResponse(json.dumps({'payload': res_json}))
     if data['dcids'] == ['dc/MadDcid', 'dc/MadderDcid']\
@@ -84,7 +87,6 @@ def request_mock(*args, **kwargs):
       res_json = json.dumps([])
       # Response returned when no dcids are given.
       return MockResponse(json.dumps({'payload': res_json}))
-
 
   # Mock responses for urlopen requests to get_stats.
   if req.get_full_url() == utils._API_ROOT + utils._API_ENDPOINTS['get_stats']:
@@ -123,9 +125,7 @@ def request_mock(*args, **kwargs):
     if (data['place'] == ['geoId/00'] and
         data['stats_var'] == 'dc/0hyp6tkn18vcb'):
       # No data for the request
-      res_json = json.dumps({
-          'geoId/00': None
-      })
+      res_json = json.dumps({'geoId/00': None})
       return MockResponse(json.dumps({'payload': res_json}))
     if ((data['place'] == ['geoId/05', 'dc/MadDcid'] or
          data['place'] == ['geoId/05']) and
@@ -175,44 +175,45 @@ def request_mock(*args, **kwargs):
       # Response returned when no dcids are given.
       return MockResponse(json.dumps({'payload': res_json}))
     if (data['place'] == ['geoId/48'] and
-      data['stats_var'] == 'dc/0hyp6tkn18vcb'):
+        data['stats_var'] == 'dc/0hyp6tkn18vcb'):
       if (data.get('measurement_method') == 'MM1' and
           data.get('unit') == 'Inch' and
           data.get('observation_period') == 'P1Y'):
         res_json = json.dumps({
-          'geoId/48': {
-            'data': {
-              '2015': 1,
-              '2016': 1,
-            },
-            'place_name': 'Texas'
-          }
+            'geoId/48': {
+                'data': {
+                    '2015': 1,
+                    '2016': 1,
+                },
+                'place_name': 'Texas'
+            }
         })
       elif data.get('measurement_method') == 'MM1':
         res_json = json.dumps({
-          'geoId/48': {
-            'data': {
-              '2015': 2,
-              '2016': 2,
-            },
-            'place_name': 'Texas'
-          }
+            'geoId/48': {
+                'data': {
+                    '2015': 2,
+                    '2016': 2,
+                },
+                'place_name': 'Texas'
+            }
         })
       else:
         res_json = json.dumps({
-          'geoId/48': {
-            'data': {
-              '2015': 3,
-              '2016': 3,
-            },
-            'place_name': 'Texas'
-          }
+            'geoId/48': {
+                'data': {
+                    '2015': 3,
+                    '2016': 3,
+                },
+                'place_name': 'Texas'
+            }
         })
 
     return MockResponse(json.dumps({'payload': res_json}))
 
   # Otherwise, return an empty response and a 404.
   return urllib.error.HTTPError(None, 404, None, None, None)
+
 
 class TestGetPlacesIn(unittest.TestCase):
   """ Unit stests for get_places_in. """
@@ -222,10 +223,11 @@ class TestGetPlacesIn(unittest.TestCase):
     """ Calling get_places_in with proper dcids returns valid results. """
     # Call get_places_in
     places = dc.get_places_in(['geoId/06085', 'geoId/24031'], 'City')
-    self.assertDictEqual(places, {
-      'geoId/06085': ['geoId/0649670'],
-      'geoId/24031': ['geoId/2467675', 'geoId/2476650']
-    })
+    self.assertDictEqual(
+        places, {
+            'geoId/06085': ['geoId/0649670'],
+            'geoId/24031': ['geoId/2467675', 'geoId/2476650']
+        })
 
   @patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
   def test_bad_dcids(self, urlopen):
@@ -235,26 +237,20 @@ class TestGetPlacesIn(unittest.TestCase):
     # Call get_places_in with one dcid that does not exist
     bad_dcids_1 = dc.get_places_in(['geoId/06085', 'dc/MadDcid'], 'City')
     self.assertDictEqual(bad_dcids_1, {
-      'geoId/06085': ['geoId/0649670'],
-      'dc/MadDcid': []
+        'geoId/06085': ['geoId/0649670'],
+        'dc/MadDcid': []
     })
 
     # Call get_places_in when both dcids do not exist
     bad_dcids_2 = dc.get_places_in(['dc/MadDcid', 'dc/MadderDcid'], 'City')
-    self.assertDictEqual(bad_dcids_2, {
-      'dc/MadDcid': [],
-      'dc/MadderDcid': []
-    })
+    self.assertDictEqual(bad_dcids_2, {'dc/MadDcid': [], 'dc/MadderDcid': []})
 
   @patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
   def test_no_dcids(self, urlopen):
     """ Calling get_places_in with no dcids returns empty results. """
     # Call get_places_in with no dcids.
     bad_dcids = dc.get_places_in(['dc/MadDcid', 'dc/MadderDcid'], 'City')
-    self.assertDictEqual(bad_dcids, {
-      'dc/MadDcid': [],
-      'dc/MadderDcid': []
-    })
+    self.assertDictEqual(bad_dcids, {'dc/MadDcid': [], 'dc/MadderDcid': []})
 
 
 class TestGetStats(unittest.TestCase):
@@ -314,7 +310,8 @@ class TestGetStats(unittest.TestCase):
         })
 
     # Call get_stats for specific obs
-    stats = dc.get_stats(['geoId/05', 'geoId/06'], 'dc/0hyp6tkn18vcb', ['2013', '2018'])
+    stats = dc.get_stats(['geoId/05', 'geoId/06'], 'dc/0hyp6tkn18vcb',
+                         ['2013', '2018'])
     self.assertDictEqual(
         stats, {
             'geoId/05': {
@@ -338,13 +335,11 @@ class TestGetStats(unittest.TestCase):
     self.assertDictEqual(
         stats, {
             'geoId/05': {
-                'data': {
-                },
+                'data': {},
                 'place_name': 'Arkansas'
             },
             'geoId/06': {
-                'data': {
-                },
+                'data': {},
                 'place_name': 'California'
             }
         })
@@ -360,38 +355,32 @@ class TestGetStats(unittest.TestCase):
     stats = dc.get_stats(['geoId/48'], 'dc/0hyp6tkn18vcb', 'latest', 'MM1',
                          'Inch', 'P1Y')
     self.assertDictEqual(
-      stats, {
-        'geoId/48': {
-          'data': {
-            '2016': 1
-          },
-          'place_name': 'Texas'
-        }
-      })
+        stats, {'geoId/48': {
+            'data': {
+                '2016': 1
+            },
+            'place_name': 'Texas'
+        }})
 
     # Call get_stats with mmethod specified
     stats = dc.get_stats(['geoId/48'], 'dc/0hyp6tkn18vcb', 'latest', 'MM1')
     self.assertDictEqual(
-      stats, {
-        'geoId/48': {
-          'data': {
-            '2016': 2
-          },
-          'place_name': 'Texas'
-        }
-      })
+        stats, {'geoId/48': {
+            'data': {
+                '2016': 2
+            },
+            'place_name': 'Texas'
+        }})
 
     # Call get_stats without optional args
     stats = dc.get_stats(['geoId/48'], 'dc/0hyp6tkn18vcb', 'latest')
     self.assertDictEqual(
-      stats, {
-        'geoId/48': {
-          'data': {
-            '2016': 3
-          },
-          'place_name': 'Texas'
-        }
-      })
+        stats, {'geoId/48': {
+            'data': {
+                '2016': 3
+            },
+            'place_name': 'Texas'
+        }})
 
   @patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
   def test_bad_dcids(self, urlopen):
@@ -401,14 +390,13 @@ class TestGetStats(unittest.TestCase):
     # Call get_stats with one dcid that does not exist
     bad_dcids_1 = dc.get_stats(['geoId/05', 'dc/MadDcid'], 'dc/0hyp6tkn18vcb')
     self.assertDictEqual(
-        bad_dcids_1, {
-            'geoId/05': {
-                'data': {
-                    '2018': 18003
-                },
-                'place_name': 'Arkansas'
-            }
-        })
+        bad_dcids_1,
+        {'geoId/05': {
+            'data': {
+                '2018': 18003
+            },
+            'place_name': 'Arkansas'
+        }})
 
     # Call get_stats when both dcids do not exist
     bad_dcids_2 = dc.get_stats(['dc/MadDcid', 'dc/MadderDcid'],
@@ -437,15 +425,14 @@ class TestGetStats(unittest.TestCase):
 
     self.assertEqual(0, mock_urlopen.call_count)
     stats = dc.get_stats(['geoId/05'], 'dc/0hyp6tkn18vcb', 'latest')
-    self.assertDictEqual(
-        stats, {
-            'geoId/05': {
-                'data': {
-                    '2018': 18003
-                },
-                'place_name': 'Arkansas'
+    self.assertDictEqual(stats, {
+        'geoId/05': {
+            'data': {
+                '2018': 18003
             },
-        })
+            'place_name': 'Arkansas'
+        },
+    })
     self.assertEqual(1, mock_urlopen.call_count)
 
     stats = dc.get_stats(['geoId/05', 'geoId/06'], 'dc/0hyp6tkn18vcb', 'latest')

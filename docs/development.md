@@ -5,13 +5,13 @@ The Python API currently supports `python>=3.7`.
 To test, run:
 
 ```bash
-./run_tests_local.sh
+./run_tests.sh -p
 ```
 
 To debug the continuous integration tests, run:
 
 ```bash
-cloud-build-local --config=cloudbuild.yaml --dryrun=false .
+gcloud builds submit . --project=datcom-ci --config=cloudbuild.yaml
 ```
 
 Both commands will run the same set of tests.

@@ -20,189 +20,180 @@ import datacommons
 
 class TestProperties(unittest.TestCase):
 
-    @patch("datacommons.node._post")
-    def test_with_data(self, _post):
+  @patch("datacommons.node._post")
+  def test_with_data(self, _post):
 
-        def side_effect(path, data):
-            if path == "/v1/bulk/properties/out" and data == {
-                    "nodes": ["City"]
-            }:
-                return {
-                    "data": [{
-                        "node":
-                            "City",
-                        "properties": [
-                            "name", "provenance", "subClassOf", "typeOf"
-                        ]
-                    }]
-                }
-
-        _post.side_effect = side_effect
-        response = datacommons.properties(["City"])
-        assert response == {
-            "City": ["name", "provenance", "subClassOf", "typeOf"]
+    def side_effect(path, data):
+      if path == "/v1/bulk/properties/out" and data == {"nodes": ["City"]}:
+        return {
+            "data": [{
+                "node": "City",
+                "properties": ["name", "provenance", "subClassOf", "typeOf"]
+            }]
         }
+
+    _post.side_effect = side_effect
+    response = datacommons.properties(["City"])
+    assert response == {"City": ["name", "provenance", "subClassOf", "typeOf"]}
 
 
 class TestPropertyValues(unittest.TestCase):
 
-    @patch("datacommons.node._post")
-    def test_with_data(self, _post):
+  @patch("datacommons.node._post")
+  def test_with_data(self, _post):
 
-        def side_effect(path, data):
-            print(path)
-            if path == "/v1/bulk/property/values/out" and data == {
-                    "nodes": ["geoId/06"],
-                    "property": "name",
-            }:
-                return {
-                    "data": [{
-                        "node":
-                            "geoId/06",
-                        "values": [{
-                            "provenanceId": "dc/5n63hr1",
-                            "value": "California"
-                        }]
-                    }]
-                }
+    def side_effect(path, data):
+      print(path)
+      if path == "/v1/bulk/property/values/out" and data == {
+          "nodes": ["geoId/06"],
+          "property": "name",
+      }:
+        return {
+            "data": [{
+                "node":
+                    "geoId/06",
+                "values": [{
+                    "provenanceId": "dc/5n63hr1",
+                    "value": "California"
+                }]
+            }]
+        }
 
-        _post.side_effect = side_effect
-        response = datacommons.property_values(["geoId/06"], "name")
-        assert response == {"geoId/06": ["California"]}
+    _post.side_effect = side_effect
+    response = datacommons.property_values(["geoId/06"], "name")
+    assert response == {"geoId/06": ["California"]}
 
-    @patch("datacommons.node._post")
-    def test_multiple_values(self, _post):
+  @patch("datacommons.node._post")
+  def test_multiple_values(self, _post):
 
-        def side_effect(path, data):
-            print(path)
-            if path == "/v1/bulk/property/values/out" and data == {
-                    "nodes": ["geoId/06"],
-                    "property": "geoOverlaps",
-            }:
-                return {
-                    "data": [{
-                        "node":
-                            "geoId/06",
-                        "values": [{
-                            "provenanceId": "dc/5n63hr1",
-                            "value": "geoId/05"
-                        }, {
-                            "provenanceId": "dc/5n63hr1",
-                            "value": "geoId/07"
-                        }]
-                    }]
-                }
+    def side_effect(path, data):
+      print(path)
+      if path == "/v1/bulk/property/values/out" and data == {
+          "nodes": ["geoId/06"],
+          "property": "geoOverlaps",
+      }:
+        return {
+            "data": [{
+                "node":
+                    "geoId/06",
+                "values": [{
+                    "provenanceId": "dc/5n63hr1",
+                    "value": "geoId/05"
+                }, {
+                    "provenanceId": "dc/5n63hr1",
+                    "value": "geoId/07"
+                }]
+            }]
+        }
 
-        _post.side_effect = side_effect
-        response = datacommons.property_values(["geoId/06"], "geoOverlaps")
-        assert response == {"geoId/06": ["geoId/05", "geoId/07"]}
+    _post.side_effect = side_effect
+    response = datacommons.property_values(["geoId/06"], "geoOverlaps")
+    assert response == {"geoId/06": ["geoId/05", "geoId/07"]}
 
 
 class TestTriples(unittest.TestCase):
 
-    @patch("datacommons.node._post")
-    def test_with_data(self, _post):
+  @patch("datacommons.node._post")
+  def test_with_data(self, _post):
 
-        def side_effect(path, data):
-            print(path)
-            if path == "/v1/bulk/triples/out" and data == {
-                    "nodes": ["Class"],
-            }:
-                return {
-                    "data": [{
-                        "node": "Class",
-                        "triples": {
-                            "typeOf": {
-                                "nodes": [{
-                                    "name": "Class",
-                                    "types": ["Class"],
-                                    "dcid": "Class",
-                                    "provenanceId": "dc/5l5zxr1"
-                                }, {
-                                    "name": "Class",
-                                    "types": ["Class"],
-                                    "dcid": "Class",
-                                    "provenanceId": "dc/5l5zxr1"
-                                }]
-                            },
-                            "isPartOf": {
-                                "nodes": [{
-                                    "provenanceId": "dc/5l5zxr1",
-                                    "value": "http://meta.schema.org"
-                                }]
-                            },
-                            "name": {
-                                "nodes": [{
-                                    "provenanceId": "dc/5l5zxr1",
-                                    "value": "Class"
-                                }]
-                            },
-                            "provenance": {
-                                "nodes": [{
-                                    "name": "BaseSchema",
-                                    "types": ["Provenance"],
-                                    "dcid": "dc/5l5zxr1",
-                                    "provenanceId": "dc/5l5zxr1"
-                                }]
-                            },
-                            "sameAs": {
-                                "nodes": [{
-                                    "provenanceId":
-                                        "dc/5l5zxr1",
-                                    "value":
-                                        "http://www.w3.org/2000/01/rdf-schema"
-                                }]
-                            },
-                            "subClassOf": {
-                                "nodes": [{
-                                    "name": "Intangible",
-                                    "types": ["Class"],
-                                    "dcid": "Intangible",
-                                    "provenanceId": "dc/5l5zxr1"
-                                }]
-                            }
-                        }
-                    }]
+    def side_effect(path, data):
+      print(path)
+      if path == "/v1/bulk/triples/out" and data == {
+          "nodes": ["Class"],
+      }:
+        return {
+            "data": [{
+                "node": "Class",
+                "triples": {
+                    "typeOf": {
+                        "nodes": [{
+                            "name": "Class",
+                            "types": ["Class"],
+                            "dcid": "Class",
+                            "provenanceId": "dc/5l5zxr1"
+                        }, {
+                            "name": "Class",
+                            "types": ["Class"],
+                            "dcid": "Class",
+                            "provenanceId": "dc/5l5zxr1"
+                        }]
+                    },
+                    "isPartOf": {
+                        "nodes": [{
+                            "provenanceId": "dc/5l5zxr1",
+                            "value": "http://meta.schema.org"
+                        }]
+                    },
+                    "name": {
+                        "nodes": [{
+                            "provenanceId": "dc/5l5zxr1",
+                            "value": "Class"
+                        }]
+                    },
+                    "provenance": {
+                        "nodes": [{
+                            "name": "BaseSchema",
+                            "types": ["Provenance"],
+                            "dcid": "dc/5l5zxr1",
+                            "provenanceId": "dc/5l5zxr1"
+                        }]
+                    },
+                    "sameAs": {
+                        "nodes": [{
+                            "provenanceId": "dc/5l5zxr1",
+                            "value": "http://www.w3.org/2000/01/rdf-schema"
+                        }]
+                    },
+                    "subClassOf": {
+                        "nodes": [{
+                            "name": "Intangible",
+                            "types": ["Class"],
+                            "dcid": "Intangible",
+                            "provenanceId": "dc/5l5zxr1"
+                        }]
+                    }
                 }
-
-        _post.side_effect = side_effect
-        response = datacommons.triples(["Class"])
-        assert response == {
-            "Class": {
-                'isPartOf': [{
-                    'provenanceId': 'dc/5l5zxr1',
-                    'value': 'http://meta.schema.org'
-                }],
-                'name': [{
-                    'provenanceId': 'dc/5l5zxr1',
-                    'value': 'Class'
-                }],
-                'provenance': [{
-                    'dcid': 'dc/5l5zxr1',
-                    'name': 'BaseSchema',
-                    'provenanceId': 'dc/5l5zxr1',
-                    'types': ['Provenance']
-                }],
-                'sameAs': [{
-                    'provenanceId': 'dc/5l5zxr1',
-                    'value': 'http://www.w3.org/2000/01/rdf-schema'
-                }],
-                'subClassOf': [{
-                    'dcid': 'Intangible',
-                    'name': 'Intangible',
-                    'provenanceId': 'dc/5l5zxr1',
-                    'types': ['Class']
-                }],
-                'typeOf': [{
-                    'dcid': 'Class',
-                    'name': 'Class',
-                    'provenanceId': 'dc/5l5zxr1',
-                    'types': ['Class']
-                }, {
-                    'dcid': 'Class',
-                    'name': 'Class',
-                    'provenanceId': 'dc/5l5zxr1',
-                    'types': ['Class']
-                }]
-            },
+            }]
         }
+
+    _post.side_effect = side_effect
+    response = datacommons.triples(["Class"])
+    assert response == {
+        "Class": {
+            'isPartOf': [{
+                'provenanceId': 'dc/5l5zxr1',
+                'value': 'http://meta.schema.org'
+            }],
+            'name': [{
+                'provenanceId': 'dc/5l5zxr1',
+                'value': 'Class'
+            }],
+            'provenance': [{
+                'dcid': 'dc/5l5zxr1',
+                'name': 'BaseSchema',
+                'provenanceId': 'dc/5l5zxr1',
+                'types': ['Provenance']
+            }],
+            'sameAs': [{
+                'provenanceId': 'dc/5l5zxr1',
+                'value': 'http://www.w3.org/2000/01/rdf-schema'
+            }],
+            'subClassOf': [{
+                'dcid': 'Intangible',
+                'name': 'Intangible',
+                'provenanceId': 'dc/5l5zxr1',
+                'types': ['Class']
+            }],
+            'typeOf': [{
+                'dcid': 'Class',
+                'name': 'Class',
+                'provenanceId': 'dc/5l5zxr1',
+                'types': ['Class']
+            }, {
+                'dcid': 'Class',
+                'name': 'Class',
+                'provenanceId': 'dc/5l5zxr1',
+                'types': ['Class']
+            }]
+        },
+    }

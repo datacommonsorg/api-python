@@ -21,8 +21,8 @@ _KEY_ENV = 'DC_API_KEY'
 
 
 def set_api_key(api_key):
-    os.environ[_KEY_ENV] = api_key
+  os.environ[_KEY_ENV] = api_key
 
 
 def get_api_key():
-    return os.environ.get(_KEY_ENV, '')
+  return os.environ.get(_KEY_ENV, '')
