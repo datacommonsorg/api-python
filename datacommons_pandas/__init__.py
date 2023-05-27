@@ -21,12 +21,12 @@ from datacommons_pandas.df_builder import build_time_series, build_time_series_d
 # TODO: enforce this. https://github.com/datacommonsorg/api-python/issues/149 #
 ##############################################@################################
 # Data Commons SPARQL query support
-from datacommons_pandas.query import query
+from datacommons_pandas.sparql import query
 
 # Data Commons Python API
 from datacommons_pandas.core import get_property_labels, get_property_values, get_triples
 from datacommons_pandas.places import get_places_in, get_related_places, get_stats
 from datacommons_pandas.stat_vars import get_stat_value, get_stat_series, get_stat_all
 
-# Other utilities
-from datacommons_pandas.utils import set_api_key
+from datacommons_pandas.key import set_api_key
+from datacommons_pandas.node import properties, property_values, triples

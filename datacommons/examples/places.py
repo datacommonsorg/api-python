@@ -42,32 +42,42 @@ def main():
 
   # Get place stats.
   print('Get place stats -- all')
-  stats = dc.get_stats(['geoId/05', 'geoId/06', 'dc/madDcid'], 'dc/0hyp6tkn18vcb', obs_dates='all')
+  stats = dc.get_stats(['geoId/05', 'geoId/06', 'dc/madDcid'],
+                       'dc/0hyp6tkn18vcb',
+                       obs_dates='all')
   print(stats)
 
   print('Get place stats -- latest')
-  stats = dc.get_stats(['geoId/05', 'geoId/06', 'dc/madDcid'], 'dc/0hyp6tkn18vcb')
+  stats = dc.get_stats(['geoId/05', 'geoId/06', 'dc/madDcid'],
+                       'dc/0hyp6tkn18vcb')
   print(stats)
 
   print('Get place stats -- 2014')
-  stats = dc.get_stats(['geoId/05', 'geoId/06', 'dc/madDcid'], 'dc/0hyp6tkn18vcb', obs_dates=['2014'])
+  stats = dc.get_stats(['geoId/05', 'geoId/06', 'dc/madDcid'],
+                       'dc/0hyp6tkn18vcb',
+                       obs_dates=['2014'])
   print(stats)
 
   print('Get place stats -- 2014 badly formatted')
-  stats = dc.get_stats(['geoId/05', 'geoId/06', 'dc/madDcid'], 'dc/0hyp6tkn18vcb', obs_dates='2014')
+  stats = dc.get_stats(['geoId/05', 'geoId/06', 'dc/madDcid'],
+                       'dc/0hyp6tkn18vcb',
+                       obs_dates='2014')
   print(stats)
 
   print('Get place stats -- 2015-2016')
-  stats = dc.get_stats(['geoId/05', 'geoId/06', 'dc/madDcid'], 'dc/0hyp6tkn18vcb', obs_dates=['2015', '2016'])
+  stats = dc.get_stats(['geoId/05', 'geoId/06', 'dc/madDcid'],
+                       'dc/0hyp6tkn18vcb',
+                       obs_dates=['2015', '2016'])
   print(stats)
 
   # Get related places.
+
+
 # TODO(*): Fix the related places example.
 #  print('Get related places')
 #   related_places = dc.get_related_places(['geoId/06085'], 'Person', 'count',
 #       'CensusACS5yrSurvey', "measuredValue", {"gender": "Female"})
 #   print(related_places)
-
 
 if __name__ == '__main__':
   main()

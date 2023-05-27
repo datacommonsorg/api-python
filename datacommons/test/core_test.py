@@ -21,9 +21,9 @@ from __future__ import division
 from __future__ import print_function
 
 try:
-    from unittest.mock import patch
+  from unittest.mock import patch
 except ImportError:
-    from mock import patch
+  from mock import patch
 
 import six.moves.urllib as urllib
 
@@ -35,8 +35,10 @@ import unittest
 
 def request_mock(*args, **kwargs):
   """ A mock urlopen in the urllib package. """
+
   # Create the mock response object.
   class MockResponse:
+
     def __init__(self, json_data):
       self.json_data = json_data
 
@@ -48,35 +50,39 @@ def request_mock(*args, **kwargs):
   data = json.loads(req.data)
 
   # Mock responses for urlopen requests to get_property_labels.
-  if req.get_full_url() == utils._API_ROOT + utils._API_ENDPOINTS['get_property_labels']:
+  if req.get_full_url(
+  ) == utils._API_ROOT + utils._API_ENDPOINTS['get_property_labels']:
     if data['dcids'] == ['geoId/0649670']:
       # Response for sending a single dcid to get_property_labels
       out_arcs = ['containedInPlace', 'name', 'geoId', 'typeOf']
-      res_json = json.dumps({
-        'geoId/0649670': {
-          'inLabels': [],
-          'outLabels': out_arcs
-        }
-      })
+      res_json = json.dumps(
+          {'geoId/0649670': {
+              'inLabels': [],
+              'outLabels': out_arcs
+          }})
       return MockResponse(json.dumps({'payload': res_json}))
     elif data['dcids'] == ['State', 'County', 'City']:
       # Response for sending multiple dcids to get_property_labels
       in_arcs = ['typeOf']
       out_arcs = ['name', 'provenance', 'subClassOf', 'typeOf', 'url']
       res_json = json.dumps({
-        'City': {'inLabels': in_arcs, 'outLabels': out_arcs},
-        'County': {'inLabels': in_arcs, 'outLabels': out_arcs},
-        'State': {'inLabels': in_arcs, 'outLabels': out_arcs}
+          'City': {
+              'inLabels': in_arcs,
+              'outLabels': out_arcs
+          },
+          'County': {
+              'inLabels': in_arcs,
+              'outLabels': out_arcs
+          },
+          'State': {
+              'inLabels': in_arcs,
+              'outLabels': out_arcs
+          }
       })
       return MockResponse(json.dumps({'payload': res_json}))
     elif data['dcids'] == ['dc/MadDcid']:
       # Response for sending a dcid that doesn't exist to get_property_labels
-      res_json = json.dumps({
-        'dc/MadDcid': {
-          'inLabels': [],
-          'outLabels': []
-        }
-      })
+      res_json = json.dumps({'dc/MadDcid': {'inLabels': [], 'outLabels': []}})
       return MockResponse(json.dumps({'payload': res_json}))
     elif data['dcids'] == []:
       # Response for sending no dcids to get_property_labels
@@ -84,131 +90,107 @@ def request_mock(*args, **kwargs):
       return MockResponse(json.dumps({'payload': res_json}))
 
   # Mock responses for urlopen requests to get_property_values
-  if req.get_full_url() == utils._API_ROOT + utils._API_ENDPOINTS['get_property_values']:
+  if req.get_full_url(
+  ) == utils._API_ROOT + utils._API_ENDPOINTS['get_property_values']:
     if data['dcids'] == ['geoId/06085', 'geoId/24031']\
       and data['property'] == 'containedInPlace'\
       and data['value_type'] == 'Town':
       # Response for sending a request for getting Towns containedInPlace of
       # Santa Clara County and Montgomery County.
       res_json = json.dumps({
-        'geoId/06085': {
-          'in': [
-            {
-              'dcid': 'geoId/0644112',
-              'name': 'Los Gatos',
-              'provenanceId': 'dc/sm3m2w3',
-              'types': [
-                'City',
-                'Town'
-              ]
-            },
-            {
-              'dcid': 'geoId/0643294',
-              'name': 'Los Altos Hills',
-              'provenanceId': 'dc/sm3m2w3',
-              'types': [
-                'City',
-                'Town'
-              ]
-            }
-          ],
-          'out': []
-        },
-        'geoId/24031': {
-          'in': [
-            {
-              'dcid': 'geoId/2462850',
-              'name': 'Poolesville',
-              'provenanceId': 'dc/sm3m2w3',
-              'types': [
-                'City',
-                'Town'
-              ]
-            },
-          ],
-          'out': []
-        }
+          'geoId/06085': {
+              'in': [{
+                  'dcid': 'geoId/0644112',
+                  'name': 'Los Gatos',
+                  'provenanceId': 'dc/sm3m2w3',
+                  'types': ['City', 'Town']
+              }, {
+                  'dcid': 'geoId/0643294',
+                  'name': 'Los Altos Hills',
+                  'provenanceId': 'dc/sm3m2w3',
+                  'types': ['City', 'Town']
+              }],
+              'out': []
+          },
+          'geoId/24031': {
+              'in': [{
+                  'dcid': 'geoId/2462850',
+                  'name': 'Poolesville',
+                  'provenanceId': 'dc/sm3m2w3',
+                  'types': ['City', 'Town']
+              },],
+              'out': []
+          }
       })
       return MockResponse(json.dumps({'payload': res_json}))
     if data['dcids'] == ['geoId/06085', 'geoId/24031']\
       and data['property'] == 'name':
       # Response for sending a request for the name of multiple dcids.
       res_json = json.dumps({
-        'geoId/06085': {
-          'in': [],
-          'out': [
-            {
-              'value': 'Santa Clara County',
-              'provenanceId': 'dc/sm3m2w3',
-            },
-          ]
-        },
-        'geoId/24031': {
-          'in': [],
-          'out': [
-            {
-              'value': 'Montgomery County',
-              'provenanceId': 'dc/sm3m2w3',
-            },
-          ]
-        }
+          'geoId/06085': {
+              'in': [],
+              'out': [{
+                  'value': 'Santa Clara County',
+                  'provenanceId': 'dc/sm3m2w3',
+              },]
+          },
+          'geoId/24031': {
+              'in': [],
+              'out': [{
+                  'value': 'Montgomery County',
+                  'provenanceId': 'dc/sm3m2w3',
+              },]
+          }
       })
       return MockResponse(json.dumps({'payload': res_json}))
     if data['dcids'] == ['dc/p/1234'] and data['property'] == 'name':
       # Response for sending a request for the name with no data
-      res_json = json.dumps({
-        'dc/p/1234': {}
-      })
+      res_json = json.dumps({'dc/p/1234': {}})
       return MockResponse(json.dumps({'payload': res_json}))
     if data['dcids'] == ['geoId/06085', 'geoId/24031']\
       and data['property'] == 'madProperty':
       # Response for sending a request with a property that does not exist.
       res_json = json.dumps({
-        'geoId/06085': {
-          'in': [],
-          'out': []
-        },
-        'geoId/24031': {
-          'in': [],
-          'out': []
-        }
+          'geoId/06085': {
+              'in': [],
+              'out': []
+          },
+          'geoId/24031': {
+              'in': [],
+              'out': []
+          }
       })
       return MockResponse(json.dumps({'payload': res_json}))
     if data['dcids'] == ['geoId/06085', 'dc/MadDcid']\
       and data['property'] == 'containedInPlace':
       # Response for sending a request with a single dcid that does not exist.
       res_json = json.dumps({
-        'geoId/06085': {
-          'in': [
-            {
-              'dcid': 'geoId/0644112',
-              'name': 'Los Gatos',
-              'provenanceId': 'dc/sm3m2w3',
-              'types': [
-                'City',
-                'Town'
-              ]
-            },
-          ],
-          'out': []
-        },
-        'dc/MadDcid': {
-          'in': [],
-          'out': []
-        }
+          'geoId/06085': {
+              'in': [{
+                  'dcid': 'geoId/0644112',
+                  'name': 'Los Gatos',
+                  'provenanceId': 'dc/sm3m2w3',
+                  'types': ['City', 'Town']
+              },],
+              'out': []
+          },
+          'dc/MadDcid': {
+              'in': [],
+              'out': []
+          }
       })
       return MockResponse(json.dumps({'payload': res_json}))
     if data['dcids'] == ['dc/MadDcid', 'dc/MadderDcid']:
       # Response for sending a request where both dcids do not exist.
       res_json = json.dumps({
-        'dc/MadDcid': {
-          'in': [],
-          'out': []
-        },
-        'dc/MadderDcid': {
-          'in': [],
-          'out': []
-        }
+          'dc/MadDcid': {
+              'in': [],
+              'out': []
+          },
+          'dc/MadderDcid': {
+              'in': [],
+              'out': []
+          }
       })
       return MockResponse(json.dumps({'payload': res_json}))
     if data['dcids'] == [] and data['property'] == 'containedInPlace':
@@ -217,93 +199,85 @@ def request_mock(*args, **kwargs):
       return MockResponse(json.dumps({'payload': res_json}))
 
   # Mock responses for urlopen requests to get_triples
-  if req.get_full_url() == utils._API_ROOT + utils._API_ENDPOINTS['get_triples']:
+  if req.get_full_url(
+  ) == utils._API_ROOT + utils._API_ENDPOINTS['get_triples']:
     if data['dcids'] == ['geoId/06085', 'geoId/24031']:
       # Response for sending a request with two valid dcids.
       res_json = json.dumps({
-        'geoId/06085': [
-          {
-            "subjectId": "geoId/06085",
-            "predicate": "name",
-            "objectValue": "Santa Clara County"
-          },
-          {
-            "subjectId": "geoId/0649670",
-            "subjectName": "Mountain View",
-            "subjectTypes": [
-              "City"
-            ],
-            "predicate": "containedInPlace",
-            "objectId": "geoId/06085",
-            "objectName": "Santa Clara County"
-          },
-          {
-            "subjectId": "geoId/06085",
-            "predicate": "containedInPlace",
-            "objectId": "geoId/06",
-            "objectName": "California"
-          },
-        ],
-        'geoId/24031': [
-          {
-            "subjectId": "geoId/24031",
-            "predicate": "name",
-            "objectValue": "Montgomery County"
-          },
-          {
-            "subjectId": "geoId/2467675",
-            "subjectName": "Rockville",
-            "subjectTypes": [
-              "City"
-            ],
-            "predicate": "containedInPlace",
-            "objectId": "geoId/24031",
-            "objectName": "Montgomery County"
-          },
-          {
-            "subjectId": "geoId/24031",
-            "predicate": "containedInPlace",
-            "objectId": "geoId/24",
-            "objectName": "Maryland"
-          },
-        ]
+          'geoId/06085': [
+              {
+                  "subjectId": "geoId/06085",
+                  "predicate": "name",
+                  "objectValue": "Santa Clara County"
+              },
+              {
+                  "subjectId": "geoId/0649670",
+                  "subjectName": "Mountain View",
+                  "subjectTypes": ["City"],
+                  "predicate": "containedInPlace",
+                  "objectId": "geoId/06085",
+                  "objectName": "Santa Clara County"
+              },
+              {
+                  "subjectId": "geoId/06085",
+                  "predicate": "containedInPlace",
+                  "objectId": "geoId/06",
+                  "objectName": "California"
+              },
+          ],
+          'geoId/24031': [
+              {
+                  "subjectId": "geoId/24031",
+                  "predicate": "name",
+                  "objectValue": "Montgomery County"
+              },
+              {
+                  "subjectId": "geoId/2467675",
+                  "subjectName": "Rockville",
+                  "subjectTypes": ["City"],
+                  "predicate": "containedInPlace",
+                  "objectId": "geoId/24031",
+                  "objectName": "Montgomery County"
+              },
+              {
+                  "subjectId": "geoId/24031",
+                  "predicate": "containedInPlace",
+                  "objectId": "geoId/24",
+                  "objectName": "Maryland"
+              },
+          ]
       })
       return MockResponse(json.dumps({'payload': res_json}))
     if data['dcids'] == ['geoId/06085', 'dc/MadDcid']:
       # Response for sending a request where one dcid does not exist.
       res_json = json.dumps({
-        'geoId/06085': [
-          {
-            "subjectId": "geoId/06085",
-            "predicate": "name",
-            "objectValue": "Santa Clara County"
-          },
-          {
-            "subjectId": "geoId/0649670",
-            "subjectName": "Mountain View",
-            "subjectTypes": [
-              "City"
-            ],
-            "predicate": "containedInPlace",
-            "objectId": "geoId/06085",
-            "objectName": "Santa Clara County"
-          },
-          {
-            "subjectId": "geoId/06085",
-            "predicate": "containedInPlace",
-            "objectId": "geoId/06",
-            "objectName": "California"
-          },
-        ],
-        'dc/MadDcid': []
+          'geoId/06085': [
+              {
+                  "subjectId": "geoId/06085",
+                  "predicate": "name",
+                  "objectValue": "Santa Clara County"
+              },
+              {
+                  "subjectId": "geoId/0649670",
+                  "subjectName": "Mountain View",
+                  "subjectTypes": ["City"],
+                  "predicate": "containedInPlace",
+                  "objectId": "geoId/06085",
+                  "objectName": "Santa Clara County"
+              },
+              {
+                  "subjectId": "geoId/06085",
+                  "predicate": "containedInPlace",
+                  "objectId": "geoId/06",
+                  "objectName": "California"
+              },
+          ],
+          'dc/MadDcid': []
       })
       return MockResponse(json.dumps({'payload': res_json}))
     if data['dcids'] == ['dc/MadDcid', 'dc/MadderDcid']:
       # Response for sending a request where both dcids do not exist.
-      res_json = json.dumps({
-        'dc/MadDcid': [],
-        'dc/MadderDcid': []
-      })
+      res_json = json.dumps({'dc/MadDcid': [], 'dc/MadderDcid': []})
       return MockResponse(json.dumps({'payload': res_json}))
     if data['dcids'] == []:
       # Response for sending a request where no dcids are given.
@@ -324,8 +298,9 @@ class TestGetPropertyLabels(unittest.TestCase):
     """
     # Test for outgoing property labels
     out_props = dc.get_property_labels(['geoId/0649670'])
-    self.assertDictEqual(out_props,
-      {'geoId/0649670': ["containedInPlace", "name", "geoId", "typeOf"]})
+    self.assertDictEqual(
+        out_props,
+        {'geoId/0649670': ["containedInPlace", "name", "geoId", "typeOf"]})
 
     # Test with out=False
     in_props = dc.get_property_labels(['geoId/0649670'], out=False)
@@ -343,17 +318,17 @@ class TestGetPropertyLabels(unittest.TestCase):
     # Test for outgoing property labels
     out_props = dc.get_property_labels(dcids)
     self.assertDictEqual(out_props, {
-      'State': expected_out,
-      'County': expected_out,
-      'City': expected_out,
+        'State': expected_out,
+        'County': expected_out,
+        'City': expected_out,
     })
 
     # Test for incoming property labels
     in_props = dc.get_property_labels(dcids, out=False)
     self.assertDictEqual(in_props, {
-      'State': expected_in,
-      'County': expected_in,
-      'City': expected_in,
+        'State': expected_in,
+        'County': expected_in,
+        'City': expected_in,
     })
 
   @patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
@@ -395,34 +370,38 @@ class TestGetPropertyValues(unittest.TestCase):
     dcids = ['geoId/06085', 'geoId/24031']
 
     # Get the containedInPlace Towns for Santa Clara and Montgomery County.
-    towns = dc.get_property_values(
-      dcids, 'containedInPlace', out=False, value_type='Town')
-    self.assertDictEqual(towns, {
-      'geoId/06085': ['geoId/0643294', 'geoId/0644112'],
-      'geoId/24031': ['geoId/2462850']
-    })
+    towns = dc.get_property_values(dcids,
+                                   'containedInPlace',
+                                   out=False,
+                                   value_type='Town')
+    self.assertDictEqual(
+        towns, {
+            'geoId/06085': ['geoId/0643294', 'geoId/0644112'],
+            'geoId/24031': ['geoId/2462850']
+        })
 
     dcids = ['geoId/06085', 'geoId/24031', float('nan')]
     # Handle NaN values
-    towns = dc.get_property_values(
-      dcids, 'containedInPlace', out=False, value_type='Town')
-    self.assertDictEqual(towns, {
-      'geoId/06085': ['geoId/0643294', 'geoId/0644112'],
-      'geoId/24031': ['geoId/2462850']
-    })
+    towns = dc.get_property_values(dcids,
+                                   'containedInPlace',
+                                   out=False,
+                                   value_type='Town')
+    self.assertDictEqual(
+        towns, {
+            'geoId/06085': ['geoId/0643294', 'geoId/0644112'],
+            'geoId/24031': ['geoId/2462850']
+        })
 
     # Get the name of Santa Clara and Montgomery County.
     names = dc.get_property_values(dcids, 'name')
     self.assertDictEqual(names, {
-      'geoId/06085': ['Santa Clara County'],
-      'geoId/24031': ['Montgomery County']
+        'geoId/06085': ['Santa Clara County'],
+        'geoId/24031': ['Montgomery County']
     })
 
     # Return empty result when there is no data.
     names = dc.get_property_values(['dc/p/1234'], 'name')
-    self.assertDictEqual(names, {
-      'dc/p/1234': []
-    })
+    self.assertDictEqual(names, {'dc/p/1234': []})
 
   @patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
   def test_bad_dcids(self, urlopen_mock):
@@ -434,18 +413,17 @@ class TestGetPropertyValues(unittest.TestCase):
 
     # Get entities containedInPlace of Santa Clara County and a dcid that does
     # not exist.
-    contained_1 = dc.get_property_values(bad_dcids_1, 'containedInPlace', out=False)
+    contained_1 = dc.get_property_values(bad_dcids_1,
+                                         'containedInPlace',
+                                         out=False)
     self.assertDictEqual(contained_1, {
-      'geoId/06085': ['geoId/0644112'],
-      'dc/MadDcid': []
+        'geoId/06085': ['geoId/0644112'],
+        'dc/MadDcid': []
     })
 
     # Get entities containedInPlace for two dcids that do not exist.
     contained_2 = dc.get_property_values(bad_dcids_2, 'containedInPlace')
-    self.assertDictEqual(contained_2, {
-      'dc/MadDcid': [],
-      'dc/MadderDcid': []
-    })
+    self.assertDictEqual(contained_2, {'dc/MadDcid': [], 'dc/MadderDcid': []})
 
   @patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
   def test_bad_property(self, urlopen_mock):
@@ -453,12 +431,9 @@ class TestGetPropertyValues(unittest.TestCase):
     empty results.
     """
     # Get propery values for a property that does not exist.
-    prop_vals = dc.get_property_values(
-      ['geoId/06085', 'geoId/24031'], 'madProperty')
-    self.assertDictEqual(prop_vals, {
-      'geoId/06085': [],
-      'geoId/24031': []
-    })
+    prop_vals = dc.get_property_values(['geoId/06085', 'geoId/24031'],
+                                       'madProperty')
+    self.assertDictEqual(prop_vals, {'geoId/06085': [], 'geoId/24031': []})
 
   @patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
   def test_no_dcids(self, urlopen_mock):
@@ -466,6 +441,7 @@ class TestGetPropertyValues(unittest.TestCase):
     # Get property values with an empty list of dcids.
     prop_vals = dc.get_property_values([], 'containedInPlace')
     self.assertDictEqual(prop_vals, {})
+
 
 class TestGetTriples(unittest.TestCase):
   """ Unit tests for get_triples. """
@@ -475,18 +451,19 @@ class TestGetTriples(unittest.TestCase):
     """ Calling get_triples with proper dcids returns valid results. """
     # Call get_triples
     triples = dc.get_triples(['geoId/06085', 'geoId/24031'])
-    self.assertDictEqual(triples, {
-      'geoId/06085': [
-        ('geoId/06085', 'name', 'Santa Clara County'),
-        ('geoId/0649670', 'containedInPlace', 'geoId/06085'),
-        ('geoId/06085', 'containedInPlace', 'geoId/06'),
-      ],
-      'geoId/24031': [
-        ('geoId/24031', 'name', 'Montgomery County'),
-        ('geoId/2467675', 'containedInPlace', 'geoId/24031'),
-        ('geoId/24031', 'containedInPlace', 'geoId/24'),
-      ]
-    })
+    self.assertDictEqual(
+        triples, {
+            'geoId/06085': [
+                ('geoId/06085', 'name', 'Santa Clara County'),
+                ('geoId/0649670', 'containedInPlace', 'geoId/06085'),
+                ('geoId/06085', 'containedInPlace', 'geoId/06'),
+            ],
+            'geoId/24031': [
+                ('geoId/24031', 'name', 'Montgomery County'),
+                ('geoId/2467675', 'containedInPlace', 'geoId/24031'),
+                ('geoId/24031', 'containedInPlace', 'geoId/24'),
+            ]
+        })
 
   @patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
   def test_bad_dcids(self, urlopen_mock):
@@ -495,21 +472,19 @@ class TestGetTriples(unittest.TestCase):
     """
     # Call get_triples where one dcid does not exist
     triples_1 = dc.get_triples(['geoId/06085', 'dc/MadDcid'])
-    self.assertDictEqual(triples_1, {
-      'geoId/06085': [
-        ('geoId/06085', 'name', 'Santa Clara County'),
-        ('geoId/0649670', 'containedInPlace', 'geoId/06085'),
-        ('geoId/06085', 'containedInPlace', 'geoId/06'),
-      ],
-      'dc/MadDcid': []
-    })
+    self.assertDictEqual(
+        triples_1, {
+            'geoId/06085': [
+                ('geoId/06085', 'name', 'Santa Clara County'),
+                ('geoId/0649670', 'containedInPlace', 'geoId/06085'),
+                ('geoId/06085', 'containedInPlace', 'geoId/06'),
+            ],
+            'dc/MadDcid': []
+        })
 
     # Call get_triples where both dcids do not exist
     triples_1 = dc.get_triples(['dc/MadDcid', 'dc/MadderDcid'])
-    self.assertDictEqual(triples_1, {
-      'dc/MadDcid': [],
-      'dc/MadderDcid': []
-    })
+    self.assertDictEqual(triples_1, {'dc/MadDcid': [], 'dc/MadderDcid': []})
 
   @patch('six.moves.urllib.request.urlopen', side_effect=request_mock)
   def test_no_dcids(self, urlopen_mock):
