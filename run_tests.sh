@@ -13,18 +13,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-function setup_python {
-  python3 -m venv .env
-  source .env/bin/activate
-  pip install --upgrade pip
-  pip3 install -r requirements.txt -q
+function setup_poetry {
+  export PATH="$HOME/.local/bin:$PATH"
+  alias pyrun='poetry run python3 -m'
+
+  if ! which poetry; then
+    curl -sSL https://install.python-poetry.org | python
+  fi
+  poetry install
 }
 
 function run_py_test {
-  setup_python
-  python3 -m pytest -vv
+  setup_poetry
+  pyrun pytest -vv
   echo -e "#### Checking Python style"
-  if ! yapf --recursive --diff --style='{based_on_style: google, indent_width: 2}' -p datacommons/ datacommons_pandas/; then
+  if ! pyrun yapf --recursive --diff --style='{based_on_style: google, indent_width: 2}' -p datacommons/ datacommons_pandas/; then
     echo "Fix lint errors by running: ./run_test.sh -f"
     exit 1
   fi

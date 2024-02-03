@@ -1,7 +1,7 @@
 steps:
   - id: api_python
-    name: python:3.7-slim
-    entrypoint: /bin/sh
+    name: python:3.7
+    entrypoint: /bin/bash
     args:
       - -c
       - "./run_tests.sh -p"
