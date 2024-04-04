@@ -22,6 +22,7 @@ from __future__ import print_function
 
 import datacommons as dc
 
+
 def main():
   # Set the dcid to be that of Santa Clara County.
   dcids = ['geoId/06085', 'dc/p/zsb968m3v1f97']
@@ -36,8 +37,10 @@ def main():
 
   # Print all property values for "containedInPlace" for Santa Clara County.
   print('Property Values for "containedInPlace" of Santa Clara County')
-  prop_vals = dc.get_property_values(
-    dcids, 'containedInPlace', out=False, value_type='City')
+  prop_vals = dc.get_property_values(dcids,
+                                     'containedInPlace',
+                                     out=False,
+                                     value_type='City')
   print('> Cities contained in {}'.format(dcids))
   for dcid in dcids:
     for city_dcid in prop_vals[dcid]:

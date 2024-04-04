@@ -96,7 +96,7 @@ def get_property_labels(dcids, out=True):
     }
   """
   # Generate the GetProperty query and send the request
-  dcids = filter(lambda v: v==v, dcids)  # Filter out NaN values
+  dcids = filter(lambda v: v == v, dcids)  # Filter out NaN values
   dcids = list(dcids)
   url = utils._API_ROOT + utils._API_ENDPOINTS['get_property_labels']
   payload = utils._send_request(url, req_json={'dcids': dcids})
@@ -153,7 +153,7 @@ def get_property_values(dcids,
     }
   """
   # Convert the dcids field and format the request to GetPropertyValue
-  dcids = filter(lambda v: v==v, dcids)  # Filter out NaN values
+  dcids = filter(lambda v: v == v, dcids)  # Filter out NaN values
   dcids = list(dcids)
   if out:
     direction = 'out'
@@ -161,10 +161,10 @@ def get_property_values(dcids,
     direction = 'in'
 
   req_json = {
-    'dcids': dcids,
-    'property': prop,
-    'limit': limit,
-    'direction': direction
+      'dcids': dcids,
+      'property': prop,
+      'limit': limit,
+      'direction': direction
   }
   if value_type:
     req_json['value_type'] = value_type
@@ -182,8 +182,8 @@ def get_property_values(dcids,
       if dcid in payload and 'out' in payload[dcid]:
         nodes = payload[dcid]['out']
     else:
-       if dcid in payload and 'in' in payload[dcid]:
-          nodes = payload[dcid]['in']
+      if dcid in payload and 'in' in payload[dcid]:
+        nodes = payload[dcid]['in']
 
     # Add nodes to unique_results if it is not empty
     for node in nodes:
@@ -236,7 +236,7 @@ def get_triples(dcids, limit=utils._MAX_LIMIT):
     }
   """
   # Generate the GetTriple query and send the request.
-  dcids = filter(lambda v: v==v, dcids)  # Filter out NaN values
+  dcids = filter(lambda v: v == v, dcids)  # Filter out NaN values
   dcids = list(dcids)
   url = utils._API_ROOT + utils._API_ENDPOINTS['get_triples']
   payload = utils._send_request(url, req_json={'dcids': dcids, 'limit': limit})
@@ -250,9 +250,7 @@ def get_triples(dcids, limit=utils._MAX_LIMIT):
     # Add triples as appropriate
     for t in payload[dcid]:
       if 'objectId' in t:
-        results[dcid].append(
-          (t['subjectId'], t['predicate'], t['objectId']))
+        results[dcid].append((t['subjectId'], t['predicate'], t['objectId']))
       elif 'objectValue' in t:
-        results[dcid].append(
-          (t['subjectId'], t['predicate'], t['objectValue']))
+        results[dcid].append((t['subjectId'], t['predicate'], t['objectValue']))
   return dict(results)

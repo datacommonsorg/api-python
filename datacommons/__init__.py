@@ -22,12 +22,12 @@
 ##############################################################################
 
 # Data Commons SPARQL query support
-from datacommons.query import query
+from datacommons.sparql import query
 
 # Data Commons Python API
 from datacommons.core import get_property_labels, get_property_values, get_triples
 from datacommons.places import get_places_in, get_related_places, get_stats
 from datacommons.stat_vars import get_stat_value, get_stat_series, get_stat_all
 
-# Other utilities
-from datacommons.utils import set_api_key
+from datacommons.key import set_api_key
+from datacommons.node import properties, property_values, triples

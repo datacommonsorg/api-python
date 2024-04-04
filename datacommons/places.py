@@ -60,22 +60,28 @@ def get_places_in(dcids, place_type):
       ]
     }
   """
-  dcids = filter(lambda v: v==v, dcids)  # Filter out NaN values
+  dcids = filter(lambda v: v == v, dcids)  # Filter out NaN values
   dcids = list(dcids)
   url = utils._API_ROOT + utils._API_ENDPOINTS['get_places_in']
-  payload = utils._send_request(url, req_json = {
-    'dcids': dcids,
-    'place_type': place_type,
-  })
+  payload = utils._send_request(url,
+                                req_json={
+                                    'dcids': dcids,
+                                    'place_type': place_type,
+                                })
 
   # Create the results and format it appropriately
   result = utils._format_expand_payload(payload, 'place', must_exist=dcids)
   return result
 
-def get_stats(dcids, stats_var, obs_dates='latest', measurement_method=None,
-              unit=None, obs_period=None):
+
+def get_stats(dcids,
+              stats_var,
+              obs_dates='latest',
+              measurement_method=None,
+              unit=None,
+              obs_period=None):
   """ Returns :obj:`TimeSeries` for :code:`dcids` \
-    based on the :code:`stats_var`.
+  based on the :code:`stats_var`.
 
   Args:
     dcids (:obj:`iterable` of :obj:`str`): Dcids of places to query for.
@@ -138,15 +144,19 @@ def get_stats(dcids, stats_var, obs_dates='latest', measurement_method=None,
       },
     }
   """
-  dcids = filter(lambda v: v==v, dcids)  # Filter out NaN values
+  dcids = filter(lambda v: v == v, dcids)  # Filter out NaN values
   dcids = list(dcids)
   url = utils._API_ROOT + utils._API_ENDPOINTS['get_stats']
-  batches =  -(-len(dcids) // utils._QUERY_BATCH_SIZE)  # Ceil to get # of batches.
+  batches = -(-len(dcids) // utils._QUERY_BATCH_SIZE
+             )  # Ceil to get # of batches.
   res = {}
   for i in range(batches):
     req_json = {
-      'place': dcids[i * utils._QUERY_BATCH_SIZE:(i+1) * utils._QUERY_BATCH_SIZE],
-      'stats_var': stats_var,
+        'place':
+            dcids[i * utils._QUERY_BATCH_SIZE:(i + 1) *
+                  utils._QUERY_BATCH_SIZE],
+        'stats_var':
+            stats_var,
     }
     if measurement_method:
       req_json['measurement_method'] = measurement_method
@@ -162,7 +172,8 @@ def get_stats(dcids, stats_var, obs_dates='latest', measurement_method=None,
         if not stats:
           continue
         time_series = stats.get('data')
-        if not time_series: continue
+        if not time_series:
+          continue
         max_date = max(time_series)
         max_date_stat = time_series[max_date]
         time_series.clear()
@@ -174,7 +185,8 @@ def get_stats(dcids, stats_var, obs_dates='latest', measurement_method=None,
         if not stats:
           continue
         time_series = stats.get('data')
-        if not time_series: continue
+        if not time_series:
+          continue
         for date in list(time_series):
           if date not in obs_dates:
             time_series.pop(date)
@@ -182,9 +194,15 @@ def get_stats(dcids, stats_var, obs_dates='latest', measurement_method=None,
   return res
 
 
-def get_related_places(dcids, population_type, measured_property,
-    measurement_method, stat_type, constraining_properties={},
-    within_place='', per_capita=False, same_place_type=False):
+def get_related_places(dcids,
+                       population_type,
+                       measured_property,
+                       measurement_method,
+                       stat_type,
+                       constraining_properties={},
+                       within_place='',
+                       per_capita=False,
+                       same_place_type=False):
   """ Returns :obj:`Place`s related to :code:`dcids` for the given constraints.
 
   Args:
@@ -229,22 +247,22 @@ def get_related_places(dcids, population_type, measured_property,
       ]
     }
   """
-  dcids = filter(lambda v: v==v, dcids)  # Filter out NaN values
+  dcids = filter(lambda v: v == v, dcids)  # Filter out NaN values
   dcids = list(dcids)
   url = utils._API_ROOT + utils._API_ENDPOINTS['get_related_places']
   pvs = []
   for p in constraining_properties:
     pvs.append({'property': p, 'value': constraining_properties[p]})
   req_json = {
-    'dcids': dcids,
-    'populationType': population_type,
-    'pvs': pvs,
-    'measuredProperty': measured_property,
-    'statType': '',  # TODO: Set to stat_type when having it in BT data.
-    'measurementMethod': measurement_method,
-    'withinPlace': within_place,
-    'perCapita': per_capita,
-    'samePlaceType': same_place_type,
+      'dcids': dcids,
+      'populationType': population_type,
+      'pvs': pvs,
+      'measuredProperty': measured_property,
+      'statType': '',  # TODO: Set to stat_type when having it in BT data.
+      'measurementMethod': measurement_method,
+      'withinPlace': within_place,
+      'perCapita': per_capita,
+      'samePlaceType': same_place_type,
   }
   payload = utils._send_request(url, req_json=req_json)
   return payload
