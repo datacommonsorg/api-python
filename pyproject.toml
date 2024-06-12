@@ -1,0 +1,23 @@
+[tool.poetry]
+name = "datacommons"
+version = "1.4.3"
+description = "Python client library to access Data Commons"
+authors = ["Prashanth R <pradh@dev>"]
+license = "Apache-2.0"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.7.1"
+requests = "^2.28.1"
+typing-extensions = "^4.4.0"
+pandas = "^1.2.2"
+
+[tool.poetry.group.dev.dependencies]
+mock = "^4.0.3"
+pytest = "^7.2.0"
+toml = "^0.10.2"
+yapf = "^0.32.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
