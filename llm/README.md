@@ -6,5 +6,5 @@ Gemma models.
 The python package for general use is in `data_gemma`.  To install it:
 
 ```
-pip install git+https://github.com/datacommonsorg/api-python#subdirectory=llm
+pip install data_gemma@git+https://github.com/datacommonsorg/api-python#subdirectory=llm
 ```
