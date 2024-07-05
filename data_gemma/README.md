@@ -3,8 +3,12 @@
 This directory contains the python API used to integrate Data Gemma (or other
 LLMs) with Data Commons.
 
-Install the as:
+## Install
 
 ```
 pip install data_gemma@git+https://github.com/datacommonsorg/api-python#subdirectory=data_gemma
 ```
+
+## Examples
+
+* [RAG Flow Demo](link)
