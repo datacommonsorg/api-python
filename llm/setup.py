@@ -22,7 +22,7 @@ DESCRIPTION = 'A library to integrate with Data Gemma models and Data Commons.'
 URL = 'https://github.com/datacommonsorg/api-python'
 EMAIL = 'support@datacommons.org'
 AUTHOR = 'datacommons.org'
-REQUIRES_PYTHON = '>=3.11'
+REQUIRES_PYTHON = '>=3.10'
 VERSION = '0.0.1'
 REQUIRED = ['requests']
 PACKAGES = ['data_gemma']
