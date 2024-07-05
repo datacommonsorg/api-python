@@ -6,7 +6,7 @@ LLMs) with Data Commons.
 ## Install
 
 ```
-pip install data_gemma@git+https://github.com/datacommonsorg/api-python#subdirectory=data_gemma
+pip install git+https://github.com/datacommonsorg/api-python#subdirectory=data_gemma
 ```
 
 ## Examples
