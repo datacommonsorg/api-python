@@ -1,5 +1,4 @@
-from datacommons_client.models.sparql import Cell
-from datacommons_client.models.sparql import Row
+from datacommons_client.models.sparql import Cell, Row
 
 
 def test_cell_from_json():
