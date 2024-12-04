@@ -1,7 +1,9 @@
-from datacommons_client.models.observation import Facet
-from datacommons_client.models.observation import Observation
-from datacommons_client.models.observation import OrderedFacets
-from datacommons_client.models.observation import Variable
+from datacommons_client.models.observation import (
+    Facet,
+    Observation,
+    OrderedFacets,
+    Variable,
+)
 
 
 def test_observation_from_json():

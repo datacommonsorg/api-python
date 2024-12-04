@@ -1,5 +1,4 @@
-from datacommons_client.models.resolve import Candidate
-from datacommons_client.models.resolve import Entity
+from datacommons_client.models.resolve import Candidate, Entity
 
 
 def test_candidate_from_json():
