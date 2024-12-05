@@ -8,6 +8,7 @@ from datacommons_client.models.observation import (
     facetID,
     variableDCID,
 )
+from datacommons_client.models.resolve import Entity
 
 
 @dataclass
@@ -225,3 +226,45 @@ def observations_as_records(data: dict, facets: dict) -> list[dict]:
             facet_metadata=facets,
         )
     ]
+
+
+@dataclass
+class ResolveResponse:
+    """Represents the response from the Data Commons API Resolve endpoint.
+
+    Attributes:
+        entities (List[Entity]): A list of entities resolved by the API, each
+            containing the query node and its associated candidates.
+    """
+
+    entities: List[Entity] = field(default_factory=list)
+
+    @classmethod
+    def from_json(cls, json_data: Dict[str, Any]) -> "ResolveResponse":
+        """Parses a ResolveResponse instance from JSON data.
+
+        Args:
+            json_data (Dict[str, Any]): A dictionary containing the API response
+                data, with keys like "entities".
+
+        Returns:
+            ResolveResponse: A populated instance of the ResolveResponse class.
+        """
+        return cls(
+            entities=[
+                Entity.from_json(entity)
+                for entity in json_data.get("entities", [])
+            ]
+        )
+
+    @property
+    def json(self):
+        """Converts the ResolveResponse instance to a dictionary.
+
+        This is useful for serializing the response data back into a JSON-compatible
+        format.
+
+        Returns:
+            Dict[str, Any]: The dictionary representation of the ResolveResponse instance.
+        """
+        return asdict(self)
