@@ -1,12 +1,13 @@
-from requests import Request
-from requests import Response
+from requests import Request, Response
 
-from datacommons_client.utils.error_handling import APIError
-from datacommons_client.utils.error_handling import DataCommonsError
-from datacommons_client.utils.error_handling import DCAuthenticationError
-from datacommons_client.utils.error_handling import DCConnectionError
-from datacommons_client.utils.error_handling import DCStatusError
-from datacommons_client.utils.error_handling import InvalidDCInstanceError
+from datacommons_client.utils.error_hanlding import (
+    DataCommonsError,
+    APIError,
+    DCConnectionError,
+    DCStatusError,
+    DCAuthenticationError,
+    InvalidDCInstanceError,
+)
 
 
 def test_data_commons_error_default_message():
