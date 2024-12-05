@@ -9,6 +9,7 @@ from datacommons_client.models.observation import (
     variableDCID,
 )
 from datacommons_client.models.resolve import Entity
+from datacommons_client.models.sparql import Row
 
 
 @dataclass
@@ -266,5 +267,43 @@ class ResolveResponse:
 
         Returns:
             Dict[str, Any]: The dictionary representation of the ResolveResponse instance.
+        """
+        return asdict(self)
+
+
+@dataclass
+class SparqlResponse:
+    """Represents the response from a SPARQL query.
+
+    Attributes:
+        header (List[str]): The list of strings representing the query header.
+        rows (List[Row]): A list of rows, each containing cells with values.
+    """
+
+    header: List[str] = field(default_factory=list)
+    rows: List[Row] = field(default_factory=list)
+
+    @classmethod
+    def from_json(cls, json_data: Dict[str, Any]) -> "SparqlResponse":
+        """Parses a SparqlResponse instance from JSON data.
+
+        Args:
+            json_data (Dict[str, Any]): A dictionary containing the SPARQL query
+                response data, with keys like "header" and "rows".
+
+        Returns:
+            SparqlResponse: A populated instance of the SparqlResponse class.
+        """
+        return cls(
+            header=json_data.get("header", []),
+            rows=[Row.from_json(row) for row in json_data.get("rows", [])],
+        )
+
+    def to_json(self) -> Dict[str, Any]:
+        """Converts the SparqlResponse object to a JSON-compatible dictionary.
+
+        Returns:
+            Dict[str, Any]: A dictionary representing the SparqlResponse object,
+            suitable for serialization into JSON format.
         """
         return asdict(self)
