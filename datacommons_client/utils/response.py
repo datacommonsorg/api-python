@@ -102,7 +102,7 @@ def flatten_properties(data: Dict[str, Any]) -> Dict[str, Any]:
         if hasattr(node_data, "properties"):
             items[node] = node_data.properties
 
-        return items
+    return items
 
 
 def _unpack_arcs(arcs: Dict[str, Any]) -> Any:
@@ -113,8 +113,9 @@ def _unpack_arcs(arcs: Dict[str, Any]) -> Any:
 
     # Single arc: extract first node's data
     for property_data in arcs.values():
-        nodes = property_data.get("nodes", [])
-        return nodes if len(nodes) > 1 else (nodes[0] if nodes else None)
+        nodes = property_data.nodes
+        if nodes is not None:
+            return nodes if len(nodes) > 1 else nodes[0]
 
 
 @dataclass
