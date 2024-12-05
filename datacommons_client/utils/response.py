@@ -300,7 +300,7 @@ class SparqlResponse:
             rows=[Row.from_json(row) for row in json_data.get("rows", [])],
         )
 
-    def to_json(self) -> Dict[str, Any]:
+    def json(self) -> Dict[str, Any]:
         """Converts the SparqlResponse object to a JSON-compatible dictionary.
 
         Returns:
