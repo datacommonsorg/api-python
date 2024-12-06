@@ -1,34 +1,15 @@
-<<<<<<< HEAD
-from datacommons_client.endpoints.response import _unpack_arcs
-from datacommons_client.endpoints.response import DCResponse
-from datacommons_client.endpoints.response import extract_observations
-from datacommons_client.endpoints.response import flatten_properties
-from datacommons_client.endpoints.response import NodeResponse
-from datacommons_client.endpoints.response import ObservationResponse
-from datacommons_client.endpoints.response import ResolveResponse
-from datacommons_client.endpoints.response import SparqlResponse
 from datacommons_client.models.observation import Facet
 from datacommons_client.models.observation import Observation
 from datacommons_client.models.observation import OrderedFacets
 from datacommons_client.models.observation import Variable
-=======
-from datacommons_client.models.observation import (
-    Facet,
-    Observation,
-    OrderedFacets,
-    Variable,
-)
-from datacommons_client.endpoints.response import (
-    DCResponse,
-    NodeResponse,
-    ObservationResponse,
-    ResolveResponse,
-    SparqlResponse,
-    _unpack_arcs,
-    extract_observations,
-    flatten_properties,
-)
->>>>>>> f0b7757 (Move response scripts and tests)
+from datacommons_client.utils.response import _unpack_arcs
+from datacommons_client.utils.response import DCResponse
+from datacommons_client.utils.response import extract_observations
+from datacommons_client.utils.response import flatten_properties
+from datacommons_client.utils.response import NodeResponse
+from datacommons_client.utils.response import ObservationResponse
+from datacommons_client.utils.response import ResolveResponse
+from datacommons_client.utils.response import SparqlResponse
 
 ### ----- Test DCResponse ----- ###
 
