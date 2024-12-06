@@ -1,13 +1,16 @@
-from dataclasses import asdict, dataclass, field
+from dataclasses import asdict
+from dataclasses import dataclass
+from dataclasses import field
 from typing import Any, Dict, List
 
-from datacommons_client.models.node import Arcs, NextToken, NodeDCID, Properties
-from datacommons_client.models.observation import (
-    Facet,
-    Variable,
-    facetID,
-    variableDCID,
-)
+from datacommons_client.models.node import Arcs
+from datacommons_client.models.node import NextToken
+from datacommons_client.models.node import NodeDCID
+from datacommons_client.models.node import Properties
+from datacommons_client.models.observation import Facet
+from datacommons_client.models.observation import facetID
+from datacommons_client.models.observation import Variable
+from datacommons_client.models.observation import variableDCID
 from datacommons_client.models.resolve import Entity
 from datacommons_client.models.sparql import Row
 
