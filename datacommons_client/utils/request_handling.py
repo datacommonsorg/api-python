@@ -251,7 +251,7 @@ def post_request(
     headers: dict[str, str],
     max_pages: Optional[int] = None,
 ) -> Dict[str, Any]:
-    """Send a POST request with optional pagination support and return a single dictionary.
+    """Send a POST request with optional pagination support and return a DCResponse.
 
     Args:
         url: The target endpoint URL.
