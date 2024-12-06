@@ -1,12 +1,10 @@
 import pytest
 
-from datacommons_client.endpoints.payloads import (
-    NodePayload,
-    ObservationPayload,
-    ObservationDate,
-    ResolvePayload,
-    SparqlPayload,
-)
+from datacommons_client.endpoints.payloads import NodePayload
+from datacommons_client.endpoints.payloads import ObservationDate
+from datacommons_client.endpoints.payloads import ObservationPayload
+from datacommons_client.endpoints.payloads import ResolvePayload
+from datacommons_client.endpoints.payloads import SparqlPayload
 
 
 def test_node_payload_normalize():
