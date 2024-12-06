@@ -1,6 +1,6 @@
 steps:
   - id: api_python
-    name: python:3.7-slim
+    name: python:3.10-slim
     entrypoint: /bin/sh
     args:
       - -c
