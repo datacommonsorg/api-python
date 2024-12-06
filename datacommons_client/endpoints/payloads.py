@@ -3,15 +3,11 @@ from abc import abstractmethod
 from dataclasses import dataclass
 from dataclasses import field
 from enum import Enum
-from typing import Optional
-
-from datacommons_client.utils.error_handling import (
-    InvalidObservationSelectError,
-)
+from typing import Dict, Optional
 
 
 @dataclass
-class EndpointRequestPayload(ABC):
+class EndpointPayload(ABC):
     """
     Abstract base class for payload dataclasses.
     Defines the required interface for all payload dataclasses.
@@ -35,33 +31,33 @@ class EndpointRequestPayload(ABC):
 
 
 @dataclass
-class NodeRequestPayload(EndpointRequestPayload):
+class NodePayload(EndpointPayload):
     """
-    A dataclass to structure, normalize, and validate the payload for a Node V2 API request.
+    A dataclass to structure, normalize, and validate the payload for a node API request.
 
     Attributes:
-        node_dcids (str | list[str]): The DCID(s) of the nodes to query.
-        expression (str): The property or relation expression(s) to query.
+        nodes (str | list[str]): The DCID(s) of the nodes to query.
+        prop (str): The property or relation expression(s) to query.
     """
 
-    node_dcids: str | list[str]
-    expression: str
+    nodes: str | list[str]
+    prop: str
 
     def __post_init__(self):
         self.normalize()
         self.validate()
 
     def normalize(self):
-        if isinstance(self.node_dcids, str):
-            self.node_dcids = [self.node_dcids]
+        if isinstance(self.nodes, str):
+            self.nodes = [self.nodes]
 
     def validate(self):
-        if not isinstance(self.expression, str):
-            raise ValueError("Expression must be a string.")
+        if not isinstance(self.prop, str):
+            raise ValueError("Property must be a string.")
 
     @property
     def to_dict(self) -> dict:
-        return {"nodes": self.node_dcids, "property": self.expression}
+        return {"nodes": self.nodes, "property": self.prop}
 
 
 class ObservationSelect(str, Enum):
@@ -70,13 +66,6 @@ class ObservationSelect(str, Enum):
     ENTITY = "entity"
     VALUE = "value"
 
-    @classmethod
-    def _missing_(cls, value):
-        """Handle missing enum values by raising a custom error."""
-        valid_values = [member.value for member in cls]
-        message = f"Invalid `select` field: '{value}'. Only {', '.join(valid_values)} are allowed."
-        raise InvalidObservationSelectError(message=message)
-
 
 class ObservationDate(str, Enum):
     LATEST = "LATEST"
@@ -84,29 +73,21 @@ class ObservationDate(str, Enum):
 
 
 @dataclass
-class ObservationRequestPayload(EndpointRequestPayload):
+class ObservationPayload(EndpointPayload):
     """
-    A dataclass to structure, normalize, and validate the payload for an Observation V2 API request.
+    A dataclass to structure, normalize, and validate the payload for an observation API request.
 
     Attributes:
         date (str): The date for which data is being requested.
         variable_dcids (str | list[str]): One or more variable IDs for the data.
         select (list[ObservationSelect]): Fields to include in the response.
-            Defaults to ["date", "variable", "entity", "value"].
         entity_dcids (Optional[str | list[str]]): One or more entity IDs to filter the data.
         entity_expression (Optional[str]): A string expression to filter entities.
     """
 
     date: ObservationDate | str = ""
     variable_dcids: str | list[str] = field(default_factory=list)
-    select: list[ObservationSelect | str] = field(
-        default_factory=lambda: [
-            ObservationSelect.DATE,
-            ObservationSelect.VARIABLE,
-            ObservationSelect.ENTITY,
-            ObservationSelect.VALUE,
-        ]
-    )
+    select: list[ObservationSelect | str] = field(default_factory=list)
     entity_dcids: Optional[str | list[str]] = None
     entity_expression: Optional[str] = None
 
@@ -126,7 +107,6 @@ class ObservationRequestPayload(EndpointRequestPayload):
         Normalizes the payload for consistent internal representation.
 
         - Converts `variable_dcids` and `entity_dcids` to lists if they are passed as strings.
-        - Normalizes the `date` field to ensure it is in the correct format.
         """
         # Normalize variable
         if isinstance(self.variable_dcids, str):
@@ -152,7 +132,7 @@ class ObservationRequestPayload(EndpointRequestPayload):
         """
 
         # Validate mutually exclusive entity fields
-        if bool(self.entity_dcids) == bool(self.entity_expression):
+        if bool(self.entity_dcids) + bool(self.entity_expression) != 1:
             raise ValueError(
                 "Exactly one of 'entity_dcids' or 'entity_expression' must be set."
             )
@@ -161,8 +141,7 @@ class ObservationRequestPayload(EndpointRequestPayload):
         missing_fields = self.RequiredSelect - set(self.select)
         if missing_fields:
             raise ValueError(
-                f"The 'select' field must include at least the following: {', '.join(self.RequiredSelect)} "
-                f"(missing: {', '.join(missing_fields)})"
+                f"'entity' and 'variable' must be selected (missing: {', '.join(missing_fields)})"
             )
 
         # Check all select fields are valid
@@ -189,16 +168,16 @@ class ObservationRequestPayload(EndpointRequestPayload):
 
 
 @dataclass
-class ResolveRequestPayload(EndpointRequestPayload):
+class ResolvePayload(EndpointPayload):
     """
-    A dataclass to structure, normalize, and validate the payload for a Resolve V2 API request.
+    A dataclass to structure, normalize, and validate the payload for a Resolve API request.
 
     Attributes:
-        node_dcids (str | list[str]): The DCID(s) of the nodes to query.
+        nodes (str | list[str]): The DCID(s) of the nodes to query.
         expression (str): The relation expression to query.
     """
 
-    node_dcids: str | list[str]
+    nodes: str | list[str]
     expression: str
 
     def __post_init__(self):
@@ -206,8 +185,8 @@ class ResolveRequestPayload(EndpointRequestPayload):
         self.validate()
 
     def normalize(self):
-        if isinstance(self.node_dcids, str):
-            self.node_dcids = [self.node_dcids]
+        if isinstance(self.nodes, str):
+            self.nodes = [self.nodes]
 
     def validate(self):
         if not isinstance(self.expression, str):
@@ -215,4 +194,44 @@ class ResolveRequestPayload(EndpointRequestPayload):
 
     @property
     def to_dict(self) -> dict:
-        return {"nodes": self.node_dcids, "property": self.expression}
+        return {"nodes": self.nodes, "property": self.expression}
+
+
+@dataclass
+class SparqlPayload(EndpointPayload):
+    """
+    A dataclass to structure, normalize, and validate the payload for a SPARQL API request.
+
+    Attributes:
+        query (str): The SPARQL query to be executed.
+    """
+
+    query: str
+
+    def __post_init__(self):
+        self.normalize()
+        self.validate()
+
+    def validate(self):
+        """
+        Validates the payload to ensure the SPARQL query is provided and in the correct format.
+
+        Raises:
+            ValueError: If the query is not a non-empty string.
+        """
+        if not isinstance(self.query, str) or not self.query.strip():
+            raise ValueError("Query must be a non-empty string.")
+
+    def normalize(self):
+        """No normalization is required for the SPARQL query."""
+        pass
+
+    @property
+    def to_dict(self) -> Dict[str, str]:
+        """
+        Converts the payload into a dictionary format for API requests.
+
+        Returns:
+            dict: The normalized and validated payload.
+        """
+        return {"query": self.query}
