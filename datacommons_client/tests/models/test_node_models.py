@@ -1,4 +1,7 @@
-from datacommons_client.models.node import Arcs, Node, NodeGroup, Properties
+from datacommons_client.models.node import Arcs
+from datacommons_client.models.node import Node
+from datacommons_client.models.node import NodeGroup
+from datacommons_client.models.node import Properties
 
 
 def test_node_from_json():
