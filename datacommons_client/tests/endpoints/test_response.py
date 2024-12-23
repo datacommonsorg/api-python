@@ -4,7 +4,7 @@ from datacommons_client.models.observation import (
     OrderedFacets,
     Variable,
 )
-from datacommons_client.utils.response import (
+from datacommons_client.endpoints.response import (
     DCResponse,
     NodeResponse,
     ObservationResponse,
