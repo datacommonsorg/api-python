@@ -33,7 +33,7 @@ class EndpointPayload(ABC):
 @dataclass
 class NodePayload(EndpointPayload):
     """
-    A dataclass to structure, normalize, and validate the payload for a node API request.
+    A dataclass to structure, normalize, and validate the payload for a Node V2 API request.
 
     Attributes:
         nodes (str | list[str]): The DCID(s) of the nodes to query.
@@ -75,7 +75,7 @@ class ObservationDate(str, Enum):
 @dataclass
 class ObservationPayload(EndpointPayload):
     """
-    A dataclass to structure, normalize, and validate the payload for an observation API request.
+    A dataclass to structure, normalize, and validate the payload for an Observation V2 API request.
 
     Attributes:
         date (str): The date for which data is being requested.
@@ -170,7 +170,7 @@ class ObservationPayload(EndpointPayload):
 @dataclass
 class ResolvePayload(EndpointPayload):
     """
-    A dataclass to structure, normalize, and validate the payload for a Resolve API request.
+    A dataclass to structure, normalize, and validate the payload for a Resolve V2 API request.
 
     Attributes:
         nodes (str | list[str]): The DCID(s) of the nodes to query.
@@ -200,7 +200,7 @@ class ResolvePayload(EndpointPayload):
 @dataclass
 class SparqlPayload(EndpointPayload):
     """
-    A dataclass to structure, normalize, and validate the payload for a SPARQL API request.
+    A dataclass to structure, normalize, and validate the payload for a SPARQL V2 API request.
 
     Attributes:
         query (str): The SPARQL query to be executed.
