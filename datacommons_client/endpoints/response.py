@@ -29,7 +29,7 @@ class DCResponse:
 
 @dataclass
 class NodeResponse:
-    """Represents the response from the Data Commons API.
+    """Represents a response from the Node endpoint of the Data Commons API.
 
     Attributes:
         data: A dictionary mapping node DCIDs to Arcs or Properties objects.
@@ -120,7 +120,7 @@ def _unpack_arcs(arcs: Dict[str, Any]) -> Any:
 
 @dataclass
 class ObservationResponse:
-    """Represents the response from the Data Commons API Observation endpoint.
+    """Represents a response from the Observation endpoint of the Data Commons API.
 
     Attributes:
        byVariable: A dictionary of variable DCIDs and their corresponding data.
@@ -232,7 +232,7 @@ def observations_as_records(data: dict, facets: dict) -> list[dict]:
 
 @dataclass
 class ResolveResponse:
-    """Represents the response from the Data Commons API Resolve endpoint.
+    """Represents a response from the Resolve endpoint of the Data Commons API.
 
     Attributes:
         entities (List[Entity]): A list of entities resolved by the API, each
@@ -274,7 +274,7 @@ class ResolveResponse:
 
 @dataclass
 class SparqlResponse:
-    """Represents the response from a SPARQL query.
+    """Represents a response from the SPARQL endpoint of the Data Commons API.
 
     Attributes:
         header (List[str]): The list of strings representing the query header.
