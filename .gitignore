@@ -125,3 +125,6 @@ datacommons.RCheck
 
 ## VSCode
 .vscode/
+
+## JetBrains
+.idea/
