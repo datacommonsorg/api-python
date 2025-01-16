@@ -4,8 +4,6 @@ from datacommons_client.endpoints.payloads import NodePayload
 from datacommons_client.endpoints.payloads import ObservationDate
 from datacommons_client.endpoints.payloads import ObservationPayload
 from datacommons_client.endpoints.payloads import ResolvePayload
-from datacommons_client.endpoints.payloads import SparqlPayload
-
 
 def test_node_payload_normalize():
     """Tests that NodePayload correctly normalizes single and multiple nodes."""
@@ -117,18 +115,3 @@ def test_resolve_payload_to_dict():
     """Tests ResolvePayload conversion to dictionary."""
     payload = ResolvePayload(nodes="node1", expression="expr1")
     assert payload.to_dict == {"nodes": ["node1"], "property": "expr1"}
-
-
-def test_sparql_payload_validate():
-    """Tests that SparqlPayload validates its inputs correctly."""
-    with pytest.raises(ValueError):
-        SparqlPayload(query="")  # Query cannot be empty
-
-    with pytest.raises(ValueError):
-        SparqlPayload(query=None)  # Query must be a non-empty string
-
-
-def test_sparql_payload_to_dict():
-    """Tests SparqlPayload conversion to dictionary."""
-    payload = SparqlPayload(query="SELECT * WHERE {?s ?p ?o}")
-    assert payload.to_dict == {"query": "SELECT * WHERE {?s ?p ?o}"}

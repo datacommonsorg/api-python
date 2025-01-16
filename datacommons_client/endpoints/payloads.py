@@ -3,7 +3,7 @@ from abc import abstractmethod
 from dataclasses import dataclass
 from dataclasses import field
 from enum import Enum
-from typing import Dict, Optional
+from typing import Optional
 
 
 @dataclass
@@ -195,43 +195,3 @@ class ResolvePayload(EndpointPayload):
     @property
     def to_dict(self) -> dict:
         return {"nodes": self.nodes, "property": self.expression}
-
-
-@dataclass
-class SparqlPayload(EndpointPayload):
-    """
-    A dataclass to structure, normalize, and validate the payload for a SPARQL V2 API request.
-
-    Attributes:
-        query (str): The SPARQL query to be executed.
-    """
-
-    query: str
-
-    def __post_init__(self):
-        self.normalize()
-        self.validate()
-
-    def validate(self):
-        """
-        Validates the payload to ensure the SPARQL query is provided and in the correct format.
-
-        Raises:
-            ValueError: If the query is not a non-empty string.
-        """
-        if not isinstance(self.query, str) or not self.query.strip():
-            raise ValueError("Query must be a non-empty string.")
-
-    def normalize(self):
-        """No normalization is required for the SPARQL query."""
-        pass
-
-    @property
-    def to_dict(self) -> Dict[str, str]:
-        """
-        Converts the payload into a dictionary format for API requests.
-
-        Returns:
-            dict: The normalized and validated payload.
-        """
-        return {"query": self.query}
