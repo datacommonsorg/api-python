@@ -7,7 +7,7 @@ from typing import Optional
 
 
 @dataclass
-class EndpointPayload(ABC):
+class EndpointRequestPayload(ABC):
     """
     Abstract base class for payload dataclasses.
     Defines the required interface for all payload dataclasses.
@@ -31,7 +31,7 @@ class EndpointPayload(ABC):
 
 
 @dataclass
-class NodePayload(EndpointPayload):
+class NodeRequestPayload(EndpointRequestPayload):
     """
     A dataclass to structure, normalize, and validate the payload for a Node V2 API request.
 
@@ -73,7 +73,7 @@ class ObservationDate(str, Enum):
 
 
 @dataclass
-class ObservationPayload(EndpointPayload):
+class ObservationRequestPayload(EndpointRequestPayload):
     """
     A dataclass to structure, normalize, and validate the payload for an Observation V2 API request.
 
@@ -168,7 +168,7 @@ class ObservationPayload(EndpointPayload):
 
 
 @dataclass
-class ResolvePayload(EndpointPayload):
+class ResolveRequestPayload(EndpointRequestPayload):
     """
     A dataclass to structure, normalize, and validate the payload for a Resolve V2 API request.
 
