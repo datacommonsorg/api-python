@@ -132,7 +132,7 @@ class ObservationPayload(EndpointPayload):
         """
 
         # Validate mutually exclusive entity fields
-        if bool(self.entity_dcids) + bool(self.entity_expression) != 1:
+        if bool(self.entity_dcids) == bool(self.entity_expression):
             raise ValueError(
                 "Exactly one of 'entity_dcids' or 'entity_expression' must be set."
             )
