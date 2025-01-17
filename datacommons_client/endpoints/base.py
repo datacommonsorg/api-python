@@ -26,7 +26,8 @@ class API:
             api_key: The API key for authentication. Defaults to None.
             dc_instance: The Data Commons instance domain. Ignored if `url` is provided.
                          Defaults to 'datacommons.org' if both `url` and `dc_instance` are None.
-            url: A fully qualified URL for the base API. If provided, `dc_instance`
+            url: A fully qualified URL for the base API. This may be useful if more granular control
+                of the API is required (for local development, for example). If provided, dc_instance`
                  should not be provided.
 
         Raises:
