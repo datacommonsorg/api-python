@@ -85,7 +85,9 @@ class API:
         if not isinstance(payload, dict):
             raise ValueError("Payload must be a dictionary.")
 
-        url = self.base_url if endpoint is None else f"{self.base_url}/{endpoint}"
+        url = (
+            self.base_url if endpoint is None else f"{self.base_url}/{endpoint}"
+        )
         return post_request(
             url=url, payload=payload, headers=self.headers, max_pages=max_pages
         )
