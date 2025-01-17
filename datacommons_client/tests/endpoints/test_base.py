@@ -3,7 +3,7 @@ from unittest.mock import patch
 import pytest
 
 from datacommons_client.endpoints.base import API
-from datacommons_client.endpoints.base import EndPoint
+from datacommons_client.endpoints.base import Endpoint
 
 
 @patch("datacommons_client.endpoints.base.build_headers")
@@ -92,18 +92,18 @@ def test_api_post_request_invalid_payload():
 
 
 def test_endpoint_initialization():
-    """Tests initializing an EndPoint with a valid API instance."""
+    """Tests initializing an Endpoint with a valid API instance."""
     api = API(url="https://custom_instance.api/v2")
-    endpoint = EndPoint(endpoint="node", api=api)
+    endpoint = Endpoint(endpoint="node", api=api)
 
     assert endpoint.endpoint == "node"
     assert endpoint.api is api
 
 
 def test_endpoint_repr():
-    """Tests the string representation of the EndPoint object."""
+    """Tests the string representation of the Endpoint object."""
     api = API(url="https://custom.api/v2")
-    endpoint = EndPoint(endpoint="node", api=api)
+    endpoint = Endpoint(endpoint="node", api=api)
 
     assert (
         repr(endpoint) == "<Node Endpoint using <API at https://custom.api/v2>>"
@@ -112,11 +112,11 @@ def test_endpoint_repr():
 
 @patch("datacommons_client.endpoints.base.post_request")
 def test_endpoint_post_request(mock_post_request):
-    """Tests making a POST request using the EndPoint object."""
+    """Tests making a POST request using the Endpoint object."""
     mock_post_request.return_value = {"success": True}
 
     api = API(url="https://custom.api/v2")
-    endpoint = EndPoint(endpoint="node", api=api)
+    endpoint = Endpoint(endpoint="node", api=api)
     payload = {"key": "value"}
 
     response = endpoint.post(payload=payload)
@@ -129,9 +129,9 @@ def test_endpoint_post_request(mock_post_request):
 
 
 def test_endpoint_post_request_invalid_payload():
-    """Tests that an invalid payload raises a ValueError in the EndPoint post method."""
+    """Tests that an invalid payload raises a ValueError in the Endpoint post method."""
     api = API(url="https://custom.api/v2")
-    endpoint = EndPoint(endpoint="node", api=api)
+    endpoint = Endpoint(endpoint="node", api=api)
 
     with pytest.raises(ValueError):
         endpoint.post(payload=["invalid", "payload"])

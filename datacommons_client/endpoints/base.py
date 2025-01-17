@@ -85,7 +85,7 @@ class API:
         return post_request(url=url, payload=payload, headers=self.headers)
 
 
-class EndPoint:
+class Endpoint:
     """Represents a specific endpoint within the Data Commons API.
 
     This class leverages an API instance to make requests. It does not
