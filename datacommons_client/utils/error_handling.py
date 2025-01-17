@@ -76,3 +76,9 @@ class InvalidDCInstanceError(DataCommonsError):
     """Raised when an invalid Data Commons instance is provided."""
 
     default_message = "The specified Data Commons instance is invalid."
+
+
+class InvalidObservationSelectError(DataCommonsError):
+    """Raised when an invalid ObservationSelect field is provided."""
+
+    default_message = "The ObservationSelect field is invalid."
