@@ -9,6 +9,10 @@ from datacommons_client.utils.error_handling import DCAuthenticationError
 from datacommons_client.utils.error_handling import DCConnectionError
 from datacommons_client.utils.error_handling import DCStatusError
 from datacommons_client.utils.error_handling import InvalidDCInstanceError
+<<<<<<< HEAD
+=======
+from datacommons_client.utils.request_handling import check_instance_is_valid
+>>>>>>> 360515d (fix name typo)
 from datacommons_client.utils.request_handling import _fetch_with_pagination
 from datacommons_client.utils.request_handling import _merge_values
 from datacommons_client.utils.request_handling import _recursively_merge_dicts

@@ -9,6 +9,17 @@ from datacommons_client.models.observation import Facet
 from datacommons_client.models.observation import Observation
 from datacommons_client.models.observation import OrderedFacets
 from datacommons_client.models.observation import Variable
+<<<<<<< HEAD
+=======
+from datacommons_client.endpoints.response import _unpack_arcs
+from datacommons_client.endpoints.response import DCResponse
+from datacommons_client.endpoints.response import extract_observations
+from datacommons_client.endpoints.response import flatten_properties
+from datacommons_client.endpoints.response import NodeResponse
+from datacommons_client.endpoints.response import ObservationResponse
+from datacommons_client.endpoints.response import ResolveResponse
+from datacommons_client.endpoints.response import SparqlResponse
+>>>>>>> 360515d (fix name typo)
 
 ### ----- Test DCResponse ----- ###
 
