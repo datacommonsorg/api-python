@@ -149,7 +149,8 @@ class ObservationRequestPayload(EndpointRequestPayload):
         missing_fields = self.RequiredSelect - set(self.select)
         if missing_fields:
             raise ValueError(
-                f"'entity' and 'variable' must be selected (missing: {', '.join(missing_fields)})"
+                f"The 'select' field must include at least the following: {', '.join(self.RequiredSelect)} "
+                f"(missing: {', '.join(missing_fields)})"
             )
 
         # Check all select fields are valid
