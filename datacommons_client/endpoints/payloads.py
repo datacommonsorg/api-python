@@ -115,6 +115,7 @@ class ObservationRequestPayload(EndpointRequestPayload):
         Normalizes the payload for consistent internal representation.
 
         - Converts `variable_dcids` and `entity_dcids` to lists if they are passed as strings.
+        - Normalizes the `date` field to ensure it is in the correct format.
         """
         # Normalize variable
         if isinstance(self.variable_dcids, str):
