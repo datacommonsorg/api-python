@@ -4,11 +4,11 @@ from unittest.mock import patch
 import pytest
 import requests
 
-from datacommons_client.utils.error_hanlding import APIError
-from datacommons_client.utils.error_hanlding import DCAuthenticationError
-from datacommons_client.utils.error_hanlding import DCConnectionError
-from datacommons_client.utils.error_hanlding import DCStatusError
-from datacommons_client.utils.error_hanlding import InvalidDCInstanceError
+from datacommons_client.utils.error_handling import APIError
+from datacommons_client.utils.error_handling import DCAuthenticationError
+from datacommons_client.utils.error_handling import DCConnectionError
+from datacommons_client.utils.error_handling import DCStatusError
+from datacommons_client.utils.error_handling import InvalidDCInstanceError
 from datacommons_client.utils.request_handling import check_instance_is_valid
 from datacommons_client.utils.request_handling import _fetch_with_pagination
 from datacommons_client.utils.request_handling import _merge_values
