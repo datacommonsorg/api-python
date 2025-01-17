@@ -47,7 +47,7 @@ def test_send_post_request_connection_error(mock_post):
         _send_post_request("https://api.test.com", {}, {})
 
 
-@patch("datacommons_client.utils.request_handling._check_instance_is_valid")
+@patch("datacommons_client.utils.request_handling.check_instance_is_valid")
 def test_resolve_instance_url_custom(mock_check_instance_is_valid):
     """Tests resolving a custom Data Commons instance."""
     mock_check_instance_is_valid.return_value = (
