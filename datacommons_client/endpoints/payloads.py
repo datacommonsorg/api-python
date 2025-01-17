@@ -40,11 +40,11 @@ class NodeRequestPayload(EndpointRequestPayload):
     A dataclass to structure, normalize, and validate the payload for a Node V2 API request.
 
     Attributes:
-        nodes (str | list[str]): The DCID(s) of the nodes to query.
+        node_dcids (str | list[str]): The DCID(s) of the nodes to query.
         expression (str): The property or relation expression(s) to query.
     """
 
-    nodes: str | list[str]
+    node_dcids: str | list[str]
     expression: str
 
     def __post_init__(self):
@@ -52,8 +52,8 @@ class NodeRequestPayload(EndpointRequestPayload):
         self.validate()
 
     def normalize(self):
-        if isinstance(self.nodes, str):
-            self.nodes = [self.nodes]
+        if isinstance(self.node_dcids, str):
+            self.node_dcids = [self.node_dcids]
 
     def validate(self):
         if not isinstance(self.expression, str):
@@ -61,7 +61,7 @@ class NodeRequestPayload(EndpointRequestPayload):
 
     @property
     def to_dict(self) -> dict:
-        return {"nodes": self.nodes, "property": self.expression}
+        return {"nodes": self.node_dcids, "property": self.expression}
 
 
 class ObservationSelect(str, Enum):
@@ -194,11 +194,11 @@ class ResolveRequestPayload(EndpointRequestPayload):
     A dataclass to structure, normalize, and validate the payload for a Resolve V2 API request.
 
     Attributes:
-        nodes (str | list[str]): The DCID(s) of the nodes to query.
+        node_dcids (str | list[str]): The DCID(s) of the nodes to query.
         expression (str): The relation expression to query.
     """
 
-    nodes: str | list[str]
+    node_dcids: str | list[str]
     expression: str
 
     def __post_init__(self):
@@ -206,8 +206,8 @@ class ResolveRequestPayload(EndpointRequestPayload):
         self.validate()
 
     def normalize(self):
-        if isinstance(self.nodes, str):
-            self.nodes = [self.nodes]
+        if isinstance(self.node_dcids, str):
+            self.node_dcids = [self.node_dcids]
 
     def validate(self):
         if not isinstance(self.expression, str):
@@ -215,4 +215,4 @@ class ResolveRequestPayload(EndpointRequestPayload):
 
     @property
     def to_dict(self) -> dict:
-        return {"nodes": self.nodes, "property": self.expression}
+        return {"nodes": self.node_dcids, "property": self.expression}
