@@ -4,17 +4,17 @@ import requests
 from requests import exceptions
 from requests import Response
 
-from datacommons_client.utils.error_hanlding import APIError
-from datacommons_client.utils.error_hanlding import DCAuthenticationError
-from datacommons_client.utils.error_hanlding import DCConnectionError
-from datacommons_client.utils.error_hanlding import DCStatusError
-from datacommons_client.utils.error_hanlding import InvalidDCInstanceError
+from datacommons_client.utils.error_handling import APIError
+from datacommons_client.utils.error_handling import DCAuthenticationError
+from datacommons_client.utils.error_handling import DCConnectionError
+from datacommons_client.utils.error_handling import DCStatusError
+from datacommons_client.utils.error_handling import InvalidDCInstanceError
 
 BASE_DC_V2: str = "https://api.datacommons.org/v2"
 CUSTOM_DC_V2: str = "/core/api/v2"
 
 
-def _check_instance_is_valid(instance_url: str) -> str:
+def check_instance_is_valid(instance_url: str) -> str:
     """Check that the given instance URL points to a valid Data Commons instance.
 
     This function attempts a GET request against a known node in Data Commons to
@@ -70,7 +70,7 @@ def resolve_instance_url(dc_instance: str) -> str:
 
     # Otherwise, validate the custom instance URL
     url = f"https://{dc_instance}{CUSTOM_DC_V2}"
-    return _check_instance_is_valid(url)
+    return check_instance_is_valid(url)
 
 
 def build_headers(api_key: str | None = None) -> dict[str, str]:

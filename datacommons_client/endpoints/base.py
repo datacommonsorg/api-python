@@ -1,6 +1,7 @@
 from typing import Any, Dict, Optional
 
 from datacommons_client.utils.request_handling import build_headers
+from datacommons_client.utils.request_handling import check_instance_is_valid
 from datacommons_client.utils.request_handling import post_request
 from datacommons_client.utils.request_handling import resolve_instance_url
 
@@ -43,7 +44,7 @@ class API:
 
         if url is not None:
             # Use the given URL directly (strip trailing slash)
-            self.base_url = url.rstrip("/")
+            self.base_url = check_instance_is_valid(url.rstrip("/"))
         else:
             # Resolve from dc_instance
             self.base_url = resolve_instance_url(dc_instance)
