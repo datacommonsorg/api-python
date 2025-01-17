@@ -1,9 +1,13 @@
-import pytest
-
 from datacommons_client.endpoints.payloads import NodeRequestPayload
 from datacommons_client.endpoints.payloads import ObservationDate
 from datacommons_client.endpoints.payloads import ObservationRequestPayload
+from datacommons_client.endpoints.payloads import ObservationSelect
 from datacommons_client.endpoints.payloads import ResolveRequestPayload
+from datacommons_client.utils.error_handling import (
+    InvalidObservationSelectError,
+)
+import pytest
+
 
 def test_node_payload_normalize():
     """Tests that NodeRequestPayload correctly normalizes single and multiple nodes."""
@@ -17,7 +21,9 @@ def test_node_payload_normalize():
 def test_node_payload_validate():
     """Tests that NodeRequestPayload validates its inputs correctly."""
     with pytest.raises(ValueError):
-        NodeRequestPayload(nodes="node1", expression=123)  # `expression` must be a string
+        NodeRequestPayload(
+            nodes="node1", expression=123
+        )  # `expression` must be a string
 
 
 def test_node_payload_to_dict():
@@ -47,6 +53,15 @@ def test_observation_payload_normalize():
     assert payload.date == ObservationDate.ALL
     assert payload.variable_dcids == ["var1"]
     assert payload.entity_dcids == ["ent1"]
+
+
+def test_observation_select_invalid_value():
+    """Tests that an invalid ObservationSelect value raises InvalidObservationSelectError."""
+    with pytest.raises(
+        InvalidObservationSelectError,
+        match=r"Invalid `select` field: 'invalid'. Only date, variable, entity, value are allowed.",
+    ):
+        ObservationSelect("invalid")
 
 
 def test_observation_payload_validate():
@@ -99,7 +114,9 @@ def test_resolve_payload_normalize():
     payload = ResolveRequestPayload(nodes="node1", expression="expr1")
     assert payload.nodes == ["node1"]
 
-    payload = ResolveRequestPayload(nodes=["node1", "node2"], expression="expr1")
+    payload = ResolveRequestPayload(
+        nodes=["node1", "node2"], expression="expr1"
+    )
     assert payload.nodes == ["node1", "node2"]
 
 

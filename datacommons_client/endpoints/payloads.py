@@ -5,6 +5,10 @@ from dataclasses import field
 from enum import Enum
 from typing import Optional
 
+from datacommons_client.utils.error_handling import (
+    InvalidObservationSelectError,
+)
+
 
 @dataclass
 class EndpointRequestPayload(ABC):
@@ -65,6 +69,13 @@ class ObservationSelect(str, Enum):
     VARIABLE = "variable"
     ENTITY = "entity"
     VALUE = "value"
+
+    @classmethod
+    def _missing_(cls, value):
+        """Handle missing enum values by raising a custom error."""
+        valid_values = [member.value for member in cls]
+        message = f"Invalid `select` field: '{value}'. Only {', '.join(valid_values)} are allowed."
+        raise InvalidObservationSelectError(message=message)
 
 
 class ObservationDate(str, Enum):
