@@ -96,6 +96,7 @@ class API:
       raise ValueError("Payload must be a dictionary.")
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     url = (self.base_url if endpoint is None else f"{self.base_url}/{endpoint}")
     return post_request(url=url,
                         payload=payload,
@@ -103,6 +104,11 @@ class API:
                         max_pages=max_pages)
 =======
         url = self.base_url if endpoint is None else f"{self.base_url}/{endpoint}"
+=======
+        url = (
+            self.base_url if endpoint is None else f"{self.base_url}/{endpoint}"
+        )
+>>>>>>> 37ee71e (format)
         return post_request(
             url=url, payload=payload, headers=self.headers, max_pages=max_pages
         )
