@@ -7,22 +7,22 @@ from datacommons_client.endpoints.payloads import ResolveRequestPayload
 
 def test_node_payload_normalize():
     """Tests that NodeRequestPayload correctly normalizes single and multiple nodes."""
-    payload = NodeRequestPayload(nodes="node1", prop="prop1")
+    payload = NodeRequestPayload(nodes="node1", expression="prop1")
     assert payload.nodes == ["node1"]
 
-    payload = NodeRequestPayload(nodes=["node1", "node2"], prop="prop1")
+    payload = NodeRequestPayload(nodes=["node1", "node2"], expression="prop1")
     assert payload.nodes == ["node1", "node2"]
 
 
 def test_node_payload_validate():
     """Tests that NodeRequestPayload validates its inputs correctly."""
     with pytest.raises(ValueError):
-        NodeRequestPayload(nodes="node1", prop=123)  # `prop` must be a string
+        NodeRequestPayload(nodes="node1", expression=123)  # `expression` must be a string
 
 
 def test_node_payload_to_dict():
     """Tests NodeRequestPayload conversion to dictionary."""
-    payload = NodeRequestPayload(nodes="node1", prop="prop1")
+    payload = NodeRequestPayload(nodes="node1", expression="prop1")
     assert payload.to_dict == {"nodes": ["node1"], "property": "prop1"}
 
 

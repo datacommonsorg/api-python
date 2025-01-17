@@ -37,11 +37,11 @@ class NodeRequestPayload(EndpointRequestPayload):
 
     Attributes:
         nodes (str | list[str]): The DCID(s) of the nodes to query.
-        prop (str): The property or relation expression(s) to query.
+        expression (str): The property or relation expression(s) to query.
     """
 
     nodes: str | list[str]
-    prop: str
+    expression: str
 
     def __post_init__(self):
         self.normalize()
@@ -52,12 +52,12 @@ class NodeRequestPayload(EndpointRequestPayload):
             self.nodes = [self.nodes]
 
     def validate(self):
-        if not isinstance(self.prop, str):
-            raise ValueError("Property must be a string.")
+        if not isinstance(self.expression, str):
+            raise ValueError("Expression must be a string.")
 
     @property
     def to_dict(self) -> dict:
-        return {"nodes": self.nodes, "property": self.prop}
+        return {"nodes": self.nodes, "property": self.expression}
 
 
 class ObservationSelect(str, Enum):
