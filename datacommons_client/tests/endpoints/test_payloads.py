@@ -10,25 +10,25 @@ import pytest
 
 
 def test_node_payload_normalize():
-    """Tests that NodeRequestPayload correctly normalizes single and multiple nodes."""
-    payload = NodeRequestPayload(nodes="node1", expression="prop1")
-    assert payload.nodes == ["node1"]
+    """Tests that NodeRequestPayload correctly normalizes single and multiple node_dcids."""
+    payload = NodeRequestPayload(node_dcids="node1", expression="prop1")
+    assert payload.node_dcids == ["node1"]
 
-    payload = NodeRequestPayload(nodes=["node1", "node2"], expression="prop1")
-    assert payload.nodes == ["node1", "node2"]
+    payload = NodeRequestPayload(node_dcids=["node1", "node2"], expression="prop1")
+    assert payload.node_dcids == ["node1", "node2"]
 
 
 def test_node_payload_validate():
     """Tests that NodeRequestPayload validates its inputs correctly."""
     with pytest.raises(ValueError):
         NodeRequestPayload(
-            nodes="node1", expression=123
+            node_dcids="node1", expression=123
         )  # `expression` must be a string
 
 
 def test_node_payload_to_dict():
     """Tests NodeRequestPayload conversion to dictionary."""
-    payload = NodeRequestPayload(nodes="node1", expression="prop1")
+    payload = NodeRequestPayload(node_dcids="node1", expression="prop1")
     assert payload.to_dict == {"nodes": ["node1"], "property": "prop1"}
 
 
@@ -110,25 +110,25 @@ def test_observation_payload_to_dict():
 
 
 def test_resolve_payload_normalize():
-    """Tests that ResolveRequestPayload normalizes single and multiple nodes."""
-    payload = ResolveRequestPayload(nodes="node1", expression="expr1")
-    assert payload.nodes == ["node1"]
+    """Tests that ResolveRequestPayload normalizes single and multiple node_dcids."""
+    payload = ResolveRequestPayload(node_dcids="node1", expression="expr1")
+    assert payload.node_dcids == ["node1"]
 
     payload = ResolveRequestPayload(
-        nodes=["node1", "node2"], expression="expr1"
+        node_dcids=["node1", "node2"], expression="expr1"
     )
-    assert payload.nodes == ["node1", "node2"]
+    assert payload.node_dcids == ["node1", "node2"]
 
 
 def test_resolve_payload_validate():
     """Tests that ResolveRequestPayload validates its inputs correctly."""
     with pytest.raises(ValueError):
         ResolveRequestPayload(
-            nodes="node1", expression=123
+            node_dcids="node1", expression=123
         )  # `expression` must be a string
 
 
 def test_resolve_payload_to_dict():
     """Tests ResolveRequestPayload conversion to dictionary."""
-    payload = ResolveRequestPayload(nodes="node1", expression="expr1")
+    payload = ResolveRequestPayload(node_dcids="node1", expression="expr1")
     assert payload.to_dict == {"nodes": ["node1"], "property": "expr1"}
