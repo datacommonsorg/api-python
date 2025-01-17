@@ -60,6 +60,7 @@ class API:
     has_auth = " (Authenticated)" if "X-API-Key" in self.headers else ""
     return f"<API at {self.base_url}{has_auth}>"
 
+<<<<<<< HEAD
   def post(
       self,
       payload: dict[str, Any],
@@ -67,6 +68,15 @@ class API:
       max_pages: Optional[int] = None,
   ) -> Dict[str, Any]:
     """Makes a POST request using the configured API environment.
+=======
+    def post(
+        self,
+        payload: dict[str, Any],
+        endpoint: Optional[str] = None,
+        max_pages: Optional[int] = None,
+    ) -> Dict[str, Any]:
+        """Makes a POST request using the configured API environment.
+>>>>>>> 88c3898 (Implement max_pages for `API` and `Endpoint`)
 
         If `endpoint` is provided, it will be appended to the base_url. Otherwise,
         it will just POST to the base URL.
@@ -85,11 +95,18 @@ class API:
     if not isinstance(payload, dict):
       raise ValueError("Payload must be a dictionary.")
 
+<<<<<<< HEAD
     url = (self.base_url if endpoint is None else f"{self.base_url}/{endpoint}")
     return post_request(url=url,
                         payload=payload,
                         headers=self.headers,
                         max_pages=max_pages)
+=======
+        url = self.base_url if endpoint is None else f"{self.base_url}/{endpoint}"
+        return post_request(
+            url=url, payload=payload, headers=self.headers, max_pages=max_pages
+        )
+>>>>>>> 88c3898 (Implement max_pages for `API` and `Endpoint`)
 
 
 class Endpoint:
@@ -124,10 +141,17 @@ class Endpoint:
         """
     return f"<{self.endpoint.title()} Endpoint using {repr(self.api)}>"
 
+<<<<<<< HEAD
   def post(self,
            payload: dict[str, Any],
            max_pages: Optional[int] = None) -> Dict[str, Any]:
     """Makes a POST request to the specified endpoint using the API instance.
+=======
+    def post(
+        self, payload: dict[str, Any], max_pages: Optional[int] = None
+    ) -> Dict[str, Any]:
+        """Makes a POST request to the specified endpoint using the API instance.
+>>>>>>> 88c3898 (Implement max_pages for `API` and `Endpoint`)
 
         Args:
             payload: The JSON payload for the POST request.
@@ -139,6 +163,12 @@ class Endpoint:
         Raises:
             ValueError: If the payload is not a valid dictionary.
         """
+<<<<<<< HEAD
     return self.api.post(payload=payload,
                          endpoint=self.endpoint,
                          max_pages=max_pages)
+=======
+        return self.api.post(
+            payload=payload, endpoint=self.endpoint, max_pages=max_pages
+        )
+>>>>>>> 88c3898 (Implement max_pages for `API` and `Endpoint`)
