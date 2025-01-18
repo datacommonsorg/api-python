@@ -1,18 +1,18 @@
 from unittest.mock import MagicMock
 from unittest.mock import patch
 
-import pytest
-import requests
-
 from datacommons_client.utils.error_handling import APIError
 from datacommons_client.utils.error_handling import DCAuthenticationError
 from datacommons_client.utils.error_handling import DCConnectionError
 from datacommons_client.utils.error_handling import DCStatusError
 from datacommons_client.utils.error_handling import InvalidDCInstanceError
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 from datacommons_client.utils.request_handling import check_instance_is_valid
 >>>>>>> 360515d (fix name typo)
+=======
+>>>>>>> ff895ae (format tests)
 from datacommons_client.utils.request_handling import _fetch_with_pagination
 from datacommons_client.utils.request_handling import _merge_values
 from datacommons_client.utils.request_handling import _recursively_merge_dicts
@@ -21,6 +21,8 @@ from datacommons_client.utils.request_handling import build_headers
 from datacommons_client.utils.request_handling import check_instance_is_valid
 from datacommons_client.utils.request_handling import post_request
 from datacommons_client.utils.request_handling import resolve_instance_url
+import pytest
+import requests
 
 
 def test_resolve_instance_url_default():

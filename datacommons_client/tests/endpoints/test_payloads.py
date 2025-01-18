@@ -14,9 +14,16 @@ def test_node_payload_normalize():
   payload = NodeRequestPayload(node_dcids="node1", expression="prop1")
   assert payload.node_dcids == ["node1"]
 
+<<<<<<< HEAD
   payload = NodeRequestPayload(node_dcids=["node1", "node2"],
                                expression="prop1")
   assert payload.node_dcids == ["node1", "node2"]
+=======
+    payload = NodeRequestPayload(
+        node_dcids=["node1", "node2"], expression="prop1"
+    )
+    assert payload.node_dcids == ["node1", "node2"]
+>>>>>>> ff895ae (format tests)
 
 
 def test_node_payload_validate():
