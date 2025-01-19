@@ -38,6 +38,7 @@ class NodeEndpoint(Endpoint):
         api (API): The API instance providing the environment configuration
             (base URL, headers, authentication) to be used for requests.
 <<<<<<< HEAD
+<<<<<<< HEAD
         max_pages (Optional[int]|None): Optionally, set the maximum number of pages to fetch.
             Defaults to None, which fetches all the pages.
     """
@@ -51,6 +52,10 @@ class NodeEndpoint(Endpoint):
             expression: str | list[str]) -> NodeResponse:
     """Fetches properties or arcs for given nodes and properties.
 =======
+=======
+        max_pages (Optional[int]|None): Optionally, set the maximum number of pages to fetch.
+            Defaults to None, which fetches all the pages.
+>>>>>>> c37c913 (Improve Node docstring)
     """
 
     def __init__(self, api: API, max_pages: Optional[int] = None):
