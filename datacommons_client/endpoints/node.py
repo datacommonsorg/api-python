@@ -11,7 +11,11 @@ def _normalize_expression_to_string(expression: str | list[str]) -> str:
     if isinstance(expression, str):
         return expression
 
-    return f"[{', '.join(expression)}]" if isinstance(expression, list) else expression
+    return (
+        f"[{', '.join(expression)}]"
+        if isinstance(expression, list)
+        else expression
+    )
 
 
 class NodeEndpoint(Endpoint):
@@ -59,7 +63,9 @@ class NodeEndpoint(Endpoint):
         ).to_dict
 
         # Make the request and return the response.
-        return NodeResponse.from_json(self.post(payload, max_pages=self.max_pages))
+        return NodeResponse.from_json(
+            self.post(payload, max_pages=self.max_pages)
+        )
 
     def fetch_property_labels(
         self, node_dcids: str | list[str], out: bool = True
