@@ -4,6 +4,7 @@ from datacommons_client.endpoints.base import API
 from datacommons_client.endpoints.node import NodeEndpoint
 from datacommons_client.endpoints.response import NodeResponse
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 
 def test_node_endpoint_initialization():
@@ -221,6 +222,8 @@ def test_node_endpoint_fetch_property_values_string_vs_list():
   )
 =======
 import pytest
+=======
+>>>>>>> 0220b82 (Node test imports)
 
 
 def test_node_endpoint_initialization():
