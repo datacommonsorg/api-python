@@ -151,10 +151,18 @@ class ObservationRequestPayload(EndpointRequestPayload):
                     if neither is set, or if required fields are missing from `select`.
     """
 
+<<<<<<< HEAD
     # Validate mutually exclusive entity fields
     if bool(self.entity_dcids) == bool(self.entity_expression):
       raise ValueError(
           "Exactly one of 'entity_dcids' or 'entity_expression' must be set.")
+=======
+    date: ObservationDate | str = ""
+    variable_dcids: str | list[str] = field(default_factory=list)
+    select: Optional[list[ObservationSelect | str]] = None
+    entity_dcids: Optional[str | list[str]] = None
+    entity_expression: Optional[str] = None
+>>>>>>> 8c67dde (Make `select` optional)
 
     # Check if all required fields are present
     missing_fields = self.RequiredSelect - set(self.select)
@@ -163,8 +171,25 @@ class ObservationRequestPayload(EndpointRequestPayload):
           f"The 'select' field must include at least the following: {', '.join(self.RequiredSelect)} "
           f"(missing: {', '.join(missing_fields)})")
 
+<<<<<<< HEAD
     # Check all select fields are valid
     [ObservationSelect(select_field) for select_field in self.select]
+=======
+        Raises:
+            ValueError: If validation rules are violated.
+        """
+        if self.select is None:
+            self.select = [
+                ObservationSelect.DATE,
+                ObservationSelect.VARIABLE,
+                ObservationSelect.ENTITY,
+                ObservationSelect.VALUE,
+            ]
+
+        self.RequiredSelect = {"variable", "entity"}
+        self.normalize()
+        self.validate()
+>>>>>>> 8c67dde (Make `select` optional)
 
   @property
   def to_dict(self) -> dict:
