@@ -98,6 +98,7 @@ class Variable:
         Returns:
             Variable: An instance of the Variable class.
         """
+<<<<<<< HEAD
     return cls(
         byEntity={
             entity: {
@@ -107,6 +108,19 @@ class Variable:
                 ]
             } for entity, entity_data in json_data["byEntity"].items()
         })
+=======
+        return cls(
+            byEntity={
+                entity: {
+                    "orderedFacets": [
+                        OrderedFacets.from_json(facet_data)
+                        for facet_data in entity_data.get("orderedFacets", {})
+                    ]
+                }
+                for entity, entity_data in json_data["byEntity"].items()
+            }
+        )
+>>>>>>> 74a0928 (Update observation.py)
 
 
 @dataclass
