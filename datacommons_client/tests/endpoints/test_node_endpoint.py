@@ -3,7 +3,6 @@ from unittest.mock import MagicMock
 from datacommons_client.endpoints.base import API
 from datacommons_client.endpoints.node import NodeEndpoint
 from datacommons_client.endpoints.response import NodeResponse
-import pytest
 
 
 def test_node_endpoint_initialization():
