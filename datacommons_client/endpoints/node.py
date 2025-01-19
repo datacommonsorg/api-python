@@ -24,6 +24,8 @@ class NodeEndpoint(Endpoint):
     Args:
         api (API): The API instance providing the environment configuration
             (base URL, headers, authentication) to be used for requests.
+        max_pages (Optional[int]|None): Optionally, set the maximum number of pages to fetch.
+            Defaults to None, which fetches all the pages.
     """
 
     def __init__(self, api: API, max_pages: Optional[int] = None):
