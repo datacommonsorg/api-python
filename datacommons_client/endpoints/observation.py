@@ -9,7 +9,11 @@ from datacommons_client.endpoints.response import ObservationResponse
 
 
 class ObservationEndpoint(Endpoint):
+<<<<<<< HEAD
   """
+=======
+    """
+>>>>>>> 8f97abb (Add `ObservationEndpoint`)
     A class to interact with the observation API endpoint.
 
     Args:
@@ -17,6 +21,7 @@ class ObservationEndpoint(Endpoint):
             (base URL, headers, authentication) to be used for requests.
     """
 
+<<<<<<< HEAD
   def __init__(self, api: API):
     """Initializes the ObservationEndpoint instance."""
     super().__init__(endpoint="observation", api=api)
@@ -30,6 +35,21 @@ class ObservationEndpoint(Endpoint):
       entity_expression: Optional[str] = None,
   ) -> ObservationResponse:
     """
+=======
+    def __init__(self, api: API):
+        """Initializes the ObservationEndpoint instance."""
+        super().__init__(endpoint="observation", api=api)
+
+    def fetch(
+        self,
+        variable_dcids: str | list[str],
+        date: ObservationDate | str = ObservationDate.LATEST,
+        select: Optional[list[ObservationSelect | str]] = None,
+        entity_dcids: Optional[str | list[str]] = None,
+        entity_expression: Optional[str] = None,
+    ) -> ObservationResponse:
+        """
+>>>>>>> 8f97abb (Add `ObservationEndpoint`)
         Fetches data from the observation endpoint.
 
         Args:
@@ -44,6 +64,7 @@ class ObservationEndpoint(Endpoint):
         Returns:
             ObservationResponse: The response object containing observations for the specified query.
         """
+<<<<<<< HEAD
     # Construct the payload
     payload = ObservationRequestPayload(
         date=date,
@@ -63,6 +84,27 @@ class ObservationEndpoint(Endpoint):
       entity_expression: Optional[str] = None,
   ) -> ObservationResponse:
     """
+=======
+        # Construct the payload
+        payload = ObservationRequestPayload(
+            date=date,
+            variable_dcids=variable_dcids,
+            select=select,
+            entity_dcids=entity_dcids,
+            entity_expression=entity_expression,
+        ).to_dict
+
+        # Send the request
+        return ObservationResponse.from_json(self.post(payload))
+
+    def fetch_latest_observation(
+        self,
+        variable_dcids: str | list[str],
+        entity_dcids: Optional[str | list[str]] = None,
+        entity_expression: Optional[str] = None,
+    ) -> ObservationResponse:
+        """
+>>>>>>> 8f97abb (Add `ObservationEndpoint`)
         Fetches the latest observations for the given variable and entity.
 
         Args:
@@ -73,6 +115,7 @@ class ObservationEndpoint(Endpoint):
         Returns:
             ObservationResponse: The response object containing observations for the specified query.
         """
+<<<<<<< HEAD
     return self.fetch(
         variable_dcids=variable_dcids,
         date="LATEST",
@@ -86,6 +129,21 @@ class ObservationEndpoint(Endpoint):
       entity_dcids: str | list[str],
   ) -> ObservationResponse:
     """Fetches the latest observations for the given variable and entities.
+=======
+        return self.fetch(
+            variable_dcids=variable_dcids,
+            date="LATEST",
+            entity_dcids=entity_dcids,
+            entity_expression=entity_expression,
+        )
+
+    def fetch_latest_observations_by_entity(
+        self,
+        variable_dcids: str | list[str],
+        entity_dcids: str | list[str],
+    ) -> ObservationResponse:
+        """Fetches the latest observations for the given variable and entities.
+>>>>>>> 8f97abb (Add `ObservationEndpoint`)
 
         Args:
             variable_dcids (str | list[str]): One or more variable IDs for the data.
@@ -95,6 +153,7 @@ class ObservationEndpoint(Endpoint):
             ObservationResponse: The response object containing observations for the specified query.
         """
 
+<<<<<<< HEAD
     return self.fetch_latest_observation(variable_dcids=variable_dcids,
                                          entity_dcids=entity_dcids)
 
@@ -106,6 +165,20 @@ class ObservationEndpoint(Endpoint):
       variable_dcids: str | list[str],
   ):
     """
+=======
+        return self.fetch_latest_observation(
+            variable_dcids=variable_dcids, entity_dcids=entity_dcids
+        )
+
+    def fetch_observations_by_entity_type(
+        self,
+        date: ObservationDate | str,
+        parent_entity: str,
+        entity_type: str,
+        variable_dcids: str | list[str],
+    ):
+        """
+>>>>>>> 8f97abb (Add `ObservationEndpoint`)
         Fetches all observations for a given entity type.
 
         Args:
@@ -136,6 +209,7 @@ class ObservationEndpoint(Endpoint):
             ```
         """
 
+<<<<<<< HEAD
     return self.fetch(
         variable_dcids=variable_dcids,
         date=date,
@@ -143,3 +217,11 @@ class ObservationEndpoint(Endpoint):
         entity_expression=
         f"{parent_entity}<-containedInPlace+{{typeOf:{entity_type}}}",
     )
+=======
+        return self.fetch(
+            variable_dcids=variable_dcids,
+            date=date,
+            select=[s for s in ObservationSelect],
+            entity_expression=f"{parent_entity}<-containedInPlace+{{typeOf:{entity_type}}}",
+        )
+>>>>>>> 8f97abb (Add `ObservationEndpoint`)
