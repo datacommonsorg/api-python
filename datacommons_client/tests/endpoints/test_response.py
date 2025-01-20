@@ -21,10 +21,13 @@ from datacommons_client.endpoints.response import flatten_properties
 from datacommons_client.endpoints.response import NodeResponse
 from datacommons_client.endpoints.response import ObservationResponse
 from datacommons_client.endpoints.response import ResolveResponse
+<<<<<<< HEAD
 from datacommons_client.endpoints.response import SparqlResponse
 <<<<<<< HEAD
 >>>>>>> 360515d (fix name typo)
 =======
+=======
+>>>>>>> 1dfc9f4 (Update test_response.py)
 from datacommons_client.models.observation import Facet
 from datacommons_client.models.observation import Observation
 from datacommons_client.models.observation import OrderedFacets
