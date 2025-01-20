@@ -5,8 +5,14 @@ from datacommons_client.endpoints.payloads import ObservationDate
 from datacommons_client.endpoints.payloads import ObservationRequestPayload
 from datacommons_client.endpoints.payloads import ObservationSelect
 from datacommons_client.endpoints.payloads import ResolveRequestPayload
+<<<<<<< HEAD
 from datacommons_client.utils.error_handling import \
     InvalidObservationSelectError
+=======
+from datacommons_client.utils.error_handling import (
+    InvalidObservationSelectError,
+)
+>>>>>>> 68af2f7 (isort and black tests)
 
 
 def test_node_payload_normalize():

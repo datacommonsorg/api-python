@@ -1,8 +1,9 @@
 from unittest.mock import patch
 
+import pytest
+
 from datacommons_client.endpoints.base import API
 from datacommons_client.endpoints.base import Endpoint
-import pytest
 
 
 @patch(
