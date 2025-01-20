@@ -1,3 +1,5 @@
+import pytest
+
 from datacommons_client.endpoints.payloads import NodeRequestPayload
 from datacommons_client.endpoints.payloads import ObservationDate
 from datacommons_client.endpoints.payloads import ObservationRequestPayload
@@ -6,7 +8,6 @@ from datacommons_client.endpoints.payloads import ResolveRequestPayload
 from datacommons_client.utils.error_handling import (
     InvalidObservationSelectError,
 )
-import pytest
 
 
 def test_node_payload_normalize():
