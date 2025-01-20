@@ -261,4 +261,8 @@ class ResolveResponse:
         Returns:
             Dict[str, Any]: The dictionary representation of the ResolveResponse instance.
         """
+<<<<<<< HEAD
     return asdict(self)
+=======
+        return asdict(self)
+>>>>>>> 031e119 (Remove `SparqlResponse`)
