@@ -12,7 +12,6 @@ from datacommons_client.models.observation import facetID
 from datacommons_client.models.observation import Variable
 from datacommons_client.models.observation import variableDCID
 from datacommons_client.models.resolve import Entity
-from datacommons_client.models.sparql import Row
 
 
 @dataclass
