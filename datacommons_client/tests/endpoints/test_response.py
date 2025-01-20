@@ -542,5 +542,10 @@ def test_resolve_response_json():
   # Convert back to dictionary using the json property
   result = response.json
 
+<<<<<<< HEAD
   # Assert that the resulting dictionary matches the original input
   assert result == input_data
+=======
+    # Assert that the resulting dictionary matches the original input
+    assert result == input_data
+>>>>>>> 733c9e7 (Remove sparql)
