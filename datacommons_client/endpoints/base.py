@@ -61,7 +61,10 @@ class API:
         return f"<API at {self.base_url}{has_auth}>"
 
     def post(
-        self, payload: dict[str, Any], endpoint: Optional[str] = None
+        self,
+        payload: dict[str, Any],
+        endpoint: Optional[str] = None,
+        max_pages: Optional[int] = None,
     ) -> Dict[str, Any]:
         """Makes a POST request using the configured API environment.
 
@@ -71,6 +74,7 @@ class API:
         Args:
             payload: The JSON payload for the POST request.
             endpoint: An optional endpoint path to append to the base URL.
+            max_pages: The maximum number of pages to fetch. If None, fetch all.
 
         Returns:
             A dictionary containing the merged response data.
@@ -84,7 +88,9 @@ class API:
         url = (
             self.base_url if endpoint is None else f"{self.base_url}/{endpoint}"
         )
-        return post_request(url=url, payload=payload, headers=self.headers)
+        return post_request(
+            url=url, payload=payload, headers=self.headers, max_pages=max_pages
+        )
 
 
 class Endpoint:
@@ -119,11 +125,14 @@ class Endpoint:
         """
         return f"<{self.endpoint.title()} Endpoint using {repr(self.api)}>"
 
-    def post(self, payload: dict[str, Any]) -> Dict[str, Any]:
+    def post(
+        self, payload: dict[str, Any], max_pages: Optional[int] = None
+    ) -> Dict[str, Any]:
         """Makes a POST request to the specified endpoint using the API instance.
 
         Args:
             payload: The JSON payload for the POST request.
+            max_pages: The maximum number of pages to fetch. If None, fetch all.
 
         Returns:
             A dictionary with the merged API response data.
@@ -131,4 +140,6 @@ class Endpoint:
         Raises:
             ValueError: If the payload is not a valid dictionary.
         """
-        return self.api.post(payload=payload, endpoint=self.endpoint)
+        return self.api.post(
+            payload=payload, endpoint=self.endpoint, max_pages=max_pages
+        )

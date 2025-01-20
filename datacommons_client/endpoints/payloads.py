@@ -99,14 +99,7 @@ class ObservationRequestPayload(EndpointRequestPayload):
 
     date: ObservationDate | str = ""
     variable_dcids: str | list[str] = field(default_factory=list)
-    select: list[ObservationSelect | str] = field(
-        default_factory=lambda: [
-            ObservationSelect.DATE,
-            ObservationSelect.VARIABLE,
-            ObservationSelect.ENTITY,
-            ObservationSelect.VALUE,
-        ]
-    )
+    select: Optional[list[ObservationSelect | str]] = None
     entity_dcids: Optional[str | list[str]] = None
     entity_expression: Optional[str] = None
 
@@ -117,6 +110,14 @@ class ObservationRequestPayload(EndpointRequestPayload):
         Raises:
             ValueError: If validation rules are violated.
         """
+        if self.select is None:
+            self.select = [
+                ObservationSelect.DATE,
+                ObservationSelect.VARIABLE,
+                ObservationSelect.ENTITY,
+                ObservationSelect.VALUE,
+            ]
+
         self.RequiredSelect = {"variable", "entity"}
         self.normalize()
         self.validate()

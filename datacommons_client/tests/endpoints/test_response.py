@@ -1,15 +1,14 @@
+from datacommons_client.endpoints.response import _unpack_arcs
+from datacommons_client.endpoints.response import DCResponse
+from datacommons_client.endpoints.response import extract_observations
+from datacommons_client.endpoints.response import flatten_properties
+from datacommons_client.endpoints.response import NodeResponse
+from datacommons_client.endpoints.response import ObservationResponse
+from datacommons_client.endpoints.response import ResolveResponse
 from datacommons_client.models.observation import Facet
 from datacommons_client.models.observation import Observation
 from datacommons_client.models.observation import OrderedFacets
 from datacommons_client.models.observation import Variable
-from datacommons_client.utils.response import _unpack_arcs
-from datacommons_client.utils.response import DCResponse
-from datacommons_client.utils.response import extract_observations
-from datacommons_client.utils.response import flatten_properties
-from datacommons_client.utils.response import NodeResponse
-from datacommons_client.utils.response import ObservationResponse
-from datacommons_client.utils.response import ResolveResponse
-from datacommons_client.utils.response import SparqlResponse
 
 ### ----- Test DCResponse ----- ###
 
@@ -476,46 +475,3 @@ def test_resolve_response_json():
 
     # Assert that the resulting dictionary matches the original input
     assert result == input_data
-
-
-### ----- Test Sparql Response ----- ###
-
-
-def test_sparql_response_from_json():
-    """Test that SparqlResponse.from_json correctly parses JSON data."""
-
-    # Mocking JSON data
-    json_data = {
-        "header": ["col1", "col2"],
-        "rows": [
-            {"cells": [{"value": "val1"}, {"value": "val2"}]},
-            {"cells": [{"value": "val3"}, {"value": "val4"}]},
-        ],
-    }
-
-    # Parsing JSON data
-    response = SparqlResponse.from_json(json_data)
-
-    assert response.header == ["col1", "col2"]
-    assert len(response.rows) == 2
-    assert len(response.rows[0].cells) == 2
-    assert response.rows[0].cells[0].value == "val1"
-    assert response.rows[0].cells[1].value == "val2"
-    assert response.rows[1].cells[0].value == "val3"
-    assert response.rows[1].cells[1].value == "val4"
-
-
-def test_sparql_as_dict():
-    """Test that SparqlResponse.json returns the correct dictionary."""
-    json_data = {
-        "header": ["col1", "col2"],
-        "rows": [
-            {"cells": [{"value": "val1"}, {"value": "val2"}]},
-            {"cells": [{"value": "val3"}, {"value": "val4"}]},
-        ],
-    }
-
-    response = SparqlResponse.from_json(json_data)
-    result = response.json
-
-    assert result == json_data
