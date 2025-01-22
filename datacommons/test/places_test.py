@@ -25,11 +25,13 @@ try:
 except ImportError:
   from mock import patch
 
-import datacommons as dc
-import datacommons.utils as utils
 import json
 import unittest
+
 import six.moves.urllib as urllib
+
+import datacommons as dc
+import datacommons.utils as utils
 
 
 def request_mock(*args, **kwargs):

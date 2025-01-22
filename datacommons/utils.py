@@ -20,14 +20,14 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-from collections import defaultdict
-
 import base64
+from collections import defaultdict
 import json
 import os
+import zlib
+
 import six.moves.urllib.error
 import six.moves.urllib.request
-import zlib
 
 # --------------------------------- CONSTANTS ---------------------------------
 

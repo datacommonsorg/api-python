@@ -14,8 +14,9 @@
 """ Send http requests to Data Commons REST API endpoints.
 """
 
-import requests
 from typing import Dict
+
+import requests
 
 import datacommons.key as key
 

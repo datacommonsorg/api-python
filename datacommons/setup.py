@@ -13,6 +13,7 @@
 # limitations under the License.
 """Build and distribute the datacommons package to PyPI."""
 import os
+
 from setuptools import setup
 
 dir_path = os.path.dirname(os.path.realpath(__file__))

@@ -12,8 +12,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from datacommons_pandas.df_builder import build_time_series, build_time_series_dataframe, build_multivariate_dataframe
-
+# Data Commons Python API
+from datacommons_pandas.core import get_property_labels
+from datacommons_pandas.core import get_property_values
+from datacommons_pandas.core import get_triples
+from datacommons_pandas.df_builder import build_multivariate_dataframe
+from datacommons_pandas.df_builder import build_time_series
+from datacommons_pandas.df_builder import build_time_series_dataframe
+from datacommons_pandas.key import set_api_key
+from datacommons_pandas.node import properties
+from datacommons_pandas.node import property_values
+from datacommons_pandas.node import triples
+from datacommons_pandas.places import get_places_in
+from datacommons_pandas.places import get_related_places
+from datacommons_pandas.places import get_stats
 ################################ SYMLINK FILES ################################
 # We include symlinks to all user-facing functions from the datacommons pkg.  #
 # This is so that users do not need to import both libraries for pd support.  #
@@ -22,11 +34,6 @@ from datacommons_pandas.df_builder import build_time_series, build_time_series_d
 ##############################################@################################
 # Data Commons SPARQL query support
 from datacommons_pandas.sparql import query
-
-# Data Commons Python API
-from datacommons_pandas.core import get_property_labels, get_property_values, get_triples
-from datacommons_pandas.places import get_places_in, get_related_places, get_stats
-from datacommons_pandas.stat_vars import get_stat_value, get_stat_series, get_stat_all
-
-from datacommons_pandas.key import set_api_key
-from datacommons_pandas.node import properties, property_values, triples
+from datacommons_pandas.stat_vars import get_stat_all
+from datacommons_pandas.stat_vars import get_stat_series
+from datacommons_pandas.stat_vars import get_stat_value

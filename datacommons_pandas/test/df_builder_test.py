@@ -25,13 +25,15 @@ try:
 except ImportError:
   from mock import patch
 
-import datacommons_pandas.df_builder as dcpd
-import datacommons_pandas.utils as utils
 import json
 import unittest
+
+import pandas as pd
 import six
 import six.moves.urllib as urllib
-import pandas as pd
+
+import datacommons_pandas.df_builder as dcpd
+import datacommons_pandas.utils as utils
 
 # Reusable parts of REST API /stat/all response.
 CA_COUNT_PERSON = {
