@@ -56,6 +56,7 @@ function run_lint_test {
     exit 1
   fi
   deactivate
+  echo "Python style checks passed."
 }
 
 function run_lint_fix {
