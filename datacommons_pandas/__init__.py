@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# isort: skip_file
+
 from datacommons_pandas.df_builder import build_time_series, build_time_series_dataframe, build_multivariate_dataframe
 
 ################################ SYMLINK FILES ################################

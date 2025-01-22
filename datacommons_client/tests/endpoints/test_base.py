@@ -1,8 +1,9 @@
 from unittest.mock import patch
 
+import pytest
+
 from datacommons_client.endpoints.base import API
 from datacommons_client.endpoints.base import Endpoint
-import pytest
 
 
 @patch(
@@ -17,16 +18,15 @@ import pytest
     "datacommons_client.endpoints.base.check_instance_is_valid",
     return_value="https://api.datacommons.org/v2",
 )
-def test_api_initialization_default(
-    mock_check_instance, mock_resolve_instance, mock_build_headers
-):
-    """Tests default API initialization with `datacommons.org` instance."""
-    api = API()
+def test_api_initialization_default(mock_check_instance, mock_resolve_instance,
+                                    mock_build_headers):
+  """Tests default API initialization with `datacommons.org` instance."""
+  api = API()
 
-    assert api.base_url == "https://api.datacommons.org/v2"
-    assert api.headers == {"Content-Type": "application/json"}
-    mock_resolve_instance.assert_called_once_with("datacommons.org")
-    mock_build_headers.assert_called_once_with(None)
+  assert api.base_url == "https://api.datacommons.org/v2"
+  assert api.headers == {"Content-Type": "application/json"}
+  mock_resolve_instance.assert_called_once_with("datacommons.org")
+  mock_build_headers.assert_called_once_with(None)
 
 
 @patch(
@@ -38,13 +38,11 @@ def test_api_initialization_default(
     return_value="https://custom_instance.api/v2",
 )
 def test_api_initialization_with_url(mock_check_instance, mock_build_headers):
-    """Tests API initialization with a fully qualified URL."""
-    api = API(url="https://custom_instance.api/v2")
-    assert api.base_url == "https://custom_instance.api/v2"
-    assert api.headers == {"Content-Type": "application/json"}
-    mock_check_instance.assert_called_once_with(
-        "https://custom_instance.api/v2"
-    )
+  """Tests API initialization with a fully qualified URL."""
+  api = API(url="https://custom_instance.api/v2")
+  assert api.base_url == "https://custom_instance.api/v2"
+  assert api.headers == {"Content-Type": "application/json"}
+  mock_check_instance.assert_called_once_with("https://custom_instance.api/v2")
 
 
 @patch(
@@ -55,21 +53,20 @@ def test_api_initialization_with_url(mock_check_instance, mock_build_headers):
     "datacommons_client.endpoints.base.build_headers",
     return_value={"Content-Type": "application/json"},
 )
-def test_api_initialization_with_dc_instance(
-    mock_build_headers, mock_resolve_instance_url
-):
-    """Tests API initialization with a custom Data Commons instance."""
-    api = API(dc_instance="custom-instance")
+def test_api_initialization_with_dc_instance(mock_build_headers,
+                                             mock_resolve_instance_url):
+  """Tests API initialization with a custom Data Commons instance."""
+  api = API(dc_instance="custom-instance")
 
-    assert api.base_url == "https://custom-instance/api/v2"
-    assert api.headers == {"Content-Type": "application/json"}
-    mock_resolve_instance_url.assert_called_once_with("custom-instance")
+  assert api.base_url == "https://custom-instance/api/v2"
+  assert api.headers == {"Content-Type": "application/json"}
+  mock_resolve_instance_url.assert_called_once_with("custom-instance")
 
 
 def test_api_initialization_invalid_args():
-    """Tests API initialization with both `dc_instance` and `url` raises a ValueError."""
-    with pytest.raises(ValueError):
-        API(dc_instance="custom-instance", url="https://custom.api/v2")
+  """Tests API initialization with both `dc_instance` and `url` raises a ValueError."""
+  with pytest.raises(ValueError):
+    API(dc_instance="custom-instance", url="https://custom.api/v2")
 
 
 @patch(
@@ -81,17 +78,17 @@ def test_api_initialization_invalid_args():
     return_value="https://custom_instance.api/v2",
 )
 def test_api_post_request(mock_check_instance, mock_post_request):
-    """Tests making a POST request using the API object."""
-    api = API(url="https://custom_instance.api/v2")
-    payload = {"key": "value"}
+  """Tests making a POST request using the API object."""
+  api = API(url="https://custom_instance.api/v2")
+  payload = {"key": "value"}
 
-    response = api.post(payload=payload, endpoint="test-endpoint")
-    assert response == {"success": True}
-    mock_post_request.assert_called_once_with(
-        url="https://custom_instance.api/v2/test-endpoint",
-        payload=payload,
-        headers=api.headers,
-    )
+  response = api.post(payload=payload, endpoint="test-endpoint")
+  assert response == {"success": True}
+  mock_post_request.assert_called_once_with(
+      url="https://custom_instance.api/v2/test-endpoint",
+      payload=payload,
+      headers=api.headers,
+  )
 
 
 @patch(
@@ -99,11 +96,11 @@ def test_api_post_request(mock_check_instance, mock_post_request):
     return_value="https://custom_instance.api/v2",
 )
 def test_api_post_request_invalid_payload(mock_check_instance):
-    """Tests that an invalid payload raises a ValueError."""
-    api = API(url="https://custom_instance.api/v2")
+  """Tests that an invalid payload raises a ValueError."""
+  api = API(url="https://custom_instance.api/v2")
 
-    with pytest.raises(ValueError):
-        api.post(payload=["invalid", "payload"], endpoint="test-endpoint")
+  with pytest.raises(ValueError):
+    api.post(payload=["invalid", "payload"], endpoint="test-endpoint")
 
 
 @patch(
@@ -111,12 +108,12 @@ def test_api_post_request_invalid_payload(mock_check_instance):
     return_value="https://custom_instance.api/v2",
 )
 def test_endpoint_initialization(mock_check_instance):
-    """Tests initializing an Endpoint with a valid API instance."""
-    api = API(url="https://custom_instance.api/v2")
-    endpoint = Endpoint(endpoint="node", api=api)
+  """Tests initializing an Endpoint with a valid API instance."""
+  api = API(url="https://custom_instance.api/v2")
+  endpoint = Endpoint(endpoint="node", api=api)
 
-    assert endpoint.endpoint == "node"
-    assert endpoint.api is api
+  assert endpoint.endpoint == "node"
+  assert endpoint.api is api
 
 
 @patch(
@@ -124,13 +121,12 @@ def test_endpoint_initialization(mock_check_instance):
     return_value="https://custom.api/v2",
 )
 def test_endpoint_repr(mock_check_instance):
-    """Tests the string representation of the Endpoint object."""
-    api = API(url="https://custom.api/v2")
-    endpoint = Endpoint(endpoint="node", api=api)
+  """Tests the string representation of the Endpoint object."""
+  api = API(url="https://custom.api/v2")
+  endpoint = Endpoint(endpoint="node", api=api)
 
-    assert (
-        repr(endpoint) == "<Node Endpoint using <API at https://custom.api/v2>>"
-    )
+  assert (
+      repr(endpoint) == "<Node Endpoint using <API at https://custom.api/v2>>")
 
 
 @patch(
@@ -142,18 +138,18 @@ def test_endpoint_repr(mock_check_instance):
     return_value="https://custom.api/v2",
 )
 def test_endpoint_post_request(mock_check_instance, mock_post_request):
-    """Tests making a POST request using the Endpoint object."""
-    api = API(url="https://custom.api/v2")
-    endpoint = Endpoint(endpoint="node", api=api)
-    payload = {"key": "value"}
+  """Tests making a POST request using the Endpoint object."""
+  api = API(url="https://custom.api/v2")
+  endpoint = Endpoint(endpoint="node", api=api)
+  payload = {"key": "value"}
 
-    response = endpoint.post(payload=payload)
-    assert response == {"success": True}
-    mock_post_request.assert_called_once_with(
-        url="https://custom.api/v2/node",
-        payload=payload,
-        headers=api.headers,
-    )
+  response = endpoint.post(payload=payload)
+  assert response == {"success": True}
+  mock_post_request.assert_called_once_with(
+      url="https://custom.api/v2/node",
+      payload=payload,
+      headers=api.headers,
+  )
 
 
 @patch(
@@ -161,12 +157,12 @@ def test_endpoint_post_request(mock_check_instance, mock_post_request):
     return_value="https://custom.api/v2",
 )
 def test_endpoint_post_request_invalid_payload(mock_check_instance):
-    """Tests that an invalid payload raises a ValueError in the Endpoint post method."""
-    api = API(url="https://custom.api/v2")
-    endpoint = Endpoint(endpoint="node", api=api)
+  """Tests that an invalid payload raises a ValueError in the Endpoint post method."""
+  api = API(url="https://custom.api/v2")
+  endpoint = Endpoint(endpoint="node", api=api)
 
-    with pytest.raises(ValueError):
-        endpoint.post(payload=["invalid", "payload"])
+  with pytest.raises(ValueError):
+    endpoint.post(payload=["invalid", "payload"])
 
 
 @patch(
@@ -178,19 +174,18 @@ def test_endpoint_post_request_invalid_payload(mock_check_instance):
     side_effect=lambda url: url.rstrip("/"),
 )
 def test_api_repr(mock_check_instance, mock_build_headers):
-    """Tests the __repr__ method of the API class."""
-    # Without API key
-    api = API(url="https://custom.api/v2")
-    assert repr(api) == "<API at https://custom.api/v2>"
+  """Tests the __repr__ method of the API class."""
+  # Without API key
+  api = API(url="https://custom.api/v2")
+  assert repr(api) == "<API at https://custom.api/v2>"
 
-    # With API key
-    api_with_key = API(url="https://custom.api/v2", api_key="test_key")
-    assert (
-        repr(api_with_key) == "<API at https://custom.api/v2 (Authenticated)>"
-    )
+  # With API key
+  api_with_key = API(url="https://custom.api/v2", api_key="test_key")
+  assert (
+      repr(api_with_key) == "<API at https://custom.api/v2 (Authenticated)>")
 
-    mock_build_headers.assert_any_call(None)
-    mock_build_headers.assert_any_call("test_key")
+  mock_build_headers.assert_any_call(None)
+  mock_build_headers.assert_any_call("test_key")
 
 
 @patch(
@@ -202,9 +197,9 @@ def test_api_repr(mock_check_instance, mock_build_headers):
     return_value="https://custom.api/v2",
 )
 def test_endpoint_repr(mock_check_instance, mock_build_headers):
-    """Tests the __repr__ method of the Endpoint class."""
-    api = API(url="https://custom.api/v2")
-    endpoint = Endpoint(endpoint="node", api=api)
+  """Tests the __repr__ method of the Endpoint class."""
+  api = API(url="https://custom.api/v2")
+  endpoint = Endpoint(endpoint="node", api=api)
 
-    expected_repr = "<Node Endpoint using <API at https://custom.api/v2>>"
-    assert repr(endpoint) == expected_repr
+  expected_repr = "<Node Endpoint using <API at https://custom.api/v2>>"
+  assert repr(endpoint) == expected_repr

@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# isort: skip_file
+
 ################################## IMPORTANT #################################
 # All user-facing functions in this package must be symlinked to the         #
 # datacommons_pandas pkg. This is so that users do not need to import both   #

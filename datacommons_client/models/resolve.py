@@ -9,7 +9,7 @@ DominantType: TypeAlias = str
 
 @dataclass
 class Candidate:
-    """Represents a candidate in the resolution response.
+  """Represents a candidate in the resolution response.
 
     Attributes:
         dcid (DCID): The Data Commons ID for the candidate.
@@ -17,12 +17,12 @@ class Candidate:
             if available. This represents the primary type associated with the DCID.
     """
 
-    dcid: DCID = field(default_factory=str)
-    dominantType: Optional[DominantType] = None
+  dcid: DCID = field(default_factory=str)
+  dominantType: Optional[DominantType] = None
 
-    @classmethod
-    def from_json(cls, json_data: Dict[str, Any]) -> "Candidate":
-        """Parses a Candidate instance from the response data.
+  @classmethod
+  def from_json(cls, json_data: Dict[str, Any]) -> "Candidate":
+    """Parses a Candidate instance from the response data.
 
         Args:
             json_data (Dict[str, Any]): A dictionary containing candidate data,
@@ -32,27 +32,27 @@ class Candidate:
             Candidate: An instance of the Candidate class populated with the
             provided data.
         """
-        return cls(
-            dcid=json_data["dcid"],
-            dominantType=json_data.get("dominantType"),
-        )
+    return cls(
+        dcid=json_data["dcid"],
+        dominantType=json_data.get("dominantType"),
+    )
 
 
 @dataclass
 class Entity:
-    """Represents an entity with its resolution candidates.
+  """Represents an entity with its resolution candidates.
 
     Attributes:
         node (Query): The query string or node being resolved.
         candidates (List[Candidate]): A list of candidates that match the query.
     """
 
-    node: Query
-    candidates: List[Candidate] = field(default_factory=list)
+  node: Query
+  candidates: List[Candidate] = field(default_factory=list)
 
-    @classmethod
-    def from_json(cls, json_data: Dict[str, Any]) -> "Entity":
-        """Parses an Entity instance from response data.
+  @classmethod
+  def from_json(cls, json_data: Dict[str, Any]) -> "Entity":
+    """Parses an Entity instance from response data.
 
         Args:
             json_data (Dict[str, Any]): A dictionary containing entity data,
@@ -61,10 +61,10 @@ class Entity:
         Returns:
             Entity: A populated instance of the Entity class.
         """
-        return cls(
-            node=json_data.get("node"),
-            candidates=[
-                Candidate.from_json(candidate)
-                for candidate in json_data.get("candidates", [])
-            ],
-        )
+    return cls(
+        node=json_data.get("node"),
+        candidates=[
+            Candidate.from_json(candidate)
+            for candidate in json_data.get("candidates", [])
+        ],
+    )

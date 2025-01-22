@@ -15,7 +15,7 @@ CUSTOM_DC_V2: str = "/core/api/v2"
 
 
 def check_instance_is_valid(instance_url: str) -> str:
-    """Check that the given instance URL points to a valid Data Commons instance.
+  """Check that the given instance URL points to a valid Data Commons instance.
 
     This function attempts a GET request against a known node in Data Commons to
     validate the given instance URL. If the node is found and the response has the
@@ -31,26 +31,25 @@ def check_instance_is_valid(instance_url: str) -> str:
         InvalidDCInstanceError: If the instance URL does not seem to be a valid
             Data Commons instance.
     """
-    # Test URL for a known node in Data Commons
-    test_url = f"{instance_url}/node?nodes=country%2FGTM&property=->name"
+  # Test URL for a known node in Data Commons
+  test_url = f"{instance_url}/node?nodes=country%2FGTM&property=->name"
 
-    try:
-        response = requests.get(test_url)
-        response.raise_for_status()
-    except requests.exceptions.RequestException as exc:
-        raise InvalidDCInstanceError(exc.response) from exc
+  try:
+    response = requests.get(test_url)
+    response.raise_for_status()
+  except requests.exceptions.RequestException as exc:
+    raise InvalidDCInstanceError(exc.response) from exc
 
-    data = response.json()
-    if "data" not in data or "country/GTM" not in data["data"]:
-        raise InvalidDCInstanceError(
-            f"{instance_url} is not a valid Data Commons instance."
-        )
+  data = response.json()
+  if "data" not in data or "country/GTM" not in data["data"]:
+    raise InvalidDCInstanceError(
+        f"{instance_url} is not a valid Data Commons instance.")
 
-    return instance_url
+  return instance_url
 
 
 def resolve_instance_url(dc_instance: str) -> str:
-    """Resolve the base API URL for a given Data Commons instance.
+  """Resolve the base API URL for a given Data Commons instance.
 
     If the instance is `datacommons.org`, the default URL is returned. Otherwise,
     the custom URL is validated via `_check_instance_is_valid`.
@@ -61,20 +60,20 @@ def resolve_instance_url(dc_instance: str) -> str:
     Returns:
         The resolved base API URL.
     """
-    # if https or http included in the string, remove it
-    dc_instance = dc_instance.replace("https://", "").replace("http://", "")
+  # if https or http included in the string, remove it
+  dc_instance = dc_instance.replace("https://", "").replace("http://", "")
 
-    # If the instance is the default, return the base URL
-    if dc_instance == "datacommons.org":
-        return BASE_DC_V2
+  # If the instance is the default, return the base URL
+  if dc_instance == "datacommons.org":
+    return BASE_DC_V2
 
-    # Otherwise, validate the custom instance URL
-    url = f"https://{dc_instance}{CUSTOM_DC_V2}"
-    return check_instance_is_valid(url)
+  # Otherwise, validate the custom instance URL
+  url = f"https://{dc_instance}{CUSTOM_DC_V2}"
+  return check_instance_is_valid(url)
 
 
 def build_headers(api_key: str | None = None) -> dict[str, str]:
-    """Build request headers for API requests.
+  """Build request headers for API requests.
 
     Includes JSON content type. If an API key is provided, add it as `X-API-Key`.
 
@@ -84,16 +83,15 @@ def build_headers(api_key: str | None = None) -> dict[str, str]:
     Returns:
         A dictionary of headers for the request.
     """
-    headers = {"Content-Type": "application/json"}
-    if api_key:
-        headers["X-API-Key"] = api_key
-    return headers
+  headers = {"Content-Type": "application/json"}
+  if api_key:
+    headers["X-API-Key"] = api_key
+  return headers
 
 
-def _send_post_request(
-    url: str, payload: dict[str, Any], headers: dict[str, str]
-) -> Response:
-    """Send a POST request and handle common HTTP errors with custom exceptions.
+def _send_post_request(url: str, payload: dict[str, Any],
+                       headers: dict[str, str]) -> Response:
+  """Send a POST request and handle common HTTP errors with custom exceptions.
 
     Args:
         url: The target endpoint URL.
@@ -109,31 +107,30 @@ def _send_post_request(
         DCStatusError: for 500-level HTTP errors.
         APIError: For other HTTP errors.
     """
-    try:
-        response = requests.post(url, json=payload, headers=headers)
-        response.raise_for_status()
-        return response
+  try:
+    response = requests.post(url, json=payload, headers=headers)
+    response.raise_for_status()
+    return response
 
-    # if ConnectionError
-    except exceptions.ConnectionError as exc:
-        raise DCConnectionError(exc.response) from exc
+  # if ConnectionError
+  except exceptions.ConnectionError as exc:
+    raise DCConnectionError(exc.response) from exc
 
-    # if HTTPError
-    except exceptions.HTTPError as exc:
-        status_code = (
-            exc.response.status_code if exc.response is not None else None
-        )
+  # if HTTPError
+  except exceptions.HTTPError as exc:
+    status_code = (exc.response.status_code
+                   if exc.response is not None else None)
 
-        # if 401 Unauthorized
-        if status_code == 401:
-            raise DCAuthenticationError(exc.response) from exc
+    # if 401 Unauthorized
+    if status_code == 401:
+      raise DCAuthenticationError(exc.response) from exc
 
-        # if 500-level HTTP errors
-        if status_code >= 500:
-            raise DCStatusError(exc.response) from exc
+    # if 500-level HTTP errors
+    if status_code >= 500:
+      raise DCStatusError(exc.response) from exc
 
-        # for other HTTP errors
-        raise APIError(exc.response) from exc
+    # for other HTTP errors
+    raise APIError(exc.response) from exc
 
 
 def _recursively_merge_dicts(
@@ -141,7 +138,7 @@ def _recursively_merge_dicts(
     new: dict[str, Any],
     keys_to_skip: Optional[set[str]] = None,
 ) -> dict[str, Any]:
-    """Recursively merge two dictionaries, skipping specified keys.
+  """Recursively merge two dictionaries, skipping specified keys.
 
     Uses `_merge_values` to handle nested structures and different types.
 
@@ -153,25 +150,25 @@ def _recursively_merge_dicts(
     Returns:
         A new dictionary that is the result of merging `new` into `base`.
     """
-    if keys_to_skip is None:
-        keys_to_skip = {"nextToken"}
+  if keys_to_skip is None:
+    keys_to_skip = {"nextToken"}
 
-    result = dict(base)
-    for k, v in new.items():
-        # Skip keys that should be excluded from merging
-        if k in keys_to_skip:
-            continue
-        # If the key is already present, merge the values
-        if k in result:
-            result[k] = _merge_values(result[k], v)
-        # Otherwise, add the new key-value pair
-        else:
-            result[k] = v
-    return result
+  result = dict(base)
+  for k, v in new.items():
+    # Skip keys that should be excluded from merging
+    if k in keys_to_skip:
+      continue
+    # If the key is already present, merge the values
+    if k in result:
+      result[k] = _merge_values(result[k], v)
+    # Otherwise, add the new key-value pair
+    else:
+      result[k] = v
+  return result
 
 
 def _merge_values(base: Any, new: Any) -> Any:
-    """Merge two values based on their structure using pattern matching.
+  """Merge two values based on their structure using pattern matching.
 
     - If both are dicts, recursively merge them.
     - If both are lists, concatenate them.
@@ -184,15 +181,15 @@ def _merge_values(base: Any, new: Any) -> Any:
     Returns:
         The merged value.
     """
-    match base, new:
-        case dict(), dict():
-            return _recursively_merge_dicts(base, new)
-        case list(), list():
-            # Merge two lists by concatenation
-            return base + new
-        case _:
-            # If they are the same, return one. Otherwise, combine into a list.
-            return base if base == new else [base, new]
+  match base, new:
+    case dict(), dict():
+      return _recursively_merge_dicts(base, new)
+    case list(), list():
+      # Merge two lists by concatenation
+      return base + new
+    case _:
+      # If they are the same, return one. Otherwise, combine into a list.
+      return base if base == new else [base, new]
 
 
 def _fetch_with_pagination(
@@ -201,7 +198,7 @@ def _fetch_with_pagination(
     headers: dict[str, str],
     max_pages: Optional[int] = None,
 ) -> dict[str, Any]:
-    """Fetch and (if necessary) merge paginated results from an API.
+  """Fetch and (if necessary) merge paginated results from an API.
 
     Continues fetching pages until `nextToken` is not found or `max_pages` is reached.
 
@@ -214,35 +211,33 @@ def _fetch_with_pagination(
     Returns:
         A dictionary containing all merged results from all fetched pages.
     """
-    combined_results: dict[str, Any] = {}
-    page_count = 0
+  combined_results: dict[str, Any] = {}
+  page_count = 0
 
-    while True:
-        # Send a POST request and parse the JSON response
-        response = _send_post_request(url, payload, headers)
+  while True:
+    # Send a POST request and parse the JSON response
+    response = _send_post_request(url, payload, headers)
 
-        try:
-            page_data = response.json()
-        except ValueError:
-            raise APIError(response)
+    try:
+      page_data = response.json()
+    except ValueError:
+      raise APIError(response)
 
-        # Merge current page data into combined results
-        combined_results = _recursively_merge_dicts(combined_results, page_data)
+    # Merge current page data into combined results
+    combined_results = _recursively_merge_dicts(combined_results, page_data)
 
-        # Update the payload with the next token
-        next_token = page_data.get("nextToken")
-        page_count += 1
+    # Update the payload with the next token
+    next_token = page_data.get("nextToken")
+    page_count += 1
 
-        # Stop if there is no next token or max pages is reached
-        if not next_token or (
-            max_pages is not None and page_count >= max_pages
-        ):
-            break
+    # Stop if there is no next token or max pages is reached
+    if not next_token or (max_pages is not None and page_count >= max_pages):
+      break
 
-        # Update the payload with the next token
-        payload["nextToken"] = next_token
+    # Update the payload with the next token
+    payload["nextToken"] = next_token
 
-    return combined_results
+  return combined_results
 
 
 def post_request(
@@ -251,7 +246,7 @@ def post_request(
     headers: dict[str, str],
     max_pages: Optional[int] = None,
 ) -> Dict[str, Any]:
-    """Send a POST request with optional pagination support and return a DCResponse.
+  """Send a POST request with optional pagination support and return a DCResponse.
 
     Args:
         url: The target endpoint URL.
@@ -265,13 +260,14 @@ def post_request(
     Raises:
         ValueError: If `json` is not a dictionary.
     """
-    if not isinstance(payload, dict):
-        raise ValueError("Payload must be a dictionary.")
+  if not isinstance(payload, dict):
+    raise ValueError("Payload must be a dictionary.")
 
-    # Fetch and merge paginated results
-    combined_results = _fetch_with_pagination(
-        url=url, payload=payload, headers=headers, max_pages=max_pages
-    )
+  # Fetch and merge paginated results
+  combined_results = _fetch_with_pagination(url=url,
+                                            payload=payload,
+                                            headers=headers,
+                                            max_pages=max_pages)
 
-    # Return the combined results as a dictionary
-    return combined_results
+  # Return the combined results as a dictionary
+  return combined_results

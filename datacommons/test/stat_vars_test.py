@@ -25,12 +25,14 @@ try:
 except ImportError:
   from mock import patch
 
+import json
+import math
+import unittest
+
+import six.moves.urllib as urllib
+
 import datacommons as dc
 import datacommons.utils as utils
-import math
-import json
-import unittest
-import six.moves.urllib as urllib
 
 # Reusable parts of REST API /stat/all response.
 CA_COUNT_PERSON = {
