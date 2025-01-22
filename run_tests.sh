@@ -13,6 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+set -e  # Immediately exit with failure if any command fails.
+
 function setup_python {
   python3 -m venv .env
   source .env/bin/activate
