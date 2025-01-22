@@ -1,47 +1,64 @@
 from unittest.mock import patch
 
-import pytest
-
 from datacommons_client.endpoints.base import API
 from datacommons_client.endpoints.base import Endpoint
+import pytest
 
 
-@patch("datacommons_client.endpoints.base.build_headers")
-@patch("datacommons_client.endpoints.base.resolve_instance_url")
+@patch(
+    "datacommons_client.endpoints.base.build_headers",
+    return_value={"Content-Type": "application/json"},
+)
+@patch(
+    "datacommons_client.endpoints.base.resolve_instance_url",
+    return_value="https://api.datacommons.org/v2",
+)
+@patch(
+    "datacommons_client.endpoints.base.check_instance_is_valid",
+    return_value="https://api.datacommons.org/v2",
+)
 def test_api_initialization_default(
-    mock_resolve_instance_url, mock_build_headers
+    mock_check_instance, mock_resolve_instance, mock_build_headers
 ):
     """Tests default API initialization with `datacommons.org` instance."""
-    mock_resolve_instance_url.return_value = "https://api.datacommons.org/v2"
-    mock_build_headers.return_value = {"Content-Type": "application/json"}
-
     api = API()
 
     assert api.base_url == "https://api.datacommons.org/v2"
     assert api.headers == {"Content-Type": "application/json"}
-    mock_resolve_instance_url.assert_called_once_with("datacommons.org")
+    mock_resolve_instance.assert_called_once_with("datacommons.org")
     mock_build_headers.assert_called_once_with(None)
 
 
-@patch("datacommons_client.endpoints.base.build_headers")
-def test_api_initialization_with_url(mock_build_headers):
+@patch(
+    "datacommons_client.endpoints.base.build_headers",
+    return_value={"Content-Type": "application/json"},
+)
+@patch(
+    "datacommons_client.endpoints.base.check_instance_is_valid",
+    return_value="https://custom_instance.api/v2",
+)
+def test_api_initialization_with_url(mock_check_instance, mock_build_headers):
     """Tests API initialization with a fully qualified URL."""
-    mock_build_headers.return_value = {"Content-Type": "application/json"}
-
     api = API(url="https://custom_instance.api/v2")
     assert api.base_url == "https://custom_instance.api/v2"
     assert api.headers == {"Content-Type": "application/json"}
+    mock_check_instance.assert_called_once_with(
+        "https://custom_instance.api/v2"
+    )
 
 
-@patch("datacommons_client.endpoints.base.build_headers")
-@patch("datacommons_client.endpoints.base.resolve_instance_url")
+@patch(
+    "datacommons_client.endpoints.base.resolve_instance_url",
+    return_value="https://custom-instance/api/v2",
+)
+@patch(
+    "datacommons_client.endpoints.base.build_headers",
+    return_value={"Content-Type": "application/json"},
+)
 def test_api_initialization_with_dc_instance(
-    mock_resolve_instance_url, mock_build_headers
+    mock_build_headers, mock_resolve_instance_url
 ):
     """Tests API initialization with a custom Data Commons instance."""
-    mock_resolve_instance_url.return_value = "https://custom-instance/api/v2"
-    mock_build_headers.return_value = {"Content-Type": "application/json"}
-
     api = API(dc_instance="custom-instance")
 
     assert api.base_url == "https://custom-instance/api/v2"
@@ -55,22 +72,16 @@ def test_api_initialization_invalid_args():
         API(dc_instance="custom-instance", url="https://custom.api/v2")
 
 
-def test_api_repr():
-    """Tests the string representation of the API object."""
-    api = API(url="https://custom_instance.api/v2", api_key="test-key")
-    assert (
-        repr(api) == "<API at https://custom_instance.api/v2 (Authenticated)>"
-    )
-
-    api = API(url="https://custom_instance.api/v2")
-    assert repr(api) == "<API at https://custom_instance.api/v2>"
-
-
-@patch("datacommons_client.endpoints.base.post_request")
-def test_api_post_request(mock_post_request):
+@patch(
+    "datacommons_client.endpoints.base.post_request",
+    return_value={"success": True},
+)
+@patch(
+    "datacommons_client.endpoints.base.check_instance_is_valid",
+    return_value="https://custom_instance.api/v2",
+)
+def test_api_post_request(mock_check_instance, mock_post_request):
     """Tests making a POST request using the API object."""
-    mock_post_request.return_value = {"success": True}
-
     api = API(url="https://custom_instance.api/v2")
     payload = {"key": "value"}
 
@@ -83,7 +94,11 @@ def test_api_post_request(mock_post_request):
     )
 
 
-def test_api_post_request_invalid_payload():
+@patch(
+    "datacommons_client.endpoints.base.check_instance_is_valid",
+    return_value="https://custom_instance.api/v2",
+)
+def test_api_post_request_invalid_payload(mock_check_instance):
     """Tests that an invalid payload raises a ValueError."""
     api = API(url="https://custom_instance.api/v2")
 
@@ -91,7 +106,11 @@ def test_api_post_request_invalid_payload():
         api.post(payload=["invalid", "payload"], endpoint="test-endpoint")
 
 
-def test_endpoint_initialization():
+@patch(
+    "datacommons_client.endpoints.base.check_instance_is_valid",
+    return_value="https://custom_instance.api/v2",
+)
+def test_endpoint_initialization(mock_check_instance):
     """Tests initializing an Endpoint with a valid API instance."""
     api = API(url="https://custom_instance.api/v2")
     endpoint = Endpoint(endpoint="node", api=api)
@@ -100,7 +119,11 @@ def test_endpoint_initialization():
     assert endpoint.api is api
 
 
-def test_endpoint_repr():
+@patch(
+    "datacommons_client.endpoints.base.check_instance_is_valid",
+    return_value="https://custom.api/v2",
+)
+def test_endpoint_repr(mock_check_instance):
     """Tests the string representation of the Endpoint object."""
     api = API(url="https://custom.api/v2")
     endpoint = Endpoint(endpoint="node", api=api)
@@ -110,11 +133,16 @@ def test_endpoint_repr():
     )
 
 
-@patch("datacommons_client.endpoints.base.post_request")
-def test_endpoint_post_request(mock_post_request):
+@patch(
+    "datacommons_client.endpoints.base.post_request",
+    return_value={"success": True},
+)
+@patch(
+    "datacommons_client.endpoints.base.check_instance_is_valid",
+    return_value="https://custom.api/v2",
+)
+def test_endpoint_post_request(mock_check_instance, mock_post_request):
     """Tests making a POST request using the Endpoint object."""
-    mock_post_request.return_value = {"success": True}
-
     api = API(url="https://custom.api/v2")
     endpoint = Endpoint(endpoint="node", api=api)
     payload = {"key": "value"}
@@ -128,10 +156,55 @@ def test_endpoint_post_request(mock_post_request):
     )
 
 
-def test_endpoint_post_request_invalid_payload():
+@patch(
+    "datacommons_client.endpoints.base.check_instance_is_valid",
+    return_value="https://custom.api/v2",
+)
+def test_endpoint_post_request_invalid_payload(mock_check_instance):
     """Tests that an invalid payload raises a ValueError in the Endpoint post method."""
     api = API(url="https://custom.api/v2")
     endpoint = Endpoint(endpoint="node", api=api)
 
     with pytest.raises(ValueError):
         endpoint.post(payload=["invalid", "payload"])
+
+
+@patch(
+    "datacommons_client.endpoints.base.build_headers",
+    side_effect=lambda api_key: {"X-API-Key": api_key} if api_key else {},
+)
+@patch(
+    "datacommons_client.endpoints.base.check_instance_is_valid",
+    side_effect=lambda url: url.rstrip("/"),
+)
+def test_api_repr(mock_check_instance, mock_build_headers):
+    """Tests the __repr__ method of the API class."""
+    # Without API key
+    api = API(url="https://custom.api/v2")
+    assert repr(api) == "<API at https://custom.api/v2>"
+
+    # With API key
+    api_with_key = API(url="https://custom.api/v2", api_key="test_key")
+    assert (
+        repr(api_with_key) == "<API at https://custom.api/v2 (Authenticated)>"
+    )
+
+    mock_build_headers.assert_any_call(None)
+    mock_build_headers.assert_any_call("test_key")
+
+
+@patch(
+    "datacommons_client.endpoints.base.build_headers",
+    return_value={"Content-Type": "application/json"},
+)
+@patch(
+    "datacommons_client.endpoints.base.check_instance_is_valid",
+    return_value="https://custom.api/v2",
+)
+def test_endpoint_repr(mock_check_instance, mock_build_headers):
+    """Tests the __repr__ method of the Endpoint class."""
+    api = API(url="https://custom.api/v2")
+    endpoint = Endpoint(endpoint="node", api=api)
+
+    expected_repr = "<Node Endpoint using <API at https://custom.api/v2>>"
+    assert repr(endpoint) == expected_repr
