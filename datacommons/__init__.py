@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# isort: skip_file
+
 ################################## IMPORTANT #################################
 # All user-facing functions in this package must be symlinked to the         #
 # datacommons_pandas pkg. This is so that users do not need to import both   #
@@ -21,19 +23,13 @@
 # TODO: https://github.com/datacommonsorg/api-python/issues/149              #
 ##############################################################################
 
-# Data Commons Python API
-from datacommons.core import get_property_labels
-from datacommons.core import get_property_values
-from datacommons.core import get_triples
-from datacommons.key import set_api_key
-from datacommons.node import properties
-from datacommons.node import property_values
-from datacommons.node import triples
-from datacommons.places import get_places_in
-from datacommons.places import get_related_places
-from datacommons.places import get_stats
 # Data Commons SPARQL query support
 from datacommons.sparql import query
-from datacommons.stat_vars import get_stat_all
-from datacommons.stat_vars import get_stat_series
-from datacommons.stat_vars import get_stat_value
+
+# Data Commons Python API
+from datacommons.core import get_property_labels, get_property_values, get_triples
+from datacommons.places import get_places_in, get_related_places, get_stats
+from datacommons.stat_vars import get_stat_value, get_stat_series, get_stat_all
+
+from datacommons.key import set_api_key
+from datacommons.node import properties, property_values, triples
