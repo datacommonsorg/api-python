@@ -1,6 +1,7 @@
+isort==5.13.2
 mock
 pandas
 pytest
 requests==2.32.0
 typing_extensions==3.10.0.0
-yapf==0.32.0
+yapf==0.40.2
