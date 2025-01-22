@@ -5,19 +5,19 @@ The Python API currently supports `python>=3.7`.
 To set up the Python environment for tests, run:
 
 ```bash
-./run_tests.sh -s
+./run_test.sh -s
 ```
 
 To test, run:
 
 ```bash
-./run_tests.sh -a
+./run_test.sh -a
 ```
 
 To format, run:
 
 ```bash
-./run_tests.sh -f
+./run_test.sh -f
 ```
 
 To debug the continuous integration tests, run:
