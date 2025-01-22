@@ -46,6 +46,7 @@ function run_isort {
 }
 
 function run_lint_test {
+  source .env/bin/activate
   if ! run_yapf --diff; then
     echo "Fix lint errors by running: ./run_test.sh -f"
     exit 1
@@ -54,6 +55,7 @@ function run_lint_test {
     echo "Fix Python import sort orders by running ./run_test.sh -f"
     exit 1
   fi
+  deactivate
 }
 
 function run_lint_fix {
