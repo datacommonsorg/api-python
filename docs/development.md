@@ -2,10 +2,22 @@
 
 The Python API currently supports `python>=3.7`.
 
+To set up the Python environment for tests, run:
+
+```bash
+./run_tests.sh -s
+```
+
 To test, run:
 
 ```bash
-./run_tests.sh -p
+./run_tests.sh -a
+```
+
+To format, run:
+
+```bash
+./run_tests.sh -f
 ```
 
 To debug the continuous integration tests, run:
