@@ -16,7 +16,7 @@
 set -e  # Immediately exit with failure if any command fails.
 
 YAPF_STYLE='{based_on_style: google, indent_width: 2}'
-FORMAT_INCLUDE_PATHS="datacommons/ datacommons_pandas/"
+FORMAT_INCLUDE_PATHS="datacommons/ datacommons_client/ datacommons_pandas/"
 FORMAT_EXCLUDE_PATH="**/.env/**"
 
 function setup_python {

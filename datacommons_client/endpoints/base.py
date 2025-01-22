@@ -7,20 +7,20 @@ from datacommons_client.utils.request_handling import resolve_instance_url
 
 
 class API:
-    """Represents a configured API interface to the Data Commons API.
+  """Represents a configured API interface to the Data Commons API.
 
     This class handles environment setup, resolving the base URL, building headers,
     or optionally using a fully qualified URL directly. It can be used standalone
     to interact with the API or in combination with Endpoint classes.
     """
 
-    def __init__(
-        self,
-        api_key: Optional[str] = None,
-        dc_instance: Optional[str] = None,
-        url: Optional[str] = None,
-    ):
-        """
+  def __init__(
+      self,
+      api_key: Optional[str] = None,
+      dc_instance: Optional[str] = None,
+      url: Optional[str] = None,
+  ):
+    """
         Initializes the API instance.
 
         Args:
@@ -34,36 +34,36 @@ class API:
         Raises:
             ValueError: If both `dc_instance` and `url` are provided.
         """
-        if dc_instance and url:
-            raise ValueError("Cannot provide both `dc_instance` and `url`.")
+    if dc_instance and url:
+      raise ValueError("Cannot provide both `dc_instance` and `url`.")
 
-        if not dc_instance and not url:
-            dc_instance = "datacommons.org"
+    if not dc_instance and not url:
+      dc_instance = "datacommons.org"
 
-        self.headers = build_headers(api_key)
+    self.headers = build_headers(api_key)
 
-        if url is not None:
-            # Use the given URL directly (strip trailing slash)
-            self.base_url = check_instance_is_valid(url.rstrip("/"))
-        else:
-            # Resolve from dc_instance
-            self.base_url = resolve_instance_url(dc_instance)
+    if url is not None:
+      # Use the given URL directly (strip trailing slash)
+      self.base_url = check_instance_is_valid(url.rstrip("/"))
+    else:
+      # Resolve from dc_instance
+      self.base_url = resolve_instance_url(dc_instance)
 
-    def __repr__(self) -> str:
-        """Returns a readable representation of the API object.
+  def __repr__(self) -> str:
+    """Returns a readable representation of the API object.
 
         Indicates the base URL and if it's authenticated.
 
         Returns:
             str: A string representation of the API object.
         """
-        has_auth = " (Authenticated)" if "X-API-Key" in self.headers else ""
-        return f"<API at {self.base_url}{has_auth}>"
+    has_auth = " (Authenticated)" if "X-API-Key" in self.headers else ""
+    return f"<API at {self.base_url}{has_auth}>"
 
-    def post(
-        self, payload: dict[str, Any], endpoint: Optional[str] = None
-    ) -> Dict[str, Any]:
-        """Makes a POST request using the configured API environment.
+  def post(self,
+           payload: dict[str, Any],
+           endpoint: Optional[str] = None) -> Dict[str, Any]:
+    """Makes a POST request using the configured API environment.
 
         If `endpoint` is provided, it will be appended to the base_url. Otherwise,
         it will just POST to the base URL.
@@ -78,17 +78,15 @@ class API:
         Raises:
             ValueError: If the payload is not a valid dictionary.
         """
-        if not isinstance(payload, dict):
-            raise ValueError("Payload must be a dictionary.")
+    if not isinstance(payload, dict):
+      raise ValueError("Payload must be a dictionary.")
 
-        url = (
-            self.base_url if endpoint is None else f"{self.base_url}/{endpoint}"
-        )
-        return post_request(url=url, payload=payload, headers=self.headers)
+    url = (self.base_url if endpoint is None else f"{self.base_url}/{endpoint}")
+    return post_request(url=url, payload=payload, headers=self.headers)
 
 
 class Endpoint:
-    """Represents a specific endpoint within the Data Commons API.
+  """Represents a specific endpoint within the Data Commons API.
 
     This class leverages an API instance to make requests. It does not
     handle instance resolution or headers directly; that is delegated to the API instance.
@@ -98,29 +96,29 @@ class Endpoint:
         api (API): The API instance providing configuration and the `post` method.
     """
 
-    def __init__(self, endpoint: str, api: API):
-        """
+  def __init__(self, endpoint: str, api: API):
+    """
         Initializes the Endpoint instance.
 
         Args:
             endpoint: The endpoint path (e.g., 'node').
             api: An API instance that provides the environment configuration.
         """
-        self.endpoint = endpoint
-        self.api = api
+    self.endpoint = endpoint
+    self.api = api
 
-    def __repr__(self) -> str:
-        """Returns a readable representation of the Endpoint object.
+  def __repr__(self) -> str:
+    """Returns a readable representation of the Endpoint object.
 
         Shows the endpoint and underlying API configuration.
 
         Returns:
             str: A string representation of the Endpoint object.
         """
-        return f"<{self.endpoint.title()} Endpoint using {repr(self.api)}>"
+    return f"<{self.endpoint.title()} Endpoint using {repr(self.api)}>"
 
-    def post(self, payload: dict[str, Any]) -> Dict[str, Any]:
-        """Makes a POST request to the specified endpoint using the API instance.
+  def post(self, payload: dict[str, Any]) -> Dict[str, Any]:
+    """Makes a POST request to the specified endpoint using the API instance.
 
         Args:
             payload: The JSON payload for the POST request.
@@ -131,4 +129,4 @@ class Endpoint:
         Raises:
             ValueError: If the payload is not a valid dictionary.
         """
-        return self.api.post(payload=payload, endpoint=self.endpoint)
+    return self.api.post(payload=payload, endpoint=self.endpoint)
