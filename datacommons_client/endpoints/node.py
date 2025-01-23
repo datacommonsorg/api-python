@@ -7,19 +7,16 @@ from datacommons_client.endpoints.response import NodeResponse
 
 
 def _normalize_expression_to_string(expression: str | list[str]) -> str:
-    """Converts a list of expressions to a string."""
-    if isinstance(expression, str):
-        return expression
+  """Converts a list of expressions to a string."""
+  if isinstance(expression, str):
+    return expression
 
-    return (
-        f"[{', '.join(expression)}]"
-        if isinstance(expression, list)
-        else expression
-    )
+  return (f"[{', '.join(expression)}]"
+          if isinstance(expression, list) else expression)
 
 
 class NodeEndpoint(Endpoint):
-    """Initializes the NodeEndpoint with a given API configuration.
+  """Initializes the NodeEndpoint with a given API configuration.
 
     Args:
         api (API): The API instance providing the environment configuration
@@ -28,15 +25,14 @@ class NodeEndpoint(Endpoint):
             Defaults to None, which fetches all the pages.
     """
 
-    def __init__(self, api: API, max_pages: Optional[int] = None):
-        """Initializes the NodeEndpoint with a given API configuration."""
-        super().__init__(endpoint="node", api=api)
-        self.max_pages = max_pages
+  def __init__(self, api: API, max_pages: Optional[int] = None):
+    """Initializes the NodeEndpoint with a given API configuration."""
+    super().__init__(endpoint="node", api=api)
+    self.max_pages = max_pages
 
-    def fetch(
-        self, node_dcids: str | list[str], expression: str | list[str]
-    ) -> NodeResponse:
-        """Fetches properties or arcs for given nodes and properties.
+  def fetch(self, node_dcids: str | list[str],
+            expression: str | list[str]) -> NodeResponse:
+    """Fetches properties or arcs for given nodes and properties.
 
         Args:
             node_dcids (str | List[str]): The DCID(s) of the nodes to query.
@@ -54,23 +50,20 @@ class NodeEndpoint(Endpoint):
             print(response.data)
             ```
         """
-        # Normalize the input expression
-        expression = _normalize_expression_to_string(expression)
+    # Normalize the input expression
+    expression = _normalize_expression_to_string(expression)
 
-        # Create the payload
-        payload = NodeRequestPayload(
-            node_dcids=node_dcids, expression=expression
-        ).to_dict
+    # Create the payload
+    payload = NodeRequestPayload(node_dcids=node_dcids,
+                                 expression=expression).to_dict
 
-        # Make the request and return the response.
-        return NodeResponse.from_json(
-            self.post(payload, max_pages=self.max_pages)
-        )
+    # Make the request and return the response.
+    return NodeResponse.from_json(self.post(payload, max_pages=self.max_pages))
 
-    def fetch_property_labels(
-        self, node_dcids: str | list[str], out: bool = True
-    ) -> NodeResponse:
-        """Fetches all property labels for the given nodes.
+  def fetch_property_labels(self,
+                            node_dcids: str | list[str],
+                            out: bool = True) -> NodeResponse:
+    """Fetches all property labels for the given nodes.
 
         Args:
             node_dcids (str | list[str]): The DCID(s) of the nodes to query.
@@ -85,20 +78,20 @@ class NodeEndpoint(Endpoint):
             print(response.data)
             ```
         """
-        # Determine the direction of the properties.
-        expression = "->" if out else "<-"
+    # Determine the direction of the properties.
+    expression = "->" if out else "<-"
 
-        # Make the request and return the response.
-        return self.fetch(node_dcids=node_dcids, expression=expression)
+    # Make the request and return the response.
+    return self.fetch(node_dcids=node_dcids, expression=expression)
 
-    def fetch_property_values(
-        self,
-        node_dcids: str | list[str],
-        expression: str | list[str],
-        constraints: Optional[str] = None,
-        out: bool = True,
-    ) -> NodeResponse:
-        """Fetches the values of specific properties for given nodes.
+  def fetch_property_values(
+      self,
+      node_dcids: str | list[str],
+      expression: str | list[str],
+      constraints: Optional[str] = None,
+      out: bool = True,
+  ) -> NodeResponse:
+    """Fetches the values of specific properties for given nodes.
 
         Args:
             node_dcids (str | List[str]): The DCID(s) of the nodes to query.
@@ -119,23 +112,23 @@ class NodeEndpoint(Endpoint):
             ```
         """
 
-        # Normalize the input to a string (if it's a list), otherwise use the string as is.
-        expression = _normalize_expression_to_string(expression)
+    # Normalize the input to a string (if it's a list), otherwise use the string as is.
+    expression = _normalize_expression_to_string(expression)
 
-        # Construct the expression based on the direction and constraints.
-        if out:
-            expression = f"->{expression}"
-            if constraints:
-                expression += f"{{{constraints}}}"
-        else:
-            expression = f"<-{expression}"
-            if constraints:
-                expression += f"{{{constraints}}}"
+    # Construct the expression based on the direction and constraints.
+    if out:
+      expression = f"->{expression}"
+      if constraints:
+        expression += f"{{{constraints}}}"
+    else:
+      expression = f"<-{expression}"
+      if constraints:
+        expression += f"{{{constraints}}}"
 
-        return self.fetch(node_dcids=node_dcids, expression=expression)
+    return self.fetch(node_dcids=node_dcids, expression=expression)
 
-    def fetch_all_classes(self) -> NodeResponse:
-        """Fetches all Classes available in the Data Commons knowledge graph.
+  def fetch_all_classes(self) -> NodeResponse:
+    """Fetches all Classes available in the Data Commons knowledge graph.
 
         Returns:
             NodeResponse: The response object containing all statistical variables.
@@ -147,6 +140,6 @@ class NodeEndpoint(Endpoint):
             ```
         """
 
-        return self.fetch_property_values(
-            node_dcids="Class", expression="typeOf", out=False
-        )
+    return self.fetch_property_values(node_dcids="Class",
+                                      expression="typeOf",
+                                      out=False)
