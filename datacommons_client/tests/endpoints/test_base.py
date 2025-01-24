@@ -247,7 +247,7 @@ def test_endpoint_post_request_invalid_payload(mock_check_instance):
 )
 @patch(
     "datacommons_client.endpoints.base.check_instance_is_valid",
-    side_effect=lambda url: url.rstrip("/"),
+    return_value="https://custom.api/v2",
 )
 def test_api_repr(mock_check_instance, mock_build_headers):
   """Tests the __repr__ method of the API class."""
