@@ -12,9 +12,9 @@ from datacommons_client.utils.error_handling import \
 @dataclass
 class EndpointRequestPayload(ABC):
   """
-    Abstract base class for payload dataclasses.
-    Defines the required interface for all payload dataclasses.
-    """
+  Abstract base class for payload dataclasses.
+  Defines the required interface for all payload dataclasses.
+  """
 
   @abstractmethod
   def normalize(self) -> None:
@@ -36,12 +36,12 @@ class EndpointRequestPayload(ABC):
 @dataclass
 class NodeRequestPayload(EndpointRequestPayload):
   """
-    A dataclass to structure, normalize, and validate the payload for a Node V2 API request.
+  A dataclass to structure, normalize, and validate the payload for a Node V2 API request.
 
-    Attributes:
-        node_dcids (str | list[str]): The DCID(s) of the nodes to query.
-        expression (str): The property or relation expression(s) to query.
-    """
+  Attributes:
+      node_dcids (str | list[str]): The DCID(s) of the nodes to query.
+      expression (str): The property or relation expression(s) to query.
+  """
 
   node_dcids: str | list[str]
   expression: str
@@ -85,46 +85,49 @@ class ObservationDate(str, Enum):
 @dataclass
 class ObservationRequestPayload(EndpointRequestPayload):
   """
-    A dataclass to structure, normalize, and validate the payload for an Observation V2 API request.
+  A dataclass to structure, normalize, and validate the payload for an Observation V2 API request.
 
-    Attributes:
-        date (str): The date for which data is being requested.
-        variable_dcids (str | list[str]): One or more variable IDs for the data.
-        select (list[ObservationSelect]): Fields to include in the response.
-            Defaults to ["date", "variable", "entity", "value"].
-        entity_dcids (Optional[str | list[str]]): One or more entity IDs to filter the data.
-        entity_expression (Optional[str]): A string expression to filter entities.
-    """
+  Attributes:
+      date (str): The date for which data is being requested.
+      variable_dcids (str | list[str]): One or more variable IDs for the data.
+      select (list[ObservationSelect]): Fields to include in the response.
+          Defaults to ["date", "variable", "entity", "value"].
+      entity_dcids (Optional[str | list[str]]): One or more entity IDs to filter the data.
+      entity_expression (Optional[str]): A string expression to filter entities.
+  """
 
   date: ObservationDate | str = ""
   variable_dcids: str | list[str] = field(default_factory=list)
-  select: list[ObservationSelect | str] = field(default_factory=lambda: [
-      ObservationSelect.DATE,
-      ObservationSelect.VARIABLE,
-      ObservationSelect.ENTITY,
-      ObservationSelect.VALUE,
-  ])
+  select: Optional[list[ObservationSelect | str]] = None
   entity_dcids: Optional[str | list[str]] = None
   entity_expression: Optional[str] = None
 
   def __post_init__(self):
     """
-        Initializes the payload, performing validation and normalization.
+    Initializes the payload, performing validation and normalization.
 
-        Raises:
-            ValueError: If validation rules are violated.
-        """
+    Raises:
+        ValueError: If validation rules are violated.
+    """
+    if self.select is None:
+      self.select = [
+          ObservationSelect.DATE,
+          ObservationSelect.VARIABLE,
+          ObservationSelect.ENTITY,
+          ObservationSelect.VALUE,
+      ]
+
     self.RequiredSelect = {"variable", "entity"}
     self.normalize()
     self.validate()
 
   def normalize(self):
     """
-        Normalizes the payload for consistent internal representation.
+    Normalizes the payload for consistent internal representation.
 
-        - Converts `variable_dcids` and `entity_dcids` to lists if they are passed as strings.
-        - Normalizes the `date` field to ensure it is in the correct format.
-        """
+    - Converts `variable_dcids` and `entity_dcids` to lists if they are passed as strings.
+    - Normalizes the `date` field to ensure it is in the correct format.
+    """
     # Normalize variable
     if isinstance(self.variable_dcids, str):
       self.variable_dcids = [self.variable_dcids]
@@ -141,12 +144,12 @@ class ObservationRequestPayload(EndpointRequestPayload):
 
   def validate(self):
     """
-        Validates the payload to ensure consistency and correctness.
+    Validates the payload to ensure consistency and correctness.
 
-        Raises:
-            ValueError: If both `entity_dcids` and `entity_expression` are set,
-                        if neither is set, or if required fields are missing from `select`.
-        """
+    Raises:
+        ValueError: If both `entity_dcids` and `entity_expression` are set,
+                    if neither is set, or if required fields are missing from `select`.
+    """
 
     # Validate mutually exclusive entity fields
     if bool(self.entity_dcids) == bool(self.entity_expression):
@@ -166,11 +169,11 @@ class ObservationRequestPayload(EndpointRequestPayload):
   @property
   def to_dict(self) -> dict:
     """
-        Converts the payload into a dictionary format for API requests.
+    Converts the payload into a dictionary format for API requests.
 
-        Returns:
-            dict: The normalized and validated payload.
-        """
+    Returns:
+        dict: The normalized and validated payload.
+    """
     return {
         "date": self.date,
         "variable": {
@@ -188,12 +191,12 @@ class ObservationRequestPayload(EndpointRequestPayload):
 @dataclass
 class ResolveRequestPayload(EndpointRequestPayload):
   """
-    A dataclass to structure, normalize, and validate the payload for a Resolve V2 API request.
+  A dataclass to structure, normalize, and validate the payload for a Resolve V2 API request.
 
-    Attributes:
-        node_dcids (str | list[str]): The DCID(s) of the nodes to query.
-        expression (str): The relation expression to query.
-    """
+  Attributes:
+      node_dcids (str | list[str]): The DCID(s) of the nodes to query.
+      expression (str): The relation expression to query.
+  """
 
   node_dcids: str | list[str]
   expression: str
