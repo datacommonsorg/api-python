@@ -6,7 +6,8 @@ from datacommons_client.endpoints.payloads import ResolveRequestPayload
 from datacommons_client.endpoints.response import ResolveResponse
 
 
-def flatten_resolve_response(data: ResolveResponse) -> dict[str, Any]:
+def flatten_resolve_response(
+    data: ResolveResponse) -> dict[str, list[str] | str]:
   """
     Flattens resolved candidate data into a dictionary where each node maps to its candidates.
 
