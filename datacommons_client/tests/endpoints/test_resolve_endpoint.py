@@ -2,9 +2,9 @@ from unittest.mock import MagicMock
 from unittest.mock import patch
 
 from datacommons_client.endpoints.base import API
-from datacommons_client.endpoints.resolve import flatten_resolve_response
 from datacommons_client.endpoints.resolve import \
-    resolve_correspondence_expression
+    _resolve_correspondence_expression
+from datacommons_client.endpoints.resolve import flatten_resolve_response
 from datacommons_client.endpoints.resolve import ResolveEndpoint
 from datacommons_client.endpoints.response import ResolveResponse
 
@@ -172,12 +172,12 @@ def test_fetch_from_type_to_type(mock_post_request,
 
 def test_resolve_correspondence_expression():
   """Tests the resolve_correspondence_expression function."""
-  expression = resolve_correspondence_expression(from_type="description",
-                                                 to_type="dcid",
-                                                 entity_type="Place")
+  expression = _resolve_correspondence_expression(from_type="description",
+                                                  to_type="dcid",
+                                                  entity_type="Place")
   assert expression == "<-description{typeOf:Place}->dcid"
 
-  expression_no_entity_type = resolve_correspondence_expression(
+  expression_no_entity_type = _resolve_correspondence_expression(
       from_type="description", to_type="dcid")
   assert expression_no_entity_type == "<-description->dcid"
 

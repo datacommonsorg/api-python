@@ -30,9 +30,9 @@ def flatten_resolve_response(
   return items
 
 
-def resolve_correspondence_expression(from_type: str,
-                                      to_type: str,
-                                      entity_type: str | None = None) -> str:
+def _resolve_correspondence_expression(from_type: str,
+                                       to_type: str,
+                                       entity_type: str | None = None) -> str:
   """
     Constructs a relation expression for fetching correspondence between entities of two types.
 
@@ -98,9 +98,9 @@ class ResolveEndpoint(Endpoint):
             ResolveResponse: The response object containing the resolved DCIDs.
         """
 
-    expression = resolve_correspondence_expression(from_type="description",
-                                                   to_type="dcid",
-                                                   entity_type=entity_type)
+    expression = _resolve_correspondence_expression(from_type="description",
+                                                    to_type="dcid",
+                                                    entity_type=entity_type)
 
     return self.fetch(node_dcids=names, expression=expression)
 
@@ -118,9 +118,9 @@ class ResolveEndpoint(Endpoint):
         Returns:
             ResolveResponse: The response object containing the resolved DCIDs.
         """
-    expression = resolve_correspondence_expression(from_type="wikidataId",
-                                                   to_type="dcid",
-                                                   entity_type=entity_type)
+    expression = _resolve_correspondence_expression(from_type="wikidataId",
+                                                    to_type="dcid",
+                                                    entity_type=entity_type)
 
     return self.fetch(node_dcids=wikidata_id, expression=expression)
 
@@ -140,9 +140,9 @@ class ResolveEndpoint(Endpoint):
         Returns:
             ResolveResponse: The response object containing the resolved DCIDs.
         """
-    expression = resolve_correspondence_expression(from_type="geoCoordinate",
-                                                   to_type="dcid",
-                                                   entity_type=entity_type)
+    expression = _resolve_correspondence_expression(from_type="geoCoordinate",
+                                                    to_type="dcid",
+                                                    entity_type=entity_type)
     coordinates = f"{latitude}#{longitude}"
     return self.fetch(node_dcids=coordinates, expression=expression)
 
@@ -165,7 +165,7 @@ class ResolveEndpoint(Endpoint):
         Returns:
             ResolveResponse: The response object containing the resolved correspondence.
         """
-    expression = resolve_correspondence_expression(from_type=from_type,
-                                                   to_type=to_type,
-                                                   entity_type=entity_type)
+    expression = _resolve_correspondence_expression(from_type=from_type,
+                                                    to_type=to_type,
+                                                    entity_type=entity_type)
     return self.fetch(node_dcids=entities, expression=expression)
