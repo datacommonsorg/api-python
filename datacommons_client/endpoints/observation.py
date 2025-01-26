@@ -95,7 +95,8 @@ class ObservationEndpoint(Endpoint):
             ObservationResponse: The response object containing observations for the specified query.
         """
 
-    return self.fetch_latest_observations(variable_dcids=variable_dcids, entity_dcids=entity_dcids)
+    return self.fetch_latest_observations(variable_dcids=variable_dcids,
+                                          entity_dcids=entity_dcids)
 
   def fetch_observations_by_entity_type(
       self,

@@ -61,10 +61,9 @@ def test_fetch_latest_observation(mock_post_request,
   api = API(url="https://custom.api/v2")
   endpoint = ObservationEndpoint(api=api)
 
-  response = endpoint.fetch_latest_observation(
+  response = endpoint.fetch_latest_observations(
       variable_dcids=["dc/Variable1", "dc/Variable2"],
-      entity_dcids="dc/EntityID",
-  )
+      entity_dcids="dc/EntityID")
 
   # Check the response
   assert isinstance(response, ObservationResponse)
