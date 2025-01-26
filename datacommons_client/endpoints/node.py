@@ -8,11 +8,11 @@ from datacommons_client.endpoints.response import NodeResponse
 
 def _normalize_expression_to_string(expression: str | list[str]) -> str:
   """Converts a list of expressions to a string."""
-  if isinstance(expression, str):
-    return expression
 
-  return (f"[{', '.join(expression)}]"
-          if isinstance(expression, list) else expression)
+  if isinstance(expression, list):
+    return f"[{', '.join(expression)}]"
+
+  return expression
 
 
 class NodeEndpoint(Endpoint):
