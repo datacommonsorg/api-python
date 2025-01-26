@@ -102,12 +102,10 @@ def test_node_endpoint_fetch_property_values_out():
   }
 
   endpoint = NodeEndpoint(api=api_mock)
-  response = endpoint.fetch_property_values(
-      node_dcids="node1",
-      expression="name",
-      constraints="typeOf:City",
-      out=True,
-  )
+  response = endpoint.fetch_property_values(node_dcids="node1",
+                                            properties="name",
+                                            constraints="typeOf:City",
+                                            out=True)
 
   expected_expression = "->name{typeOf:City}"
   api_mock.post.assert_called_once_with(
@@ -137,12 +135,10 @@ def test_node_endpoint_fetch_property_values_in():
   }
 
   endpoint = NodeEndpoint(api=api_mock)
-  response = endpoint.fetch_property_values(
-      node_dcids="node1",
-      expression="name",
-      constraints="typeOf:City",
-      out=False,
-  )
+  response = endpoint.fetch_property_values(node_dcids="node1",
+                                            properties="name",
+                                            constraints="typeOf:City",
+                                            out=False)
 
   expected_expression = "<-name{typeOf:City}"
   api_mock.post.assert_called_once_with(
@@ -168,7 +164,7 @@ def test_node_endpoint_fetch_all_classes():
 
   response = endpoint.fetch_all_classes()
   endpoint.fetch_property_values.assert_called_once_with(node_dcids="Class",
-                                                         expression="typeOf",
+                                                         properties="typeOf",
                                                          out=False)
   assert isinstance(response, NodeResponse)
   assert "Class" in response.data
@@ -191,7 +187,7 @@ def test_node_endpoint_fetch_property_values_string_vs_list():
 
   # String input
   response = endpoint.fetch_property_values(node_dcids="node1",
-                                            expression="name",
+                                            properties="name",
                                             constraints=None,
                                             out=True)
   api_mock.post.assert_called_with(
@@ -204,12 +200,10 @@ def test_node_endpoint_fetch_property_values_string_vs_list():
   )
 
   # List input
-  response = endpoint.fetch_property_values(
-      node_dcids="node1",
-      expression=["name", "typeOf"],
-      constraints=None,
-      out=True,
-  )
+  response = endpoint.fetch_property_values(node_dcids="node1",
+                                            properties=["name", "typeOf"],
+                                            constraints=None,
+                                            out=True)
   api_mock.post.assert_called_with(
       payload={
           "nodes": ["node1"],

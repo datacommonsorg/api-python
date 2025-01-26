@@ -3,16 +3,9 @@ from typing import Optional
 from datacommons_client.endpoints.base import API
 from datacommons_client.endpoints.base import Endpoint
 from datacommons_client.endpoints.payloads import NodeRequestPayload
+from datacommons_client.endpoints.payloads import \
+    normalize_properties_to_string
 from datacommons_client.endpoints.response import NodeResponse
-
-
-def _normalize_expression_to_string(expression: str | list[str]) -> str:
-  """Converts a list of expressions to a string."""
-
-  if isinstance(expression, list):
-    return f"[{', '.join(expression)}]"
-
-  return expression
 
 
 class NodeEndpoint(Endpoint):
@@ -50,8 +43,6 @@ class NodeEndpoint(Endpoint):
             print(response.data)
             ```
         """
-    # Normalize the input expression
-    expression = _normalize_expression_to_string(expression)
 
     # Create the payload
     payload = NodeRequestPayload(node_dcids=node_dcids,
@@ -87,7 +78,7 @@ class NodeEndpoint(Endpoint):
   def fetch_property_values(
       self,
       node_dcids: str | list[str],
-      expression: str | list[str],
+      properties: str | list[str],
       constraints: Optional[str] = None,
       out: bool = True,
   ) -> NodeResponse:
@@ -95,7 +86,7 @@ class NodeEndpoint(Endpoint):
 
         Args:
             node_dcids (str | List[str]): The DCID(s) of the nodes to query.
-            expression (str | List[str]): The property or relation expression(s) to query.
+            properties (str | List[str]): The property or relation expression(s) to query.
             constraints (Optional[str]): Additional constraints for the query. Defaults to None.
             out (bool): Whether to fetch outgoing properties. Defaults to True.
 
@@ -106,7 +97,7 @@ class NodeEndpoint(Endpoint):
             ```python
             response = node_endpoint.fetch_property_values(
                 node_dcids=["geoId/06"],
-                expression="name",
+                properties="name",
                 out=True
             )
             print(response.data)
@@ -114,11 +105,11 @@ class NodeEndpoint(Endpoint):
         """
 
     # Normalize the input to a string (if it's a list), otherwise use the string as is.
-    expression = _normalize_expression_to_string(expression)
+    properties = normalize_properties_to_string(properties)
 
     # Construct the expression based on the direction and constraints.
     direction = "->" if out else "<-"
-    expression = f"{direction}{expression}"
+    expression = f"{direction}{properties}"
     if constraints:
       expression += f"{{{constraints}}}"
 
@@ -138,5 +129,5 @@ class NodeEndpoint(Endpoint):
         """
 
     return self.fetch_property_values(node_dcids="Class",
-                                      expression="typeOf",
+                                      properties="typeOf",
                                       out=False)
