@@ -52,7 +52,8 @@ def test_fetch_dcid_by_name(mock_post_request, mock_check_instance_is_valid):
   api = API(url="https://custom.api/v2")
   endpoint = ResolveEndpoint(api=api)
 
-  response = endpoint.fetch_dcid_by_name(names=["Entity1"], entity_type="Place")
+  response = endpoint.fetch_dcids_by_name(names=["Entity1"],
+                                          entity_type="Place")
 
   # Check the response
   assert isinstance(response, ResolveResponse)

@@ -84,9 +84,9 @@ class ResolveEndpoint(Endpoint):
     # Send the request and return the response
     return ResolveResponse.from_json(self.post(payload))
 
-  def fetch_dcid_by_name(self,
-                         names: str | list[str],
-                         entity_type: Optional[str] = None) -> ResolveResponse:
+  def fetch_dcids_by_name(self,
+                          names: str | list[str],
+                          entity_type: Optional[str] = None) -> ResolveResponse:
     """
         Fetches DCIDs for entities by their names.
 
