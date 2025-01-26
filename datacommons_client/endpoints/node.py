@@ -21,7 +21,7 @@ class NodeEndpoint(Endpoint):
     Args:
         api (API): The API instance providing the environment configuration
             (base URL, headers, authentication) to be used for requests.
-        max_pages (Optional[int]|None): Optionally, set the maximum number of pages to fetch.
+        max_pages (Optional[int]): Optionally, set the maximum number of pages to fetch.
             Defaults to None, which fetches all the pages.
     """
 
@@ -44,8 +44,8 @@ class NodeEndpoint(Endpoint):
         Example:
             ```python
             response = node_endpoint.fetch(
-                nodes=["geoId/06"],
-                property="<-"
+                node_dcids=["geoId/06"],
+                expression="<-"
             )
             print(response.data)
             ```
