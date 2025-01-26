@@ -106,7 +106,8 @@ class NodeEndpoint(Endpoint):
             ```python
             response = node_endpoint.fetch_property_values(
                 node_dcids=["geoId/06"],
-                expression="->name"
+                expression="name",
+                out=True
             )
             print(response.data)
             ```
