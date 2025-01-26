@@ -116,14 +116,10 @@ class NodeEndpoint(Endpoint):
     expression = _normalize_expression_to_string(expression)
 
     # Construct the expression based on the direction and constraints.
-    if out:
-      expression = f"->{expression}"
-      if constraints:
-        expression += f"{{{constraints}}}"
-    else:
-      expression = f"<-{expression}"
-      if constraints:
-        expression += f"{{{constraints}}}"
+    direction = "->" if out else "<-"
+    expression = f"{direction}{expression}"
+    if constraints:
+      expression += f"{{{constraints}}}"
 
     return self.fetch(node_dcids=node_dcids, expression=expression)
 
