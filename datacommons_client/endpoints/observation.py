@@ -34,7 +34,7 @@ class ObservationEndpoint(Endpoint):
 
         Args:
             variable_dcids (str | list[str]): One or more variable IDs for the data.
-            date (str): The date for which data is being requested.
+            date (str | ObservationDate): The date for which data is being requested.
                 Defaults to the latest observation.
             select (list[ObservationSelect]): Fields to include in the response.
                 Defaults to ["date", "variable", "entity", "value"].
@@ -56,7 +56,7 @@ class ObservationEndpoint(Endpoint):
     # Send the request
     return ObservationResponse.from_json(self.post(payload))
 
-  def fetch_latest_observation(
+  def fetch_latest_observations(
       self,
       variable_dcids: str | list[str],
       entity_dcids: Optional[str | list[str]] = None,
@@ -75,7 +75,7 @@ class ObservationEndpoint(Endpoint):
         """
     return self.fetch(
         variable_dcids=variable_dcids,
-        date="LATEST",
+        date=ObservationDate.LATEST,
         entity_dcids=entity_dcids,
         entity_expression=entity_expression,
     )
@@ -95,8 +95,7 @@ class ObservationEndpoint(Endpoint):
             ObservationResponse: The response object containing observations for the specified query.
         """
 
-    return self.fetch_latest_observation(variable_dcids=variable_dcids,
-                                         entity_dcids=entity_dcids)
+    return self.fetch_latest_observations(variable_dcids=variable_dcids, entity_dcids=entity_dcids)
 
   def fetch_observations_by_entity_type(
       self,
