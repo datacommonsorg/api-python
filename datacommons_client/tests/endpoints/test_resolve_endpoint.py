@@ -149,12 +149,10 @@ def test_fetch_from_type_to_type(mock_post_request,
   api = API(url="https://custom.api/v2")
   endpoint = ResolveEndpoint(api=api)
 
-  response = endpoint.fetch_from_type_to_type(
-      entities="Node1",
-      from_type="type1",
-      to_type="type2",
-      entity_type="Place",
-  )
+  response = endpoint.fetch_entity_type_correspondence(entities="Node1",
+                                                       from_type="type1",
+                                                       to_type="type2",
+                                                       entity_type="Place")
 
   # Check the response
   assert isinstance(response, ResolveResponse)

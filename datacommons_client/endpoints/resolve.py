@@ -161,7 +161,7 @@ class ResolveEndpoint(Endpoint):
     coordinates = f"{latitude}#{longitude}"
     return self.fetch(node_dcids=coordinates, expression=expression)
 
-  def fetch_from_type_to_type(
+  def fetch_entity_type_correspondence(
       self,
       entities: str | list[str],
       from_type: str,
