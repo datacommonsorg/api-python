@@ -112,30 +112,6 @@ def test_endpoint_post_request(mock_check_instance, mock_post_request):
       url="https://custom.api/v2/node",
       payload=payload,
       headers=api.headers,
-      max_pages=5,  # Include max_pages in the assertion
-  )
-
-
-@patch(
-    "datacommons_client.endpoints.base.post_request",
-    return_value={"success": True},
-)
-@patch(
-    "datacommons_client.endpoints.base.check_instance_is_valid",
-    return_value="https://custom.api/v2",
-)
-def test_endpoint_post_request(mock_check_instance, mock_post_request):
-  """Tests making a POST request using the Endpoint object."""
-  api = API(url="https://custom.api/v2")
-  endpoint = Endpoint(endpoint="node", api=api)
-  payload = {"key": "value"}
-
-  response = endpoint.post(payload=payload, max_pages=5)
-  assert response == {"success": True}
-  mock_post_request.assert_called_once_with(
-      url="https://custom.api/v2/node",
-      payload=payload,
-      headers=api.headers,
       max_pages=5,
   )
 
