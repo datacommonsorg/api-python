@@ -135,10 +135,25 @@ class ResolveEndpoint(Endpoint):
         Args:
             latitude (str): Latitude of the entity.
             longitude (str): Longitude of the entity.
-            entity_type (Optional[str]): Optional type of the entities.
+            entity_type (Optional[str]): Optional type of the entities to refine results
+            (e.g., "City", "State", "Country").
 
         Returns:
             ResolveResponse: The response object containing the resolved DCIDs.
+
+        Example:
+            To find the DCID for "Mountain View" using its latitude and longitude:
+            ```python
+            latitude = "37.42"
+            longitude = "-122.08"
+            response = client.fetch_dcid_by_coordinates(latitude=latitude, longitude=longitude)
+            print(response.entities)
+            ```
+            Note:
+             - For ambiguous results, providing an entity type (e.g., "City") can help disambiguate.
+             - The coordinates should be passed as strings in decimal format (e.g., "37.42", "-122.08").
+
+
         """
     expression = _resolve_correspondence_expression(from_type="geoCoordinate",
                                                     to_type="dcid",
