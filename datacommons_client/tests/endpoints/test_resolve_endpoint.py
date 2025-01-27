@@ -1,5 +1,4 @@
 from unittest.mock import MagicMock
-from unittest.mock import patch
 
 from datacommons_client.endpoints.base import API
 from datacommons_client.endpoints.resolve import \
@@ -9,18 +8,10 @@ from datacommons_client.endpoints.resolve import ResolveEndpoint
 from datacommons_client.endpoints.response import ResolveResponse
 
 
-@patch(
-    "datacommons_client.endpoints.base.check_instance_is_valid",
-    return_value="https://custom.api/v2",
-)
-@patch(
-    "datacommons_client.endpoints.base.post_request",
-    return_value={"entities": []},
-)
-def test_fetch(mock_post_request, mock_check_instance_is_valid):
+def test_fetch():
   """Tests the fetch method of ResolveEndpoint."""
-  api = API(url="https://custom.api/v2")
-  endpoint = ResolveEndpoint(api=api)
+  api_mock = MagicMock(spec=API)
+  endpoint = ResolveEndpoint(api=api_mock)
 
   response = endpoint.fetch(node_dcids="Node1", expression="some_expression")
 
@@ -28,29 +19,20 @@ def test_fetch(mock_post_request, mock_check_instance_is_valid):
   assert isinstance(response, ResolveResponse)
 
   # Check the post request
-  mock_post_request.assert_called_once_with(
-      url="https://custom.api/v2/resolve",
+  api_mock.post.assert_called_once_with(
       payload={
           "nodes": ["Node1"],
           "property": "some_expression",
       },
-      headers=api.headers,
+      endpoint="resolve",
       max_pages=None,
   )
 
 
-@patch(
-    "datacommons_client.endpoints.base.check_instance_is_valid",
-    return_value="https://custom.api/v2",
-)
-@patch(
-    "datacommons_client.endpoints.base.post_request",
-    return_value={"entities": []},
-)
-def test_fetch_dcid_by_name(mock_post_request, mock_check_instance_is_valid):
+def test_fetch_dcid_by_name():
   """Tests the fetch_dcid_by_name method."""
-  api = API(url="https://custom.api/v2")
-  endpoint = ResolveEndpoint(api=api)
+  api_mock = MagicMock(spec=API)
+  endpoint = ResolveEndpoint(api=api_mock)
 
   response = endpoint.fetch_dcids_by_name(names=["Entity1"],
                                           entity_type="Place")
@@ -59,30 +41,20 @@ def test_fetch_dcid_by_name(mock_post_request, mock_check_instance_is_valid):
   assert isinstance(response, ResolveResponse)
 
   # Check the post request
-  mock_post_request.assert_called_once_with(
-      url="https://custom.api/v2/resolve",
+  api_mock.post.assert_called_once_with(
       payload={
           "nodes": ["Entity1"],
-          "property": "<-description{typeOf:Place}->dcid",
+          "property": "<-description{typeOf:Place}->dcid"
       },
-      headers=api.headers,
+      endpoint="resolve",
       max_pages=None,
   )
 
 
-@patch(
-    "datacommons_client.endpoints.base.check_instance_is_valid",
-    return_value="https://custom.api/v2",
-)
-@patch(
-    "datacommons_client.endpoints.base.post_request",
-    return_value={"entities": []},
-)
-def test_fetch_dcid_by_wikidata_id(mock_post_request,
-                                   mock_check_instance_is_valid):
+def test_fetch_dcid_by_wikidata_id():
   """Tests the fetch_dcid_by_wikidata_id method."""
-  api = API(url="https://custom.api/v2")
-  endpoint = ResolveEndpoint(api=api)
+  api_mock = MagicMock(spec=API)
+  endpoint = ResolveEndpoint(api=api_mock)
 
   response = endpoint.fetch_dcid_by_wikidata_id(wikidata_id="Q12345",
                                                 entity_type="Country")
@@ -91,30 +63,20 @@ def test_fetch_dcid_by_wikidata_id(mock_post_request,
   assert isinstance(response, ResolveResponse)
 
   # Check the post request
-  mock_post_request.assert_called_once_with(
-      url="https://custom.api/v2/resolve",
+  api_mock.post.assert_called_once_with(
       payload={
           "nodes": ["Q12345"],
           "property": "<-wikidataId{typeOf:Country}->dcid",
       },
-      headers=api.headers,
+      endpoint="resolve",
       max_pages=None,
   )
 
 
-@patch(
-    "datacommons_client.endpoints.base.check_instance_is_valid",
-    return_value="https://custom.api/v2",
-)
-@patch(
-    "datacommons_client.endpoints.base.post_request",
-    return_value={"entities": []},
-)
-def test_fetch_dcid_by_coordinates(mock_post_request,
-                                   mock_check_instance_is_valid):
+def test_fetch_dcid_by_coordinates():
   """Tests the fetch_dcid_by_coordinates method."""
-  api = API(url="https://custom.api/v2")
-  endpoint = ResolveEndpoint(api=api)
+  api_mock = MagicMock(spec=API)
+  endpoint = ResolveEndpoint(api=api_mock)
 
   response = endpoint.fetch_dcid_by_coordinates(latitude="37.7749",
                                                 longitude="-122.4194",
@@ -124,30 +86,21 @@ def test_fetch_dcid_by_coordinates(mock_post_request,
   assert isinstance(response, ResolveResponse)
 
   # Check the post request
-  mock_post_request.assert_called_once_with(
-      url="https://custom.api/v2/resolve",
+  api_mock.post.assert_called_once_with(
       payload={
           "nodes": ["37.7749#-122.4194"],
           "property": "<-geoCoordinate{typeOf:City}->dcid",
       },
-      headers=api.headers,
+      endpoint="resolve",
       max_pages=None,
   )
 
 
-@patch(
-    "datacommons_client.endpoints.base.check_instance_is_valid",
-    return_value="https://custom.api/v2",
-)
-@patch(
-    "datacommons_client.endpoints.base.post_request",
-    return_value={"entities": []},
-)
-def test_fetch_from_type_to_type(mock_post_request,
-                                 mock_check_instance_is_valid):
+def test_fetch_from_type_to_type():
   """Tests the fetch_from_type_to_type method."""
-  api = API(url="https://custom.api/v2")
-  endpoint = ResolveEndpoint(api=api)
+  # Mock the API
+  api_mock = MagicMock(spec=API)
+  endpoint = ResolveEndpoint(api=api_mock)
 
   response = endpoint.fetch_entity_type_correspondence(entities="Node1",
                                                        from_type="type1",
@@ -158,13 +111,12 @@ def test_fetch_from_type_to_type(mock_post_request,
   assert isinstance(response, ResolveResponse)
 
   # Check the post request
-  mock_post_request.assert_called_once_with(
-      url="https://custom.api/v2/resolve",
+  api_mock.post.assert_called_once_with(
       payload={
           "nodes": ["Node1"],
           "property": "<-type1{typeOf:Place}->type2",
       },
-      headers=api.headers,
+      endpoint="resolve",
       max_pages=None,
   )
 
