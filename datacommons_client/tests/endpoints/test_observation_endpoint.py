@@ -1,5 +1,4 @@
 from unittest.mock import MagicMock
-from unittest.mock import patch
 
 from datacommons_client.endpoints.base import API
 from datacommons_client.endpoints.observation import ObservationEndpoint
@@ -39,19 +38,10 @@ def test_fetch():
   )
 
 
-@patch(
-    "datacommons_client.endpoints.base.check_instance_is_valid",
-    return_value="https://custom.api/v2",
-)
-@patch(
-    "datacommons_client.endpoints.base.post_request",
-    return_value={"data": "mock_response"},
-)
-def test_fetch_latest_observation(mock_post_request,
-                                  mock_check_instance_is_valid):
+def test_fetch_latest_observation():
   """Tests the fetch_latest_observation method."""
-  api = API(url="https://custom.api/v2")
-  endpoint = ObservationEndpoint(api=api)
+  api_mock = MagicMock(spec=API)
+  endpoint = ObservationEndpoint(api=api_mock)
 
   response = endpoint.fetch_latest_observations(
       variable_dcids=["dc/Variable1", "dc/Variable2"],
@@ -61,8 +51,7 @@ def test_fetch_latest_observation(mock_post_request,
   assert isinstance(response, ObservationResponse)
 
   # Check the post request
-  mock_post_request.assert_called_once_with(
-      url="https://custom.api/v2/observation",
+  api_mock.post.assert_called_once_with(
       payload={
           "variable": {
               "dcids": ["dc/Variable1", "dc/Variable2"]
@@ -73,24 +62,15 @@ def test_fetch_latest_observation(mock_post_request,
           },
           "select": ["date", "variable", "entity", "value"],  # Default select
       },
-      headers=api.headers,
+      endpoint="observation",
       max_pages=None,
   )
 
 
-@patch(
-    "datacommons_client.endpoints.base.check_instance_is_valid",
-    return_value="https://custom.api/v2",
-)
-@patch(
-    "datacommons_client.endpoints.base.post_request",
-    return_value={"data": "mock_response"},
-)
-def test_fetch_latest_observations_by_entity(mock_post_request,
-                                             mock_check_instance_is_valid):
+def test_fetch_latest_observations_by_entity():
   """Tests the fetch_latest_observations_by_entity method."""
-  api = API(url="https://custom.api/v2")
-  endpoint = ObservationEndpoint(api=api)
+  api_mock = MagicMock(spec=API)
+  endpoint = ObservationEndpoint(api=api_mock)
 
   response = endpoint.fetch_latest_observations_by_entity(
       variable_dcids="dc/VariableID",
@@ -101,8 +81,7 @@ def test_fetch_latest_observations_by_entity(mock_post_request,
   assert isinstance(response, ObservationResponse)
 
   # Check the post request
-  mock_post_request.assert_called_once_with(
-      url="https://custom.api/v2/observation",
+  api_mock.post.assert_called_once_with(
       payload={
           "variable": {
               "dcids": ["dc/VariableID"]
@@ -113,24 +92,15 @@ def test_fetch_latest_observations_by_entity(mock_post_request,
           },
           "select": ["date", "variable", "entity", "value"],
       },
-      headers=api.headers,
+      endpoint="observation",
       max_pages=None,
   )
 
 
-@patch(
-    "datacommons_client.endpoints.base.check_instance_is_valid",
-    return_value="https://custom.api/v2",
-)
-@patch(
-    "datacommons_client.endpoints.base.post_request",
-    return_value={"data": "mock_response"},
-)
-def test_fetch_observations_by_entity_type(mock_post_request,
-                                           mock_check_instance_is_valid):
+def test_fetch_observations_by_entity_type():
   """Tests the fetch_observations_by_entity_type method."""
-  api = API(url="https://custom.api/v2")
-  endpoint = ObservationEndpoint(api=api)
+  api_mock = MagicMock(spec=API)
+  endpoint = ObservationEndpoint(api=api_mock)
 
   response = endpoint.fetch_observations_by_entity_type(
       date="2023",
@@ -143,8 +113,7 @@ def test_fetch_observations_by_entity_type(mock_post_request,
   assert isinstance(response, ObservationResponse)
 
   # Check the post request
-  mock_post_request.assert_called_once_with(
-      url="https://custom.api/v2/observation",
+  api_mock.post.assert_called_once_with(
       payload={
           "variable": {
               "dcids": ["dc/VariableID"]
@@ -155,6 +124,6 @@ def test_fetch_observations_by_entity_type(mock_post_request,
           },
           "select": ["date", "variable", "entity", "value"],
       },
-      headers=api.headers,
+      endpoint="observation",
       max_pages=None,
   )
