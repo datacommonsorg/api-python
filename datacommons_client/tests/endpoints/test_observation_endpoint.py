@@ -1,3 +1,4 @@
+from unittest.mock import MagicMock
 from unittest.mock import patch
 
 from datacommons_client.endpoints.base import API
@@ -6,21 +7,13 @@ from datacommons_client.endpoints.payloads import ObservationDate
 from datacommons_client.endpoints.response import ObservationResponse
 
 
-@patch(
-    "datacommons_client.endpoints.base.check_instance_is_valid",
-    return_value="https://custom.api/v2",
-)
-@patch(
-    "datacommons_client.endpoints.base.post_request",
-    return_value={"data": "mock_response"},
-)
-def test_fetch(mock_post_request, mock_check_instance_is_valid):
+def test_fetch():
   """Tests the fetch method of ObservationEndpoint."""
-  api = API(url="https://custom.api/v2")
-  endpoint = ObservationEndpoint(api=api)
+  api_mock = MagicMock(spec=API)
+  endpoint = ObservationEndpoint(api=api_mock)
 
   response = endpoint.fetch(
-      variable_dcids="dc/VariableID",
+      variable_dcids="dcid/variableID",
       date=ObservationDate.LATEST,
       select=["date", "variable", "entity", "value"],
       entity_dcids="dc/EntityID",
@@ -30,19 +23,18 @@ def test_fetch(mock_post_request, mock_check_instance_is_valid):
   assert isinstance(response, ObservationResponse)
 
   # Check the post request
-  mock_post_request.assert_called_once_with(
-      url="https://custom.api/v2/observation",
+  api_mock.post.assert_called_once_with(
       payload={
-          "variable": {
-              "dcids": ["dc/VariableID"]
-          },
           "date": ObservationDate.LATEST,
+          "variable": {
+              "dcids": ["dcid/variableID"]
+          },
           "entity": {
-              "dcids": ["dc/EntityID"]
+              "dcids": ["dc/EntityID"],
           },
           "select": ["date", "variable", "entity", "value"],
       },
-      headers=api.headers,
+      endpoint="observation",
       max_pages=None,
   )
 
