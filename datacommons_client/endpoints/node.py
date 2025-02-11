@@ -14,22 +14,30 @@ class NodeEndpoint(Endpoint):
     Args:
         api (API): The API instance providing the environment configuration
             (base URL, headers, authentication) to be used for requests.
-        max_pages (Optional[int]): Optionally, set the maximum number of pages to fetch.
-            Defaults to None, which fetches all the pages.
     """
 
-  def __init__(self, api: API, max_pages: Optional[int] = None):
+  def __init__(self, api: API):
     """Initializes the NodeEndpoint with a given API configuration."""
     super().__init__(endpoint="node", api=api)
-    self.max_pages = max_pages
 
-  def fetch(self, node_dcids: str | list[str],
-            expression: str | list[str]) -> NodeResponse:
+  def fetch(
+      self,
+      node_dcids: str | list[str],
+      expression: str | list[str],
+      *,
+      all_pages: bool = True,
+      next_token: Optional[str] = None,
+  ) -> NodeResponse:
     """Fetches properties or arcs for given nodes and properties.
 
         Args:
             node_dcids (str | List[str]): The DCID(s) of the nodes to query.
             expression (str | List[str]): The property or relation expression(s) to query.
+            all_pages: If True, fetch all pages of the response. If False, fetch only the first page.
+              Defaults to True. Set to False to only fetch the first page. In that case, a
+              `next_token` key in the response will indicate if more pages are available.
+              That token can be used to fetch the next page.
+            next_token: Optionally, the token to fetch the next page of results. Defaults to None.
 
         Returns:
             NodeResponse: The response object containing the queried data.
@@ -49,7 +57,7 @@ class NodeEndpoint(Endpoint):
                                  expression=expression).to_dict
 
     # Make the request and return the response.
-    return NodeResponse.from_json(self.post(payload, max_pages=self.max_pages))
+    return NodeResponse.from_json(self.post(payload, all_pages=all_pages))
 
   def fetch_property_labels(self,
                             node_dcids: str | list[str],

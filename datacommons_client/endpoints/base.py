@@ -64,7 +64,7 @@ class API:
       self,
       payload: dict[str, Any],
       endpoint: Optional[str] = None,
-      max_pages: Optional[int] = None,
+      all_pages: bool = True,
   ) -> Dict[str, Any]:
     """Makes a POST request using the configured API environment.
 
@@ -74,7 +74,10 @@ class API:
     Args:
         payload: The JSON payload for the POST request.
         endpoint: An optional endpoint path to append to the base URL.
-        max_pages: The maximum number of pages to fetch. If None, fetch all.
+        all_pages: If True, fetch all pages of the response. If False, fetch only the first page.
+            Defaults to True. Set to False to only fetch the first page. In that case, a
+            `next_token` key in the response will indicate if more pages are available.
+            That token can be used to fetch the next page.
 
     Returns:
         A dictionary containing the merged response data.
@@ -89,7 +92,7 @@ class API:
     return post_request(url=url,
                         payload=payload,
                         headers=self.headers,
-                        all_pages=max_pages)
+                        all_pages=all_pages)
 
 
 class Endpoint:
@@ -126,12 +129,15 @@ class Endpoint:
 
   def post(self,
            payload: dict[str, Any],
-           max_pages: Optional[int] = None) -> Dict[str, Any]:
+           all_pages: bool = True) -> Dict[str, Any]:
     """Makes a POST request to the specified endpoint using the API instance.
 
     Args:
         payload: The JSON payload for the POST request.
-        max_pages: The maximum number of pages to fetch. If None, fetch all.
+        all_pages: If True, fetch all pages of the response. If False, fetch only the first page.
+            Defaults to True. Set to False to only fetch the first page. In that case, a
+            `next_token` key in the response will indicate if more pages are available.
+            That token can be used to fetch the next page.
 
     Returns:
         A dictionary with the merged API response data.
@@ -141,4 +147,4 @@ class Endpoint:
     """
     return self.api.post(payload=payload,
                          endpoint=self.endpoint,
-                         max_pages=max_pages)
+                         all_pages=all_pages)

@@ -151,7 +151,7 @@ def _recursively_merge_dicts(
         A new dictionary that is the result of merging `new` into `base`.
     """
   if keys_to_skip is None:
-    keys_to_skip = {"nextToken"}
+    keys_to_skip = {}
 
   result = dict(base)
   for k, v in new.items():
@@ -197,6 +197,7 @@ def _fetch_with_pagination(
     payload: dict[str, Any],
     headers: dict[str, str],
     all_pages: bool = True,
+    next_token: Optional[str] = None,
 ) -> dict[str, Any]:
   """Fetch and (if necessary) merge paginated results from an API.
 
@@ -207,12 +208,16 @@ def _fetch_with_pagination(
         payload: The request payload (JSON-serializable).
         headers: The request headers.
         all_pages: Whether to fetch all available pages. Defaults to True.
+        next_token: Optionally, the token to fetch the next page of results. Defaults to None.
 
     Returns:
         A dictionary containing all merged results from all fetched pages.
     """
   combined_results: dict[str, Any] = {}
-  page_count = 0
+
+  # If a next token is provided, use it to fetch the next page
+  if next_token:
+    payload["nextToken"] = next_token
 
   while True:
     # Send a POST request and parse the JSON response
@@ -227,8 +232,7 @@ def _fetch_with_pagination(
     combined_results = _recursively_merge_dicts(combined_results, page_data)
 
     # Update the payload with the next token
-    next_token = page_data.get("nextToken")
-    page_count += 1
+    next_token = combined_results.get("nextToken")
 
     # Update the payload with the next token
     payload["nextToken"] = next_token
@@ -244,7 +248,9 @@ def post_request(
     url: str,
     payload: dict[str, Any],
     headers: dict[str, str],
+    *,
     all_pages: bool = True,
+    next_token: Optional[str] = None,
 ) -> Dict[str, Any]:
   """Send a POST request with optional pagination support and return a DCResponse.
 
@@ -256,6 +262,10 @@ def post_request(
             False to only fetch the first page. In that case, a `nextToken` key in the
             response will indicate if more pages are available. That token can be used
             to fetch the next page.
+        next_token: Optionally, the token to fetch the next page of results. Defaults to None.
+            If combined with `all_pages=False`, this token will be used to fetch only the next page.
+            If combined with `all_pages=True`, all remaining pages will be fetched starting from this token.
+
 
     Returns:
         A dictionary containing the aggregated API response data.
@@ -270,7 +280,8 @@ def post_request(
   combined_results = _fetch_with_pagination(url=url,
                                             payload=payload,
                                             headers=headers,
-                                            all_pages=all_pages)
+                                            all_pages=all_pages,
+                                            next_token=next_token)
 
   # Return the combined results as a dictionary
   return combined_results
