@@ -82,13 +82,37 @@ def test_api_post_request(mock_check_instance, mock_post_request):
   api = API(url="https://custom_instance.api/v2")
   payload = {"key": "value"}
 
-  response = api.post(payload=payload, endpoint="test-endpoint")
+  response = api.post(payload=payload, endpoint="test-endpoint", all_pages=True)
   assert response == {"success": True}
   mock_post_request.assert_called_once_with(
       url="https://custom_instance.api/v2/test-endpoint",
       payload=payload,
       headers=api.headers,
-  )
+      all_pages=True,
+      next_token=True)
+
+
+@patch(
+    "datacommons_client.endpoints.base.post_request",
+    return_value={"success": True},
+)
+@patch(
+    "datacommons_client.endpoints.base.check_instance_is_valid",
+    return_value="https://custom.api/v2",
+)
+def test_endpoint_post_request(mock_check_instance, mock_post_request):
+  """Tests making a POST request using the Endpoint object."""
+  api = API(url="https://custom.api/v2")
+  endpoint = Endpoint(endpoint="node", api=api)
+  payload = {"key": "value"}
+
+  response = endpoint.post(payload=payload, all_pages=True)
+  assert response == {"success": True}
+  mock_post_request.assert_called_once_with(url="https://custom.api/v2/node",
+                                            payload=payload,
+                                            headers=api.headers,
+                                            all_pages=True,
+                                            next_token=None)
 
 
 @patch(
@@ -143,13 +167,42 @@ def test_endpoint_post_request(mock_check_instance, mock_post_request):
   endpoint = Endpoint(endpoint="node", api=api)
   payload = {"key": "value"}
 
-  response = endpoint.post(payload=payload)
+  response = endpoint.post(payload=payload, all_pages=True)
+  assert response == {"success": True}
+  mock_post_request.assert_called_once_with(url="https://custom.api/v2/node",
+                                            payload=payload,
+                                            headers=api.headers,
+                                            all_pages=True,
+                                            next_token=None)
+
+
+@pytest.mark.parametrize("all_pages", [True, False])
+@pytest.mark.parametrize("next_token", ["token123", None])
+@patch(
+    "datacommons_client.endpoints.base.post_request",
+    return_value={"success": True},
+)
+@patch(
+    "datacommons_client.endpoints.base.check_instance_is_valid",
+    return_value="https://custom_instance.api/v2",
+)
+def test_api_post_request(mock_check_instance, mock_post_request, all_pages,
+                          next_token):
+  """Tests making a POST request using the API object with and without max_pages."""
+  api = API(url="https://custom_instance.api/v2")
+  payload = {"key": "value"}
+
+  response = api.post(payload=payload,
+                      endpoint="test-endpoint",
+                      all_pages=all_pages,
+                      next_token=next_token)
   assert response == {"success": True}
   mock_post_request.assert_called_once_with(
-      url="https://custom.api/v2/node",
+      url="https://custom_instance.api/v2/test-endpoint",
       payload=payload,
       headers=api.headers,
-  )
+      all_pages=all_pages,
+      next_token=next_token)
 
 
 @patch(
@@ -171,7 +224,7 @@ def test_endpoint_post_request_invalid_payload(mock_check_instance):
 )
 @patch(
     "datacommons_client.endpoints.base.check_instance_is_valid",
-    side_effect=lambda url: url.rstrip("/"),
+    return_value="https://custom.api/v2",
 )
 def test_api_repr(mock_check_instance, mock_build_headers):
   """Tests the __repr__ method of the API class."""

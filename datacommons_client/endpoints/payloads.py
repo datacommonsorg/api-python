@@ -9,6 +9,15 @@ from datacommons_client.utils.error_handling import \
     InvalidObservationSelectError
 
 
+def normalize_properties_to_string(properties: str | list[str]) -> str:
+  """Converts a list of properties to a string."""
+
+  if isinstance(properties, list):
+    return f"[{', '.join(properties)}]"
+
+  return properties
+
+
 @dataclass
 class EndpointRequestPayload(ABC):
   """
@@ -54,6 +63,8 @@ class NodeRequestPayload(EndpointRequestPayload):
     if isinstance(self.node_dcids, str):
       self.node_dcids = [self.node_dcids]
 
+    self.expression = normalize_properties_to_string(self.expression)
+
   def validate(self):
     if not isinstance(self.expression, str):
       raise ValueError("Expression must be a string.")
@@ -98,12 +109,7 @@ class ObservationRequestPayload(EndpointRequestPayload):
 
   date: ObservationDate | str = ""
   variable_dcids: str | list[str] = field(default_factory=list)
-  select: list[ObservationSelect | str] = field(default_factory=lambda: [
-      ObservationSelect.DATE,
-      ObservationSelect.VARIABLE,
-      ObservationSelect.ENTITY,
-      ObservationSelect.VALUE,
-  ])
+  select: Optional[list[ObservationSelect | str]] = None
   entity_dcids: Optional[str | list[str]] = None
   entity_expression: Optional[str] = None
 
@@ -114,6 +120,14 @@ class ObservationRequestPayload(EndpointRequestPayload):
         Raises:
             ValueError: If validation rules are violated.
         """
+    if self.select is None:
+      self.select = [
+          ObservationSelect.DATE,
+          ObservationSelect.VARIABLE,
+          ObservationSelect.ENTITY,
+          ObservationSelect.VALUE,
+      ]
+
     self.RequiredSelect = {"variable", "entity"}
     self.normalize()
     self.validate()
