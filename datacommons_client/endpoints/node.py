@@ -60,14 +60,24 @@ class NodeEndpoint(Endpoint):
     return NodeResponse.from_json(
         self.post(payload, all_pages=all_pages, next_token=next_token))
 
-  def fetch_property_labels(self,
-                            node_dcids: str | list[str],
-                            out: bool = True) -> NodeResponse:
+  def fetch_property_labels(
+      self,
+      node_dcids: str | list[str],
+      out: bool = True,
+      *,
+      all_pages: bool = True,
+      next_token: Optional[str] = None,
+  ) -> NodeResponse:
     """Fetches all property labels for the given nodes.
 
         Args:
             node_dcids (str | list[str]): The DCID(s) of the nodes to query.
             out (bool): Whether to fetch outgoing properties (`->`). Defaults to True.
+            all_pages: If True, fetch all pages of the response. If False, fetch only the first page.
+              Defaults to True. Set to False to only fetch the first page. In that case, a
+              `next_token` key in the response will indicate if more pages are available.
+              That token can be used to fetch the next page.
+            next_token: Optionally, the token to fetch the next page of results. Defaults to None.
 
         Returns:
             NodeResponse: The response object containing the property labels.
@@ -82,7 +92,10 @@ class NodeEndpoint(Endpoint):
     expression = "->" if out else "<-"
 
     # Make the request and return the response.
-    return self.fetch(node_dcids=node_dcids, expression=expression)
+    return self.fetch(node_dcids=node_dcids,
+                      expression=expression,
+                      all_pages=all_pages,
+                      next_token=next_token)
 
   def fetch_property_values(
       self,
@@ -90,6 +103,9 @@ class NodeEndpoint(Endpoint):
       properties: str | list[str],
       constraints: Optional[str] = None,
       out: bool = True,
+      *,
+      all_pages: bool = True,
+      next_token: Optional[str] = None,
   ) -> NodeResponse:
     """Fetches the values of specific properties for given nodes.
 
@@ -98,6 +114,12 @@ class NodeEndpoint(Endpoint):
             properties (str | List[str]): The property or relation expression(s) to query.
             constraints (Optional[str]): Additional constraints for the query. Defaults to None.
             out (bool): Whether to fetch outgoing properties. Defaults to True.
+            all_pages: If True, fetch all pages of the response. If False, fetch only the first page.
+              Defaults to True. Set to False to only fetch the first page. In that case, a
+              `next_token` key in the response will indicate if more pages are available.
+              That token can be used to fetch the next page.
+            next_token: Optionally, the token to fetch the next page of results. Defaults to None.
+
 
         Returns:
             NodeResponse: The response object containing the property values.
@@ -122,10 +144,26 @@ class NodeEndpoint(Endpoint):
     if constraints:
       expression += f"{{{constraints}}}"
 
-    return self.fetch(node_dcids=node_dcids, expression=expression)
+    return self.fetch(node_dcids=node_dcids,
+                      expression=expression,
+                      all_pages=all_pages,
+                      next_token=next_token)
 
-  def fetch_all_classes(self) -> NodeResponse:
+  def fetch_all_classes(
+      self,
+      *,
+      all_pages: bool = True,
+      next_token: Optional[str] = None,
+  ) -> NodeResponse:
     """Fetches all Classes available in the Data Commons knowledge graph.
+
+        Args:
+          all_pages: If True, fetch all pages of the response. If False, fetch only the first page.
+              Defaults to True. Set to False to only fetch the first page. In that case, a
+              `next_token` key in the response will indicate if more pages are available.
+              That token can be used to fetch the next page.
+          next_token: Optionally, the token to fetch the next page of results. Defaults to None.
+
 
         Returns:
             NodeResponse: The response object containing all statistical variables.
@@ -139,4 +177,6 @@ class NodeEndpoint(Endpoint):
 
     return self.fetch_property_values(node_dcids="Class",
                                       properties="typeOf",
-                                      out=False)
+                                      out=False,
+                                      all_pages=all_pages,
+                                      next_token=next_token)

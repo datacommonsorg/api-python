@@ -79,7 +79,10 @@ def test_node_endpoint_fetch_property_labels():
       }}))
 
   response = endpoint.fetch_property_labels(node_dcids="node1", out=False)
-  endpoint.fetch.assert_called_once_with(node_dcids="node1", expression="<-")
+  endpoint.fetch.assert_called_once_with(node_dcids="node1",
+                                         expression="<-",
+                                         all_pages=True,
+                                         next_token=None)
   assert isinstance(response, NodeResponse)
   assert "node1" in response.data
 
@@ -160,7 +163,9 @@ def test_node_endpoint_fetch_all_classes():
   response = endpoint.fetch_all_classes()
   endpoint.fetch_property_values.assert_called_once_with(node_dcids="Class",
                                                          properties="typeOf",
-                                                         out=False)
+                                                         out=False,
+                                                         all_pages=True,
+                                                         next_token=None)
   assert isinstance(response, NodeResponse)
   assert "Class" in response.data
 
