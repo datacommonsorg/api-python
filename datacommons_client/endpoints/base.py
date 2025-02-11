@@ -89,7 +89,7 @@ class API:
     return post_request(url=url,
                         payload=payload,
                         headers=self.headers,
-                        max_pages=max_pages)
+                        all_pages=max_pages)
 
 
 class Endpoint:

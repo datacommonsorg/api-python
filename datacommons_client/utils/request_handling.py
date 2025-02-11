@@ -196,7 +196,7 @@ def _fetch_with_pagination(
     url: str,
     payload: dict[str, Any],
     headers: dict[str, str],
-    max_pages: Optional[int] = None,
+    all_pages: bool = True,
 ) -> dict[str, Any]:
   """Fetch and (if necessary) merge paginated results from an API.
 
@@ -206,7 +206,7 @@ def _fetch_with_pagination(
         url: The API endpoint URL.
         payload: The request payload (JSON-serializable).
         headers: The request headers.
-        max_pages: The maximum number of pages to fetch. If None, fetch all.
+        all_pages: Whether to fetch all available pages. Defaults to True.
 
     Returns:
         A dictionary containing all merged results from all fetched pages.
@@ -230,12 +230,12 @@ def _fetch_with_pagination(
     next_token = page_data.get("nextToken")
     page_count += 1
 
-    # Stop if there is no next token or max pages is reached
-    if not next_token or (max_pages is not None and page_count >= max_pages):
-      break
-
     # Update the payload with the next token
     payload["nextToken"] = next_token
+
+    # Stop if the user only wants one page or if there is no next token
+    if not all_pages or not next_token:
+      break
 
   return combined_results
 
@@ -244,7 +244,7 @@ def post_request(
     url: str,
     payload: dict[str, Any],
     headers: dict[str, str],
-    max_pages: Optional[int] = None,
+    all_pages: bool = True,
 ) -> Dict[str, Any]:
   """Send a POST request with optional pagination support and return a DCResponse.
 
@@ -252,7 +252,10 @@ def post_request(
         url: The target endpoint URL.
         payload: The payload to send with the request.
         headers: The request headers, including authentication.
-        max_pages: The maximum number of pages to fetch. If None, fetch all.
+        all_pages: Fetch all available pages automatically. Defaults to True. Set to
+            False to only fetch the first page. In that case, a `nextToken` key in the
+            response will indicate if more pages are available. That token can be used
+            to fetch the next page.
 
     Returns:
         A dictionary containing the aggregated API response data.
@@ -267,7 +270,7 @@ def post_request(
   combined_results = _fetch_with_pagination(url=url,
                                             payload=payload,
                                             headers=headers,
-                                            max_pages=max_pages)
+                                            all_pages=all_pages)
 
   # Return the combined results as a dictionary
   return combined_results
