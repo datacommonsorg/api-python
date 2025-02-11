@@ -104,7 +104,7 @@ class ObservationEndpoint(Endpoint):
       parent_entity: str,
       entity_type: str,
       variable_dcids: str | list[str],
-  ):
+  )-> ObservationResponse:
     """
         Fetches all observations for a given entity type.
 
@@ -149,7 +149,7 @@ class ObservationEndpoint(Endpoint):
       date: ObservationDate | str,
       entity_dcids: str | list[str],
       variable_dcids: str | list[str],
-  ):
+  )-> ObservationResponse:
     """
         Fetches all observations for a given entity type.
 
