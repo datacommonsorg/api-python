@@ -57,7 +57,8 @@ class NodeEndpoint(Endpoint):
                                  expression=expression).to_dict
 
     # Make the request and return the response.
-    return NodeResponse.from_json(self.post(payload, all_pages=all_pages))
+    return NodeResponse.from_json(
+        self.post(payload, all_pages=all_pages, next_token=next_token))
 
   def fetch_property_labels(self,
                             node_dcids: str | list[str],

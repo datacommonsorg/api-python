@@ -64,7 +64,9 @@ class API:
       self,
       payload: dict[str, Any],
       endpoint: Optional[str] = None,
+      *,
       all_pages: bool = True,
+      next_token: Optional[str] = None,
   ) -> Dict[str, Any]:
     """Makes a POST request using the configured API environment.
 
@@ -92,7 +94,8 @@ class API:
     return post_request(url=url,
                         payload=payload,
                         headers=self.headers,
-                        all_pages=all_pages)
+                        all_pages=all_pages,
+                        next_token=next_token)
 
 
 class Endpoint:
@@ -129,7 +132,8 @@ class Endpoint:
 
   def post(self,
            payload: dict[str, Any],
-           all_pages: bool = True) -> Dict[str, Any]:
+           all_pages: bool = True,
+           next_token: Optional[str] = None) -> Dict[str, Any]:
     """Makes a POST request to the specified endpoint using the API instance.
 
     Args:
@@ -138,6 +142,7 @@ class Endpoint:
             Defaults to True. Set to False to only fetch the first page. In that case, a
             `next_token` key in the response will indicate if more pages are available.
             That token can be used to fetch the next page.
+        next_token: Optionally, the token to fetch the next page of results. Defaults to None.
 
     Returns:
         A dictionary with the merged API response data.
@@ -147,4 +152,5 @@ class Endpoint:
     """
     return self.api.post(payload=payload,
                          endpoint=self.endpoint,
-                         all_pages=all_pages)
+                         all_pages=all_pages,
+                         next_token=next_token)

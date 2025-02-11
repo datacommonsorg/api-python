@@ -151,7 +151,7 @@ def _recursively_merge_dicts(
         A new dictionary that is the result of merging `new` into `base`.
     """
   if keys_to_skip is None:
-    keys_to_skip = {}
+    keys_to_skip = {"nextToken"}
 
   result = dict(base)
   for k, v in new.items():
@@ -232,7 +232,7 @@ def _fetch_with_pagination(
     combined_results = _recursively_merge_dicts(combined_results, page_data)
 
     # Update the payload with the next token
-    next_token = combined_results.get("nextToken")
+    next_token = page_data.get("nextToken")
 
     # Update the payload with the next token
     payload["nextToken"] = next_token
@@ -240,6 +240,9 @@ def _fetch_with_pagination(
     # Stop if the user only wants one page or if there is no next token
     if not all_pages or not next_token:
       break
+
+  # Add the final next token to the response
+  combined_results["nextToken"] = next_token
 
   return combined_results
 
