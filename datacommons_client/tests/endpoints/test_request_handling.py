@@ -275,7 +275,89 @@ def test_fetch_with_pagination(mock_send_post_request):
   headers = {}
 
   result = _fetch_with_pagination(url, payload, headers)
-  assert result == {"data": {"page1": True, "page2": True}}
+  assert result == {"data": {"page1": True, "page2": True}, 'nextToken': None}
+
+
+@patch("datacommons_client.utils.request_handling._send_post_request")
+def test_fetch_with_pagination_next_token(mock_send_post_request):
+  """Tests fetching and merging paginated API responses, including a next_token"""
+
+  # Mock the response JSON data for two pages
+  mock_response = MagicMock()
+
+  # Should stop at first page given that all_pages is set to False
+  mock_response.json.side_effect = [
+      {
+          "data": {
+              "page1": True
+          },
+          "nextToken": "token2"
+      },
+  ]
+  mock_send_post_request.side_effect = [mock_response, mock_response]
+
+  # Mock the POST request and assert that the results are merged correctly
+  url = "https://api.test.com"
+  payload = {}
+  headers = {}
+
+  result = _fetch_with_pagination(url,
+                                  payload,
+                                  headers,
+                                  all_pages=False,
+                                  next_token="token1")
+  assert result == {"data": {"page1": True}, 'nextToken': "token2"}
+
+
+@patch("datacommons_client.utils.request_handling._send_post_request")
+def test_fetch_with_pagination_next_token_all_pages(mock_send_post_request):
+  """Tests fetching and merging paginated API responses, including a next_token"""
+
+  # Mock the response JSON data for two pages
+  mock_response = MagicMock()
+
+  mock_response.json.side_effect = [
+      {
+          "data": {
+              "page1": True
+          },
+          "nextToken": "token1"
+      },
+      {
+          "data": {
+              "page2": True
+          },
+          "nextToken": "token2",
+      },
+      {
+          "data": {
+              "page3": True
+          },
+          "nextToken": None,
+      },
+  ]
+  mock_send_post_request.side_effect = [
+      mock_response, mock_response, mock_response
+  ]
+
+  # Mock the POST request and assert that the results are merged correctly
+  url = "https://api.test.com"
+  payload = {}
+  headers = {}
+
+  result = _fetch_with_pagination(url,
+                                  payload,
+                                  headers,
+                                  all_pages=True,
+                                  next_token="token1")
+  assert result == {
+      "data": {
+          "page1": True,
+          "page2": True,
+          "page3": True
+      },
+      'nextToken': None
+  }
 
 
 @patch("datacommons_client.utils.request_handling._send_post_request")
@@ -295,6 +377,19 @@ def test_post_request(mock_fetch_with_pagination):
   mock_fetch_with_pagination.return_value = {"result": "data"}
   result = post_request("https://api.test.com", {}, {})
   assert result == {"result": "data"}
+
+
+@patch("datacommons_client.utils.request_handling._fetch_with_pagination")
+def test_post_request_next_token(mock_fetch_with_pagination):
+  """Tests the `post_request` function including a check for next_token"""
+  mock_fetch_with_pagination.return_value = {"result": "data"}
+  result = post_request("https://api.test.com", {}, {}, next_token="token123")
+
+  mock_fetch_with_pagination.assert_called_once_with(url="https://api.test.com",
+                                                     payload={},
+                                                     headers={},
+                                                     all_pages=True,
+                                                     next_token="token123")
 
 
 def test_post_request_invalid_payload():

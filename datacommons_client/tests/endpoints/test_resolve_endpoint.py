@@ -19,14 +19,13 @@ def test_fetch():
   assert isinstance(response, ResolveResponse)
 
   # Check the post request
-  api_mock.post.assert_called_once_with(
-      payload={
-          "nodes": ["Node1"],
-          "property": "some_expression",
-      },
-      endpoint="resolve",
-      max_pages=None,
-  )
+  api_mock.post.assert_called_once_with(payload={
+      "nodes": ["Node1"],
+      "property": "some_expression",
+  },
+                                        endpoint="resolve",
+                                        all_pages=True,
+                                        next_token=None)
 
 
 def test_fetch_dcid_by_name():
@@ -41,14 +40,13 @@ def test_fetch_dcid_by_name():
   assert isinstance(response, ResolveResponse)
 
   # Check the post request
-  api_mock.post.assert_called_once_with(
-      payload={
-          "nodes": ["Entity1"],
-          "property": "<-description{typeOf:Place}->dcid"
-      },
-      endpoint="resolve",
-      max_pages=None,
-  )
+  api_mock.post.assert_called_once_with(payload={
+      "nodes": ["Entity1"],
+      "property": "<-description{typeOf:Place}->dcid"
+  },
+                                        endpoint="resolve",
+                                        all_pages=True,
+                                        next_token=None)
 
 
 def test_fetch_dcid_by_wikidata_id():
@@ -63,14 +61,13 @@ def test_fetch_dcid_by_wikidata_id():
   assert isinstance(response, ResolveResponse)
 
   # Check the post request
-  api_mock.post.assert_called_once_with(
-      payload={
-          "nodes": ["Q12345"],
-          "property": "<-wikidataId{typeOf:Country}->dcid",
-      },
-      endpoint="resolve",
-      max_pages=None,
-  )
+  api_mock.post.assert_called_once_with(payload={
+      "nodes": ["Q12345"],
+      "property": "<-wikidataId{typeOf:Country}->dcid",
+  },
+                                        endpoint="resolve",
+                                        all_pages=True,
+                                        next_token=None)
 
 
 def test_fetch_dcid_by_coordinates():
@@ -86,14 +83,13 @@ def test_fetch_dcid_by_coordinates():
   assert isinstance(response, ResolveResponse)
 
   # Check the post request
-  api_mock.post.assert_called_once_with(
-      payload={
-          "nodes": ["37.7749#-122.4194"],
-          "property": "<-geoCoordinate{typeOf:City}->dcid",
-      },
-      endpoint="resolve",
-      max_pages=None,
-  )
+  api_mock.post.assert_called_once_with(payload={
+      "nodes": ["37.7749#-122.4194"],
+      "property": "<-geoCoordinate{typeOf:City}->dcid",
+  },
+                                        endpoint="resolve",
+                                        all_pages=True,
+                                        next_token=None)
 
 
 def test_fetch_from_type_to_type():
@@ -111,14 +107,13 @@ def test_fetch_from_type_to_type():
   assert isinstance(response, ResolveResponse)
 
   # Check the post request
-  api_mock.post.assert_called_once_with(
-      payload={
-          "nodes": ["Node1"],
-          "property": "<-type1{typeOf:Place}->type2",
-      },
-      endpoint="resolve",
-      max_pages=None,
-  )
+  api_mock.post.assert_called_once_with(payload={
+      "nodes": ["Node1"],
+      "property": "<-type1{typeOf:Place}->type2",
+  },
+                                        endpoint="resolve",
+                                        all_pages=True,
+                                        next_token=None)
 
 
 def test_resolve_correspondence_expression():
