@@ -143,3 +143,43 @@ class ObservationEndpoint(Endpoint):
         entity_expression=
         f"{parent_entity}<-containedInPlace+{{typeOf:{entity_type}}}",
     )
+
+  def fetch_observations_by_entity(
+      self,
+      date: ObservationDate | str,
+      entity_dcids: str | list[str],
+      variable_dcids: str | list[str],
+  ):
+    """
+        Fetches all observations for a given entity type.
+
+        Args:
+            date (ObservationDate | str): The date option for the observations.
+                Use 'all' for all dates, 'latest' for the most recent data,
+                or provide a date as a string (e.g., "2024").
+            entity_dcids (str | list[str]): One or more entity IDs to filter the data.
+            variable_dcids (str | list[str]): The variable(s) to fetch observations for.
+                This can be a single variable ID or a list of IDs.
+
+        Returns:
+            ObservationResponse: The response object containing observations for the specified entity type.
+
+        Example:
+            To fetch all observations for Nigeria for a specific variable:
+
+            ```python
+            api = API()
+            ObservationEndpoint(api).fetch_observations_by_entity(
+                date="all",
+                entity_dcids="country/NGA",
+                variable_dcids="sdg/SI_POV_DAY1"
+            )
+            ```
+        """
+
+    return self.fetch(
+        variable_dcids=variable_dcids,
+        date=date,
+        entity_dcids=entity_dcids,
+        select=[s for s in ObservationSelect],
+    )
