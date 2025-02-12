@@ -8,13 +8,13 @@ from datacommons_client.endpoints.resolve import ResolveEndpoint
 from datacommons_client.utils.decorators import requires_pandas
 
 try:
-    import pandas as pd
+  import pandas as pd
 except ImportError:
-    pd = None
+  pd = None
 
 
 class DataCommonsClient:
-    """
+  """
     A client for interacting with the Data Commons API.
 
     This class provides convenient access to the V2 Data Commons API endpoints.
@@ -29,14 +29,14 @@ class DataCommonsClient:
 
     """
 
-    def __init__(
-        self,
-        api_key: Optional[str] = None,
-        *,
-        dc_instance: Optional[str] = "datacommons.org",
-        url: Optional[str] = None,
-    ):
-        """
+  def __init__(
+      self,
+      api_key: Optional[str] = None,
+      *,
+      dc_instance: Optional[str] = "datacommons.org",
+      url: Optional[str] = None,
+  ):
+    """
         Initializes the DataCommonsClient.
 
         Args:
@@ -45,24 +45,24 @@ class DataCommonsClient:
             dc_instance (Optional[str]): The Data Commons instance to use. Defaults to "datacommons.org".
             url (Optional[str]): A custom, fully resolved URL for the Data Commons API. Defaults to None.
         """
-        # Create an instance of the API class which will be injected to the endpoints
-        self.api = API(api_key=api_key, dc_instance=dc_instance, url=url)
+    # Create an instance of the API class which will be injected to the endpoints
+    self.api = API(api_key=api_key, dc_instance=dc_instance, url=url)
 
-        # Create instances of the endpoints
-        self.node = NodeEndpoint(api=self.api)
-        self.observation = ObservationEndpoint(api=self.api)
-        self.resolve = ResolveEndpoint(api=self.api)
+    # Create instances of the endpoints
+    self.node = NodeEndpoint(api=self.api)
+    self.observation = ObservationEndpoint(api=self.api)
+    self.resolve = ResolveEndpoint(api=self.api)
 
-    @requires_pandas
-    def observations_dataframe(
-        self,
-        variable_dcids: str | list[str],
-        date: ObservationDate | str,
-        entity_dcids: Literal["all"] | list[str] = "all",
-        entity_type: Optional[str] = None,
-        parent_entity: Optional[str] = None,
-    ):
-        """
+  @requires_pandas
+  def observations_dataframe(
+      self,
+      variable_dcids: str | list[str],
+      date: ObservationDate | str,
+      entity_dcids: Literal["all"] | list[str] = "all",
+      entity_type: Optional[str] = None,
+      parent_entity: Optional[str] = None,
+  ):
+    """
         Fetches statistical observations and returns them as a Pandas DataFrame.
 
         The Observation API fetches statistical observations linked to entities and variables
@@ -83,26 +83,24 @@ class DataCommonsClient:
             pd.DataFrame: A DataFrame containing the requested observations.
         """
 
-        if entity_dcids == "all" and not entity_type:
-            raise ValueError(
-                "When 'entity_dcids' is 'all', 'entity_type' must be specified."
-            )
+    if entity_dcids == "all" and not entity_type:
+      raise ValueError(
+          "When 'entity_dcids' is 'all', 'entity_type' must be specified.")
 
-        if entity_dcids != "all" and (entity_type or parent_entity):
-            raise ValueError(
-                "Specify 'entity_type' and 'parent_entity' only when 'entity_dcids' is 'all'."
-            )
+    if entity_dcids != "all" and (entity_type or parent_entity):
+      raise ValueError(
+          "Specify 'entity_type' and 'parent_entity' only when 'entity_dcids' is 'all'."
+      )
 
-        if entity_dcids == "all":
-            observations = self.observation.fetch_observations_by_entity_type(
-                variable_dcids=variable_dcids,
-                date=date,
-                entity_type=entity_type,
-                parent_entity=parent_entity,
-            )
-        else:
-            observations = self.observation.fetch_observations_by_entity(
-                variable_dcids=variable_dcids, date=date, entity_dcids=entity_dcids
-            )
+    if entity_dcids == "all":
+      observations = self.observation.fetch_observations_by_entity_type(
+          variable_dcids=variable_dcids,
+          date=date,
+          entity_type=entity_type,
+          parent_entity=parent_entity,
+      )
+    else:
+      observations = self.observation.fetch_observations_by_entity(
+          variable_dcids=variable_dcids, date=date, entity_dcids=entity_dcids)
 
-        return pd.DataFrame(observations.get_observations_as_records())
+    return pd.DataFrame(observations.get_observations_as_records())
