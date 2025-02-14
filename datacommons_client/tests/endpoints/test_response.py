@@ -1,7 +1,4 @@
-from datacommons_client.endpoints.response import _unpack_arcs
 from datacommons_client.endpoints.response import DCResponse
-from datacommons_client.endpoints.response import extract_observations
-from datacommons_client.endpoints.response import flatten_properties
 from datacommons_client.endpoints.response import NodeResponse
 from datacommons_client.endpoints.response import ObservationResponse
 from datacommons_client.endpoints.response import ResolveResponse
@@ -9,6 +6,9 @@ from datacommons_client.models.observation import Facet
 from datacommons_client.models.observation import Observation
 from datacommons_client.models.observation import OrderedFacets
 from datacommons_client.models.observation import Variable
+from datacommons_client.utils.data_processing import extract_observations
+from datacommons_client.utils.data_processing import flatten_properties
+from datacommons_client.utils.data_processing import unpack_arcs
 
 ### ----- Test DCResponse ----- ###
 
@@ -153,7 +153,7 @@ def test_unpack_arcs_multiple_properties():
       },  # Empty nodes for completeness
   }
 
-  result = _unpack_arcs(arcs)
+  result = unpack_arcs(arcs)
 
   # Expected output
   expected = {

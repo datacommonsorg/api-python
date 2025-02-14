@@ -12,6 +12,9 @@ from datacommons_client.models.observation import facetID
 from datacommons_client.models.observation import Variable
 from datacommons_client.models.observation import variableDCID
 from datacommons_client.models.resolve import Entity
+from datacommons_client.utils.data_processing import flatten_properties
+from datacommons_client.utils.data_processing import observations_as_records
+from datacommons_client.utils.data_processing import unpack_arcs
 
 
 @dataclass
@@ -71,55 +74,6 @@ class NodeResponse:
     return asdict(self)
 
 
-def flatten_properties(data: Dict[str, Any]) -> Dict[str, Any]:
-  """
-    Flatten the properties of a node response.
-
-    Processes a dictionary of node responses, extracting and
-    simplifying their properties and arcs into a flattened dictionary.
-
-    Args:
-        data (Dict[str, Dict[str, Any]]):
-            The input dictionary containing node responses. Each node maps to
-            a dictionary with potential "arcs" and "properties" keys.
-
-    Returns:
-        Dict[str, Any]:
-            A flattened dictionary where keys are node identifiers, and values
-            are the simplified properties or nodes.
-    """
-
-  # Store simplified properties
-  items = {}
-
-  for node, node_data in data.items():
-    # If arcs are present, process them
-    if hasattr(node_data, "arcs"):
-      processed_arcs = _unpack_arcs(node_data.arcs)
-      if processed_arcs is not None:
-        items[node] = processed_arcs
-        continue
-
-    # Include properties if present
-    if hasattr(node_data, "properties"):
-      items[node] = node_data.properties
-
-  return items
-
-
-def _unpack_arcs(arcs: Dict[str, Any]) -> Any:
-  """Simplify the 'arcs' structure."""
-  if len(arcs) > 1:
-    # Multiple arcs: return dictionary of property nodes
-    return {prop: arc_data["nodes"] for prop, arc_data in arcs.items()}
-
-  # Single arc: extract first node's data
-  for property_data in arcs.values():
-    nodes = property_data.nodes
-    if nodes is not None:
-      return nodes if len(nodes) > 1 else nodes[0]
-
-
 @dataclass
 class ObservationResponse:
   """Represents a response from the Observation endpoint of the Data Commons API.
@@ -168,61 +122,6 @@ class ObservationResponse:
         """
     return observations_as_records(data=self.get_data_by_entity(),
                                    facets=self.facets)
-
-
-def extract_observations(variable: str, entity: str, entity_data: dict,
-                         facet_metadata: dict) -> list[dict]:
-  """
-    Extracts observations for a given variable, entity, and its data.
-
-    Args:
-        variable (str): The variable name.
-        entity (str): The entity name.
-        entity_data (dict): Data for the entity, including ordered facets.
-        facet_metadata (dict): Metadata for facets.
-
-    Returns:
-        list[dict]: A list of observation records.
-    """
-  # Store observation records
-  records = []
-
-  # Extract observations
-  for facet in entity_data.get("orderedFacets", []):
-    facet_id = facet.facetId
-    metadata = facet_metadata.get(facet_id, {})
-    records.extend({
-        "date": observation.date,
-        "entity": entity,
-        "variable": variable,
-        "value": observation.value,
-        "facetId": facet_id,
-        **asdict(metadata),
-    } for observation in facet.observations)
-  return records
-
-
-def observations_as_records(data: dict, facets: dict) -> list[dict]:
-  """
-    Converts observation data into a list of records.
-
-    Args:
-        data (dict): A mapping of variables to entities and their data.
-        facets (dict): Facet metadata for the observations.
-
-    Returns:
-        list[dict]: A flattened list of observation records.
-    """
-  return [
-      record for variable, entities in data.items()
-      for entity, entity_data in entities.items()
-      for record in extract_observations(
-          variable=variable,
-          entity=entity,
-          entity_data=entity_data,
-          facet_metadata=facets,
-      )
-  ]
 
 
 @dataclass

@@ -105,7 +105,7 @@ class Variable:
                     OrderedFacets.from_json(facet_data)
                     for facet_data in entity_data.get("orderedFacets", {})
                 ]
-            } for entity, entity_data in json_data["byEntity"].items()
+            } for entity, entity_data in json_data.get("byEntity", {}).items()
         })
 
 
