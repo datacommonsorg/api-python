@@ -70,7 +70,9 @@ dependencies = [
 dependencies = [
     "pytest",
     "mock",
-    "pandas"
+    "pandas",
+    "isort",
+    "yapf"
 ]
 
 
