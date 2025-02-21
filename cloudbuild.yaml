@@ -1,7 +1,7 @@
 steps:
   - id: api_python
     name: python:3.10-slim
-    entrypoint: /bin/sh
+    entrypoint: /bin/bash
     args:
       - -c
       - "./run_test.sh -s && hatch run test:all"
