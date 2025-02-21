@@ -75,10 +75,10 @@ dependencies = [
 
 
 [tool.hatch.envs.test.scripts]
-setup = "sh ./run_test.sh -s"
-all = "sh ./run_test.sh -a"
-python = "sh ./run_test.sh -p"
-lint = "sh ./run_test.sh -l"
+setup = "./run_test.sh -s"
+all = "./run_test.sh -a"
+python = "./run_test.sh -p"
+lint = "./run_test.sh -l"
 
 [tool.hatch.envs.lint]
 dependencies = [
