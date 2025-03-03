@@ -24,9 +24,7 @@ import datacommons_client as dc
 For more detail on getting started with the API, please visit our
 [API Overview](https://docs.datacommons.org/api/).
 
-When you are ready to use the API, you can refer to `examples` for
-examples on how to use this package to perform various tasks. More tutorials and
-documentation can be found on our [tutorials page](https://docs.datacommons.org/tutorials/)!
+**Note: This package uses the V2 REST API and is in Beta. All of the existing tutorials and samples use V1. We will be updating all the documentation during this Beta.
 
 ## About Data Commons
 
