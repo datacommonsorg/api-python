@@ -69,7 +69,8 @@ def test_observations_dataframe_raises_error_when_entities_all_but_no_entity_typ
   """Tests that ValueError is raised if 'entities' is 'all' but 'entity_type' is not specified."""
   with pytest.raises(
       ValueError,
-      match="When 'entity_dcids' is 'all', 'entity_type' must be specified."):
+      match="When 'entity_dcids' is 'all', 'entity_type' must be specified.",
+  ):
     mock_client.observations_dataframe(variable_dcids="var1",
                                        date="2024",
                                        entity_dcids="all")
@@ -83,10 +84,12 @@ def test_observations_dataframe_raises_error_when_invalid_entity_type_usage(
       match="Specify 'entity_type' and 'parent_entity'"
       " only when 'entity_dcids' is 'all'.",
   ):
-    mock_client.observations_dataframe(variable_dcids="var1",
-                                       date="2024",
-                                       entity_dcids=["entity1"],
-                                       entity_type="Country")
+    mock_client.observations_dataframe(
+        variable_dcids="var1",
+        date="2024",
+        entity_dcids=["entity1"],
+        entity_type="Country",
+    )
 
 
 def test_observations_dataframe_calls_fetch_observations_by_entity_type(
@@ -95,11 +98,13 @@ def test_observations_dataframe_calls_fetch_observations_by_entity_type(
   mock_client.observation.fetch_observations_by_entity_type.return_value.get_observations_as_records.return_value = (
       [])
 
-  df = mock_client.observations_dataframe(variable_dcids=["var1", "var2"],
-                                          date="2024",
-                                          entity_dcids="all",
-                                          entity_type="Country",
-                                          parent_entity="Earth")
+  df = mock_client.observations_dataframe(
+      variable_dcids=["var1", "var2"],
+      date="2024",
+      entity_dcids="all",
+      entity_type="Country",
+      parent_entity="Earth",
+  )
 
   mock_client.observation.fetch_observations_by_entity_type.assert_called_once_with(
       variable_dcids=["var1", "var2"],
@@ -162,3 +167,16 @@ def test_observations_dataframe_returns_dataframe_with_expected_columns(
   assert df.iloc[1]["variable"] == "var2"
   assert df.iloc[1]["value"] == 200
   assert df.iloc[1]["unit"] == "unit2"
+
+
+@patch(
+    "datacommons_client.endpoints.base.check_instance_is_valid",
+    return_value="https://test.url",
+)
+def test_dc_instance_is_ignored_when_url_is_provided(mock_check_instance):
+  """Tests that dc_instance is ignored when a fully resolved URL is provided."""
+
+  client = DataCommonsClient(api_key="test_key", url="https://test.url")
+
+  # Check that the API base_url is set to the fully resolved url
+  assert client.api.base_url == "https://test.url"
