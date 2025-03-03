@@ -1,5 +1,5 @@
 [project]
-name = "datacommons_client"
+name = "datacommons-client"
 dynamic = ["version"]
 description = "A library to access Data Commons Python API."
 readme = "datacommons_client/README.md"
