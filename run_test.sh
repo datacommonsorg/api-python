@@ -20,17 +20,12 @@ FORMAT_INCLUDE_PATHS="datacommons/ datacommons_client/ datacommons_pandas/"
 FORMAT_EXCLUDE_PATH="**/.env/**"
 
 function setup_python {
-  python3 -m venv .env
-  source .env/bin/activate
-  pip install --upgrade pip
-  pip3 install -r requirements.txt -q
-  deactivate
+  python3 -m pip install --upgrade pip hatch
+  hatch env create
 }
 
 function run_py_test {
-  source .env/bin/activate
-  python3 -m pytest -vv
-  deactivate
+  pytest -vv
 }
 
 function run_yapf {
@@ -46,7 +41,6 @@ function run_isort {
 }
 
 function run_lint_test {
-  source .env/bin/activate
   if ! run_yapf --diff; then
     echo "Fix lint errors by running: ./run_test.sh -f"
     exit 1
@@ -55,15 +49,12 @@ function run_lint_test {
     echo "Fix Python import sort orders by running ./run_test.sh -f"
     exit 1
   fi
-  deactivate
   echo "Python style checks passed."
 }
 
 function run_lint_fix {
-  source .env/bin/activate
   run_yapf --in-place
   run_isort
-  deactivate
 }
 
 function run_all_tests {

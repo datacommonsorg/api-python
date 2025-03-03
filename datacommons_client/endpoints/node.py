@@ -3,8 +3,7 @@ from typing import Optional
 from datacommons_client.endpoints.base import API
 from datacommons_client.endpoints.base import Endpoint
 from datacommons_client.endpoints.payloads import NodeRequestPayload
-from datacommons_client.endpoints.payloads import \
-    normalize_properties_to_string
+from datacommons_client.endpoints.payloads import normalize_properties_to_string
 from datacommons_client.endpoints.response import NodeResponse
 
 

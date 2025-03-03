@@ -5,8 +5,7 @@ from datacommons_client.endpoints.payloads import ObservationDate
 from datacommons_client.endpoints.payloads import ObservationRequestPayload
 from datacommons_client.endpoints.payloads import ObservationSelect
 from datacommons_client.endpoints.payloads import ResolveRequestPayload
-from datacommons_client.utils.error_handling import \
-    InvalidObservationSelectError
+from datacommons_client.utils.error_handling import InvalidObservationSelectError
 
 
 def test_node_payload_normalize():

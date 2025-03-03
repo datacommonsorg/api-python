@@ -5,8 +5,7 @@ from dataclasses import field
 from enum import Enum
 from typing import Optional
 
-from datacommons_client.utils.error_handling import \
-    InvalidObservationSelectError
+from datacommons_client.utils.error_handling import InvalidObservationSelectError
 
 
 def normalize_properties_to_string(properties: str | list[str]) -> str:

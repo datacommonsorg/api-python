@@ -1,0 +1,109 @@
+[project]
+name = "datacommons-client"
+dynamic = ["version"]
+description = "A library to access Data Commons Python API."
+readme = "datacommons_client/README.md"
+authors = [
+    { name = "datacommons.org", email = "support@datacommons.org" },
+    { name = "one.org", email= "data@one.org"}
+]
+maintainers = [
+    { name = "datacommons.org", email = "support@datacommons.org" },
+    { name = "one.org", email = "data@one.org"}
+]
+license = { file = "LICENSE" }
+dependencies = [
+"requests>=2.32",
+"typing_extensions"
+]
+requires-python = ">=3.10"
+keywords = ["data commons", "api", "data", "development"]
+classifiers = [
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Topic :: Software Development"
+]
+urls = { "Homepage" = "https://github.com/datacommonsorg/api-python" }
+
+[project.optional-dependencies]
+pandas = ["pandas"]
+dev = [
+    "pytest",
+    "isort",
+    "yapf",
+    "mock",
+    "hatch"
+]
+
+[tool.hatch.version]
+path = "datacommons_client/__init__.py"
+
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "datacommons_client",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
+]
+
+[tool.hatch.build.targets.wheel]
+include = [
+    "datacommons_client"
+]
+
+[tool.hatch.envs.default]
+dependencies = [
+    "pytest",
+    "isort",
+    "yapf",
+    "hatch",
+]
+
+[tool.hatch.envs.test]
+dependencies = [
+    "pytest",
+    "mock",
+    "pandas",
+    "isort",
+    "yapf"
+]
+
+
+[tool.hatch.envs.test.scripts]
+setup = "./run_test.sh -s"
+all = "./run_test.sh -a"
+python = "./run_test.sh -p"
+lint = "./run_test.sh -l"
+
+[tool.hatch.envs.lint]
+dependencies = [
+    "isort",
+    "yapf"
+]
+
+[tool.hatch.envs.lint.scripts]
+check = "./run_test.sh -l"
+format = "./run_test.sh -f"
+
+[tool.hatch.envs.release]
+dependencies = [
+    "twine"
+]
+
+[tool.hatch.envs.release.scripts]
+localtest = "hatch build && twine check dist/*"
+testpypi = "hatch build && twine upload --repository testpypi dist/*"
+pypi = "hatch build && twine upload dist/*"
+tag = "git commit -am 'Bump version to {version}' && git tag v{version}"
+
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
