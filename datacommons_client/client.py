@@ -45,6 +45,11 @@ class DataCommonsClient:
             dc_instance (Optional[str]): The Data Commons instance to use. Defaults to "datacommons.org".
             url (Optional[str]): A custom, fully resolved URL for the Data Commons API. Defaults to None.
         """
+    # If a fully resolved URL is provided, and the default dc_instance is used,
+    # ignore that default value
+    if dc_instance == "datacommons.org" and url:
+      dc_instance = None
+
     # Create an instance of the API class which will be injected to the endpoints
     self.api = API(api_key=api_key, dc_instance=dc_instance, url=url)
 
