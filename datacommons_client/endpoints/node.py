@@ -169,7 +169,7 @@ class NodeEndpoint(Endpoint):
 
         Example:
             ```python
-            response = nod.fetch_all_classes()
+            response = node.fetch_all_classes()
             print(response)
             ```
         """
