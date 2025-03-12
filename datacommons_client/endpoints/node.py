@@ -83,7 +83,7 @@ class NodeEndpoint(Endpoint):
 
         Example:
             ```python
-            response = node.fetch_labels(node_dcids="geoId/06")
+            response = node.fetch_property_labels(node_dcids="geoId/06")
             print(response)
             ```
         """
