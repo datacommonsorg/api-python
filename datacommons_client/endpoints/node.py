@@ -43,11 +43,11 @@ class NodeEndpoint(Endpoint):
 
         Example:
             ```python
-            response = node_endpoint.fetch(
+            response = node.fetch(
                 node_dcids=["geoId/06"],
                 expression="<-"
             )
-            print(response.data)
+            print(response)
             ```
         """
 
@@ -83,8 +83,8 @@ class NodeEndpoint(Endpoint):
 
         Example:
             ```python
-            response = node_endpoint.fetch_properties(node_dcids="geoId/06")
-            print(response.data)
+            response = node.fetch_property_labels(node_dcids="geoId/06")
+            print(response)
             ```
         """
     # Determine the direction of the properties.
@@ -125,12 +125,12 @@ class NodeEndpoint(Endpoint):
 
         Example:
             ```python
-            response = node_endpoint.fetch_property_values(
+            response = node.fetch_property_values(
                 node_dcids=["geoId/06"],
                 properties="name",
                 out=True
             )
-            print(response.data)
+            print(response)
             ```
         """
 
@@ -169,8 +169,8 @@ class NodeEndpoint(Endpoint):
 
         Example:
             ```python
-            response = node_endpoint.fetch_all_classes()
-            print(response.data)
+            response = node.fetch_all_classes()
+            print(response)
             ```
         """
 
