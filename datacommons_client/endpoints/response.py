@@ -1,6 +1,7 @@
 from dataclasses import asdict
 from dataclasses import dataclass
 from dataclasses import field
+import json
 from typing import Any, Dict, List
 
 from datacommons_client.models.node import Arcs
@@ -69,9 +70,29 @@ class NodeResponse:
   def get_properties(self) -> Dict:
     return flatten_properties(self.data)
 
-  @property
-  def json(self):
-    return asdict(self)
+  def to_dict(self, exclude_none: bool = True) -> Dict[str, Any]:
+    """Converts the NodeResponse instance to a dictionary.
+
+        Args:
+            exclude_none: If True, only include non-empty values in the response. Defaults to True.
+
+        Returns:
+            Dict[str, Any]: The dictionary representation of the NodeResponse instance
+        """
+    return _to_dict(self, exclude_none=exclude_none)
+
+  def to_json(self, exclude_none: bool = True) -> str:
+    """Converts the NodeResponse instance to a JSON string.
+
+        Args:
+            exclude_none: If True, only include non-empty values in the response. Defaults to True.
+
+        Returns:
+            str: The JSON string representation of the NodeResponse instance
+
+        """
+
+    return json.dumps(self.to_dict(exclude_none=exclude_none), indent=2)
 
 
 @dataclass
@@ -100,10 +121,6 @@ class ObservationResponse:
         },
     )
 
-  @property
-  def json(self):
-    return asdict(self)
-
   def get_data_by_entity(self) -> Dict:
     """Unpacks the data for each entity, for each variable.
 
@@ -122,6 +139,31 @@ class ObservationResponse:
         """
     return observations_as_records(data=self.get_data_by_entity(),
                                    facets=self.facets)
+
+  def to_dict(self, exclude_none: bool = True) -> Dict[str, Any]:
+    """Converts the ObservationResponse instance to a dictionary.
+
+        Args:
+            exclude_none: If True, only include non-empty values in the response. Defaults to True.
+
+        Returns:
+            Dict[str, Any]: The dictionary representation of the ObservationResponse instance
+        """
+
+    return _to_dict(self, exclude_none=exclude_none)
+
+  def to_json(self, exclude_none: bool = True) -> str:
+    """Converts the ObservationResponse instance to a JSON string.
+
+        Args:
+            exclude_none: If True, only include non-empty values in the response. Defaults to True.
+
+        Returns:
+            str: The JSON string representation of the ObservationResponse instance
+
+        """
+
+    return json.dumps(self.to_dict(exclude_none=exclude_none), indent=2)
 
 
 @dataclass
@@ -150,14 +192,26 @@ class ResolveResponse:
         Entity.from_json(entity) for entity in json_data.get("entities", [])
     ])
 
-  @property
-  def json(self):
+  def to_dict(self, exclude_none: bool = True) -> Dict[str, Any]:
     """Converts the ResolveResponse instance to a dictionary.
 
-        This is useful for serializing the response data back into a JSON-compatible
-        format.
+        Args:
+            exclude_none: If True, only include non-empty values in the response. Defaults to True.
 
         Returns:
-            Dict[str, Any]: The dictionary representation of the ResolveResponse instance.
+            Dict[str, Any]: The dictionary representation of the ResolveResponse instance
         """
-    return asdict(self)
+    return _to_dict(self, exclude_none=exclude_none)
+
+  def to_json(self, exclude_none: bool = True) -> str:
+    """Converts the ResolveResponse instance to a JSON string.
+
+        Args:
+            exclude_none: If True, only include non-empty values in the response. Defaults to True.
+
+        Returns:
+            str: The JSON string representation of the ResolveResponse instance
+
+        """
+
+    return json.dumps(self.to_dict(exclude_none=exclude_none), indent=2)
