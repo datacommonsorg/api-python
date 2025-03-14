@@ -36,7 +36,11 @@ def _to_dict(dc_response, exclude_none: bool) -> Dict[str, Any]:
     """Recursively removes an empty value from a dictionary."""
 
     if isinstance(data, dict):
-      return {k: _remove_none(v) for k, v in data.items() if v}
+      return {
+          k: _remove_none(v)
+          for k, v in data.items()
+          if v is not None and v != []
+      }
 
     elif isinstance(data, list):
       return [_remove_none(item) for item in data]
