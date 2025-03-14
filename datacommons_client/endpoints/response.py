@@ -50,6 +50,7 @@ def _to_dict(dc_response, exclude_none: bool) -> Dict[str, Any]:
   # Remove empty values from the dictionary if exclude_none is True.
   return _remove_none(response) if exclude_none else response
 
+
 @dataclass
 class DCResponse:
   """Represents a structured response from the Data Commons API."""
