@@ -15,8 +15,40 @@ from datacommons_client.models.observation import variableDCID
 from datacommons_client.models.resolve import Entity
 from datacommons_client.utils.data_processing import flatten_properties
 from datacommons_client.utils.data_processing import observations_as_records
-from datacommons_client.utils.data_processing import unpack_arcs
 
+
+def _to_dict(dc_response, exclude_none: bool) -> Dict[str, Any]:
+  """Converts the DCResponse instance to a dictionary.
+
+    This is useful for serializing the response data back into a JSON-compatible
+    format.
+
+    Args:
+        dc_response: The DCResponse instance to convert to a dictionary.
+        exclude_none: If True, only include non-empty values in the response.
+
+    Returns:
+        Dict[str, Any]: The dictionary representation of the DCResponse instance.
+    """
+
+  def _remove_none(
+      data: List[Dict[str, Any]] | Dict[str, Any]) -> List | Dict[str, Any]:
+    """Recursively removes an empty value from a dictionary."""
+
+    if isinstance(data, dict):
+      return {k: _remove_none(v) for k, v in data.items() if v}
+
+    elif isinstance(data, list):
+      return [_remove_none(item) for item in data]
+
+    else:
+      return data
+
+  # Convert the DCResponse instance to a dictionary.
+  response = asdict(dc_response)
+
+  # Remove empty values from the dictionary if exclude_none is True.
+  return _remove_none(response) if exclude_none else response
 
 @dataclass
 class DCResponse:
