@@ -8,8 +8,7 @@ authors = [
     { name = "one.org", email= "data@one.org"}
 ]
 maintainers = [
-    { name = "datacommons.org", email = "support@datacommons.org" },
-    { name = "one.org", email = "data@one.org"}
+    { name = "datacommons.org", email = "support@datacommons.org" }
 ]
 license = { file = "LICENSE" }
 dependencies = [
