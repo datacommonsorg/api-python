@@ -601,55 +601,55 @@ def test_resolve_response_dict_exclude_none():
   """Test that ResolveResponse.to_dict and json are consistent."""
   # Input dictionary
   input_data = {
-      "entities": [
-          {
-              "node":
-                  "entity1",
-              "candidates": [
-                  {
-                      "dcid": "dcid1",
-                      "dominantType": "Type1"
-                  },
-                  {
-                      "dcid": "dcid2",
-                      "dominantType": None
-                  },
-              ],
-          },
-          {
-              "node": "entity2",
-              "candidates": [{
-                  "dcid": "dcid3",
-                  "dominantType": "Type2"
-              },],
-          },
-      ]
+      "entities": [{
+          "node":
+              "entity1",
+          "candidates": [
+              {
+                  "dcid": "dcid1",
+                  "dominantType": "Type1"
+              },
+              {
+                  "dcid": "dcid2",
+                  "dominantType": None
+              },
+          ],
+      }, {
+          "node": "entity2",
+          "candidates": [{
+              "dcid": "dcid3",
+              "dominantType": "Type2"
+          },],
+      }, {
+          "node": "entity3",
+          "candidates": [],
+      }]
   }
 
   # Expected data
   expected_data = {
-      "entities": [
-          {
-              "node":
-                  "entity1",
-              "candidates": [
-                  {
-                      "dcid": "dcid1",
-                      "dominantType": "Type1"
-                  },
-                  {
-                      "dcid": "dcid2"
-                  },
-              ],
-          },
-          {
-              "node": "entity2",
-              "candidates": [{
-                  "dcid": "dcid3",
-                  "dominantType": "Type2"
-              },],
-          },
-      ]
+      "entities": [{
+          "node":
+              "entity1",
+          "candidates": [
+              {
+                  "dcid": "dcid1",
+                  "dominantType": "Type1"
+              },
+              {
+                  "dcid": "dcid2"
+              },
+          ],
+      }, {
+          "node": "entity2",
+          "candidates": [{
+              "dcid": "dcid3",
+              "dominantType": "Type2"
+          },],
+      }, {
+          "node": "entity3",
+          "candidates": [],
+      }]
   }
 
   # Create ResolveResponse from the dictionary
@@ -687,6 +687,10 @@ def test_resolve_response_json_string_exclude_none():
                   "dcid": "dcid3",
                   "dominantType": "Type2"
               },],
+          },
+          {
+              "node": "entity3",
+              "candidates": [],
           },
       ]
   }
