@@ -1,3 +1,5 @@
+import json
+
 from datacommons_client.endpoints.response import DCResponse
 from datacommons_client.endpoints.response import NodeResponse
 from datacommons_client.endpoints.response import ObservationResponse
@@ -78,7 +80,48 @@ def test_node_as_dict():
   }
 
   response = NodeResponse.from_json(json_data)
-  result = response.json
+  result = response.to_dict()
+
+  assert result == json_data
+
+
+def test_node_as_dict_exclude_none():
+  """Test that the NodeResponse.json property returns the correct dictionary."""
+  json_data = {
+      "data": {
+          "geoId/06": {
+              "properties": None
+          }
+      },
+      "nextToken": "token123",
+  }
+
+  expected = {
+      "data": {
+          "geoId/06": {}
+      },
+      "nextToken": "token123",
+  }
+
+  response = NodeResponse.from_json(json_data)
+  result = response.to_dict(exclude_none=True)
+
+  assert result == expected
+
+
+def test_node_as_dict_include_none():
+  """Test that the NodeResponse.json property returns the correct dictionary."""
+  json_data = {
+      "data": {
+          "geoId/06": {
+              "properties": None
+          }
+      },
+      "nextToken": "token123",
+  }
+
+  response = NodeResponse.from_json(json_data)
+  result = response.to_dict(exclude_none=False)
 
   assert result == json_data
 
@@ -238,12 +281,44 @@ def test_observation_as_dict():
   response = ObservationResponse.from_json(json_data)
 
   # Getting it back as a dictionary
-  result = response.json
+  result = response.to_dict()
 
   assert "byVariable" in result
   assert "facets" in result
   assert "var1" in result["byVariable"]
   assert "entity1" in result["byVariable"]["var1"]["byEntity"]
+
+
+def test_observation_as_dict_exclude_none():
+  """Test that the ObservationResponse.json property returns the correct dictionary."""
+  json_data = {
+      "byVariable": {
+          "var1": {
+              "byEntity": {
+                  "entity1": {
+                      "orderedFacets": [{
+                          "facetId": "facet1"
+                      }]
+                  }
+              }
+          }
+      },
+      "facets": {
+          "facet1": {
+              "unit": "GTQ",
+              "importName": "Import Name",
+          }
+      },
+  }
+
+  # Parsing JSON data
+  response = ObservationResponse.from_json(json_data)
+
+  # Getting it back as a dictionary
+  result = response.to_dict(exclude_none=True)
+
+  assert ("latestDate" not in result["byVariable"]["var1"]["byEntity"]
+          ["entity1"]["orderedFacets"][0])
 
 
 def test_observation_response_from_json():
@@ -483,8 +558,8 @@ def test_resolve_response_from_json():
   assert entity2.candidates[0].dominantType == "Type2"
 
 
-def test_resolve_response_json():
-  """Test that ResolveResponse.from_json and json are consistent."""
+def test_resolve_response_dict():
+  """Test that ResolveResponse.to_dict and json are consistent."""
   # Input dictionary
   input_data = {
       "entities": [
@@ -516,7 +591,118 @@ def test_resolve_response_json():
   response = ResolveResponse.from_json(input_data)
 
   # Convert back to dictionary using the json property
-  result = response.json
+  result = response.to_dict(exclude_none=False)
 
   # Assert that the resulting dictionary matches the original input
   assert result == input_data
+
+
+def test_resolve_response_dict_exclude_none():
+  """Test that ResolveResponse.to_dict and json are consistent."""
+  # Input dictionary
+  input_data = {
+      "entities": [{
+          "node":
+              "entity1",
+          "candidates": [
+              {
+                  "dcid": "dcid1",
+                  "dominantType": "Type1"
+              },
+              {
+                  "dcid": "dcid2",
+                  "dominantType": None
+              },
+          ],
+      }, {
+          "node": "entity2",
+          "candidates": [{
+              "dcid": "dcid3",
+              "dominantType": "Type2"
+          },],
+      }, {
+          "node": "entity3",
+          "candidates": [],
+      }]
+  }
+
+  # Expected data
+  expected_data = {
+      "entities": [{
+          "node":
+              "entity1",
+          "candidates": [
+              {
+                  "dcid": "dcid1",
+                  "dominantType": "Type1"
+              },
+              {
+                  "dcid": "dcid2"
+              },
+          ],
+      }, {
+          "node": "entity2",
+          "candidates": [{
+              "dcid": "dcid3",
+              "dominantType": "Type2"
+          },],
+      }, {
+          "node": "entity3",
+          "candidates": [],
+      }]
+  }
+
+  # Create ResolveResponse from the dictionary
+  response = ResolveResponse.from_json(input_data)
+
+  # Convert back to dictionary using the json property
+  result = response.to_dict(exclude_none=True)
+
+  # Assert that the resulting dictionary matches the original input
+  assert result == expected_data
+
+
+def test_resolve_response_json_string_exclude_none():
+  """Test that ResolveResponse.to_dict and json are consistent."""
+  # Input dictionary
+  input_data = {
+      "entities": [
+          {
+              "node":
+                  "entity1",
+              "candidates": [
+                  {
+                      "dcid": "dcid1",
+                      "dominantType": "Type1"
+                  },
+                  {
+                      "dcid": "dcid2",
+                      "dominantType": None
+                  },
+              ],
+          },
+          {
+              "node": "entity2",
+              "candidates": [{
+                  "dcid": "dcid3",
+                  "dominantType": "Type2"
+              },],
+          },
+          {
+              "node": "entity3",
+              "candidates": [],
+          },
+      ]
+  }
+
+  # Expected data
+  expected = json.dumps(input_data, indent=2)
+
+  # Create ResolveResponse from the dictionary
+  response = ResolveResponse.from_json(input_data)
+
+  # Convert back to dictionary using the json property
+  result = response.to_json(exclude_none=False)
+
+  # Assert that the resulting dictionary matches the original input
+  assert result == expected
