@@ -64,7 +64,8 @@ class ResolveEndpoint(Endpoint):
   def fetch(self, node_ids: str | list[str],
             expression: str | list[str]) -> ResolveResponse:
     """
-        Fetches resolved data for the given nodes and expressions.
+        Fetches resolved data for the given nodes and expressions, identified by name,
+         coordinates, or wiki ID.
 
         Args:
             node_ids (str | list[str]): One or more node IDs to resolve.
