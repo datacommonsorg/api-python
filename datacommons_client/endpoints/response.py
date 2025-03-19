@@ -1,6 +1,7 @@
 from dataclasses import asdict
 from dataclasses import dataclass
 from dataclasses import field
+import json
 from typing import Any, Dict, List
 
 from datacommons_client.models.node import Arcs
@@ -14,11 +15,46 @@ from datacommons_client.models.observation import variableDCID
 from datacommons_client.models.resolve import Entity
 from datacommons_client.utils.data_processing import flatten_properties
 from datacommons_client.utils.data_processing import observations_as_records
-from datacommons_client.utils.data_processing import unpack_arcs
+
+
+class SerializableMixin:
+  """Provides serialization methods for the Response dataclasses."""
+
+  def to_dict(self, exclude_none: bool = True) -> Dict[str, Any]:
+    """Converts the instance to a dictionary.
+
+        Args:
+            exclude_none: If True, only include non-empty values in the response.
+
+        Returns:
+            Dict[str, Any]: The dictionary representation of the instance.
+        """
+
+    def _remove_none(data: Any) -> Any:
+      """Recursively removes None or empty values from a dictionary or list."""
+      if isinstance(data, dict):
+        return {k: _remove_none(v) for k, v in data.items() if v is not None}
+      elif isinstance(data, list):
+        return [_remove_none(item) for item in data]
+      return data
+
+    result = asdict(self)
+    return _remove_none(result) if exclude_none else result
+
+  def to_json(self, exclude_none: bool = True) -> str:
+    """Converts the instance to a JSON string.
+
+        Args:
+            exclude_none: If True, only include non-empty values in the response.
+
+        Returns:
+            str: The JSON string representation of the instance.
+        """
+    return json.dumps(self.to_dict(exclude_none=exclude_none), indent=2)
 
 
 @dataclass
-class DCResponse:
+class DCResponse(SerializableMixin):
   """Represents a structured response from the Data Commons API."""
 
   json: Dict[str, Any] = field(default_factory=dict)
@@ -33,7 +69,7 @@ class DCResponse:
 
 
 @dataclass
-class NodeResponse:
+class NodeResponse(SerializableMixin):
   """Represents a response from the Node endpoint of the Data Commons API.
 
     Attributes:
@@ -69,13 +105,9 @@ class NodeResponse:
   def get_properties(self) -> Dict:
     return flatten_properties(self.data)
 
-  @property
-  def json(self):
-    return asdict(self)
-
 
 @dataclass
-class ObservationResponse:
+class ObservationResponse(SerializableMixin):
   """Represents a response from the Observation endpoint of the Data Commons API.
 
     Attributes:
@@ -100,10 +132,6 @@ class ObservationResponse:
         },
     )
 
-  @property
-  def json(self):
-    return asdict(self)
-
   def get_data_by_entity(self) -> Dict:
     """Unpacks the data for each entity, for each variable.
 
@@ -125,7 +153,7 @@ class ObservationResponse:
 
 
 @dataclass
-class ResolveResponse:
+class ResolveResponse(SerializableMixin):
   """Represents a response from the Resolve endpoint of the Data Commons API.
 
     Attributes:
@@ -149,15 +177,3 @@ class ResolveResponse:
     return cls(entities=[
         Entity.from_json(entity) for entity in json_data.get("entities", [])
     ])
-
-  @property
-  def json(self):
-    """Converts the ResolveResponse instance to a dictionary.
-
-        This is useful for serializing the response data back into a JSON-compatible
-        format.
-
-        Returns:
-            Dict[str, Any]: The dictionary representation of the ResolveResponse instance.
-        """
-    return asdict(self)

@@ -12,7 +12,7 @@ def test_fetch():
   api_mock = MagicMock(spec=API)
   endpoint = ResolveEndpoint(api=api_mock)
 
-  response = endpoint.fetch(node_dcids="Node1", expression="some_expression")
+  response = endpoint.fetch(node_ids="Node1", expression="some_expression")
 
   # Check the response
   assert isinstance(response, ResolveResponse)

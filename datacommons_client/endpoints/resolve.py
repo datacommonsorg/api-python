@@ -61,24 +61,25 @@ class ResolveEndpoint(Endpoint):
     """Initializes the ResolveEndpoint instance."""
     super().__init__(endpoint="resolve", api=api)
 
-  def fetch(self, node_dcids: str | list[str],
+  def fetch(self, node_ids: str | list[str],
             expression: str | list[str]) -> ResolveResponse:
     """
-        Fetches resolved data for the given nodes and expressions.
+        Fetches resolved data for the given nodes and expressions, identified by name,
+         coordinates, or wiki ID.
 
         Args:
-            node_dcids (str | list[str]): One or more node IDs to resolve.
+            node_ids (str | list[str]): One or more node IDs to resolve.
             expression (str): The relation expression to query.
 
         Returns:
             ResolveResponse: The response object containing the resolved data.
         """
-    # Check if the node_dcids is a single string. If so, convert it to a list.
-    if isinstance(node_dcids, str):
-      node_dcids = [node_dcids]
+    # Check if the node_ids is a single string. If so, convert it to a list.
+    if isinstance(node_ids, str):
+      node_ids = [node_ids]
 
     # Construct the payload
-    payload = ResolveRequestPayload(node_dcids=node_dcids,
+    payload = ResolveRequestPayload(node_dcids=node_ids,
                                     expression=expression).to_dict
 
     # Send the request and return the response
@@ -102,7 +103,7 @@ class ResolveEndpoint(Endpoint):
                                                     to_type="dcid",
                                                     entity_type=entity_type)
 
-    return self.fetch(node_dcids=names, expression=expression)
+    return self.fetch(node_ids=names, expression=expression)
 
   def fetch_dcid_by_wikidata_id(
       self,
@@ -122,7 +123,7 @@ class ResolveEndpoint(Endpoint):
                                                     to_type="dcid",
                                                     entity_type=entity_type)
 
-    return self.fetch(node_dcids=wikidata_id, expression=expression)
+    return self.fetch(node_ids=wikidata_id, expression=expression)
 
   def fetch_dcid_by_coordinates(
       self,
@@ -159,7 +160,7 @@ class ResolveEndpoint(Endpoint):
                                                     to_type="dcid",
                                                     entity_type=entity_type)
     coordinates = f"{latitude}#{longitude}"
-    return self.fetch(node_dcids=coordinates, expression=expression)
+    return self.fetch(node_ids=coordinates, expression=expression)
 
   def fetch_entity_type_correspondence(
       self,
@@ -183,4 +184,4 @@ class ResolveEndpoint(Endpoint):
     expression = _resolve_correspondence_expression(from_type=from_type,
                                                     to_type=to_type,
                                                     entity_type=entity_type)
-    return self.fetch(node_dcids=entities, expression=expression)
+    return self.fetch(node_ids=entities, expression=expression)
