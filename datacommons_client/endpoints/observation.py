@@ -54,8 +54,8 @@ class ObservationEndpoint(Endpoint):
         select=select,
         entity_dcids=entity_dcids,
         entity_expression=entity_expression,
-        domains_filter=domains_filter,
-        facets_filter=facets_filter,
+        filter_facet_domains=domains_filter,
+        filter_facet_ids=facets_filter,
     ).to_dict
 
     # Send the request

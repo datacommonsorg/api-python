@@ -38,13 +38,13 @@ def test_observation_payload_normalize():
       variable_dcids="var1",
       select=["variable", "entity"],
       entity_dcids="ent1",
-      domains_filter="domain1",
-      facets_filter="facets1",
+      filter_facet_domains="domain1",
+      filter_facet_ids="facets1",
   )
   assert payload.variable_dcids == ["var1"]
   assert payload.entity_dcids == ["ent1"]
-  assert payload.domains_filter == ["domain1"]
-  assert payload.facets_filter == ["facets1"]
+  assert payload.filter_facet_domains == ["domain1"]
+  assert payload.filter_facet_ids == ["facets1"]
   assert payload.date == ObservationDate.LATEST
 
   assert "filter" in payload.to_dict
@@ -111,7 +111,7 @@ def test_observation_payload_to_dict():
       variable_dcids="var1",
       select=["variable", "entity"],
       entity_dcids="ent1",
-      facets_filter="facets1",
+      filter_facet_ids="facets1",
   )
   assert payload.to_dict == {
       "date": ObservationDate.LATEST,
