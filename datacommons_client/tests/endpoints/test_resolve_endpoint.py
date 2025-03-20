@@ -91,30 +91,6 @@ def test_fetch_dcid_by_coordinates():
                                         next_token=None)
 
 
-def test_fetch_from_type_to_type():
-  """Tests the fetch_from_type_to_type method."""
-  # Mock the API
-  api_mock = MagicMock(spec=API)
-  endpoint = ResolveEndpoint(api=api_mock)
-
-  response = endpoint.fetch_entity_type_correspondence(entities="Node1",
-                                                       from_type="type1",
-                                                       to_type="type2",
-                                                       entity_type="Place")
-
-  # Check the response
-  assert isinstance(response, ResolveResponse)
-
-  # Check the post request
-  api_mock.post.assert_called_once_with(payload={
-      "nodes": ["Node1"],
-      "property": "<-type1{typeOf:Place}->type2",
-  },
-                                        endpoint="resolve",
-                                        all_pages=True,
-                                        next_token=None)
-
-
 def test_resolve_correspondence_expression():
   """Tests the resolve_correspondence_expression function."""
   expression = _resolve_correspondence_expression(from_type="description",

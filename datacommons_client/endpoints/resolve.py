@@ -161,27 +161,3 @@ class ResolveEndpoint(Endpoint):
                                                     entity_type=entity_type)
     coordinates = f"{latitude}#{longitude}"
     return self.fetch(node_ids=coordinates, expression=expression)
-
-  def fetch_entity_type_correspondence(
-      self,
-      entities: str | list[str],
-      from_type: str,
-      to_type: str,
-      entity_type: str | None = None,
-  ) -> ResolveResponse:
-    """
-        Fetches the correspondence between entities of two types.
-
-        Args:
-            entities (str | list[str]): The entities to resolve.
-            from_type (str): The source entity type.
-            to_type (str): The target entity type.
-            entity_type (Optional[str]): Optional type of the entities.
-
-        Returns:
-            ResolveResponse: The response object containing the resolved correspondence.
-        """
-    expression = _resolve_correspondence_expression(from_type=from_type,
-                                                    to_type=to_type,
-                                                    entity_type=entity_type)
-    return self.fetch(node_ids=entities, expression=expression)
