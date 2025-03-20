@@ -1,4 +1,5 @@
 import json
+from unittest.mock import MagicMock
 
 from datacommons_client.endpoints.response import DCResponse
 from datacommons_client.endpoints.response import NodeResponse
@@ -825,3 +826,34 @@ def test_get_facets_metadata():
   }
 
   assert result == expected
+
+
+def test_find_matching_facet_id():
+  """Tests that find_matching_facet_id correctly finds facet IDs matching a given property and value."""
+  mock_response = ObservationResponse(byVariable={}, facets={})
+  mock_response.get_facets_metadata = MagicMock(
+      return_value={
+          "statvar1": {
+              "facet1": {
+                  "measurementMethod": "Census"
+              },
+              "facet2": {
+                  "measurementMethod": "Survey"
+              },
+          },
+          "statvar2": {
+              "facet3": {
+                  "unit": "USD"
+              },
+          },
+      })
+
+  result = mock_response.find_matching_facet_id("measurementMethod", "Census")
+  assert result == ["facet1"]
+
+  result = mock_response.find_matching_facet_id("unit", "USD")
+  assert result == ["facet3"]
+
+  result = mock_response.find_matching_facet_id("measurementMethod",
+                                                "Nonexistent")
+  assert result == []

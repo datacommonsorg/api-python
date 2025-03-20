@@ -69,7 +69,7 @@ def test_observation_select_invalid_value():
   with pytest.raises(
       InvalidObservationSelectError,
       match=
-      r"Invalid `select` field: 'invalid'. Only date, variable, entity, value are allowed.",
+      r"Invalid `select` field: 'invalid'. Only date, variable, entity, value, facet are allowed.",
   ):
     ObservationSelect("invalid")
 
