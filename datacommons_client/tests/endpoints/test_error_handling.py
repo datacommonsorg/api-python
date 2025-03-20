@@ -7,6 +7,7 @@ from datacommons_client.utils.error_handling import DCAuthenticationError
 from datacommons_client.utils.error_handling import DCConnectionError
 from datacommons_client.utils.error_handling import DCStatusError
 from datacommons_client.utils.error_handling import InvalidDCInstanceError
+from datacommons_client.utils.error_handling import NoDataForPropertyError
 
 
 def test_data_commons_error_default_message():
@@ -58,6 +59,9 @@ def test_subclass_default_messages():
 
   instance_error = InvalidDCInstanceError()
   assert InvalidDCInstanceError.default_message in str(instance_error)
+
+  filter_error = NoDataForPropertyError()
+  assert NoDataForPropertyError.default_message in str(filter_error)
 
 
 def test_subclass_custom_message():

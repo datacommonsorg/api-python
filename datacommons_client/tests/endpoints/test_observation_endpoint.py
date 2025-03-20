@@ -48,26 +48,26 @@ def test_fetch_latest_observation():
 
   response = endpoint.fetch_latest_observations(
       variable_dcids=["dc/Variable1", "dc/Variable2"],
+      select=["date", "variable", "entity", "value"],
       entity_dcids="dc/EntityID")
 
   # Check the response
   assert isinstance(response, ObservationResponse)
 
   # Check the post request
-  api_mock.post.assert_called_once_with(
-      payload={
-          "variable": {
-              "dcids": ["dc/Variable1", "dc/Variable2"]
-          },
-          "date": ObservationDate.LATEST,
-          "entity": {
-              "dcids": ["dc/EntityID"]
-          },
-          "select": ["date", "variable", "entity", "value"],  # Default select
+  api_mock.post.assert_called_once_with(payload={
+      "date": ObservationDate.LATEST,
+      "variable": {
+          "dcids": ["dc/Variable1", "dc/Variable2"]
       },
-      endpoint="observation",
-      all_pages=True,
-      next_token=None)
+      "entity": {
+          "dcids": ["dc/EntityID"]
+      },
+      "select": ["date", "variable", "entity", "value"],
+  },
+                                        endpoint="observation",
+                                        all_pages=True,
+                                        next_token=None)
 
 
 def test_fetch_latest_observations_by_entity():
@@ -78,6 +78,7 @@ def test_fetch_latest_observations_by_entity():
   response = endpoint.fetch_latest_observations_by_entity(
       variable_dcids="dc/VariableID",
       entity_dcids=["dc/Entity1", "dc/Entity2"],
+      select=["date", "variable", "entity", "value"],
       filter_facet_ids="facet1")
 
   # Check the response
@@ -85,10 +86,10 @@ def test_fetch_latest_observations_by_entity():
 
   # Check the post request
   api_mock.post.assert_called_once_with(payload={
+      "date": ObservationDate.LATEST,
       "variable": {
           "dcids": ["dc/VariableID"]
       },
-      "date": ObservationDate.LATEST,
       "entity": {
           "dcids": ["dc/Entity1", "dc/Entity2"]
       },
@@ -111,6 +112,7 @@ def test_fetch_observations_by_entity_type():
       date="2023",
       parent_entity="Earth",
       entity_type="Country",
+      select=["variable", "entity", "facet"],
       variable_dcids="dc/VariableID")
 
   # Check the response
@@ -118,14 +120,46 @@ def test_fetch_observations_by_entity_type():
 
   # Check the post request
   api_mock.post.assert_called_once_with(payload={
+      "date": "2023",
       "variable": {
           "dcids": ["dc/VariableID"]
       },
-      "date": "2023",
       "entity": {
           "expression": "Earth<-containedInPlace+{typeOf:Country}"
       },
-      "select": ["date", "variable", "entity", "value"],
+      "select": ["variable", "entity", "facet"],
+  },
+                                        endpoint="observation",
+                                        all_pages=True,
+                                        next_token=None)
+
+
+def test_fetch_observations_facets_by_entity_type():
+  """Tests the fetch_observations_by_entity_type method."""
+  api_mock = MagicMock(spec=API)
+  endpoint = ObservationEndpoint(api=api_mock)
+
+  response = endpoint.fetch_observations_by_entity_type(
+      date="2023",
+      parent_entity="Earth",
+      entity_type="Country",
+      variable_dcids="dc/VariableID",
+      select=["variable", "entity", "facet"],
+  )
+
+  # Check the response
+  assert isinstance(response, ObservationResponse)
+
+  # Check the post request
+  api_mock.post.assert_called_once_with(payload={
+      "date": "2023",
+      "variable": {
+          "dcids": ["dc/VariableID"]
+      },
+      "entity": {
+          "expression": "Earth<-containedInPlace+{typeOf:Country}"
+      },
+      "select": ["variable", "entity", "facet"],
   },
                                         endpoint="observation",
                                         all_pages=True,

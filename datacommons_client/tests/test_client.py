@@ -10,6 +10,7 @@ from datacommons_client.endpoints.base import API
 from datacommons_client.endpoints.node import NodeEndpoint
 from datacommons_client.endpoints.observation import ObservationEndpoint
 from datacommons_client.endpoints.resolve import ResolveEndpoint
+from datacommons_client.utils.error_handling import NoDataForPropertyError
 
 
 @pytest.fixture
@@ -107,10 +108,11 @@ def test_observations_dataframe_calls_fetch_observations_by_entity_type(
   )
 
   mock_client.observation.fetch_observations_by_entity_type.assert_called_once_with(
-      variable_dcids=["var1", "var2"],
       date="2024",
+      variable_dcids=["var1", "var2"],
       entity_type="Country",
       parent_entity="Earth",
+      filter_facet_ids=None,
   )
 
   assert isinstance(df, pd.DataFrame)
@@ -128,7 +130,10 @@ def test_observations_dataframe_calls_fetch_observations_by_entity(mock_client):
                                           entity_dcids=["entity1", "entity2"])
 
   mock_client.observation.fetch_observations_by_entity.assert_called_once_with(
-      variable_dcids="var1", date="latest", entity_dcids=["entity1", "entity2"])
+      date="latest",
+      entity_dcids=["entity1", "entity2"],
+      variable_dcids="var1",
+      filter_facet_ids=None)
 
   assert isinstance(df, pd.DataFrame)
   assert df.empty
@@ -180,3 +185,75 @@ def test_dc_instance_is_ignored_when_url_is_provided(mock_check_instance):
 
   # Check that the API base_url is set to the fully resolved url
   assert client.api.base_url == "https://test.url"
+
+
+def test_find_filter_facet_ids_returns_none_when_no_filters(mock_client):
+  """Tests that _find_filter_facet_ids returns None when no filters are provided."""
+  result = mock_client._find_filter_facet_ids(fetch_by="entity",
+                                              date="2024",
+                                              variable_dcids="var1",
+                                              property_filters=None)
+  assert result is None
+
+
+def test_find_filter_facet_ids_returns_facet_ids(mock_client):
+  """Tests that _find_filter_facet_ids correctly returns facet IDs when filters are provided."""
+  mock_client.observation.fetch_observations_by_entity.return_value.find_matching_facet_id.side_effect = [
+      ["213"], ["3243"]
+  ]
+
+  result = mock_client._find_filter_facet_ids(
+      fetch_by="entity",
+      date="2024",
+      variable_dcids="var1",
+      property_filters={
+          "measurementMethod": "Census",
+          "unit": "USD"
+      },
+  )
+
+  assert set(result) == {"213", "3243"}
+
+
+def test_observations_dataframe_filters_by_facet_ids(mock_client):
+  """Tests that observations_dataframe includes facet filtering when property_filters are used."""
+  mock_client._find_filter_facet_ids = MagicMock(
+      return_value=["facet_1", "facet_2"])
+  mock_client.observation.fetch_observations_by_entity.return_value.get_observations_as_records.return_value = []
+
+  df = mock_client.observations_dataframe(
+      variable_dcids="var1",
+      date="2024",
+      entity_dcids=["entity1"],
+      property_filters={"measurementMethod": "Census"},
+  )
+
+  mock_client.observation.fetch_observations_by_entity.assert_called_once_with(
+      variable_dcids="var1",
+      date="2024",
+      entity_dcids=["entity1"],
+      filter_facet_ids=["facet_1", "facet_2"])
+  assert isinstance(df, pd.DataFrame)
+
+
+def test_observations_dataframe_raises_error_when_no_facet_match(mock_client):
+  """Tests that observations_dataframe raises NoDataForPropertyError when no facets match the filters."""
+  mock_client._find_filter_facet_ids = MagicMock(return_value=None)
+
+  with pytest.raises(NoDataForPropertyError):
+    mock_client.observations_dataframe(
+        variable_dcids="var1",
+        date="2024",
+        entity_dcids=["entity1"],
+        property_filters={"measurementMethod": "Nonexistent"},
+    )
+
+  mock_client._find_filter_facet_ids = MagicMock(return_value=[])
+
+  with pytest.raises(NoDataForPropertyError):
+    mock_client.observations_dataframe(
+        variable_dcids="var2",
+        date="2024",
+        entity_dcids=["entity1"],
+        property_filters={"measurementMethodX": "Nonexistent"},
+    )
