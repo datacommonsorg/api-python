@@ -66,6 +66,9 @@ class ObservationEndpoint(Endpoint):
       variable_dcids: str | list[str],
       entity_dcids: Optional[str | list[str]] = None,
       entity_expression: Optional[str] = None,
+      *,
+      domains_filter: Optional[str | list[str]] = None,
+      facets_filter: Optional[str | list[str]] = None,
   ) -> ObservationResponse:
     """
         Fetches the latest observations for the given variable and entity.
@@ -74,34 +77,43 @@ class ObservationEndpoint(Endpoint):
             variable_dcids (str | list[str]): One or more variable IDs for the data.
             entity_dcids (Optional[str | list[str]]): One or more entity IDs to filter the data.
             entity_expression (Optional[str]): A string expression to filter entities.
+            domains_filter: Optional[str | list[str]: One or more domain names to filter the data.
+            facets_filter: Optional[str | list[str]: One or more facet IDs to filter the data.
 
         Returns:
             ObservationResponse: The response object containing observations for the specified query.
         """
-    return self.fetch(
-        variable_dcids=variable_dcids,
-        date=ObservationDate.LATEST,
-        entity_dcids=entity_dcids,
-        entity_expression=entity_expression,
-    )
+    return self.fetch(variable_dcids=variable_dcids,
+                      date=ObservationDate.LATEST,
+                      entity_dcids=entity_dcids,
+                      entity_expression=entity_expression,
+                      domains_filter=domains_filter,
+                      facets_filter=facets_filter)
 
   def fetch_latest_observations_by_entity(
       self,
       variable_dcids: str | list[str],
       entity_dcids: str | list[str],
+      *,
+      domains_filter: Optional[str | list[str]] = None,
+      facets_filter: Optional[str | list[str]] = None,
   ) -> ObservationResponse:
     """Fetches the latest observations for the given variable and entities.
 
         Args:
             variable_dcids (str | list[str]): One or more variable IDs for the data.
             entity_dcids (str | list[str]): One or more entity IDs to filter the data.
+            domains_filter: Optional[str | list[str]: One or more domain names to filter the data.
+            facets_filter: Optional[str | list[str]: One or more facet IDs to filter the data.
 
         Returns:
             ObservationResponse: The response object containing observations for the specified query.
         """
 
     return self.fetch_latest_observations(variable_dcids=variable_dcids,
-                                          entity_dcids=entity_dcids)
+                                          entity_dcids=entity_dcids,
+                                          domains_filter=domains_filter,
+                                          facets_filter=facets_filter)
 
   def fetch_observations_by_entity_type(
       self,
@@ -109,6 +121,9 @@ class ObservationEndpoint(Endpoint):
       parent_entity: str,
       entity_type: str,
       variable_dcids: str | list[str],
+      *,
+      domains_filter: Optional[str | list[str]] = None,
+      facets_filter: Optional[str | list[str]] = None,
   ) -> ObservationResponse:
     """
         Fetches all observations for a given entity type.
@@ -123,6 +138,8 @@ class ObservationEndpoint(Endpoint):
                 For example, "Country" or "Region".
             variable_dcids (str | list[str]): The variable(s) to fetch observations for.
                 This can be a single variable ID or a list of IDs.
+            domains_filter: Optional[str | list[str]: One or more domain names to filter the data.
+            facets_filter: Optional[str | list[str]: One or more facet IDs to filter the data.
 
         Returns:
             ObservationResponse: The response object containing observations for the specified entity type.
@@ -147,6 +164,8 @@ class ObservationEndpoint(Endpoint):
         select=[s for s in ObservationSelect],
         entity_expression=
         f"{parent_entity}<-containedInPlace+{{typeOf:{entity_type}}}",
+        domains_filter=domains_filter,
+        facets_filter=facets_filter,
     )
 
   def fetch_observations_by_entity(
@@ -154,6 +173,9 @@ class ObservationEndpoint(Endpoint):
       date: ObservationDate | str,
       entity_dcids: str | list[str],
       variable_dcids: str | list[str],
+      *,
+      domains_filter: Optional[str | list[str]] = None,
+      facets_filter: Optional[str | list[str]] = None,
   ) -> ObservationResponse:
     """
         Fetches all observations for a given entity type.
@@ -165,6 +187,8 @@ class ObservationEndpoint(Endpoint):
             entity_dcids (str | list[str]): One or more entity IDs to filter the data.
             variable_dcids (str | list[str]): The variable(s) to fetch observations for.
                 This can be a single variable ID or a list of IDs.
+            domains_filter: Optional[str | list[str]: One or more domain names to filter the data.
+            facets_filter: Optional[str | list[str]: One or more facet IDs to filter the data.
 
         Returns:
             ObservationResponse: The response object containing observations for the specified entity type.
@@ -187,4 +211,6 @@ class ObservationEndpoint(Endpoint):
         date=date,
         entity_dcids=entity_dcids,
         select=[s for s in ObservationSelect],
+        domains_filter=domains_filter,
+        facets_filter=facets_filter,
     )

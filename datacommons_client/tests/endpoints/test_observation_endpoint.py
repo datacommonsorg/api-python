@@ -80,6 +80,7 @@ def test_fetch_latest_observations_by_entity():
   response = endpoint.fetch_latest_observations_by_entity(
       variable_dcids="dc/VariableID",
       entity_dcids=["dc/Entity1", "dc/Entity2"],
+      facets_filter="facet1",
   )
 
   # Check the response
@@ -95,6 +96,9 @@ def test_fetch_latest_observations_by_entity():
           "dcids": ["dc/Entity1", "dc/Entity2"]
       },
       "select": ["date", "variable", "entity", "value"],
+      "filter": {
+          "facet_ids": ["facet1"]
+      }
   },
                                         endpoint="observation",
                                         all_pages=True,
