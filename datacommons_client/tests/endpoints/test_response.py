@@ -601,55 +601,63 @@ def test_resolve_response_dict_exclude_none():
   """Test that ResolveResponse.to_dict and json are consistent."""
   # Input dictionary
   input_data = {
-      "entities": [{
-          "node":
-              "entity1",
-          "candidates": [
-              {
-                  "dcid": "dcid1",
-                  "dominantType": "Type1"
-              },
-              {
-                  "dcid": "dcid2",
-                  "dominantType": None
-              },
-          ],
-      }, {
-          "node": "entity2",
-          "candidates": [{
-              "dcid": "dcid3",
-              "dominantType": "Type2"
-          },],
-      }, {
-          "node": "entity3",
-          "candidates": [],
-      }]
+      "entities": [
+          {
+              "node":
+                  "entity1",
+              "candidates": [
+                  {
+                      "dcid": "dcid1",
+                      "dominantType": "Type1"
+                  },
+                  {
+                      "dcid": "dcid2",
+                      "dominantType": None
+                  },
+              ],
+          },
+          {
+              "node": "entity2",
+              "candidates": [{
+                  "dcid": "dcid3",
+                  "dominantType": "Type2"
+              },],
+          },
+          {
+              "node": "entity3",
+              "candidates": [],
+          },
+      ]
   }
 
   # Expected data
   expected_data = {
-      "entities": [{
-          "node":
-              "entity1",
-          "candidates": [
-              {
-                  "dcid": "dcid1",
-                  "dominantType": "Type1"
-              },
-              {
-                  "dcid": "dcid2"
-              },
-          ],
-      }, {
-          "node": "entity2",
-          "candidates": [{
-              "dcid": "dcid3",
-              "dominantType": "Type2"
-          },],
-      }, {
-          "node": "entity3",
-          "candidates": [],
-      }]
+      "entities": [
+          {
+              "node":
+                  "entity1",
+              "candidates": [
+                  {
+                      "dcid": "dcid1",
+                      "dominantType": "Type1"
+                  },
+                  {
+                      "dcid": "dcid2"
+                  },
+              ],
+          },
+          {
+              "node": "entity2",
+              "candidates": [{
+                  "dcid": "dcid3",
+                  "dominantType": "Type2"
+              },],
+          },
+          {
+              "node": "entity3",
+              "candidates": [],
+          },
+      ]
   }
 
   # Create ResolveResponse from the dictionary
@@ -705,4 +713,115 @@ def test_resolve_response_json_string_exclude_none():
   result = response.to_json(exclude_none=False)
 
   # Assert that the resulting dictionary matches the original input
+  assert result == expected
+
+
+def test_get_facets_metadata():
+  """Test that get_facets_metadata correctly extracts and structures facet metadata."""
+
+  # Mock facet metadata
+  mock_facets = {
+      "facet1": {
+          "unit": "USD",
+          "importName": "Import Source",
+      },
+      "facet2": {
+          "unit": "Year",
+          "importName": "Another Source",
+      },
+  }
+
+  # Mock data for entities and variables
+  mock_data_by_entity = {
+      "variable1": {
+          "entity1": {
+              "orderedFacets": [
+                  OrderedFacets(
+                      facetId="facet1",
+                      earliestDate="2023",
+                      latestDate="2025",
+                      obsCount=5,
+                  )
+              ]
+          },
+          "entity2": {
+              "orderedFacets": [
+                  OrderedFacets(
+                      facetId="facet2",
+                      earliestDate="2021",
+                      latestDate="2021",
+                      obsCount=3,
+                  )
+              ]
+          },
+      },
+      "variable2": {
+          "entity3": {
+              "orderedFacets": [
+                  OrderedFacets(
+                      facetId="facet1",
+                      earliestDate="2000",
+                      latestDate="2013",
+                      obsCount=7,
+                  )
+              ]
+          }
+      },
+  }
+
+  # Mock ObservationResponse
+  response = ObservationResponse(byVariable={})
+  response.get_data_by_entity = lambda: mock_data_by_entity
+  response.to_dict = lambda: {"facets": mock_facets}
+
+  # Call the method
+  result = response.get_facets_metadata()
+
+  # Expected structure
+  expected = {
+      "variable1": {
+          "facet1": {
+              "earliestDate": {
+                  "entity1": "2023"
+              },
+              "latestDate": {
+                  "entity1": "2025"
+              },
+              "obsCount": {
+                  "entity1": 5
+              },
+              "unit": "USD",
+              "importName": "Import Source",
+          },
+          "facet2": {
+              "earliestDate": {
+                  "entity2": "2021"
+              },
+              "latestDate": {
+                  "entity2": "2021"
+              },
+              "obsCount": {
+                  "entity2": 3
+              },
+              "unit": "Year",
+              "importName": "Another Source",
+          },
+      },
+      "variable2": {
+          "facet1": {
+              "earliestDate": {
+                  "entity3": "2000"
+              },
+              "latestDate": {
+                  "entity3": "2013"
+              },
+              "obsCount": {
+                  "entity3": 7
+              },
+              "unit": "USD",
+              "importName": "Import Source",
+          }
+      },
+  }
+
   assert result == expected

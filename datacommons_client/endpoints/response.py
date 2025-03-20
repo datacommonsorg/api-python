@@ -151,6 +151,48 @@ class ObservationResponse(SerializableMixin):
     return observations_as_records(data=self.get_data_by_entity(),
                                    facets=self.facets)
 
+  def get_facets_metadata(self) -> Dict[str, Any]:
+    """Extract metadata about StatVars from the response. This data is
+        structured as a dictionary of StatVars, each containing a dictionary of
+        facets with their corresponding metadata.
+
+        Returns:
+            Dict[str, Any]: A dictionary of StatVars with their associated metadata,
+             including earliest and latest observation dates, observation counts,
+             measurementMethod, observationPeriod, and unit, etc.
+        """
+    # Dictionary to store metadata
+    metadata = {}
+
+    # Extract information from byVariable
+    data_by_entity = self.get_data_by_entity()
+
+    # Extract facet information
+    facets_info = self.to_dict().get("facets", {})
+
+    for dcid, variables in data_by_entity.items():
+      metadata[dcid] = {}
+
+      for entity_id, entity in variables.items():
+        for facet in entity.get("orderedFacets", []):
+          facet_metadata = metadata[dcid].setdefault(
+              facet.facetId,
+              {
+                  "earliestDate": {},
+                  "latestDate": {},
+                  "obsCount": {},
+              },
+          )
+
+          facet_metadata["earliestDate"][entity_id] = facet.earliestDate
+          facet_metadata["latestDate"][entity_id] = facet.latestDate
+          facet_metadata["obsCount"][entity_id] = facet.obsCount
+
+          # Merge additional facet details
+          facet_metadata.update(facets_info.get(facet.facetId, {}))
+
+    return metadata
+
 
 @dataclass
 class ResolveResponse(SerializableMixin):
