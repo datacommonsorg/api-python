@@ -99,13 +99,12 @@ class DataCommonsClient:
 
     if entity_dcids == "all":
       observations = self.observation.fetch_observations_by_entity_type(
-          variable_dcids=variable_dcids,
           date=date,
-          entity_type=entity_type,
           parent_entity=parent_entity,
-      )
+          entity_type=entity_type,
+          variable_dcids=variable_dcids)
     else:
       observations = self.observation.fetch_observations_by_entity(
-          variable_dcids=variable_dcids, date=date, entity_dcids=entity_dcids)
+          date=date, entity_dcids=entity_dcids, variable_dcids=variable_dcids)
 
     return pd.DataFrame(observations.get_observations_as_records())
