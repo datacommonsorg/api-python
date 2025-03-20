@@ -138,8 +138,6 @@ class ObservationRequestPayload(EndpointRequestPayload):
   def normalize(self):
     """
         Normalizes the payload for consistent internal representation.
-
-
         - Converts `variable_dcids`, `entity_dcids`, `filter_facet_domains` and `filter_facet_ids`
          to lists if they are passed as strings.
         - Normalizes the `date` field to ensure it is in the correct format.
