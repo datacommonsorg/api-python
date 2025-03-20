@@ -78,6 +78,7 @@ class ObservationSelect(str, Enum):
   VARIABLE = "variable"
   ENTITY = "entity"
   VALUE = "value"
+  FACET = "facet"
 
   @classmethod
   def _missing_(cls, value):
