@@ -38,11 +38,20 @@ def test_observation_payload_normalize():
       variable_dcids="var1",
       select=["variable", "entity"],
       entity_dcids="ent1",
+      domains_filter="domain1",
+      facets_filter="facets1",
   )
   assert payload.variable_dcids == ["var1"]
   assert payload.entity_dcids == ["ent1"]
+  assert payload.domains_filter == ["domain1"]
+  assert payload.facets_filter == ["facets1"]
   assert payload.date == ObservationDate.LATEST
 
+  assert "filter" in payload.to_dict
+  assert "facet_ids" in payload.to_dict["filter"]
+  assert "domains" in payload.to_dict["filter"]
+
+  # Check that when domain and facets are not included, they are not in the payload
   payload = ObservationRequestPayload(
       date="all",
       variable_dcids=["var1"],
@@ -52,6 +61,7 @@ def test_observation_payload_normalize():
   assert payload.date == ObservationDate.ALL
   assert payload.variable_dcids == ["var1"]
   assert payload.entity_dcids == ["ent1"]
+  assert "filter" not in payload.to_dict
 
 
 def test_observation_select_invalid_value():
@@ -101,6 +111,7 @@ def test_observation_payload_to_dict():
       variable_dcids="var1",
       select=["variable", "entity"],
       entity_dcids="ent1",
+      facets_filter="facets1",
   )
   assert payload.to_dict == {
       "date": ObservationDate.LATEST,
@@ -111,6 +122,9 @@ def test_observation_payload_to_dict():
           "dcids": ["ent1"]
       },
       "select": ["variable", "entity"],
+      "filter": {
+          "facet_ids": ["facets1"]
+      }
   }
 
 

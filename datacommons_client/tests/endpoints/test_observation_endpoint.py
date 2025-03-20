@@ -16,6 +16,8 @@ def test_fetch():
       date=ObservationDate.LATEST,
       select=["date", "variable", "entity", "value"],
       entity_dcids="dc/EntityID",
+      domains_filter="domain1",
+      facets_filter="facet1",
   )
 
   # Check the response
@@ -31,6 +33,10 @@ def test_fetch():
           "dcids": ["dc/EntityID"],
       },
       "select": ["date", "variable", "entity", "value"],
+      "filter": {
+          "domains": ["domain1"],
+          "facet_ids": ["facet1"]
+      }
   },
                                         endpoint="observation",
                                         all_pages=True,

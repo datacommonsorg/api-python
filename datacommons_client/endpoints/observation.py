@@ -28,7 +28,8 @@ class ObservationEndpoint(Endpoint):
       select: Optional[list[ObservationSelect | str]] = None,
       entity_dcids: Optional[str | list[str]] = None,
       entity_expression: Optional[str] = None,
-  ) -> ObservationResponse:
+      domains_filter: Optional[str | list[str]] = None,
+      facets_filter: Optional[str | list[str]] = None) -> ObservationResponse:
     """
         Fetches data from the observation endpoint.
 
@@ -40,6 +41,8 @@ class ObservationEndpoint(Endpoint):
                 Defaults to ["date", "variable", "entity", "value"].
             entity_dcids (Optional[str | list[str]]): One or more entity IDs to filter the data.
             entity_expression (Optional[str]): A string expression to filter entities.
+            domains_filter (Optional[str | list[str]]): One or more domain names to filter the data.
+            facets_filter (Optional[str | list[str]]): One or more facet IDs to filter the data.
 
         Returns:
             ObservationResponse: The response object containing observations for the specified query.
@@ -51,6 +54,8 @@ class ObservationEndpoint(Endpoint):
         select=select,
         entity_dcids=entity_dcids,
         entity_expression=entity_expression,
+        domains_filter=domains_filter,
+        facets_filter=facets_filter,
     ).to_dict
 
     # Send the request

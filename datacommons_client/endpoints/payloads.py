@@ -104,6 +104,8 @@ class ObservationRequestPayload(EndpointRequestPayload):
             Defaults to ["date", "variable", "entity", "value"].
         entity_dcids (Optional[str | list[str]]): One or more entity IDs to filter the data.
         entity_expression (Optional[str]): A string expression to filter entities.
+        domains_filter (Optional[str | list[str]]): One or more domain names to filter the data.
+        facets_filter (Optional[str | list[str]]): One or more facet IDs to filter the data.
     """
 
   date: ObservationDate | str = ""
@@ -111,6 +113,8 @@ class ObservationRequestPayload(EndpointRequestPayload):
   select: Optional[list[ObservationSelect | str]] = None
   entity_dcids: Optional[str | list[str]] = None
   entity_expression: Optional[str] = None
+  domains_filter: Optional[str | list[str]] = None
+  facets_filter: Optional[str | list[str]] = None
 
   def __post_init__(self):
     """
@@ -135,7 +139,8 @@ class ObservationRequestPayload(EndpointRequestPayload):
     """
         Normalizes the payload for consistent internal representation.
 
-        - Converts `variable_dcids` and `entity_dcids` to lists if they are passed as strings.
+        - Converts `variable_dcids`, `entity_dcids`, `domains_filter` and `facets_filter`
+         to lists if they are passed as strings.
         - Normalizes the `date` field to ensure it is in the correct format.
         """
     # Normalize variable
@@ -151,6 +156,14 @@ class ObservationRequestPayload(EndpointRequestPayload):
       self.date = ObservationDate.ALL
     elif (self.date.upper() == "LATEST") or (self.date == ""):
       self.date = ObservationDate.LATEST
+
+    # Normalize domains_filter
+    if isinstance(self.domains_filter, str):
+      self.domains_filter = [self.domains_filter]
+
+    # Normalize facets_filter
+    if isinstance(self.facets_filter, str):
+      self.facets_filter = [self.facets_filter]
 
   def validate(self):
     """
@@ -184,7 +197,9 @@ class ObservationRequestPayload(EndpointRequestPayload):
         Returns:
             dict: The normalized and validated payload.
         """
-    return {
+
+    # Create the payload dictionary
+    payload = {
         "date": self.date,
         "variable": {
             "dcids": self.variable_dcids
@@ -196,6 +211,20 @@ class ObservationRequestPayload(EndpointRequestPayload):
         }),
         "select": self.select,
     }
+
+    # Create a filter dictionary with only non-empty values
+    filters = {
+        k: v for k, v in {
+            "domains": self.domains_filter,
+            "facet_ids": self.facets_filter,
+        }.items() if v
+    }
+
+    # Only add filter if it's not empty
+    if filters:
+      payload["filter"] = filters
+
+    return payload
 
 
 @dataclass
