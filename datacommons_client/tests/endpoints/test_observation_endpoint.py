@@ -11,14 +11,12 @@ def test_fetch():
   api_mock = MagicMock(spec=API)
   endpoint = ObservationEndpoint(api=api_mock)
 
-  response = endpoint.fetch(
-      variable_dcids="dcid/variableID",
-      date=ObservationDate.LATEST,
-      select=["date", "variable", "entity", "value"],
-      entity_dcids="dc/EntityID",
-      domains_filter="domain1",
-      facets_filter="facet1",
-  )
+  response = endpoint.fetch(variable_dcids="dcid/variableID",
+                            date=ObservationDate.LATEST,
+                            select=["date", "variable", "entity", "value"],
+                            entity_dcids="dc/EntityID",
+                            filter_facet_domains="domain1",
+                            filter_facet_ids="facet1")
 
   # Check the response
   assert isinstance(response, ObservationResponse)
@@ -80,8 +78,7 @@ def test_fetch_latest_observations_by_entity():
   response = endpoint.fetch_latest_observations_by_entity(
       variable_dcids="dc/VariableID",
       entity_dcids=["dc/Entity1", "dc/Entity2"],
-      facets_filter="facet1",
-  )
+      filter_facet_ids="facet1")
 
   # Check the response
   assert isinstance(response, ObservationResponse)
@@ -114,8 +111,7 @@ def test_fetch_observations_by_entity_type():
       date="2023",
       parent_entity="Earth",
       entity_type="Country",
-      variable_dcids="dc/VariableID",
-  )
+      variable_dcids="dc/VariableID")
 
   # Check the response
   assert isinstance(response, ObservationResponse)
