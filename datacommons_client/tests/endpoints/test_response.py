@@ -851,6 +851,10 @@ def test_find_matching_facet_id():
   result = mock_response.find_matching_facet_id("measurementMethod", "Census")
   assert result == ["facet1"]
 
+  result = mock_response.find_matching_facet_id("measurementMethod",
+                                                ["Census", "Survey"])
+  assert result == ["facet1", "facet2"]
+
   result = mock_response.find_matching_facet_id("unit", "USD")
   assert result == ["facet3"]
 
