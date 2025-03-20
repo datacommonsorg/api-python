@@ -193,6 +193,22 @@ class ObservationResponse(SerializableMixin):
 
     return metadata
 
+  def find_matching_facet_id(self, property_name: str, value: str) -> list[str]:
+    """Finds facet IDs that match a given property and value.
+
+        Args:
+            property_name (str): The property to match.
+            value (str): The value to match.
+
+        Returns:
+            list[str]: A list of facet IDs that match the property and value.
+        """
+    return [
+        facet_id for facet_data in self.get_facets_metadata().values()
+        for facet_id, metadata in facet_data.items()
+        if metadata.get(property_name) == value
+    ]
+
 
 @dataclass
 class ResolveResponse(SerializableMixin):
