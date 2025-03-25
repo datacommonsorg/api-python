@@ -151,6 +151,79 @@ class ObservationResponse(SerializableMixin):
     return observations_as_records(data=self.get_data_by_entity(),
                                    facets=self.facets)
 
+  def get_facets_metadata(self) -> Dict[str, Any]:
+    """Extract metadata about StatVars from the response. This data is
+        structured as a dictionary of StatVars, each containing a dictionary of
+        facets with their corresponding metadata.
+
+        Returns:
+            Dict[str, Any]: A dictionary of StatVars with their associated metadata,
+             including earliest and latest observation dates, observation counts,
+             measurementMethod, observationPeriod, and unit, etc.
+        """
+    # Dictionary to store metadata
+    metadata = {}
+
+    # Extract information from byVariable
+    data_by_entity = self.get_data_by_entity()
+
+    # Extract facet information
+    facets_info = self.to_dict().get("facets", {})
+
+    for dcid, variables in data_by_entity.items():
+      metadata[dcid] = {}
+
+      for entity_id, entity in variables.items():
+        for facet in entity.get("orderedFacets", []):
+          facet_metadata = metadata[dcid].setdefault(
+              facet.facetId,
+              {
+                  "earliestDate": {},
+                  "latestDate": {},
+                  "obsCount": {},
+              },
+          )
+
+          facet_metadata["earliestDate"][entity_id] = facet.earliestDate
+          facet_metadata["latestDate"][entity_id] = facet.latestDate
+          facet_metadata["obsCount"][entity_id] = facet.obsCount
+
+          # Merge additional facet details
+          facet_metadata.update(facets_info.get(facet.facetId, {}))
+
+    return metadata
+
+  def find_matching_facet_id(self, property_name: str,
+                             value: str | list[str]) -> list[str]:
+    """Finds facet IDs that match a given property and value.
+
+        Args:
+            property_name (str): The property to match.
+            value (str | list): The value to match. Can be a string, number, or a list of values.
+        Returns:
+            list[str]: A list of facet IDs that match the property and value.
+        """
+    # Initialize an empty list to store matching facet IDs
+    matching_facet_ids = []
+
+    # Iterate over the facets metadata to find matching facet IDs
+    for facet_data in self.get_facets_metadata().values():
+
+      # Iterate over each facet and its associated metadata
+      for facet_id, metadata in facet_data.items():
+
+        # Get the value of the specified property from the data
+        prop_value = metadata.get(property_name)
+
+        # Check if the property value matches the specified value
+        if isinstance(value, list):
+          if prop_value in value:
+            matching_facet_ids.append(facet_id)
+        elif prop_value == value:
+          matching_facet_ids.append(facet_id)
+
+    return matching_facet_ids
+
 
 @dataclass
 class ResolveResponse(SerializableMixin):
