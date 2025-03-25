@@ -203,12 +203,26 @@ class ObservationResponse(SerializableMixin):
         Returns:
             list[str]: A list of facet IDs that match the property and value.
         """
-    return [
-        facet_id for facet_data in self.get_facets_metadata().values()
-        for facet_id, metadata in facet_data.items()
-        if metadata.get(property_name) == value or
-        (isinstance(value, list) and metadata.get(property_name) in value)
-    ]
+    # Initialize an empty list to store matching facet IDs
+    matching_facet_ids = []
+
+    # Iterate over the facets metadata to find matching facet IDs
+    for facet_data in self.get_facets_metadata().values():
+
+      # Iterate over each facet and its associated metadata
+      for facet_id, metadata in facet_data.items():
+
+        # Get the value of the specified property from the data
+        prop_value = metadata.get(property_name)
+
+        # Check if the property value matches the specified value
+        if isinstance(value, list):
+          if prop_value in value:
+            matching_facet_ids.append(facet_id)
+        elif prop_value == value:
+          matching_facet_ids.append(facet_id)
+
+    return matching_facet_ids
 
 
 @dataclass
