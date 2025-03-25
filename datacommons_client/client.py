@@ -67,7 +67,7 @@ class DataCommonsClient:
       entity_dcids: Literal["all"] | list[str] = "all",
       entity_type: Optional[str] = None,
       parent_entity: Optional[str] = None,
-      property_filters: Optional[dict] = None,
+      property_filters: Optional[dict[str, str | list[str]]] = None,
   ) -> list[str] | None:
     """Finds matching facet IDs for property filters.
 
@@ -75,9 +75,9 @@ class DataCommonsClient:
             fetch_by (Literal["entity", "entity_type"]): Determines whether to fetch by entity or entity type.
             variable_dcids (str | list[str]): The variable DCIDs for which to retrieve facet IDs.
             entity_dcids (Literal["all"] | list[str], optional): The entity DCIDs, or "all" if filtering by entity type.
-            entity_type (Optional[str], optional): The entity type, required if fetching by entity type.
-            parent_entity (Optional[str], optional): The parent entity, used when fetching by entity type.
-            property_filters (Optional[dict], optional): A dictionary of properties to match facets against.
+            entity_type (Optional[str]): The entity type, required if fetching by entity type.
+            parent_entity (Optional[str]): The parent entity, used when fetching by entity type.
+            property_filters (Optional[dict[str, str | list[str]]): A dictionary of properties to match facets against.
 
         Returns:
             list[str] | None: A list of matching facet IDs, or None if no filters are applied.
@@ -119,7 +119,7 @@ class DataCommonsClient:
       entity_dcids: Literal["all"] | list[str] = "all",
       entity_type: Optional[str] = None,
       parent_entity: Optional[str] = None,
-      property_filters: Optional[dict] = None,
+      property_filters: Optional[dict[str, str | list[str]]] = None,
   ):
     """
         Fetches statistical observations and returns them as a Pandas DataFrame.
@@ -133,12 +133,12 @@ class DataCommonsClient:
             a specific date, "all" to retrieve all observations, or "latest" to get the most recent observations.
         entity_dcids (Literal["all"] | list[str], optional): The entity DCIDs to retrieve data for.
             Defaults to "all". DCIDs must include their type (e.g., "country/GTM" for Guatemala).
-        entity_type (Optional[str], optional): The type of entities to filter by when `entity_dcids="all"`.
+        entity_type (Optional[str]): The type of entities to filter by when `entity_dcids="all"`.
             Required if `entity_dcids="all"`. Defaults to None.
-        parent_entity (Optional[str], optional): The parent entity under which the target entities fall.
+        parent_entity (Optional[str]): The parent entity under which the target entities fall.
             Used only when `entity_dcids="all"`. Defaults to None.
-        property_filters (Optional[dict], optional): An optional dictionary used to filter the data using
-            properties like `measurementMethod`, `unit`, or `observationPeriod`.
+        property_filters (Optional[dict[str, str | list[str]]): An optional dictionary used to filter
+            the data by using observation properties like `measurementMethod`, `unit`, or `observationPeriod`.
 
         Returns:
             pd.DataFrame: A DataFrame containing the requested observations.
