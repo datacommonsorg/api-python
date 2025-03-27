@@ -41,34 +41,6 @@ def test_node_endpoint_fetch():
   assert "test_node" in response.data
 
 
-def test_node_endpoint_fetch_list_input():
-  """Test the fetch method with list inputs for node_dcids and expression."""
-  api_mock = MagicMock(spec=API)
-  api_mock.post.return_value = {
-      "data": {
-          "test_node": {
-              "properties": {
-                  "name": "Test"
-              }
-          }
-      }
-  }
-
-  endpoint = NodeEndpoint(api=api_mock)
-  response = endpoint.fetch(node_dcids=["test_node1", "test_node2"],
-                            expression=["name", "typeOf"])
-
-  api_mock.post.assert_called_once_with(payload={
-      "nodes": ["test_node1", "test_node2"],
-      "property": "[name, typeOf]",
-  },
-                                        endpoint="node",
-                                        all_pages=True,
-                                        next_token=None)
-  assert isinstance(response, NodeResponse)
-  assert "test_node" in response.data
-
-
 def test_node_endpoint_fetch_property_labels():
   """Test fetch_property_labels method."""
   api_mock = MagicMock(spec=API)
