@@ -1,33 +1,9 @@
-from typing import Any, Optional
+from typing import Optional
 
 from datacommons_client.endpoints.base import API
 from datacommons_client.endpoints.base import Endpoint
 from datacommons_client.endpoints.payloads import ResolveRequestPayload
 from datacommons_client.endpoints.response import ResolveResponse
-
-
-def flatten_resolve_response(
-    data: ResolveResponse) -> dict[str, list[str] | str]:
-  """
-    Flattens resolved candidate data into a dictionary where each node maps to its candidates.
-
-    Args:
-        data (ResolveResponse): The response object containing the resolved data.
-
-    Returns:
-        dict[str, Any]: A dictionary mapping nodes to their candidates.
-        If a node has only one candidate, it maps directly to the candidate instead of a list.
-    """
-  items: dict[str, Any] = {}
-
-  for entity in data.entities:
-    node = entity.node
-    if len(entity.candidates) == 1:
-      items[node] = entity.candidates[0].dcid
-    else:
-      items[node] = [candidate.dcid for candidate in entity.candidates]
-
-  return items
 
 
 def _resolve_correspondence_expression(from_type: str,

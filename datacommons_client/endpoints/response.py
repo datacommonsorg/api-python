@@ -250,3 +250,22 @@ class ResolveResponse(SerializableMixin):
     return cls(entities=[
         Entity.from_json(entity) for entity in json_data.get("entities", [])
     ])
+
+  def to_flat_dict(self) -> dict[str, list[str] | str]:
+    """
+      Flattens resolved candidate data into a dictionary where each node maps to its candidates.
+
+      Returns:
+          dict[str, Any]: A dictionary mapping nodes to their candidates.
+          If a node has only one candidate, it maps directly to the candidate instead of a list.
+      """
+    items: dict[str, Any] = {}
+
+    for entity in self.entities:
+      node = entity.node
+      if len(entity.candidates) == 1:
+        items[node] = entity.candidates[0].dcid
+      else:
+        items[node] = [candidate.dcid for candidate in entity.candidates]
+
+    return items
