@@ -105,7 +105,7 @@ class ResolveEndpoint(Endpoint):
 
     return self.fetch(node_ids=names, expression=expression)
 
-  def fetch_dcid_by_wikidata_id(
+  def fetch_dcids_by_wikidata_id(
       self,
       wikidata_id: str | list[str],
       entity_type: Optional[str] = None) -> ResolveResponse:

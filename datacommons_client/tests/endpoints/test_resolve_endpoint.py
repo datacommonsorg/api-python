@@ -53,8 +53,8 @@ def test_fetch_dcid_by_wikidata_id():
   api_mock = MagicMock(spec=API)
   endpoint = ResolveEndpoint(api=api_mock)
 
-  response = endpoint.fetch_dcid_by_wikidata_id(wikidata_id="Q12345",
-                                                entity_type="Country")
+  response = endpoint.fetch_dcids_by_wikidata_id(wikidata_id="Q12345",
+                                                 entity_type="Country")
 
   # Check the response
   assert isinstance(response, ResolveResponse)
@@ -63,6 +63,27 @@ def test_fetch_dcid_by_wikidata_id():
   api_mock.post.assert_called_once_with(payload={
       "nodes": ["Q12345"],
       "property": "<-wikidataId{typeOf:Country}->dcid",
+  },
+                                        endpoint="resolve",
+                                        all_pages=True,
+                                        next_token=None)
+
+
+def test_fetch_dcids_list_by_wikidata_id():
+  """Tests the fetch_dcid_by_wikidata_id method."""
+  api_mock = MagicMock(spec=API)
+  endpoint = ResolveEndpoint(api=api_mock)
+
+  response = endpoint.fetch_dcids_by_wikidata_id(
+      wikidata_id=["Q12345", "Q695660"])
+
+  # Check the response
+  assert isinstance(response, ResolveResponse)
+
+  # Check the post request
+  api_mock.post.assert_called_once_with(payload={
+      "nodes": ["Q12345", "Q695660"],
+      "property": "<-wikidataId->dcid",
   },
                                         endpoint="resolve",
                                         all_pages=True,
