@@ -22,7 +22,7 @@ class NodeEndpoint(Endpoint):
   def fetch(
       self,
       node_dcids: str | list[str],
-      expression: str | list[str],
+      expression: str,
       *,
       all_pages: bool = True,
       next_token: Optional[str] = None,
@@ -31,7 +31,7 @@ class NodeEndpoint(Endpoint):
 
         Args:
             node_dcids (str | List[str]): The DCID(s) of the nodes to query.
-            expression (str | List[str]): The property or relation expression(s) to query.
+            expression (str): The property or relation expression(s) to query.
             all_pages: If True, fetch all pages of the response. If False, fetch only the first page.
               Defaults to True. Set to False to only fetch the first page. In that case, a
               `next_token` key in the response will indicate if more pages are available.
