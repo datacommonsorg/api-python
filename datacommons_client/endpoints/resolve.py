@@ -81,25 +81,25 @@ class ResolveEndpoint(Endpoint):
 
     return self.fetch(node_ids=names, expression=expression)
 
-  def fetch_dcid_by_wikidata_id(
+  def fetch_dcids_by_wikidata_id(
       self,
-      wikidata_id: str | list[str],
+      wikidata_ids: str | list[str],
       entity_type: Optional[str] = None) -> ResolveResponse:
     """
-        Fetches DCIDs for entities by their Wikidata IDs.
+          Fetches DCIDs for entities by their Wikidata IDs.
 
-        Args:
-            wikidata_id (str | list[str]): One or more Wikidata IDs to resolve.
-            entity_type (Optional[str]): Optional type of the entities.
+          Args:
+              wikidata_ids (str | list[str]): One or more Wikidata IDs to resolve.
+              entity_type (Optional[str]): Optional type of the entities.
 
-        Returns:
-            ResolveResponse: The response object containing the resolved DCIDs.
-        """
+          Returns:
+              ResolveResponse: The response object containing the resolved DCIDs.
+          """
     expression = _resolve_correspondence_expression(from_type="wikidataId",
                                                     to_type="dcid",
                                                     entity_type=entity_type)
 
-    return self.fetch(node_ids=wikidata_id, expression=expression)
+    return self.fetch(node_ids=wikidata_ids, expression=expression)
 
   def fetch_dcid_by_coordinates(
       self,
