@@ -52,7 +52,7 @@ def test_fetch_dcid_by_wikidata_id():
   api_mock = MagicMock(spec=API)
   endpoint = ResolveEndpoint(api=api_mock)
 
-  response = endpoint.fetch_dcids_by_wikidata_id(wikidata_id="Q12345",
+  response = endpoint.fetch_dcids_by_wikidata_id(wikidata_ids="Q12345",
                                                  entity_type="Country")
 
   # Check the response
@@ -74,7 +74,7 @@ def test_fetch_dcids_list_by_wikidata_id():
   endpoint = ResolveEndpoint(api=api_mock)
 
   response = endpoint.fetch_dcids_by_wikidata_id(
-      wikidata_id=["Q12345", "Q695660"])
+      wikidata_ids=["Q12345", "Q695660"])
 
   # Check the response
   assert isinstance(response, ResolveResponse)
