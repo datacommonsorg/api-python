@@ -6,6 +6,7 @@ from datacommons_client.endpoints.payloads import ObservationDate
 from datacommons_client.endpoints.payloads import ObservationRequestPayload
 from datacommons_client.endpoints.payloads import ObservationSelect
 from datacommons_client.endpoints.response import ObservationResponse
+from datacommons_client.utils.data_processing import group_variables_by_entity
 
 
 class ObservationEndpoint(Endpoint):
@@ -233,3 +234,25 @@ class ObservationEndpoint(Endpoint):
         filter_facet_domains=filter_facet_domains,
         filter_facet_ids=filter_facet_ids,
     )
+
+  def fetch_available_statistical_variables(
+      self,
+      entity_dcids: str | list[str],
+  ) -> dict[str, list[str]]:
+    """
+        Fetches available statistical variables (which have observations) for given entities.
+        Args:
+            entity_dcids (str | list[str]): One or more entity DCIDs(s) to fetch variables for.
+        Returns:
+            dict[str, list[str]]: A dictionary mapping entity DCIDs to their available statistical variables.
+        """
+
+    # Fetch observations for the given entity DCIDs. If variable is empty list
+    # all available variables are retrieved.
+    data = self.fetch(
+        entity_dcids=entity_dcids,
+        select=[ObservationSelect.VARIABLE, ObservationSelect.ENTITY],
+        variable_dcids=[],
+    ).get_data_by_entity()
+
+    return group_variables_by_entity(data=data)
