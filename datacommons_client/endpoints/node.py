@@ -5,6 +5,8 @@ from datacommons_client.endpoints.base import Endpoint
 from datacommons_client.endpoints.payloads import NodeRequestPayload
 from datacommons_client.endpoints.payloads import normalize_properties_to_string
 from datacommons_client.endpoints.response import NodeResponse
+from datacommons_client.utils.names import extract_name_from_english_name_property
+from datacommons_client.utils.names import extract_name_from_property_with_language
 
 
 class NodeEndpoint(Endpoint):
@@ -91,10 +93,12 @@ class NodeEndpoint(Endpoint):
     expression = "->" if out else "<-"
 
     # Make the request and return the response.
-    return self.fetch(node_dcids=node_dcids,
-                      expression=expression,
-                      all_pages=all_pages,
-                      next_token=next_token)
+    return self.fetch(
+        node_dcids=node_dcids,
+        expression=expression,
+        all_pages=all_pages,
+        next_token=next_token,
+    )
 
   def fetch_property_values(
       self,
@@ -143,10 +147,12 @@ class NodeEndpoint(Endpoint):
     if constraints:
       expression += f"{{{constraints}}}"
 
-    return self.fetch(node_dcids=node_dcids,
-                      expression=expression,
-                      all_pages=all_pages,
-                      next_token=next_token)
+    return self.fetch(
+        node_dcids=node_dcids,
+        expression=expression,
+        all_pages=all_pages,
+        next_token=next_token,
+    )
 
   def fetch_all_classes(
       self,
@@ -174,8 +180,55 @@ class NodeEndpoint(Endpoint):
             ```
         """
 
-    return self.fetch_property_values(node_dcids="Class",
-                                      properties="typeOf",
-                                      out=False,
-                                      all_pages=all_pages,
-                                      next_token=next_token)
+    return self.fetch_property_values(
+        node_dcids="Class",
+        properties="typeOf",
+        out=False,
+        all_pages=all_pages,
+        next_token=next_token,
+    )
+
+  def fetch_entity_names(
+      self,
+      entity_dcids: str | list[str],
+      language: Optional[str] = "en",
+      fallback_to_en: bool = False,
+  ) -> dict[str, str]:
+    """
+        Fetches entity names in the specified language, with optional fallback to English.
+        Args:
+          entity_dcids: A single DCID or a list of DCIDs to fetch names for.
+          language: Language code (e.g., "en", "es"). Defaults to "en".
+          fallback_to_en: If True, falls back to English if the desired language is not found.
+            Defaults to False.
+        Returns:
+          A dictionary mapping each DCID to its name (in the requested or fallback language).
+        """
+
+    # Check if entity_dcids is a single string. If so, convert it to a list.
+    if isinstance(entity_dcids, str):
+      entity_dcids = [entity_dcids]
+
+    # If langauge is English, use the more efficient 'name' property.
+    name_property = "name" if language == "en" else "nameWithLanguage"
+
+    # Fetch names the given entity DCIDs.
+    data = self.fetch_property_values(
+        node_dcids=entity_dcids, properties=name_property).get_properties()
+
+    names: dict[str, str] = {}
+
+    # Iterate through the fetched data and populate the names dictionary.
+    for dcid, properties in data.items():
+      if language == "en":
+        name = extract_name_from_english_name_property(properties=properties)
+      else:
+        name = extract_name_from_property_with_language(
+            properties=properties,
+            language=language,
+            fallback_to_en=fallback_to_en,
+        )
+      if name:
+        names[dcid] = name
+
+    return names
