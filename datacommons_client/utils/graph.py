@@ -3,30 +3,13 @@ from concurrent.futures import FIRST_COMPLETED
 from concurrent.futures import Future
 from concurrent.futures import ThreadPoolExecutor
 from concurrent.futures import wait
-from dataclasses import dataclass
 from functools import lru_cache
 from typing import Callable, Optional
 
-from datacommons_client.utils.data_processing import SerializableMixin
+from datacommons_client.models.graph import AncestryMap
+from datacommons_client.models.graph import Parent
 
 PARENTS_MAX_WORKERS = 10
-
-
-@dataclass(frozen=True)
-class Parent(SerializableMixin):
-  """A class representing a parent node in a graph.
-    Attributes:
-        dcid (str): The ID of the parent node.
-        name (str): The name of the parent node.
-        type (str | list[str]): The type(s) of the parent node.
-    """
-
-  dcid: str
-  name: str
-  type: str | list[str]
-
-
-AncestryMap = dict[str, list[Parent]]
 
 # -- -- Fetch tools -- --
 
@@ -48,7 +31,7 @@ def _fetch_parents_uncached(endpoint, dcid: str) -> list[Parent]:
     Returns:
         A list of parent dictionaries, each containing 'dcid', 'name', and 'type'.
     """
-  return endpoint.fetch_entity_parents(dcid).get(dcid, [])
+  return endpoint.fetch_entity_parents(dcid, as_dict=False).get(dcid, [])
 
 
 @lru_cache(maxsize=512)
