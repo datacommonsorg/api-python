@@ -2,6 +2,10 @@ from typing import Optional
 
 from datacommons_client.models.node import Node
 
+DEFAULT_NAME_PROPERTY: str = "name"
+NAME_WITH_LANGUAGE_PROPERTY: str = "nameWithLanguage"
+DEFAULT_NAME_LANGUAGE: str = "en"
+
 
 def extract_name_from_english_name_property(properties: list | Node) -> str:
   """
@@ -18,13 +22,16 @@ def extract_name_from_english_name_property(properties: list | Node) -> str:
 
 
 def extract_name_from_property_with_language(
-    properties: list, language: str, fallback_to_en: bool) -> Optional[str]:
+    properties: list,
+    language: str,
+    fallback_language: Optional[str] = None) -> Optional[str]:
   """
     Extracts the name from a list of properties with language tags.
     Args:
         properties (list): A list of properties with language tags.
         language (str): The desired language code.
-        fallback_to_en (bool): Whether to fall back to English if the desired language is not found.
+        fallback_language: If provided, this language will be used as a fallback if the requested
+            language is not available. If not provided, no fallback will be used.
     """
   # If a non-English language is requested, unpack the response to get it.
   fallback_name = None
@@ -42,9 +49,9 @@ def extract_name_from_property_with_language(
     if lang == language:
       return name
     # If language is 'en', store the name as a fallback
-    if lang == "en":
+    if fallback_language and (lang == fallback_language):
       fallback_name = name
 
   # If no name was found in the specified language, use the fallback name (if available and
   # fallback_to_en is True)
-  return fallback_name if fallback_to_en else None
+  return fallback_name if fallback_language else None
