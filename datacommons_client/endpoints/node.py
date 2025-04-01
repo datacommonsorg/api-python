@@ -245,7 +245,10 @@ class NodeEndpoint(Endpoint):
   def fetch_entity_ancestry(
       self,
       entity_dcids: str | list[str],
-      as_tree: bool = False) -> dict[str, list[dict[str, str]] | dict]:
+      as_tree: bool = False,
+      *,
+      max_concurrent_requests: Optional[int] = ANCESTRY_MAX_WORKERS
+  ) -> dict[str, list[dict[str, str]] | dict]:
     """Fetches the full ancestry (flat or nested) for one or more entities.
         For each input DCID, this method builds the complete ancestry graph using a
         breadth-first traversal and parallel fetching.
@@ -257,6 +260,8 @@ class NodeEndpoint(Endpoint):
                will be fetched.
             as_tree (bool): If True, returns a nested tree structure; otherwise, returns a flat list.
                 Defaults to False.
+            max_concurrent_requests (Optional[int]): The maximum number of concurrent requests to make.
+                Defaults to ANCESTRY_MAX_WORKERS.
         Returns:
             dict[str, list[dict[str, str]] | dict]: A dictionary mapping each input DCID to either:
                 - A flat list of parent dictionaries (if `as_tree` is False), or
@@ -270,7 +275,7 @@ class NodeEndpoint(Endpoint):
     result = {}
 
     # Use a thread pool to fetch ancestry graphs in parallel for each input entity
-    with ThreadPoolExecutor(max_workers=ANCESTRY_MAX_WORKERS) as executor:
+    with ThreadPoolExecutor(max_workers=max_concurrent_requests) as executor:
       futures = [
           executor.submit(build_ancestry_map,
                           root=dcid,
