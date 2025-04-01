@@ -131,8 +131,8 @@ class DataCommonsClient:
         variable_dcids (str | list[str]): One or more variable DCIDs for the observation.
         date (ObservationDate | str): The date for which observations are requested. It can be
             a specific date, "all" to retrieve all observations, or "latest" to get the most recent observations.
-        entity_dcids (Literal["all"] | list[str], optional): The entity DCIDs to retrieve data for.
-            Defaults to "all". DCIDs must include their type (e.g., "country/GTM" for Guatemala).
+        entity_dcids (Literal["all"] | list[str], optional): The entity DCIDs for which to retrieve data.
+            Defaults to "all". 
         entity_type (Optional[str]): The type of entities to filter by when `entity_dcids="all"`.
             Required if `entity_dcids="all"`. Defaults to None.
         parent_entity (Optional[str]): The parent entity under which the target entities fall.
