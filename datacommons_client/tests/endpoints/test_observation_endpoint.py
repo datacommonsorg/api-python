@@ -3,6 +3,7 @@ from unittest.mock import MagicMock
 from datacommons_client.endpoints.base import API
 from datacommons_client.endpoints.observation import ObservationEndpoint
 from datacommons_client.endpoints.payloads import ObservationDate
+from datacommons_client.endpoints.payloads import ObservationSelect
 from datacommons_client.endpoints.response import ObservationResponse
 
 
@@ -164,3 +165,51 @@ def test_fetch_observations_facets_by_entity_type():
                                         endpoint="observation",
                                         all_pages=True,
                                         next_token=None)
+
+
+def test_fetch_available_statistical_variables_single_entity():
+  """Test fetching variables for a single entity."""
+  mock_data = {
+      "var1": ["ent1"],
+      "var2": ["ent1"],
+  }
+
+  # Mock the fetch method on the ObservationEndpoint instance
+  endpoint = ObservationEndpoint(api=MagicMock())
+  endpoint.fetch = MagicMock()
+  endpoint.fetch.return_value.get_data_by_entity = MagicMock(
+      return_value=mock_data)
+
+  result = endpoint.fetch_available_statistical_variables("ent1")
+
+  expected = {
+      "ent1": ["var1", "var2"],
+  }
+  assert result == expected
+
+  endpoint.fetch.assert_called_once_with(
+      entity_dcids="ent1",
+      select=[ObservationSelect.VARIABLE, ObservationSelect.ENTITY],
+      variable_dcids=[],
+  )
+
+
+def test_fetch_available_statistical_variables_multiple_entities():
+  """Test fetching variables for multiple entities."""
+  mock_data = {
+      "var1": ["ent1", "ent2"],
+      "var2": ["ent2"],
+  }
+
+  endpoint = ObservationEndpoint(api=MagicMock())
+  endpoint.fetch = MagicMock()
+  endpoint.fetch.return_value.get_data_by_entity = MagicMock(
+      return_value=mock_data)
+
+  result = endpoint.fetch_available_statistical_variables(["ent1", "ent2"])
+
+  expected = {
+      "ent1": ["var1"],
+      "ent2": ["var1", "var2"],
+  }
+  assert result == expected
