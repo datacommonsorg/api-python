@@ -93,3 +93,23 @@ def observations_as_records(data: dict, facets: dict) -> list[dict]:
           facet_metadata=facets,
       )
   ]
+
+
+def group_variables_by_entity(
+    data: dict[str, list[str]]) -> dict[str, list[str]]:
+  """Groups variables by the entities they are associated with.
+      Takes a dictionary mapping statistical variable DCIDs to a list of entity DCIDs,
+      and returns a new dictionary mapping each entity DCID to a list of statistical
+      variables available for that entity.
+      Args:
+          data: A dictionary where each key is a variable DCID and the value is a list
+              of entity DCIDs that have observations for that variable.
+      Returns:
+          A dictionary where each key is an entity DCID and the value is a list of
+          variable DCIDs available for that entity.
+      """
+  result: dict[str, list[str]] = {}
+  for variable, entities in data.items():
+    for entity in entities:
+      result.setdefault(entity, []).append(variable)
+  return result
