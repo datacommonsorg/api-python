@@ -5,6 +5,7 @@ from datacommons_client.endpoints.base import API
 from datacommons_client.endpoints.node import NodeEndpoint
 from datacommons_client.endpoints.response import NodeResponse
 from datacommons_client.models.node import Name
+from datacommons_client.models.node import Node
 from datacommons_client.utils.names import DEFAULT_NAME_PROPERTY
 from datacommons_client.utils.names import NAME_WITH_LANGUAGE_PROPERTY
 
@@ -324,3 +325,76 @@ def test_fetch_entity_names_no_result(mock_extract_name_lang):
                                        language="es",
                                        fallback_language="en")
   assert result == {}
+
+
+@patch("datacommons_client.endpoints.node.fetch_parents_lru")
+def test_fetch_parents_cached_delegates_to_lru(mock_fetch_lru):
+  mock_fetch_lru.return_value = (Node("B", "B name", "Region"),)
+  endpoint = NodeEndpoint(api=MagicMock())
+
+  result = endpoint._fetch_parents_cached("X")
+
+  assert isinstance(result, tuple)
+  assert result[0].dcid == "B"
+  mock_fetch_lru.assert_called_once_with(endpoint, "X")
+
+
+@patch("datacommons_client.endpoints.node.flatten_ancestry")
+@patch("datacommons_client.endpoints.node.build_ancestry_map")
+def test_fetch_entity_ancestry_flat(mock_build_map, mock_flatten):
+  """Test fetch_entity_ancestry with flat structure (as_tree=False)."""
+  mock_build_map.return_value = (
+      "X",
+      {
+          "X": [Node("A", "A name", "Country")],
+          "A": [],
+      },
+  )
+  mock_flatten.return_value = [{
+      "dcid": "A",
+      "name": "A name",
+      "type": "Country"
+  }]
+
+  endpoint = NodeEndpoint(api=MagicMock())
+  result = endpoint.fetch_entity_ancestry("X", as_tree=False)
+
+  assert result == {"X": [{"dcid": "A", "name": "A name", "type": "Country"}]}
+  mock_build_map.assert_called_once()
+  mock_flatten.assert_called_once()
+
+
+@patch("datacommons_client.endpoints.node.build_ancestry_tree")
+@patch("datacommons_client.endpoints.node.build_ancestry_map")
+def test_fetch_entity_ancestry_tree(mock_build_map, mock_build_tree):
+  """Test fetch_entity_ancestry with tree structure (as_tree=True)."""
+  mock_build_map.return_value = (
+      "Y",
+      {
+          "Y": [Node("Z", "Z name", "Region")],
+          "Z": [],
+      },
+  )
+  mock_build_tree.return_value = {
+      "dcid":
+          "Y",
+      "name":
+          None,
+      "type":
+          None,
+      "parents": [{
+          "dcid": "Z",
+          "name": "Z name",
+          "type": "Region",
+          "parents": []
+      }],
+  }
+
+  endpoint = NodeEndpoint(api=MagicMock())
+  result = endpoint.fetch_entity_ancestry("Y", as_tree=True)
+
+  assert "Y" in result
+  assert result["Y"]["dcid"] == "Y"
+  assert result["Y"]["parents"][0]["dcid"] == "Z"
+  mock_build_map.assert_called_once()
+  mock_build_tree.assert_called_once_with("Y", mock_build_map.return_value[1])
