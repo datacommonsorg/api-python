@@ -183,6 +183,24 @@ def test_flatten_arcs():
   assert result["dc/03lw9rhpendw5"].value == "191 Peachtree Tower"
 
 
+def test_unpack_arcs_missing_nodes_key():
+  """Test that unpack_arcs handles arcs with no 'nodes' key."""
+  arcs = {
+      "prop1": {
+          "nodes": ["node1", "node2"]
+      },
+      "prop2": {
+          # No 'nodes' key here
+      },
+      "prop3": {
+          "nodes": []
+      },
+  }
+
+  result = unpack_arcs(arcs)
+  assert result == {"prop1": ["node1", "node2"], "prop2": None, "prop3": []}
+
+
 def test_unpack_arcs_multiple_properties():
   """Test that _unpack_arcs correctly handles multiple properties with nodes."""
   arcs = {
