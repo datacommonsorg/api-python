@@ -7,7 +7,7 @@ def unpack_arcs(arcs: Dict[str, Any]) -> Any:
   """Simplify the 'arcs' structure."""
   if len(arcs) > 1:
     # Multiple arcs: return dictionary of property nodes
-    return {prop: arc_data.get("nodes") for prop, arc_data in arcs.items()}
+    return {prop: arc_data.get("nodes", []) for prop, arc_data in arcs.items()}
 
   # Single arc: extract first node's data
   for property_data in arcs.values():

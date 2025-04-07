@@ -198,7 +198,7 @@ def test_unpack_arcs_missing_nodes_key():
   }
 
   result = unpack_arcs(arcs)
-  assert result == {"prop1": ["node1", "node2"], "prop2": None, "prop3": []}
+  assert result == {"prop1": ["node1", "node2"], "prop2": [], "prop3": []}
 
 
 def test_unpack_arcs_multiple_properties():
