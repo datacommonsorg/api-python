@@ -196,7 +196,7 @@ class NodeEndpoint(Endpoint):
       entity_dcids: str | list[str],
       language: Optional[str] = DEFAULT_NAME_LANGUAGE,
       fallback_language: Optional[str] = None,
-  ) -> dict[str, str]:
+  ) -> dict[str, dict[str, str]]:
     """
         Fetches entity names in the specified language, with optional fallback to English.
         Args:
@@ -205,7 +205,8 @@ class NodeEndpoint(Endpoint):
           fallback_language: If provided, this language will be used as a fallback if the requested
             language is not available. If not provided, no fallback will be used.
         Returns:
-          A dictionary mapping each DCID to its name (in the requested or fallback language).
+          A dictionary mapping each DCID to a dictionary with the mapped name, language, and
+            the property used.
         """
 
     # Check if entity_dcids is a single string. If so, convert it to a list.
@@ -220,19 +221,24 @@ class NodeEndpoint(Endpoint):
     data = self.fetch_property_values(
         node_dcids=entity_dcids, properties=name_property).get_properties()
 
-    names: dict[str, str] = {}
+    names: dict[str, dict[str, str]] = {}
 
     # Iterate through the fetched data and populate the names dictionary.
     for dcid, properties in data.items():
       if language == "en":
         name = extract_name_from_english_name_property(properties=properties)
+        lang_used = "en"
       else:
-        name = extract_name_from_property_with_language(
+        name, lang_used = extract_name_from_property_with_language(
             properties=properties,
             language=language,
             fallback_language=fallback_language,
         )
       if name:
-        names[dcid] = name
+        names[dcid] = {
+            "value": name,
+            "language": lang_used,
+            "property": name_property,
+        }
 
     return names

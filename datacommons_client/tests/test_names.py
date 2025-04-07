@@ -26,7 +26,8 @@ def test_extract_name_from_property_with_language_match():
   result = extract_name_from_property_with_language(properties,
                                                     language="es",
                                                     fallback_language="en")
-  assert result == "Nombre"
+  assert result[0] == "Nombre"
+  assert result[1] == "es"
 
 
 def test_extract_name_from_property_with_language_fallback():
@@ -39,7 +40,8 @@ def test_extract_name_from_property_with_language_fallback():
   result = extract_name_from_property_with_language(properties,
                                                     language="de",
                                                     fallback_language="it")
-  assert result == "Nome"
+  assert result[0] == "Nome"
+  assert result[1] == "it"
 
 
 def test_extract_name_from_property_with_language_no_fallback():
@@ -49,7 +51,8 @@ def test_extract_name_from_property_with_language_no_fallback():
       Node(value="Nom@fr"),
   ]
   result = extract_name_from_property_with_language(properties, language="de")
-  assert result is None
+  assert result[0] is None
+  assert result[1] is None
 
 
 def test_extract_name_from_property_without_language_tags():
@@ -59,4 +62,5 @@ def test_extract_name_from_property_without_language_tags():
       Node(value="Name@en"),
   ]
   result = extract_name_from_property_with_language(properties, language="en")
-  assert result == "Name"
+  assert result[0] == "Name"
+  assert result[1] == "en"

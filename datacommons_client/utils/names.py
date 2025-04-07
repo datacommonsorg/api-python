@@ -24,7 +24,7 @@ def extract_name_from_english_name_property(properties: list | Node) -> str:
 def extract_name_from_property_with_language(
     properties: list,
     language: str,
-    fallback_language: Optional[str] = None) -> Optional[str]:
+    fallback_language: Optional[str] = None) -> tuple[str | None, str | None]:
   """
     Extracts the name from a list of properties with language tags.
     Args:
@@ -32,6 +32,9 @@ def extract_name_from_property_with_language(
         language (str): The desired language code.
         fallback_language: If provided, this language will be used as a fallback if the requested
             language is not available. If not provided, no fallback will be used.
+
+    Returns:
+        tuple[str,str]: A tuple containing the extracted name and its language.
     """
   # If a non-English language is requested, unpack the response to get it.
   fallback_name = None
@@ -47,11 +50,10 @@ def extract_name_from_property_with_language(
 
     # If the language matches, add the name to the dictionary.
     if lang == language:
-      return name
+      return name, lang
     # If language is 'en', store the name as a fallback
     if fallback_language and (lang == fallback_language):
       fallback_name = name
 
-  # If no name was found in the specified language, use the fallback name (if available and
-  # fallback_to_en is True)
-  return fallback_name if fallback_language else None
+  # If no name was found in the specified language, use the fallback name (if available)
+  return fallback_name, fallback_language if fallback_language else None
