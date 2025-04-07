@@ -12,7 +12,7 @@ from datacommons_client.utils.graph import build_ancestry_tree
 from datacommons_client.utils.graph import fetch_parents_lru
 from datacommons_client.utils.graph import flatten_ancestry
 
-ANCESTRY_MAX_WORKERS = 20
+ANCESTRY_MAX_WORKERS = 10
 
 
 class NodeEndpoint(Endpoint):
