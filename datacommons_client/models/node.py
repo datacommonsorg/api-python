@@ -2,6 +2,8 @@ from dataclasses import dataclass
 from dataclasses import field
 from typing import Any, Dict, List, Optional, TypeAlias
 
+from datacommons_client.utils.data_processing import SerializableMixin
+
 NextToken: TypeAlias = Optional[str]
 NodeDCID: TypeAlias = str
 ArcLabel: TypeAlias = str
@@ -10,7 +12,7 @@ PropertyList: TypeAlias = list[Property]
 
 
 @dataclass
-class Node:
+class Node(SerializableMixin):
   """Represents an individual node in the Data Commons knowledge graph.
 
     Attributes:

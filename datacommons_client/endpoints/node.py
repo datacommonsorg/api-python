@@ -6,10 +6,9 @@ from datacommons_client.endpoints.base import Endpoint
 from datacommons_client.endpoints.payloads import NodeRequestPayload
 from datacommons_client.endpoints.payloads import normalize_properties_to_string
 from datacommons_client.endpoints.response import NodeResponse
-from datacommons_client.models.graph import Parent
+from datacommons_client.models.node import Node
 from datacommons_client.utils.graph import build_ancestry_map
 from datacommons_client.utils.graph import build_ancestry_tree
-from datacommons_client.utils.graph import build_parents_dictionary
 from datacommons_client.utils.graph import fetch_parents_lru
 from datacommons_client.utils.graph import flatten_ancestry
 
@@ -199,7 +198,7 @@ class NodeEndpoint(Endpoint):
       self,
       entity_dcids: str | list[str],
       *,
-      as_dict: bool = True) -> dict[str, list[Parent | dict]]:
+      as_dict: bool = True) -> dict[str, list[Node | dict]]:
     """Fetches the direct parents of one or more entities using the 'containedInPlace' property.
 
         Args:
@@ -220,14 +219,12 @@ class NodeEndpoint(Endpoint):
         properties="containedInPlace",
     ).get_properties()
 
-    result = build_parents_dictionary(data=data)
-
     if as_dict:
-      return {k: [p.to_dict() for p in v] for k, v in result.items()}
+      return {k: v.to_dict() for k, v in data.items()}
 
-    return result
+    return data
 
-  def _fetch_parents_cached(self, dcid: str) -> tuple[Parent, ...]:
+  def _fetch_parents_cached(self, dcid: str) -> tuple[Node, ...]:
     """Returns cached parent nodes for a given entity using an LRU cache.
 
         This private wrapper exists because `@lru_cache` cannot be applied directly

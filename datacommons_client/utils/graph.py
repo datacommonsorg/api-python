@@ -4,17 +4,18 @@ from concurrent.futures import Future
 from concurrent.futures import ThreadPoolExecutor
 from concurrent.futures import wait
 from functools import lru_cache
-from typing import Callable, Optional
+from typing import Callable, Optional, TypeAlias
 
-from datacommons_client.models.graph import AncestryMap
-from datacommons_client.models.graph import Parent
+from datacommons_client.models.node import Node
 
 PARENTS_MAX_WORKERS = 10
+
+AncestryMap: TypeAlias = dict[str, list[Node]]
 
 # -- -- Fetch tools -- --
 
 
-def _fetch_parents_uncached(endpoint, dcid: str) -> list[Parent]:
+def _fetch_parents_uncached(endpoint, dcid: str) -> list[Node]:
   """Fetches the immediate parents of a given DCID from the endpoint, without caching.
 
     This function performs a direct, uncached call to the API. It exists
@@ -31,11 +32,13 @@ def _fetch_parents_uncached(endpoint, dcid: str) -> list[Parent]:
     Returns:
         A list of parent dictionaries, each containing 'dcid', 'name', and 'type'.
     """
-  return endpoint.fetch_entity_parents(dcid, as_dict=False).get(dcid, [])
+  parents = endpoint.fetch_entity_parents(dcid, as_dict=False).get(dcid, [])
+
+  return parents if isinstance(parents, list) else [parents]
 
 
 @lru_cache(maxsize=512)
-def fetch_parents_lru(endpoint, dcid: str) -> tuple[Parent, ...]:
+def fetch_parents_lru(endpoint, dcid: str) -> tuple[Node, ...]:
   """Fetches parents of a DCID using an LRU cache for improved performance.
     Args:
         endpoint: A client object with a `fetch_entity_parents` method.
@@ -48,35 +51,11 @@ def fetch_parents_lru(endpoint, dcid: str) -> tuple[Parent, ...]:
 
 
 # -- -- Ancestry tools -- --
-def build_parents_dictionary(data: dict) -> dict[str, list[Parent]]:
-  """Transforms a dictionary of entities and their parents into a structured
-    dictionary mapping each entity to its list of Parents.
-
-    Args:
-        data (dict): The properties dictionary of a Node.fetch_property_values call.
-
-    Returns:
-        dict[str, list[Parent]]: A dictionary where each key is an entity DCID
-        and the value is a list of Parent objects representing its parents.
-
-    """
-
-  result: dict[str, list[Parent]] = {}
-
-  for entity, properties in data.items():
-    if not isinstance(properties, list):
-      properties = [properties]
-
-    for parent in properties:
-      parent_type = parent.types[0] if len(parent.types) == 1 else parent.types
-      result.setdefault(entity, []).append(
-          Parent(dcid=parent.dcid, name=parent.name, type=parent_type))
-  return result
 
 
 def build_ancestry_map(
     root: str,
-    fetch_fn: Callable[[str], tuple[Parent, ...]],
+    fetch_fn: Callable[[str], tuple[Node, ...]],
     max_workers: Optional[int] = PARENTS_MAX_WORKERS,
 ) -> tuple[str, AncestryMap]:
   """Constructs a complete ancestry map for the root node using parallel
@@ -194,7 +173,7 @@ def _assemble_tree(postorder: list[str], ancestry: AncestryMap) -> dict:
     for parent in ancestry.get(node, []):
       parent_dcid = parent.dcid
       name = parent.name
-      entity_type = parent.type
+      entity_type = parent.types
 
       # If the parent node is not already in the cache, add it.
       if parent_dcid not in tree_cache:
@@ -246,9 +225,5 @@ def flatten_ancestry(ancestry: AncestryMap) -> list[dict[str, str]]:
       if parent.dcid in seen:
         continue
       seen.add(parent.dcid)
-      flat.append({
-          "dcid": parent.dcid,
-          "name": parent.name,
-          "type": parent.type
-      })
+      flat.append(parent.to_dict())
   return flat

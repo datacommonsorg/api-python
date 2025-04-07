@@ -5,8 +5,8 @@ from datacommons_client.models.node import Node
 from datacommons_client.utils.graph import _assemble_tree
 from datacommons_client.utils.graph import _fetch_parents_uncached
 from datacommons_client.utils.graph import _postorder_nodes
+from datacommons_client.utils.graph import build_ancestry_map
 from datacommons_client.utils.graph import build_ancestry_tree
-from datacommons_client.utils.graph import build_parents_dictionary
 from datacommons_client.utils.graph import fetch_parents_lru
 from datacommons_client.utils.graph import flatten_ancestry
 
@@ -30,7 +30,7 @@ def test_fetch_parents_lru_caches_results():
   """Test fetch_parents_lru uses LRU cache and returns tuple."""
   endpoint = MagicMock()
   endpoint.fetch_entity_parents.return_value.get.return_value = [
-      Parent(dcid="parentX", name="Parent X", type="Region")
+      Node(dcid="parentX", name="Parent X", types=["Region"])
   ]
 
   result1 = fetch_parents_lru(endpoint, "nodeA")
@@ -46,35 +46,13 @@ def test_fetch_parents_lru_caches_results():
   assert endpoint.fetch_entity_parents.call_count == 1  # Called only once
 
 
-def test_build_parents_dictionary_single_type():
-  """Test build_parents_dictionary with single type."""
-  data = {"child1": [Node(dcid="p1", name="Parent 1", types=["Country"])]}
-
-  result = build_parents_dictionary(data)
-
-  assert result["child1"][0].dcid == "p1"
-  assert result["child1"][0].type == "Country"
-
-
-def test_build_parents_dictionary_multi_type():
-  data = {
-      "child1": [Node(dcid="p1", name="Parent 1", types=["Country", "Region"])],
-      "child2": [Node(dcid="p2", name="Parent 12", types=["Continent"])],
-  }
-
-  result = build_parents_dictionary(data)
-
-  assert result["child1"][0].type == ["Country", "Region"]
-  assert result["child2"][0].type == "Continent"
-
-
 def test_build_ancestry_map_linear_tree():
   """A -> B -> C"""
 
   def fetch_mock(dcid):
     return {
-        "C": (Parent("B", "Node B", "Type"),),
-        "B": (Parent("A", "Node A", "Type"),),
+        "C": (Node("B", "Node B", "Type"),),
+        "B": (Node("A", "Node A", "Type"),),
         "A": tuple(),
     }.get(dcid, tuple())
 
@@ -87,29 +65,25 @@ def test_build_ancestry_map_linear_tree():
   assert ancestry["A"] == []  # No parents for A
 
 
-from datacommons_client.models.graph import Parent
-from datacommons_client.utils.graph import build_ancestry_map
-
-
 def test_build_ancestry_map_branching_graph():
   r"""
-    Graph:
-        F
-       / \
-      D   E
-     / \ /
-    B  C
-     \/
-      A
-    """
+      Graph:
+          F
+         / \
+        D   E
+       / \ /
+      B  C
+       \/
+        A
+      """
 
   def fetch_mock(dcid):
     return {
-        "A": (Parent("B", "Node B", "Type"), Parent("C", "Node C", "Type")),
-        "B": (Parent("D", "Node D", "Type"),),
-        "C": (Parent("D", "Node D", "Type"), Parent("E", "Node E", "Type")),
-        "D": (Parent("F", "Node F", "Type"),),
-        "E": (Parent("F", "Node F", "Type"),),
+        "A": (Node("B", "Node B", "Type"), Node("C", "Node C", "Type")),
+        "B": (Node("D", "Node D", "Type"),),
+        "C": (Node("D", "Node D", "Type"), Node("E", "Node E", "Type")),
+        "D": (Node("F", "Node F", "Type"),),
+        "E": (Node("F", "Node F", "Type"),),
         "F": tuple(),
     }.get(dcid, tuple())
 
@@ -137,9 +111,9 @@ def test_build_ancestry_map_cycle_detection():
   def fetch_mock(dcid):
     call_count[dcid] += 1
     return {
-        "A": (Parent("B", "B", "Type"),),
-        "B": (Parent("C", "C", "Type"),),
-        "C": (Parent("A", "A", "Type"),),  # Cycle back to A
+        "A": (Node("B", "B", "Type"),),
+        "B": (Node("C", "C", "Type"),),
+        "C": (Node("A", "A", "Type"),),  # Cycle back to A
     }.get(dcid, tuple())
 
   root, ancestry = build_ancestry_map("A", fetch_mock, max_workers=2)
@@ -160,8 +134,8 @@ def test_build_ancestry_map_cycle_detection():
 def test_postorder_nodes_simple_graph():
   """Test postorder traversal on a simple graph."""
   ancestry = {
-      "C": [Parent("B", "B", "Type")],
-      "B": [Parent("A", "A", "Type")],
+      "C": [Node("B", "B", "Type")],
+      "B": [Node("A", "A", "Type")],
       "A": [],
   }
 
@@ -175,8 +149,8 @@ def test_postorder_nodes_simple_graph():
 def test_assemble_tree_creates_nested_structure():
   """Test _assemble_tree creates a nested structure."""
   ancestry = {
-      "C": [Parent("B", "Node B", "Type")],
-      "B": [Parent("A", "Node A", "Type")],
+      "C": [Node("B", "Node B", "Type")],
+      "B": [Node("A", "Node A", "Type")],
       "A": [],
   }
   postorder = ["A", "B", "C"]
@@ -194,10 +168,10 @@ def test_postorder_nodes_ignores_unreachable_nodes():
     Ancestry map also includes D (unconnected)
     """
   ancestry = {
-      "A": [Parent("B", "B", "Type")],
-      "B": [Parent("C", "C", "Type")],
+      "A": [Node("B", "B", "Type")],
+      "B": [Node("C", "C", "Type")],
       "C": [],
-      "D": [Parent("X", "X", "Type")],
+      "D": [Node("X", "X", "Type")],
   }
 
   postorder = _postorder_nodes("A", ancestry)
@@ -216,8 +190,8 @@ def test_assemble_tree_shared_parent_not_duplicated():
     """
 
   ancestry = {
-      "A": [Parent("C", "C name", "City")],
-      "B": [Parent("C", "C name", "City")],
+      "A": [Node("C", "C name", "City")],
+      "B": [Node("C", "C name", "City")],
       "C": [],
   }
 
@@ -236,8 +210,8 @@ def test_assemble_tree_shared_parent_not_duplicated():
 def test_build_ancestry_tree_nested_output():
   """Test build_ancestry_tree creates a nested structure."""
   ancestry = {
-      "C": [Parent("B", "B", "Type")],
-      "B": [Parent("A", "A", "Type")],
+      "C": [Node("B", "B", "Type")],
+      "B": [Node("A", "A", "Type")],
       "A": [],
   }
 
@@ -252,13 +226,13 @@ def test_flatten_ancestry_deduplicates():
   """Test flatten_ancestry deduplicates parents."""
 
   ancestry = {
-      "X": [Parent("A", "A", "Country")],
-      "Y": [Parent("A", "A", "Country"),
-            Parent("B", "B", "City")],
+      "X": [Node("A", "A", types=["Country"])],
+      "Y": [Node("A", "A", types=["Country"]),
+            Node("B", "B", types=["City"])],
   }
 
   flat = flatten_ancestry(ancestry)
 
-  assert {"dcid": "A", "name": "A", "type": "Country"} in flat
-  assert {"dcid": "B", "name": "B", "type": "City"} in flat
+  assert {"dcid": "A", "name": "A", "types": ["Country"]} in flat
+  assert {"dcid": "B", "name": "B", "types": ["City"]} in flat
   assert len(flat) == 2

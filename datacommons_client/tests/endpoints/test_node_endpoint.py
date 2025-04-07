@@ -4,7 +4,6 @@ from unittest.mock import patch
 from datacommons_client.endpoints.base import API
 from datacommons_client.endpoints.node import NodeEndpoint
 from datacommons_client.endpoints.response import NodeResponse
-from datacommons_client.models.graph import Parent
 from datacommons_client.models.node import Node
 
 
@@ -199,62 +198,9 @@ def test_node_endpoint_fetch_property_values_string_vs_list():
   )
 
 
-@patch("datacommons_client.utils.graph.build_parents_dictionary")
-def test_fetch_entity_parents_as_dict(mock_build_parents_dict):
-  """Test fetch_entity_parents with dictionary output."""
-  api_mock = MagicMock()
-  endpoint = NodeEndpoint(api=api_mock)
-
-  api_mock.post.return_value = {
-      "data": {
-          "X": {
-              "properties": {
-                  "containedInPlace": []
-              }
-          }
-      }
-  }
-  endpoint.fetch_property_values = MagicMock()
-  endpoint.fetch_property_values.return_value.get_properties.return_value = {
-      "X": Node("X", "X name", types=["Country"])
-  }
-
-  result = endpoint.fetch_entity_parents("X", as_dict=True)
-  assert result == {"X": [{"dcid": "X", "name": "X name", "type": "Country"}]}
-
-  endpoint.fetch_property_values.assert_called_once_with(
-      node_dcids="X", properties="containedInPlace")
-
-
-@patch("datacommons_client.utils.graph.build_parents_dictionary")
-def test_fetch_entity_parents_as_objects(mock_build_parents_dict):
-  """Test fetch_entity_parents with raw Parent object output."""
-  api_mock = MagicMock()
-  endpoint = NodeEndpoint(api=api_mock)
-
-  # Simulate what fetch_property_values().get_properties() would return
-  endpoint.fetch_property_values = MagicMock()
-  endpoint.fetch_property_values.return_value.get_properties.return_value = {
-      "X": Node("X", "X name", types=["Country"])
-  }
-
-  # Mock output of build_parents_dictionary
-  parent_obj = Node("X", "X name", types=["Country"])
-  mock_build_parents_dict.return_value = {"X": [parent_obj]}
-
-  result = endpoint.fetch_entity_parents("X", as_dict=False)
-
-  assert isinstance(result, dict)
-  assert "X" in result
-  assert isinstance(result["X"][0], Parent)
-
-  endpoint.fetch_property_values.assert_called_once_with(
-      node_dcids="X", properties="containedInPlace")
-
-
 @patch("datacommons_client.endpoints.node.fetch_parents_lru")
 def test_fetch_parents_cached_delegates_to_lru(mock_fetch_lru):
-  mock_fetch_lru.return_value = (Parent("B", "B name", "Region"),)
+  mock_fetch_lru.return_value = (Node("B", "B name", "Region"),)
   endpoint = NodeEndpoint(api=MagicMock())
 
   result = endpoint._fetch_parents_cached("X")
@@ -271,7 +217,7 @@ def test_fetch_entity_ancestry_flat(mock_build_map, mock_flatten):
   mock_build_map.return_value = (
       "X",
       {
-          "X": [Parent("A", "A name", "Country")],
+          "X": [Node("A", "A name", "Country")],
           "A": [],
       },
   )
@@ -296,7 +242,7 @@ def test_fetch_entity_ancestry_tree(mock_build_map, mock_build_tree):
   mock_build_map.return_value = (
       "Y",
       {
-          "Y": [Parent("Z", "Z name", "Region")],
+          "Y": [Node("Z", "Z name", "Region")],
           "Z": [],
       },
   )
