@@ -5,6 +5,7 @@ from datacommons_client.endpoints.base import Endpoint
 from datacommons_client.endpoints.payloads import NodeRequestPayload
 from datacommons_client.endpoints.payloads import normalize_properties_to_string
 from datacommons_client.endpoints.response import NodeResponse
+from datacommons_client.models.node import Name
 from datacommons_client.utils.names import DEFAULT_NAME_LANGUAGE
 from datacommons_client.utils.names import DEFAULT_NAME_PROPERTY
 from datacommons_client.utils.names import extract_name_from_english_name_property
@@ -196,7 +197,7 @@ class NodeEndpoint(Endpoint):
       entity_dcids: str | list[str],
       language: Optional[str] = DEFAULT_NAME_LANGUAGE,
       fallback_language: Optional[str] = None,
-  ) -> dict[str, dict[str, str]]:
+  ) -> dict[str, Name]:
     """
         Fetches entity names in the specified language, with optional fallback to English.
         Args:
@@ -221,7 +222,7 @@ class NodeEndpoint(Endpoint):
     data = self.fetch_property_values(
         node_dcids=entity_dcids, properties=name_property).get_properties()
 
-    names: dict[str, dict[str, str]] = {}
+    names: dict[str, Name] = {}
 
     # Iterate through the fetched data and populate the names dictionary.
     for dcid, properties in data.items():
@@ -235,10 +236,10 @@ class NodeEndpoint(Endpoint):
             fallback_language=fallback_language,
         )
       if name:
-        names[dcid] = {
-            "value": name,
-            "language": lang_used,
-            "property": name_property,
-        }
+        names[dcid] = Name(
+            value=name,
+            language=lang_used,
+            property=name_property,
+        )
 
     return names

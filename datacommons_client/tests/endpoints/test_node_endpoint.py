@@ -4,6 +4,7 @@ from unittest.mock import patch
 from datacommons_client.endpoints.base import API
 from datacommons_client.endpoints.node import NodeEndpoint
 from datacommons_client.endpoints.response import NodeResponse
+from datacommons_client.models.node import Name
 from datacommons_client.utils.names import DEFAULT_NAME_PROPERTY
 from datacommons_client.utils.names import NAME_WITH_LANGUAGE_PROPERTY
 
@@ -223,12 +224,14 @@ def test_fetch_entity_names_english(mock_extract_name):
   endpoint.fetch_property_values.assert_called_once_with(
       node_dcids=["dc/123"], properties=DEFAULT_NAME_PROPERTY)
   assert result == {
-      "dc/123": {
-          "value": "Guatemala",
-          "language": "en",
-          "property": DEFAULT_NAME_PROPERTY,
-      }
+      "dc/123":
+          Name(
+              value="Guatemala",
+              language="en",
+              property=DEFAULT_NAME_PROPERTY,
+          )
   }
+
   mock_extract_name.assert_called_once()
 
 
@@ -257,12 +260,14 @@ def test_fetch_entity_names_non_english(mock_extract_name):
   endpoint.fetch_property_values.assert_called_once_with(
       node_dcids=["dc/123"], properties=NAME_WITH_LANGUAGE_PROPERTY)
   assert result == {
-      "dc/123": {
-          "value": "Californie",
-          "language": "fr",
-          "property": NAME_WITH_LANGUAGE_PROPERTY,
-      }
+      "dc/123":
+          Name(
+              value="Californie",
+              language="fr",
+              property=NAME_WITH_LANGUAGE_PROPERTY,
+          )
   }
+
   mock_extract_name.assert_called_once()
 
 
@@ -292,11 +297,12 @@ def test_fetch_entity_names_with_fallback(mock_extract_name_lang):
                                        fallback_language="en")
 
   assert result == {
-      "dc/123": {
-          "value": "Chiquimula",
-          "language": "en",
-          "property": NAME_WITH_LANGUAGE_PROPERTY,
-      }
+      "dc/123":
+          Name(
+              value="Chiquimula",
+              language="en",
+              property=NAME_WITH_LANGUAGE_PROPERTY,
+          )
   }
 
 
