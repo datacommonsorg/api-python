@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from dataclasses import field
 from typing import Any, Dict, List
 
+from datacommons_client.models.base import SerializableMixin
 from datacommons_client.models.node import Arcs
 from datacommons_client.models.node import NextToken
 from datacommons_client.models.node import NodeDCID
@@ -13,7 +14,6 @@ from datacommons_client.models.observation import variableDCID
 from datacommons_client.models.resolve import Entity
 from datacommons_client.utils.data_processing import flatten_properties
 from datacommons_client.utils.data_processing import observations_as_records
-from datacommons_client.utils.data_processing import SerializableMixin
 
 
 @dataclass

@@ -4,7 +4,10 @@ from unittest.mock import patch
 from datacommons_client.endpoints.base import API
 from datacommons_client.endpoints.node import NodeEndpoint
 from datacommons_client.endpoints.response import NodeResponse
+from datacommons_client.models.node import Name
 from datacommons_client.models.node import Node
+from datacommons_client.utils.names import DEFAULT_NAME_PROPERTY
+from datacommons_client.utils.names import NAME_WITH_LANGUAGE_PROPERTY
 
 
 def test_node_endpoint_initialization():
@@ -196,6 +199,132 @@ def test_node_endpoint_fetch_property_values_string_vs_list():
       all_pages=True,
       next_token=None,
   )
+
+
+@patch(
+    "datacommons_client.endpoints.node.extract_name_from_english_name_property")
+def test_fetch_entity_names_english(mock_extract_name):
+  """Test fetching names in English (default behavior)."""
+  mock_extract_name.return_value = "Guatemala"
+  api_mock = MagicMock()
+  endpoint = NodeEndpoint(api=api_mock)
+
+  # Mock the response from fetch_property_values
+  endpoint.fetch_property_values = MagicMock(return_value=NodeResponse(
+      data={
+          "dc/123": {
+              "properties": {
+                  DEFAULT_NAME_PROPERTY: [{
+                      "value": "Guatemala"
+                  }]
+              }
+          }
+      }))
+
+  result = endpoint.fetch_entity_names("dc/123")
+  endpoint.fetch_property_values.assert_called_once_with(
+      node_dcids=["dc/123"], properties=DEFAULT_NAME_PROPERTY)
+  assert result == {
+      "dc/123":
+          Name(
+              value="Guatemala",
+              language="en",
+              property=DEFAULT_NAME_PROPERTY,
+          )
+  }
+
+  mock_extract_name.assert_called_once()
+
+
+@patch(
+    "datacommons_client.endpoints.node.extract_name_from_property_with_language"
+)
+def test_fetch_entity_names_non_english(mock_extract_name):
+  """Test fetching names in a non-English language."""
+  mock_extract_name.return_value = ("Californie", "fr")
+  api_mock = MagicMock()
+  endpoint = NodeEndpoint(api=api_mock)
+
+  endpoint.fetch_property_values = MagicMock(return_value=NodeResponse(
+      data={
+          "dc/123": {
+              "properties": {
+                  NAME_WITH_LANGUAGE_PROPERTY: [{
+                      "value": "Californie",
+                      "lang": "fr"
+                  }]
+              }
+          }
+      }))
+
+  result = endpoint.fetch_entity_names("dc/123", language="fr")
+  endpoint.fetch_property_values.assert_called_once_with(
+      node_dcids=["dc/123"], properties=NAME_WITH_LANGUAGE_PROPERTY)
+  assert result == {
+      "dc/123":
+          Name(
+              value="Californie",
+              language="fr",
+              property=NAME_WITH_LANGUAGE_PROPERTY,
+          )
+  }
+
+  mock_extract_name.assert_called_once()
+
+
+@patch(
+    "datacommons_client.endpoints.node.extract_name_from_property_with_language"
+)
+def test_fetch_entity_names_with_fallback(mock_extract_name_lang):
+  """Test fallback to another language when target language is unavailable."""
+  mock_extract_name_lang.return_value = ("Chiquimula", "en")
+  api_mock = MagicMock()
+  endpoint = NodeEndpoint(api=api_mock)
+
+  endpoint.fetch_property_values = MagicMock(return_value=NodeResponse(
+      data={
+          "dc/123": {
+              "properties": {
+                  NAME_WITH_LANGUAGE_PROPERTY: [{
+                      "value": "Chiquimula",
+                      "lang": "en"
+                  }]
+              }
+          }
+      }))
+
+  result = endpoint.fetch_entity_names("dc/123",
+                                       language="fr",
+                                       fallback_language="en")
+
+  assert result == {
+      "dc/123":
+          Name(
+              value="Chiquimula",
+              language="en",
+              property=NAME_WITH_LANGUAGE_PROPERTY,
+          )
+  }
+
+
+@patch(
+    "datacommons_client.endpoints.node.extract_name_from_property_with_language"
+)
+def test_fetch_entity_names_no_result(mock_extract_name_lang):
+  """Test case when no name is found."""
+  mock_extract_name_lang.return_value = (None, None)
+  api_mock = MagicMock()
+  endpoint = NodeEndpoint(api=api_mock)
+
+  endpoint.fetch_property_values = MagicMock(return_value=NodeResponse(
+      data={"dc/999": {
+          "properties": {}
+      }}))
+
+  result = endpoint.fetch_entity_names("dc/999",
+                                       language="es",
+                                       fallback_language="en")
+  assert result == {}
 
 
 @patch("datacommons_client.endpoints.node.fetch_parents_lru")

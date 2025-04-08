@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from dataclasses import field
 from typing import Any, Dict, List, Optional, TypeAlias
 
-from datacommons_client.utils.data_processing import SerializableMixin
+from datacommons_client.models.base import SerializableMixin
 
 NextToken: TypeAlias = Optional[str]
 NodeDCID: TypeAlias = str
@@ -38,6 +38,21 @@ class Node(SerializableMixin):
         types=json_data.get("types"),
         value=json_data.get("value"),
     )
+
+
+@dataclass
+class Name(SerializableMixin):
+  """Represents a name associated with an Entity (node).
+
+    Attributes:
+        value: The name of the Entity
+        language: The language of the name
+        property: The property used to get the name
+    """
+
+  value: str
+  language: str
+  property: str
 
 
 @dataclass
