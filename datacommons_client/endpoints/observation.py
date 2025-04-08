@@ -63,72 +63,6 @@ class ObservationEndpoint(Endpoint):
     # Send the request
     return ObservationResponse.from_json(self.post(payload))
 
-  def fetch_latest_observations(
-      self,
-      variable_dcids: str | list[str],
-      entity_dcids: Optional[str | list[str]] = None,
-      entity_expression: Optional[str] = None,
-      *,
-      select: Optional[list[ObservationSelect | str]] = None,
-      filter_facet_domains: Optional[str | list[str]] = None,
-      filter_facet_ids: Optional[str | list[str]] = None,
-  ) -> ObservationResponse:
-    """
-        Fetches the latest observations for the given variable and entity.
-
-        Args:
-            variable_dcids (str | list[str]): One or more variable IDs for the data.
-            entity_dcids (Optional[str | list[str]]): One or more entity IDs to filter the data.
-            entity_expression (Optional[str]): A string expression to filter entities.
-            select (Optional[list[ObservationSelect | str]]): Fields to include in the response.
-                If not provided, defaults to ["date", "variable", "entity", "value"].
-            filter_facet_domains: Optional[str | list[str]: One or more domain names to filter the data.
-            filter_facet_ids: Optional[str | list[str]: One or more facet IDs to filter the data.
-
-        Returns:
-            ObservationResponse: The response object containing observations for the specified query.
-        """
-    return self.fetch(
-        variable_dcids=variable_dcids,
-        date=ObservationDate.LATEST,
-        entity_dcids=entity_dcids,
-        entity_expression=entity_expression,
-        filter_facet_domains=filter_facet_domains,
-        filter_facet_ids=filter_facet_ids,
-        select=[s for s in ObservationSelect] if not select else select,
-    )
-
-  def fetch_latest_observations_by_entity(
-      self,
-      variable_dcids: str | list[str],
-      entity_dcids: str | list[str],
-      *,
-      select: Optional[list[ObservationSelect | str]] = None,
-      filter_facet_domains: Optional[str | list[str]] = None,
-      filter_facet_ids: Optional[str | list[str]] = None,
-  ) -> ObservationResponse:
-    """Fetches the latest observations for the given variable and entities.
-
-        Args:
-            variable_dcids (str | list[str]): One or more variable IDs for the data.
-            entity_dcids (str | list[str]): One or more entity IDs to filter the data.
-            select (Optional[list[ObservationSelect | str]]): Fields to include in the response.
-                If not provided, defaults to ["date", "variable", "entity", "value"].
-            filter_facet_domains: Optional[str | list[str]: One or more domain names to filter the data.
-            filter_facet_ids: Optional[str | list[str]: One or more facet IDs to filter the data.
-
-        Returns:
-            ObservationResponse: The response object containing observations for the specified query.
-        """
-
-    return self.fetch_latest_observations(
-        variable_dcids=variable_dcids,
-        entity_dcids=entity_dcids,
-        select=[s for s in ObservationSelect] if not select else select,
-        filter_facet_domains=filter_facet_domains,
-        filter_facet_ids=filter_facet_ids,
-    )
-
   def fetch_observations_by_entity_type(
       self,
       date: ObservationDate | str,
@@ -185,7 +119,7 @@ class ObservationEndpoint(Endpoint):
         filter_facet_ids=filter_facet_ids,
     )
 
-  def fetch_observations_by_entity(
+  def fetch_observations_by_entity_dcid(
       self,
       date: ObservationDate | str,
       entity_dcids: str | list[str],
@@ -218,7 +152,7 @@ class ObservationEndpoint(Endpoint):
 
             ```python
             api = API()
-            ObservationEndpoint(api).fetch_observations_by_entity(
+            ObservationEndpoint(api).fetch_observations_by_entity_dcid(
                 date="all",
                 entity_dcids="country/NGA",
                 variable_dcids="sdg/SI_POV_DAY1"

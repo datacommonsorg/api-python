@@ -488,7 +488,7 @@ def test_get_observations_as_records():
   response = ObservationResponse(byVariable=mock_data, facets=mock_facets)
 
   # Call the method and get the result
-  result = response.get_observations_as_records()
+  result = response.to_observation_records()
 
   # Expected output
   expected = [

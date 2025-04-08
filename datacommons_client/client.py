@@ -87,12 +87,11 @@ class DataCommonsClient:
       return None
 
     if fetch_by == "entity":
-      observations = self.observation.fetch_observations_by_entity(
+      observations = self.observation.fetch_observations_by_entity_dcid(
           date=date,
           entity_dcids=entity_dcids,
           variable_dcids=variable_dcids,
-          select=["variable", "entity", "facet"],
-      )
+          select=["variable", "entity", "facet"])
     else:
       observations = self.observation.fetch_observations_by_entity_type(
           date=date,
@@ -176,11 +175,10 @@ class DataCommonsClient:
           filter_facet_ids=facets,
       )
     else:
-      observations = self.observation.fetch_observations_by_entity(
+      observations = self.observation.fetch_observations_by_entity_dcid(
           date=date,
           entity_dcids=entity_dcids,
           variable_dcids=variable_dcids,
-          filter_facet_ids=facets,
-      )
+          filter_facet_ids=facets)
 
-    return pd.DataFrame(observations.get_observations_as_records())
+    return pd.DataFrame(observations.to_observation_records())
