@@ -5,6 +5,7 @@ from datacommons_client.endpoints.node import NodeEndpoint
 from datacommons_client.endpoints.observation import ObservationEndpoint
 from datacommons_client.endpoints.payloads import ObservationDate
 from datacommons_client.endpoints.resolve import ResolveEndpoint
+from datacommons_client.utils.dataframes import add_entity_names_to_observations_dataframe
 from datacommons_client.utils.decorators import requires_pandas
 from datacommons_client.utils.error_handling import NoDataForPropertyError
 
@@ -91,7 +92,8 @@ class DataCommonsClient:
           date=date,
           entity_dcids=entity_dcids,
           variable_dcids=variable_dcids,
-          select=["variable", "entity", "facet"])
+          select=["variable", "entity", "facet"],
+      )
     else:
       observations = self.observation.fetch_observations_by_entity_type(
           date=date,
@@ -131,7 +133,7 @@ class DataCommonsClient:
         date (ObservationDate | str): The date for which observations are requested. It can be
             a specific date, "all" to retrieve all observations, or "latest" to get the most recent observations.
         entity_dcids (Literal["all"] | list[str], optional): The entity DCIDs for which to retrieve data.
-            Defaults to "all". 
+            Defaults to "all".
         entity_type (Optional[str]): The type of entities to filter by when `entity_dcids="all"`.
             Required if `entity_dcids="all"`. Defaults to None.
         parent_entity (Optional[str]): The parent entity under which the target entities fall.
@@ -179,6 +181,17 @@ class DataCommonsClient:
           date=date,
           entity_dcids=entity_dcids,
           variable_dcids=variable_dcids,
-          filter_facet_ids=facets)
+          filter_facet_ids=facets,
+      )
 
-    return pd.DataFrame(observations.to_observation_records())
+    # Convert the observations to a DataFrame
+    df = pd.DataFrame(observations.to_observation_records())
+
+    # Add entity names to the DataFrame
+    df = add_entity_names_to_observations_dataframe(
+        endpoint=self.node,
+        observations_df=df,
+        entity_columns=["entity", "variable"],
+    )
+
+    return df

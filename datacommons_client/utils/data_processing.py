@@ -2,6 +2,8 @@ from dataclasses import asdict
 import json
 from typing import Any, Dict
 
+from datacommons_client.models.node import Name
+
 
 def unpack_arcs(arcs: Dict[str, Any]) -> Any:
   """Simplify the 'arcs' structure."""
@@ -99,16 +101,16 @@ def observations_as_records(data: dict, facets: dict) -> list[dict]:
 def group_variables_by_entity(
     data: dict[str, list[str]]) -> dict[str, list[str]]:
   """Groups variables by the entities they are associated with.
-      Takes a dictionary mapping statistical variable DCIDs to a list of entity DCIDs,
-      and returns a new dictionary mapping each entity DCID to a list of statistical
-      variables available for that entity.
-      Args:
-          data: A dictionary where each key is a variable DCID and the value is a list
-              of entity DCIDs that have observations for that variable.
-      Returns:
-          A dictionary where each key is an entity DCID and the value is a list of
-          variable DCIDs available for that entity.
-      """
+    Takes a dictionary mapping statistical variable DCIDs to a list of entity DCIDs,
+    and returns a new dictionary mapping each entity DCID to a list of statistical
+    variables available for that entity.
+    Args:
+        data: A dictionary where each key is a variable DCID and the value is a list
+            of entity DCIDs that have observations for that variable.
+    Returns:
+        A dictionary where each key is an entity DCID and the value is a list of
+        variable DCIDs available for that entity.
+    """
   result: dict[str, list[str]] = {}
   for variable, entities in data.items():
     for entity in entities:
@@ -150,3 +152,18 @@ class SerializableMixin:
             str: The JSON string representation of the instance.
         """
     return json.dumps(self.to_dict(exclude_none=exclude_none), indent=2)
+
+
+def flatten_names_dictionary(names_dict: dict[str, Name]) -> dict[str, str]:
+  """
+    Flattens a dictionary which contains Name objects into a flattened dictionary
+    with DCIDs as keys and names as values.
+
+    Args:
+        names_dict (dict[str, Name]): The input dictionary to flatten.
+
+    Returns:
+        dict[str, str]: A flattened dictionary with DCIDs as keys and names as values.
+    """
+
+  return {dcid: name.to_dict()['value'] for dcid, name in names_dict.items()}
