@@ -105,11 +105,20 @@ class ObservationResponse(SerializableMixin):
         variable: data.byEntity for variable, data in self.byVariable.items()
     }
 
-  def get_observations_as_records(self) -> List[Dict[str, Any]]:
-    """Converts the observation data into a list of records.
+  def to_observation_records(self) -> List[Dict[str, Any]]:
+    """Returns a flat list of observation records combining date, variable, entity,
+         observation, and facet metadata.
 
-        Returns:
-            List[Dict[str, Any]]: A flattened list of observation records.
+    This method transforms the nested `byVariable` and `facets` data in the ObservationResponse
+    into a flat list of dictionaries. Each dictionary (or "record") represents a single observation
+    for a variable and entity, enriched with its associated facet metadata (e.g., measurement method,
+    observation period, unit).
+
+    This format is suitable for exporting to a DataFrame or serializing to JSON for tabular or analytical use.
+
+    Returns:
+        List[Dict[str, Any]]: A list of observation records, where each record contains the variable,
+        entity, date, value, facetId, and any additional metadata provided by the facet.
         """
     return observations_as_records(data=self.get_data_by_entity(),
                                    facets=self.facets)

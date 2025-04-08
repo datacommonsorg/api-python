@@ -96,7 +96,7 @@ def test_observations_dataframe_raises_error_when_invalid_entity_type_usage(
 def test_observations_dataframe_calls_fetch_observations_by_entity_type(
     mock_client):
   """Tests that fetch_observations_by_entity_type is called with correct parameters."""
-  mock_client.observation.fetch_observations_by_entity_type.return_value.get_observations_as_records.return_value = (
+  mock_client.observation.fetch_observations_by_entity_type.return_value.to_observation_records.return_value = (
       [])
 
   df = mock_client.observations_dataframe(
@@ -122,7 +122,7 @@ def test_observations_dataframe_calls_fetch_observations_by_entity_type(
 def test_observations_dataframe_calls_fetch_observations_by_entity(mock_client):
   """Tests that fetch_observations_by_entity is called with correct parameters."""
 
-  mock_client.observation.fetch_observations_by_entity_dcid.return_value.get_observations_as_records.return_value = (
+  mock_client.observation.fetch_observations_by_entity_dcid.return_value.to_observation_records.return_value = (
       [])
 
   df = mock_client.observations_dataframe(variable_dcids="var1",
@@ -142,7 +142,7 @@ def test_observations_dataframe_calls_fetch_observations_by_entity(mock_client):
 def test_observations_dataframe_returns_dataframe_with_expected_columns(
     mock_client):
   """Tests that the method returns a DataFrame with expected columns."""
-  mock_client.observation.fetch_observations_by_entity_dcid.return_value.get_observations_as_records.return_value = [
+  mock_client.observation.fetch_observations_by_entity_dcid.return_value.to_observation_records.return_value = [
       {
           "date": "2024",
           "entity": "entity1",
@@ -219,7 +219,7 @@ def test_observations_dataframe_filters_by_facet_ids(mock_client):
   """Tests that observations_dataframe includes facet filtering when property_filters are used."""
   mock_client._find_filter_facet_ids = MagicMock(
       return_value=["facet_1", "facet_2"])
-  mock_client.observation.fetch_observations_by_entity_dcid.return_value.get_observations_as_records.return_value = []
+  mock_client.observation.fetch_observations_by_entity_dcid.return_value.to_observation_records.return_value = []
 
   df = mock_client.observations_dataframe(
       variable_dcids="var1",

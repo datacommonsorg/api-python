@@ -181,4 +181,4 @@ class DataCommonsClient:
           variable_dcids=variable_dcids,
           filter_facet_ids=facets)
 
-    return pd.DataFrame(observations.get_observations_as_records())
+    return pd.DataFrame(observations.to_observation_records())
