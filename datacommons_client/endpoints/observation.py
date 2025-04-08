@@ -119,7 +119,7 @@ class ObservationEndpoint(Endpoint):
         filter_facet_ids=filter_facet_ids,
     )
 
-  def fetch_observations_by_entity(
+  def fetch_observations_by_entity_dcid(
       self,
       date: ObservationDate | str,
       entity_dcids: str | list[str],
@@ -152,7 +152,7 @@ class ObservationEndpoint(Endpoint):
 
             ```python
             api = API()
-            ObservationEndpoint(api).fetch_observations_by_entity(
+            ObservationEndpoint(api).fetch_observations_by_entity_dcid(
                 date="all",
                 entity_dcids="country/NGA",
                 variable_dcids="sdg/SI_POV_DAY1"

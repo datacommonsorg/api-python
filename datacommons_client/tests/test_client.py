@@ -122,14 +122,14 @@ def test_observations_dataframe_calls_fetch_observations_by_entity_type(
 def test_observations_dataframe_calls_fetch_observations_by_entity(mock_client):
   """Tests that fetch_observations_by_entity is called with correct parameters."""
 
-  mock_client.observation.fetch_observations_by_entity.return_value.get_observations_as_records.return_value = (
+  mock_client.observation.fetch_observations_by_entity_dcid.return_value.get_observations_as_records.return_value = (
       [])
 
   df = mock_client.observations_dataframe(variable_dcids="var1",
                                           date="latest",
                                           entity_dcids=["entity1", "entity2"])
 
-  mock_client.observation.fetch_observations_by_entity.assert_called_once_with(
+  mock_client.observation.fetch_observations_by_entity_dcid.assert_called_once_with(
       date="latest",
       entity_dcids=["entity1", "entity2"],
       variable_dcids="var1",
@@ -142,7 +142,7 @@ def test_observations_dataframe_calls_fetch_observations_by_entity(mock_client):
 def test_observations_dataframe_returns_dataframe_with_expected_columns(
     mock_client):
   """Tests that the method returns a DataFrame with expected columns."""
-  mock_client.observation.fetch_observations_by_entity.return_value.get_observations_as_records.return_value = [
+  mock_client.observation.fetch_observations_by_entity_dcid.return_value.get_observations_as_records.return_value = [
       {
           "date": "2024",
           "entity": "entity1",
@@ -198,7 +198,7 @@ def test_find_filter_facet_ids_returns_none_when_no_filters(mock_client):
 
 def test_find_filter_facet_ids_returns_facet_ids(mock_client):
   """Tests that _find_filter_facet_ids correctly returns facet IDs when filters are provided."""
-  mock_client.observation.fetch_observations_by_entity.return_value.find_matching_facet_id.side_effect = [
+  mock_client.observation.fetch_observations_by_entity_dcid.return_value.find_matching_facet_id.side_effect = [
       ["213"], ["3243"]
   ]
 
@@ -219,7 +219,7 @@ def test_observations_dataframe_filters_by_facet_ids(mock_client):
   """Tests that observations_dataframe includes facet filtering when property_filters are used."""
   mock_client._find_filter_facet_ids = MagicMock(
       return_value=["facet_1", "facet_2"])
-  mock_client.observation.fetch_observations_by_entity.return_value.get_observations_as_records.return_value = []
+  mock_client.observation.fetch_observations_by_entity_dcid.return_value.get_observations_as_records.return_value = []
 
   df = mock_client.observations_dataframe(
       variable_dcids="var1",
@@ -228,7 +228,7 @@ def test_observations_dataframe_filters_by_facet_ids(mock_client):
       property_filters={"measurementMethod": "Census"},
   )
 
-  mock_client.observation.fetch_observations_by_entity.assert_called_once_with(
+  mock_client.observation.fetch_observations_by_entity_dcid.assert_called_once_with(
       variable_dcids="var1",
       date="2024",
       entity_dcids=["entity1"],
