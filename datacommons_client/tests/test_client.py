@@ -4,12 +4,12 @@ from unittest.mock import patch
 import pandas as pd
 import pytest
 
-import datacommons_client.client
 from datacommons_client.client import DataCommonsClient
 from datacommons_client.endpoints.base import API
 from datacommons_client.endpoints.node import NodeEndpoint
 from datacommons_client.endpoints.observation import ObservationEndpoint
 from datacommons_client.endpoints.resolve import ResolveEndpoint
+from datacommons_client.models.node import Name
 from datacommons_client.utils.error_handling import NoDataForPropertyError
 
 
@@ -133,7 +133,8 @@ def test_observations_dataframe_calls_fetch_observations_by_entity(mock_client):
       date="latest",
       entity_dcids=["entity1", "entity2"],
       variable_dcids="var1",
-      filter_facet_ids=None)
+      filter_facet_ids=None,
+  )
 
   assert isinstance(df, pd.DataFrame)
   assert df.empty
@@ -159,17 +160,34 @@ def test_observations_dataframe_returns_dataframe_with_expected_columns(
       },
   ]
 
+  # Mock entity name lookup to prevent API calls
+  mock_client.node.fetch_entity_names = MagicMock(return_value={
+      "entity1": Name(value="Entity One", language="en", property="name"),
+      "entity2": Name(value="Entity Two", language="en", property="name"),
+      "var1": Name(value="Variable One", language="en", property="name"),
+      "var2": Name(value="Variable Two", language="en", property="name"),
+  },)
+
   df = mock_client.observations_dataframe(variable_dcids="var1",
                                           date="2024",
                                           entity_dcids=["entity1", "entity2"])
 
   assert isinstance(df, pd.DataFrame)
-  assert set(df.columns) == {"date", "entity", "variable", "value", "unit"}
+  assert set(df.columns) == {
+      "date", "entity", "entity_name", "variable", "variable_name", "value",
+      "unit"
+  }
   assert len(df) == 2
+  assert df.iloc[0]["entity"] == "entity1"
+  assert df.iloc[0]["entity_name"] == "Entity One"
+  assert df.iloc[1]["entity"] == "entity2"
+  assert df.iloc[1]["entity_name"] == "Entity Two"
   assert df.iloc[0]["variable"] == "var1"
+  assert df.iloc[0]["variable_name"] == "Variable One"
   assert df.iloc[0]["value"] == 100
   assert df.iloc[0]["unit"] == "unit1"
   assert df.iloc[1]["variable"] == "var2"
+  assert df.iloc[1]["variable_name"] == "Variable Two"
   assert df.iloc[1]["value"] == 200
   assert df.iloc[1]["unit"] == "unit2"
 
@@ -219,7 +237,9 @@ def test_observations_dataframe_filters_by_facet_ids(mock_client):
   """Tests that observations_dataframe includes facet filtering when property_filters are used."""
   mock_client._find_filter_facet_ids = MagicMock(
       return_value=["facet_1", "facet_2"])
-  mock_client.observation.fetch_observations_by_entity_dcid.return_value.to_observation_records.return_value = []
+
+  mock_client.observation.fetch_observations_by_entity_dcid.return_value.to_observation_records.return_value = (
+      [])
 
   df = mock_client.observations_dataframe(
       variable_dcids="var1",
@@ -232,7 +252,8 @@ def test_observations_dataframe_filters_by_facet_ids(mock_client):
       variable_dcids="var1",
       date="2024",
       entity_dcids=["entity1"],
-      filter_facet_ids=["facet_1", "facet_2"])
+      filter_facet_ids=["facet_1", "facet_2"],
+  )
   assert isinstance(df, pd.DataFrame)
 
 
