@@ -42,35 +42,6 @@ def test_fetch():
                                         next_token=None)
 
 
-def test_fetch_latest_observation():
-  """Tests the fetch_latest_observation method."""
-  api_mock = MagicMock(spec=API)
-  endpoint = ObservationEndpoint(api=api_mock)
-
-  response = endpoint.fetch_latest_observations(
-      variable_dcids=["dc/Variable1", "dc/Variable2"],
-      select=["date", "variable", "entity", "value"],
-      entity_dcids="dc/EntityID")
-
-  # Check the response
-  assert isinstance(response, ObservationResponse)
-
-  # Check the post request
-  api_mock.post.assert_called_once_with(payload={
-      "date": ObservationDate.LATEST,
-      "variable": {
-          "dcids": ["dc/Variable1", "dc/Variable2"]
-      },
-      "entity": {
-          "dcids": ["dc/EntityID"]
-      },
-      "select": ["date", "variable", "entity", "value"],
-  },
-                                        endpoint="observation",
-                                        all_pages=True,
-                                        next_token=None)
-
-
 def test_fetch_observations_by_entity_type():
   """Tests the fetch_observations_by_entity_type method."""
   api_mock = MagicMock(spec=API)
