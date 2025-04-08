@@ -92,8 +92,7 @@ class DataCommonsClient:
           date=date,
           entity_dcids=entity_dcids,
           variable_dcids=variable_dcids,
-          select=["variable", "entity", "facet"],
-      )
+          select=["variable", "entity", "facet"])
     else:
       observations = self.observation.fetch_observations_by_entity_type(
           date=date,
@@ -181,8 +180,7 @@ class DataCommonsClient:
           date=date,
           entity_dcids=entity_dcids,
           variable_dcids=variable_dcids,
-          filter_facet_ids=facets,
-      )
+          filter_facet_ids=facets)
 
     # Convert the observations to a DataFrame
     df = pd.DataFrame(observations.to_observation_records())

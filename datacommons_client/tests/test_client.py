@@ -217,8 +217,7 @@ def test_find_filter_facet_ids_returns_none_when_no_filters(mock_client):
 def test_find_filter_facet_ids_returns_facet_ids(mock_client):
   """Tests that _find_filter_facet_ids correctly returns facet IDs when filters are provided."""
   mock_client.observation.fetch_observations_by_entity_dcid.return_value.find_matching_facet_id.side_effect = [
-      ["213"],
-      ["3243"],
+      ["213"], ["3243"]
   ]
 
   result = mock_client._find_filter_facet_ids(
@@ -238,6 +237,7 @@ def test_observations_dataframe_filters_by_facet_ids(mock_client):
   """Tests that observations_dataframe includes facet filtering when property_filters are used."""
   mock_client._find_filter_facet_ids = MagicMock(
       return_value=["facet_1", "facet_2"])
+
   mock_client.observation.fetch_observations_by_entity_dcid.return_value.to_observation_records.return_value = (
       [])
 
