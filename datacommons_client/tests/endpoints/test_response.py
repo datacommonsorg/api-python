@@ -486,6 +486,67 @@ def test_get_node_dcids_with_nonexistent_property():
   assert result == []
 
 
+def test_get_node_dcids_with_node_type_filter():
+  """Test that get_node_dcids returns dcids with the corresponding node_type."""
+  json_data = {
+      "data": {
+          "geoId/06": {
+              "arcs": {
+                  "relatedPlaces": {
+                      "nodes": [{
+                          "dcid": "country/USA",
+                          "name": "United States",
+                          "provenanceId": "dc/base/WikidataOtherIdGeos",
+                          "types": ["Country"]
+                      }, {
+                          "dcid": "usc/PacificDivision",
+                          "name": "Pacific Division",
+                          "provenanceId": "dc/base/WikidataOtherIdGeos",
+                          "types": ["CensusDivision"]
+                      }, {
+                          "dcid": "node3",
+                      }]
+                  }
+              }
+          },
+      }
+  }
+  response = NodeResponse.from_json(json_data)
+  result = response.get_node_dcids(node_types="Country")
+  assert result == ['country/USA']
+
+
+def test_get_node_dcids_with_multiple_node_type_filter():
+  """Test that get_node_dcids returns dcids with the corresponding node_types."""
+  json_data = {
+      "data": {
+          "geoId/06": {
+              "arcs": {
+                  "relatedPlaces": {
+                      "nodes": [{
+                          "dcid": "country/USA",
+                          "name": "United States",
+                          "provenanceId": "dc/base/WikidataOtherIdGeos",
+                          "types": ["Country"]
+                      }, {
+                          "dcid": "usc/PacificDivision",
+                          "name": "Pacific Division",
+                          "provenanceId": "dc/base/WikidataOtherIdGeos",
+                          "types": ["CensusDivision"]
+                      }, {
+                          "dcid": "node3",
+                          "types": ["City"]
+                      }]
+                  }
+              }
+          },
+      }
+  }
+  response = NodeResponse.from_json(json_data)
+  result = response.get_node_dcids(node_types=["Country", "City"])
+  assert result == ['country/USA', 'node3']
+
+
 ### ----- Test Observation Response ----- ###
 
 

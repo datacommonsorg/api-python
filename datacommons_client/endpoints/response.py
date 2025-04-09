@@ -3,7 +3,7 @@ from dataclasses import field
 from typing import Any, Dict, List, Optional
 
 from datacommons_client.models.base import SerializableMixin
-from datacommons_client.models.node import Arcs
+from datacommons_client.models.node import Arcs, NodeGroup
 from datacommons_client.models.node import NextToken
 from datacommons_client.models.node import NodeDCID
 from datacommons_client.models.node import Property
@@ -72,7 +72,8 @@ class NodeResponse(SerializableMixin):
   def get_node_dcids(
       self,
       subject_dcid: Optional[NodeDCID] = None,
-      property_name: Optional[Property] = None) -> List[NodeDCID]:
+      property_name: Optional[Property] = None,
+      node_types: Optional[str | list[str]] = []) -> List[NodeDCID]:
     """Retrieves the DCIDs of the connected nodes in the arcs of the NodeResponse.
 
     Iterates the nodes in the repsonse for a single dcid-property_name arc and
@@ -113,7 +114,7 @@ class NodeResponse(SerializableMixin):
       else:
         subject_dcid = next(iter(self.data))
 
-    arcs = getattr(self.data.get(subject_dcid, {}), 'arcs', {})
+    arcs = self.data.get(subject_dcid, Arcs()).arcs
     if not arcs:
       return []
 
@@ -125,10 +126,14 @@ class NodeResponse(SerializableMixin):
       else:
         property_name = next(iter(arcs))
 
+    if isinstance(node_types, str):
+      node_types = [node_types]
+
     return [
         node.dcid
-        for node in getattr(arcs.get(property_name, {}), 'nodes', [])
-        if hasattr(node, 'dcid')
+        for node in arcs.get(property_name, NodeGroup()).nodes
+        if hasattr(node, 'dcid') and (not node_types or (node.types and any(
+            node_type in node.types for node_type in node_types)))
     ]
 
 
