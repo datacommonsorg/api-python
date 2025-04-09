@@ -1,11 +1,12 @@
 from dataclasses import dataclass
 from dataclasses import field
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 from datacommons_client.models.base import SerializableMixin
 from datacommons_client.models.node import Arcs
 from datacommons_client.models.node import NextToken
 from datacommons_client.models.node import NodeDCID
+from datacommons_client.models.node import Property
 from datacommons_client.models.node import Properties
 from datacommons_client.models.observation import Facet
 from datacommons_client.models.observation import facetID
@@ -67,6 +68,68 @@ class NodeResponse(SerializableMixin):
 
   def get_properties(self) -> Dict:
     return flatten_properties(self.data)
+
+  def get_node_dcids(
+      self,
+      subject_dcid: Optional[NodeDCID] = None,
+      property_name: Optional[Property] = None) -> List[NodeDCID]:
+    """Retrieves the DCIDs of the connected nodes in the arcs of the NodeResponse.
+
+    Iterates the nodes in the repsonse for a single dcid-property_name arc and
+    returns just the dcids of those connected nodes in a flat list.
+
+    If the response data contains only one subject DCID, `subject_dcid` can
+    be omitted and will be inferred. Likewise, if the relevant subject node
+    has data for only one property, `property_name` can be omitted and will
+    be inferred.
+
+    Args:
+      subject_dcid: The DCID of the starting node. If None, it is inferred
+        only if the underlying response data corresponds to a single
+        subject DCID. Required otherwise. Defaults to None.
+      property_name: The property connecting the subject node to the desired
+        target nodes. If None, it is inferred only if the
+        subject node has data for a single property. Required otherwise.
+        Defaults to None.
+
+    Returns:
+      A list of NodeDCIDs for the nodes connected via the specified property
+      from the subject node. Returns an empty list if the subject, property,
+      or target nodes are not found in the NodeResponse, or if the target
+      node(s) lack a 'dcid' attribute.
+
+    Raises:
+      ValueError: If `subject_dcid` is omitted when the underlying response
+        data contains information for multiple subject DCIDs.
+      ValueError: If `property_name` is omitted when the specified subject
+        node has information for multiple properties in the response data.
+    """
+
+    if not subject_dcid:
+      if len(self.data) > 1:
+        raise ValueError(
+            "When the NodeResponse was created by a request with more than one"
+            "input dcid, the `subject_dcid` is required.")
+      else:
+        subject_dcid = next(iter(self.data))
+
+    arcs = getattr(self.data.get(subject_dcid, {}), 'arcs', {})
+    if not arcs:
+      return []
+
+    if not property_name:
+      if len(arcs) > 1:
+        raise ValueError(
+            "When the NodeResponse was created by a request with more than one"
+            "property, the `property_name` is required.")
+      else:
+        property_name = next(iter(arcs))
+
+    return [
+        node.dcid
+        for node in getattr(arcs.get(property_name, {}), 'nodes', [])
+        if hasattr(node, 'dcid')
+    ]
 
 
 @dataclass
