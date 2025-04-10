@@ -5,6 +5,9 @@ from datacommons_client.endpoints.response import DCResponse
 from datacommons_client.endpoints.response import NodeResponse
 from datacommons_client.endpoints.response import ObservationResponse
 from datacommons_client.endpoints.response import ResolveResponse
+from datacommons_client.models.node import Arcs
+from datacommons_client.models.node import Node
+from datacommons_client.models.node import NodeGroup
 from datacommons_client.models.observation import Facet
 from datacommons_client.models.observation import Observation
 from datacommons_client.models.observation import OrderedFacets
@@ -225,6 +228,272 @@ def test_unpack_arcs_multiple_properties():
   }
 
   assert result == expected
+
+
+def test_extract_dcids_with_single_dcid_and_property():
+  """Test that extract_dcids is successful when one dcid and one property are
+  in the response with no additional inputs."""
+  json_data = {
+      "data": {
+          "geoId/06": {
+              "arcs": {
+                  "containedInPlace": {
+                      "nodes": [{
+                          "dcid": "country/USA",
+                          "name": "United States",
+                          "provenanceId": "dc/base/WikidataOtherIdGeos",
+                          "types": ["Country"]
+                      }, {
+                          "dcid": "usc/PacificDivision",
+                          "name": "Pacific Division",
+                          "provenanceId": "dc/base/WikidataOtherIdGeos",
+                          "types": ["CensusDivision"]
+                      }]
+                  },
+              }
+          }
+      }
+  }
+  response = NodeResponse.from_json(json_data)
+  result = response.extract_dcids()
+  assert result == ['country/USA', 'usc/PacificDivision']
+
+
+def test_extract_dcids_missing_dcid_selection_raises_value_error():
+  """Test that extract_dcids raises ValueError when a subject_dcid is required."""
+  json_data = {
+      "data": {
+          "geoId/06": {
+              "arcs": {
+                  "containedInPlace": {
+                      "nodes": [{
+                          "dcid": "country/USA",
+                          "name": "United States",
+                          "provenanceId": "dc/base/WikidataOtherIdGeos",
+                          "types": ["Country"]
+                      }, {
+                          "dcid": "usc/PacificDivision",
+                          "name": "Pacific Division",
+                          "provenanceId": "dc/base/WikidataOtherIdGeos",
+                          "types": ["CensusDivision"]
+                      }]
+                  },
+              },
+          },
+          "geoId/07": {
+              "arcs": {
+                  "containedInPlace": {
+                      "nodes": [{
+                          "dcid": "country/USA",
+                          "name": "United States",
+                          "provenanceId": "dc/base/WikidataOtherIdGeos",
+                          "types": ["Country"]
+                      }]
+                  },
+              }
+          }
+      }
+  }
+  response = NodeResponse.from_json(json_data)
+  value_error_raised = False
+  try:
+    response.extract_dcids()
+  except ValueError:
+    value_error_raised = True,
+
+  assert value_error_raised, "ValueError was expected but not raised correctly."
+
+
+def test_extract_dcids_missing_property_selection_raises_value_error():
+  """Test that extract_dcids raises ValueError when a propery_name is required."""
+  json_data = {
+      "data": {
+          "geoId/06": {
+              "arcs": {
+                  "containedInPlace": {
+                      "nodes": [{
+                          "dcid": "country/USA",
+                          "name": "United States",
+                          "provenanceId": "dc/base/WikidataOtherIdGeos",
+                          "types": ["Country"]
+                      }, {
+                          "dcid": "usc/PacificDivision",
+                          "name": "Pacific Division",
+                          "provenanceId": "dc/base/WikidataOtherIdGeos",
+                          "types": ["CensusDivision"]
+                      }]
+                  },
+                  "name": {
+                      "nodes": [{
+                          "provenanceId": "dc/base/WikidataOtherIdGeos",
+                          "value": "California"
+                      }]
+                  }
+              }
+          }
+      }
+  }
+  response = NodeResponse.from_json(json_data)
+  value_error_raised = False
+  try:
+    response.extract_dcids()
+  except ValueError:
+    value_error_raised = True,
+
+  assert value_error_raised, "ValueError was expected but not raised correctly."
+
+
+def test_extract_dcids_select_dcid_and_property():
+  """Test that extract_dcids is successful when multiple dcid and multiple
+  properties are in the response."""
+  json_data = {
+      "data": {
+          "geoId/06": {
+              "arcs": {
+                  "containedInPlace": {
+                      "nodes": [{
+                          "dcid": "country/USA",
+                          "name": "United States",
+                          "provenanceId": "dc/base/WikidataOtherIdGeos",
+                          "types": ["Country"]
+                      }, {
+                          "dcid": "usc/PacificDivision",
+                          "name": "Pacific Division",
+                          "provenanceId": "dc/base/WikidataOtherIdGeos",
+                          "types": ["CensusDivision"]
+                      }]
+                  },
+                  "name": {
+                      "nodes": [{
+                          "provenanceId": "dc/base/WikidataOtherIdGeos",
+                          "value": "California"
+                      }]
+                  }
+              }
+          },
+          "geoId/07": {
+              "arcs": {
+                  "containedInPlace": {
+                      "nodes": [{
+                          "dcid": "country/USA",
+                          "name": "United States",
+                          "provenanceId": "dc/base/WikidataOtherIdGeos",
+                          "types": ["Country"]
+                      }]
+                  },
+              }
+          }
+      }
+  }
+  response = NodeResponse.from_json(json_data)
+  result = response.extract_dcids(subject_dcid='geoId/06',
+                                  property_name='containedInPlace')
+  assert result == ['country/USA', 'usc/PacificDivision']
+
+
+def test_extract_dcids_with_nonexistent_dcid():
+  """Test that extract_dcids returns empty when requested dcid is not in the
+  NodeResponse."""
+  json_data = {
+      "data": {
+          "geoId/06": {
+              "arcs": {
+                  "name": {
+                      "nodes": [{
+                          "provenanceId": "dc/base/WikidataOtherIdGeos",
+                          "value": "California"
+                      }]
+                  }
+              }
+          },
+      }
+  }
+  response = NodeResponse.from_json(json_data)
+  result = response.extract_dcids(subject_dcid='geoId/07')
+  assert result == []
+
+
+def test_extract_dcids_with_nonexistent_property():
+  """Test that extract_dcids returns empty when requested property is not in
+  the NodeResponse."""
+  json_data = {
+      "data": {
+          "geoId/06": {
+              "arcs": {
+                  "name": {
+                      "nodes": [{
+                          "provenanceId": "dc/base/WikidataOtherIdGeos",
+                          "value": "California"
+                      }]
+                  }
+              }
+          },
+      }
+  }
+  response = NodeResponse.from_json(json_data)
+  result = response.extract_dcids(property_name='containedInPlace')
+  assert result == []
+
+
+def test_extract_dcids_with_node_type_filter():
+  """Test that extract_dcids returns dcids with the corresponding node_type."""
+  json_data = {
+      "data": {
+          "geoId/06": {
+              "arcs": {
+                  "relatedPlaces": {
+                      "nodes": [{
+                          "dcid": "country/USA",
+                          "name": "United States",
+                          "provenanceId": "dc/base/WikidataOtherIdGeos",
+                          "types": ["Country"]
+                      }, {
+                          "dcid": "usc/PacificDivision",
+                          "name": "Pacific Division",
+                          "provenanceId": "dc/base/WikidataOtherIdGeos",
+                          "types": ["CensusDivision"]
+                      }, {
+                          "dcid": "node3",
+                      }]
+                  }
+              }
+          },
+      }
+  }
+  response = NodeResponse.from_json(json_data)
+  result = response.extract_dcids(node_types="Country")
+  assert result == ['country/USA']
+
+
+def test_extract_dcids_with_multiple_node_type_filter():
+  """Test that extract_dcids returns dcids with the corresponding node_types."""
+  json_data = {
+      "data": {
+          "geoId/06": {
+              "arcs": {
+                  "relatedPlaces": {
+                      "nodes": [{
+                          "dcid": "country/USA",
+                          "name": "United States",
+                          "provenanceId": "dc/base/WikidataOtherIdGeos",
+                          "types": ["Country"]
+                      }, {
+                          "dcid": "usc/PacificDivision",
+                          "name": "Pacific Division",
+                          "provenanceId": "dc/base/WikidataOtherIdGeos",
+                          "types": ["CensusDivision"]
+                      }, {
+                          "dcid": "node3",
+                          "types": ["City"]
+                      }]
+                  }
+              }
+          },
+      }
+  }
+  response = NodeResponse.from_json(json_data)
+  result = response.extract_dcids(node_types=["Country", "City"])
+  assert result == ['country/USA', 'node3']
 
 
 ### ----- Test Observation Response ----- ###
