@@ -5,7 +5,8 @@ from datacommons_client.endpoints.response import DCResponse
 from datacommons_client.endpoints.response import NodeResponse
 from datacommons_client.endpoints.response import ObservationResponse
 from datacommons_client.endpoints.response import ResolveResponse
-from datacommons_client.models.node import Node, NodeGroup
+from datacommons_client.models.node import Node
+from datacommons_client.models.node import NodeGroup
 from datacommons_client.models.observation import Facet
 from datacommons_client.models.observation import Observation
 from datacommons_client.models.observation import OrderedFacets
