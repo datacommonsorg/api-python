@@ -70,7 +70,7 @@ class NodeResponse(SerializableMixin):
   def get_properties(self) -> Dict:
     return flatten_properties(self.data)
 
-  def get_node_dcids(
+  def extract_dcids(
       self,
       subject_dcid: Optional[NodeDCID] = None,
       property_name: Optional[Property] = None,

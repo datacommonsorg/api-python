@@ -283,8 +283,8 @@ def test_unpack_arcs_multiple_properties():
   assert result == expected
 
 
-def test_get_node_dcids_with_single_dcid_and_property():
-  """Test that get_node_dcids is successful when one dcid and one property are
+def test_extract_dcids_with_single_dcid_and_property():
+  """Test that extract_dcids is successful when one dcid and one property are
   in the response with no additional inputs."""
   json_data = {
       "data": {
@@ -308,12 +308,12 @@ def test_get_node_dcids_with_single_dcid_and_property():
       }
   }
   response = NodeResponse.from_json(json_data)
-  result = response.get_node_dcids()
+  result = response.extract_dcids()
   assert result == ['country/USA', 'usc/PacificDivision']
 
 
-def test_get_node_dcids_missing_dcid_selection_raises_value_error():
-  """Test that get_node_dcids raises ValueError when a subject_dcid is required."""
+def test_extract_dcids_missing_dcid_selection_raises_value_error():
+  """Test that extract_dcids raises ValueError when a subject_dcid is required."""
   json_data = {
       "data": {
           "geoId/06": {
@@ -350,15 +350,15 @@ def test_get_node_dcids_missing_dcid_selection_raises_value_error():
   response = NodeResponse.from_json(json_data)
   value_error_raised = False
   try:
-    response.get_node_dcids()
+    response.extract_dcids()
   except ValueError:
     value_error_raised = True,
 
   assert value_error_raised, "ValueError was expected but not raised correctly."
 
 
-def test_get_node_dcids_missing_property_selection_raises_value_error():
-  """Test that get_node_dcids raises ValueError when a propery_name is required."""
+def test_extract_dcids_missing_property_selection_raises_value_error():
+  """Test that extract_dcids raises ValueError when a propery_name is required."""
   json_data = {
       "data": {
           "geoId/06": {
@@ -389,15 +389,15 @@ def test_get_node_dcids_missing_property_selection_raises_value_error():
   response = NodeResponse.from_json(json_data)
   value_error_raised = False
   try:
-    response.get_node_dcids()
+    response.extract_dcids()
   except ValueError:
     value_error_raised = True,
 
   assert value_error_raised, "ValueError was expected but not raised correctly."
 
 
-def test_get_node_dcids_select_dcid_and_property():
-  """Test that get_node_dcids is successful when multiple dcid and multiple
+def test_extract_dcids_select_dcid_and_property():
+  """Test that extract_dcids is successful when multiple dcid and multiple
   properties are in the response."""
   json_data = {
       "data": {
@@ -439,13 +439,13 @@ def test_get_node_dcids_select_dcid_and_property():
       }
   }
   response = NodeResponse.from_json(json_data)
-  result = response.get_node_dcids(subject_dcid='geoId/06',
-                                   property_name='containedInPlace')
+  result = response.extract_dcids(subject_dcid='geoId/06',
+                                  property_name='containedInPlace')
   assert result == ['country/USA', 'usc/PacificDivision']
 
 
-def test_get_node_dcids_with_nonexistent_dcid():
-  """Test that get_node_dcids returns empty when requested dcid is not in the
+def test_extract_dcids_with_nonexistent_dcid():
+  """Test that extract_dcids returns empty when requested dcid is not in the
   NodeResponse."""
   json_data = {
       "data": {
@@ -462,12 +462,12 @@ def test_get_node_dcids_with_nonexistent_dcid():
       }
   }
   response = NodeResponse.from_json(json_data)
-  result = response.get_node_dcids(subject_dcid='geoId/07')
+  result = response.extract_dcids(subject_dcid='geoId/07')
   assert result == []
 
 
-def test_get_node_dcids_with_nonexistent_property():
-  """Test that get_node_dcids returns empty when requested property is not in
+def test_extract_dcids_with_nonexistent_property():
+  """Test that extract_dcids returns empty when requested property is not in
   the NodeResponse."""
   json_data = {
       "data": {
@@ -484,12 +484,12 @@ def test_get_node_dcids_with_nonexistent_property():
       }
   }
   response = NodeResponse.from_json(json_data)
-  result = response.get_node_dcids(property_name='containedInPlace')
+  result = response.extract_dcids(property_name='containedInPlace')
   assert result == []
 
 
-def test_get_node_dcids_with_node_type_filter():
-  """Test that get_node_dcids returns dcids with the corresponding node_type."""
+def test_extract_dcids_with_node_type_filter():
+  """Test that extract_dcids returns dcids with the corresponding node_type."""
   json_data = {
       "data": {
           "geoId/06": {
@@ -514,12 +514,12 @@ def test_get_node_dcids_with_node_type_filter():
       }
   }
   response = NodeResponse.from_json(json_data)
-  result = response.get_node_dcids(node_types="Country")
+  result = response.extract_dcids(node_types="Country")
   assert result == ['country/USA']
 
 
-def test_get_node_dcids_with_multiple_node_type_filter():
-  """Test that get_node_dcids returns dcids with the corresponding node_types."""
+def test_extract_dcids_with_multiple_node_type_filter():
+  """Test that extract_dcids returns dcids with the corresponding node_types."""
   json_data = {
       "data": {
           "geoId/06": {
@@ -545,7 +545,7 @@ def test_get_node_dcids_with_multiple_node_type_filter():
       }
   }
   response = NodeResponse.from_json(json_data)
-  result = response.get_node_dcids(node_types=["Country", "City"])
+  result = response.extract_dcids(node_types=["Country", "City"])
   assert result == ['country/USA', 'node3']
 
 
