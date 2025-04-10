@@ -2,15 +2,16 @@ from dataclasses import asdict
 import json
 from typing import Any, Dict
 
-from datacommons_client.models.node import Name
+from datacommons_client.models.node import ArcLabel, Arcs, Name, NodeDCID, NodeGroup, Properties
 
 
-def unpack_arcs(arcs: Dict[str, Any]) -> Any:
+def unpack_arcs(arcs: Dict[ArcLabel, NodeGroup]) -> Any:
   """Simplify the 'arcs' structure."""
   if len(arcs) > 1:
     # Multiple arcs: return dictionary of property nodes
-    return {prop: arc_data.get("nodes", []) for prop, arc_data in arcs.items()}
-
+    return {
+        prop: getattr(arc_data, "nodes", []) for prop, arc_data in arcs.items()
+    }
   # Single arc: extract first node's data
   for property_data in arcs.values():
     nodes = property_data.nodes
@@ -18,7 +19,8 @@ def unpack_arcs(arcs: Dict[str, Any]) -> Any:
       return nodes if len(nodes) > 1 else nodes[0]
 
 
-def flatten_properties(data: Dict[str, Any]) -> Dict[str, Any]:
+def flatten_properties(
+    data: Dict[NodeDCID, Arcs | Properties]) -> Dict[str, Any]:
   """
     Flatten the properties of a node response.
 
@@ -26,7 +28,7 @@ def flatten_properties(data: Dict[str, Any]) -> Dict[str, Any]:
     simplifying their properties and arcs into a flattened dictionary.
 
     Args:
-        data (Dict[str, Dict[str, Any]]):
+        data (Dict[NodeDCID, Arcs | Properties]):
             The input dictionary containing node responses. Each node maps to
             a dictionary with potential "arcs" and "properties" keys.
 

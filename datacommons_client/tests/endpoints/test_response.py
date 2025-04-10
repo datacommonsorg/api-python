@@ -5,6 +5,7 @@ from datacommons_client.endpoints.response import DCResponse
 from datacommons_client.endpoints.response import NodeResponse
 from datacommons_client.endpoints.response import ObservationResponse
 from datacommons_client.endpoints.response import ResolveResponse
+from datacommons_client.models.node import Node, NodeGroup
 from datacommons_client.models.observation import Facet
 from datacommons_client.models.observation import Observation
 from datacommons_client.models.observation import OrderedFacets
@@ -183,44 +184,98 @@ def test_flatten_arcs():
   assert result["dc/03lw9rhpendw5"].value == "191 Peachtree Tower"
 
 
+def test_flatten_multiple_arcs_with_multiple_nodes():
+  """Test that the flatten_properties function correctly flattens the
+  NodeResponse containing multiple property arcs and mutliple nodes within the
+  arcs."""
+
+  # Mocking node data
+  json_data = {
+      "data": {
+          "geoId/06": {
+              "arcs": {
+                  "containedInPlace": {
+                      "nodes": [{
+                          "dcid": "country/USA",
+                          "name": "United States",
+                          "provenanceId": "dc/base/WikidataOtherIdGeos",
+                          "types": ["Country"]
+                      }, {
+                          "dcid": "usc/PacificDivision",
+                          "name": "Pacific Division",
+                          "provenanceId": "dc/base/WikidataOtherIdGeos",
+                          "types": ["CensusDivision"]
+                      }]
+                  },
+                  "name": {
+                      "nodes": [{
+                          "provenanceId": "dc/base/WikidataOtherIdGeos",
+                          "value": "California"
+                      }]
+                  }
+              }
+          }
+      }
+  }
+
+  response = NodeResponse.from_json(json_data)
+  result = flatten_properties(response.data)
+  function_result = response.get_properties()
+
+  assert result == function_result
+  assert "geoId/06" in result
+  assert result["geoId/06"] == {
+      "containedInPlace": [
+          Node(dcid='country/USA',
+               name='United States',
+               provenanceId='dc/base/WikidataOtherIdGeos',
+               types=['Country']),
+          Node(dcid='usc/PacificDivision',
+               name='Pacific Division',
+               provenanceId='dc/base/WikidataOtherIdGeos',
+               types=['CensusDivision'])
+      ],
+      "name": [
+          Node(
+              value='California',
+              provenanceId='dc/base/WikidataOtherIdGeos',
+          )
+      ],
+  }
+
+
 def test_unpack_arcs_missing_nodes_key():
   """Test that unpack_arcs handles arcs with no 'nodes' key."""
   arcs = {
-      "prop1": {
-          "nodes": ["node1", "node2"]
-      },
-      "prop2": {
-          # No 'nodes' key here
-      },
-      "prop3": {
-          "nodes": []
-      },
+      "prop1": NodeGroup(nodes=[Node(
+          dcid='node1'), Node(dcid='node2')]),
+      "prop2": NodeGroup(),  # No 'nodes' key here
+      "prop3": NodeGroup(nodes=[]),
   }
 
   result = unpack_arcs(arcs)
-  assert result == {"prop1": ["node1", "node2"], "prop2": [], "prop3": []}
+  assert result == {
+      "prop1": [Node(dcid='node1'), Node(dcid='node2')],
+      "prop2": [],
+      "prop3": [],
+  }
 
 
 def test_unpack_arcs_multiple_properties():
   """Test that _unpack_arcs correctly handles multiple properties with nodes."""
   arcs = {
-      "prop1": {
-          "nodes": ["node1", "node2"]
-      },
-      "prop2": {
-          "nodes": ["node3"]
-      },
-      "prop3": {
-          "nodes": []
-      },  # Empty nodes for completeness
+      "prop1": NodeGroup(nodes=[Node(
+          dcid='node1'), Node(dcid='node2')]),
+      "prop2": NodeGroup(nodes=[Node(dcid='node3')]),
+      "prop3": NodeGroup(nodes=[]),  # Empty nodes for completeness
   }
 
   result = unpack_arcs(arcs)
 
   # Expected output
   expected = {
-      "prop1": ["node1", "node2"],
-      "prop2": ["node3"],
+      "prop1": [Node(dcid='node1'), Node(dcid='node2')],
+      "prop2": [Node(dcid='node3')],
       "prop3": [],
   }
 
