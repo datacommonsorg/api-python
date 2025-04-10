@@ -4,7 +4,8 @@ from typing import Optional
 from datacommons_client.endpoints.base import API
 from datacommons_client.endpoints.base import Endpoint
 from datacommons_client.endpoints.payloads import NodeRequestPayload
-from datacommons_client.endpoints.payloads import normalize_properties_to_string
+from datacommons_client.endpoints.payloads import \
+    normalize_properties_to_string
 from datacommons_client.endpoints.response import NodeResponse
 from datacommons_client.models.node import Name
 from datacommons_client.models.node import Node
@@ -14,8 +15,10 @@ from datacommons_client.utils.graph import fetch_parents_lru
 from datacommons_client.utils.graph import flatten_ancestry
 from datacommons_client.utils.names import DEFAULT_NAME_LANGUAGE
 from datacommons_client.utils.names import DEFAULT_NAME_PROPERTY
-from datacommons_client.utils.names import extract_name_from_english_name_property
-from datacommons_client.utils.names import extract_name_from_property_with_language
+from datacommons_client.utils.names import \
+    extract_name_from_english_name_property
+from datacommons_client.utils.names import \
+    extract_name_from_property_with_language
 from datacommons_client.utils.names import NAME_WITH_LANGUAGE_PROPERTY
 
 ANCESTRY_MAX_WORKERS = 10

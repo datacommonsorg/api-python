@@ -2,7 +2,12 @@ from dataclasses import asdict
 import json
 from typing import Any, Dict
 
-from datacommons_client.models.node import ArcLabel, Arcs, Name, NodeDCID, NodeGroup, Properties
+from datacommons_client.models.node import ArcLabel
+from datacommons_client.models.node import Arcs
+from datacommons_client.models.node import Name
+from datacommons_client.models.node import NodeDCID
+from datacommons_client.models.node import NodeGroup
+from datacommons_client.models.node import Properties
 
 
 def unpack_arcs(arcs: Dict[ArcLabel, NodeGroup]) -> Any:
