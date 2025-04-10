@@ -5,8 +5,7 @@ from datacommons_client.endpoints.node import NodeEndpoint
 from datacommons_client.endpoints.observation import ObservationEndpoint
 from datacommons_client.endpoints.payloads import ObservationDate
 from datacommons_client.endpoints.resolve import ResolveEndpoint
-from datacommons_client.utils.dataframes import \
-    add_entity_names_to_observations_dataframe
+from datacommons_client.utils.dataframes import add_entity_names_to_observations_dataframe
 from datacommons_client.utils.decorators import requires_pandas
 from datacommons_client.utils.error_handling import NoDataForPropertyError
 
