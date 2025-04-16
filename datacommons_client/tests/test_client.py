@@ -71,7 +71,7 @@ def test_observations_dataframe_raises_error_when_entities_all_but_no_entity_typ
   with pytest.raises(
       ValueError,
       match=
-      "When 'entity_dcids' is 'all', both 'parent_entity' and'entity_type' must be specified.",
+      "When 'entity_dcids' is 'all', both 'parent_entity' and 'entity_type' must be specified.",
   ):
     mock_client.observations_dataframe(variable_dcids="var1",
                                        date="2024",
@@ -85,7 +85,7 @@ def test_observations_dataframe_raises_error_when_entities_all_but_no_parent_ent
   with pytest.raises(
       ValueError,
       match=
-      "When 'entity_dcids' is 'all', both 'parent_entity' and'entity_type' must be specified.",
+      "When 'entity_dcids' is 'all', both 'parent_entity' and 'entity_type' must be specified.",
   ):
     mock_client.observations_dataframe(variable_dcids="var1",
                                        date="2024",

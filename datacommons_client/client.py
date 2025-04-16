@@ -146,7 +146,7 @@ class DataCommonsClient:
 
     if entity_dcids == "all" and not (entity_type and parent_entity):
       raise ValueError(
-          "When 'entity_dcids' is 'all', both 'parent_entity' and'entity_type' must be specified."
+          "When 'entity_dcids' is 'all', both 'parent_entity' and 'entity_type' must be specified."
       )
 
     if entity_dcids != "all" and (entity_type or parent_entity):
