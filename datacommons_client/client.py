@@ -136,7 +136,7 @@ class DataCommonsClient:
         entity_type (Optional[str]): The type of entities to filter by when `entity_dcids="all"`.
             Required if `entity_dcids="all"`. Defaults to None.
         parent_entity (Optional[str]): The parent entity under which the target entities fall.
-            Used only when `entity_dcids="all"`. Defaults to None.
+            Required if `entity_dcids="all"`. Defaults to None.
         property_filters (Optional[dict[str, str | list[str]]): An optional dictionary used to filter
             the data by using observation properties like `measurementMethod`, `unit`, or `observationPeriod`.
 
@@ -144,9 +144,10 @@ class DataCommonsClient:
             pd.DataFrame: A DataFrame containing the requested observations.
         """
 
-    if entity_dcids == "all" and not entity_type:
+    if entity_dcids == "all" and not (entity_type and parent_entity):
       raise ValueError(
-          "When 'entity_dcids' is 'all', 'entity_type' must be specified.")
+          "When 'entity_dcids' is 'all', both 'parent_entity' and'entity_type' must be specified."
+      )
 
     if entity_dcids != "all" and (entity_type or parent_entity):
       raise ValueError(
