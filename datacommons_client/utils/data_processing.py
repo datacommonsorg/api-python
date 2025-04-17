@@ -21,7 +21,8 @@ def unpack_arcs(arcs: Dict[ArcLabel, NodeGroup]) -> Dict[Property, List[Node]]:
 
 
 def flatten_properties(
-    data: Dict[NodeDCID, Arcs | Properties]) -> Dict[str, Any]:
+    data: Dict[NodeDCID, Arcs | Properties]
+) -> Dict[NodeDCID, List[Property] | Dict[Property, List[Node]]]:
   """
     Flatten the properties of a node response.
 
