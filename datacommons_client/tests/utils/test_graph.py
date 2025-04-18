@@ -3,12 +3,12 @@ from unittest.mock import MagicMock
 
 from datacommons_client.models.node import Node
 from datacommons_client.utils.graph import _assemble_tree
-from datacommons_client.utils.graph import _fetch_parents_uncached
+from datacommons_client.utils.graph import _fetch_relationship_uncached
 from datacommons_client.utils.graph import _postorder_nodes
-from datacommons_client.utils.graph import build_ancestry_map
-from datacommons_client.utils.graph import build_ancestry_tree
-from datacommons_client.utils.graph import fetch_parents_lru
-from datacommons_client.utils.graph import flatten_ancestry
+from datacommons_client.utils.graph import build_graph_map
+from datacommons_client.utils.graph import build_relationship_tree
+from datacommons_client.utils.graph import fetch_relationship_lru
+from datacommons_client.utils.graph import flatten_relationship
 
 
 def test_fetch_parents_uncached_returns_data():
@@ -18,32 +18,41 @@ def test_fetch_parents_uncached_returns_data():
       Node(dcid="parent1", name="Parent 1", types=["Country"])
   ]
 
-  result = _fetch_parents_uncached(endpoint, "test_dcid")
+  result = _fetch_relationship_uncached(endpoint,
+                                        "test_dcid",
+                                        contained_type=None,
+                                        relationship="parents")
   assert isinstance(result, list)
   assert result[0].dcid == "parent1"
-
   endpoint.fetch_entity_parents.assert_called_once_with("test_dcid",
-                                                        as_dict=False)
+                                                        as_dict=False,
+                                                        parent_type=None)
 
 
-def test_fetch_parents_lru_caches_results():
-  """Test fetch_parents_lru uses LRU cache and returns tuple."""
+def test_fetch_relationship_lru_caches_results():
+  """Test fetch_relationship_lru uses LRU cache and returns list."""
   endpoint = MagicMock()
   endpoint.fetch_entity_parents.return_value.get.return_value = [
       Node(dcid="parentX", name="Parent X", types=["Region"])
   ]
 
-  result1 = fetch_parents_lru(endpoint, "nodeA")
+  result1 = fetch_relationship_lru(endpoint,
+                                   "nodeA",
+                                   contained_type=None,
+                                   relationship="parents")
+  result2 = fetch_relationship_lru(endpoint,
+                                   "nodeA",
+                                   contained_type=None,
+                                   relationship="parents")
+  fetch_relationship_lru(endpoint,
+                         "nodeA",
+                         contained_type=None,
+                         relationship="parents")
 
-  # This should hit cache
-  result2 = fetch_parents_lru(endpoint, "nodeA")
-  # This should hit cache again
-  fetch_parents_lru(endpoint, "nodeA")
-
-  assert isinstance(result1, tuple)
+  assert isinstance(result1, list)
   assert result1[0].dcid == "parentX"
   assert result1 == result2
-  assert endpoint.fetch_entity_parents.call_count == 1  # Called only once
+  assert endpoint.fetch_entity_parents.call_count == 1
 
 
 def test_build_ancestry_map_linear_tree():
@@ -51,18 +60,18 @@ def test_build_ancestry_map_linear_tree():
 
   def fetch_mock(dcid):
     return {
-        "C": (Node("B", "Node B", "Type"),),
-        "B": (Node("A", "Node A", "Type"),),
-        "A": tuple(),
-    }.get(dcid, tuple())
+        "C": [Node("B", "Node B", ["Type"])],
+        "B": [Node("A", "Node A", ["Type"])],
+        "A": [],
+    }.get(dcid, [])
 
-  root, ancestry = build_ancestry_map("C", fetch_mock, max_workers=2)
+  root, graph = build_graph_map("C", fetch_mock, max_workers=2)
 
-  assert root == "C"  # Since we start from C
-  assert set(ancestry.keys()) == {"C", "B", "A"}  # All nodes should be present
-  assert ancestry["C"][0].dcid == "B"  # First parent of C is B
-  assert ancestry["B"][0].dcid == "A"  # First parent of B is A
-  assert ancestry["A"] == []  # No parents for A
+  assert root == "C"
+  assert set(graph.keys()) == {"C", "B", "A"}
+  assert graph["C"][0].dcid == "B"
+  assert graph["B"][0].dcid == "A"
+  assert graph["A"] == []
 
 
 def test_build_ancestry_map_branching_graph():
@@ -87,7 +96,7 @@ def test_build_ancestry_map_branching_graph():
         "F": tuple(),
     }.get(dcid, tuple())
 
-  root, ancestry = build_ancestry_map("A", fetch_mock, max_workers=4)
+  root, ancestry = build_graph_map("A", fetch_mock, max_workers=4)
 
   assert root == "A"
   assert set(ancestry.keys()) == {"A", "B", "C", "D", "E", "F"}
@@ -116,7 +125,7 @@ def test_build_ancestry_map_cycle_detection():
         "C": (Node("A", "A", "Type"),),  # Cycle back to A
     }.get(dcid, tuple())
 
-  root, ancestry = build_ancestry_map("A", fetch_mock, max_workers=2)
+  root, ancestry = build_graph_map("A", fetch_mock, max_workers=2)
 
   assert root == "A"  # Since we start from A
   assert set(ancestry.keys()) == {"A", "B", "C"}
@@ -146,6 +155,23 @@ def test_postorder_nodes_simple_graph():
   assert new_order == ["A", "B"]
 
 
+def test_postorder_nodes_ignores_disconnected():
+  """
+    Graph:
+        A <- B <- C
+        D (disconnected)
+    """
+  graph = {
+      "A": [Node("B", "B", ["Type"])],
+      "B": [Node("C", "C", ["Type"])],
+      "C": [],
+      "D": [Node("Z", "Z", ["Type"])],
+  }
+  order = _postorder_nodes("A", graph)
+  assert order == ["C", "B", "A"]
+  assert "D" not in order
+
+
 def test_assemble_tree_creates_nested_structure():
   """Test _assemble_tree creates a nested structure."""
   ancestry = {
@@ -154,7 +180,7 @@ def test_assemble_tree_creates_nested_structure():
       "A": [],
   }
   postorder = ["A", "B", "C"]
-  tree = _assemble_tree(postorder, ancestry)
+  tree = _assemble_tree(postorder, ancestry, relationship_key="parents")
 
   assert tree["dcid"] == "C"
   assert tree["parents"][0]["dcid"] == "B"
@@ -196,7 +222,7 @@ def test_assemble_tree_shared_parent_not_duplicated():
   }
 
   postorder = ["C", "A", "B"]  # C first to allow bottom-up build
-  tree = _assemble_tree(postorder, ancestry)
+  tree = _assemble_tree(postorder, ancestry, relationship_key="parents")
 
   assert tree["dcid"] == "B"
   assert len(tree["parents"]) == 1
@@ -215,7 +241,7 @@ def test_build_ancestry_tree_nested_output():
       "A": [],
   }
 
-  tree = build_ancestry_tree("C", ancestry)
+  tree = build_relationship_tree("C", ancestry, relationship_key="parents")
 
   assert tree["dcid"] == "C"
   assert tree["parents"][0]["dcid"] == "B"
@@ -231,7 +257,7 @@ def test_flatten_ancestry_deduplicates():
             Node("B", "B", types=["City"])],
   }
 
-  flat = flatten_ancestry(ancestry)
+  flat = flatten_relationship(ancestry)
 
   assert {"dcid": "A", "name": "A", "types": ["Country"]} in flat
   assert {"dcid": "B", "name": "B", "types": ["City"]} in flat
