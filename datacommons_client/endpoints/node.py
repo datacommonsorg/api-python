@@ -288,7 +288,7 @@ class NodeEndpoint(Endpoint):
     if as_dict:
       for entity, nodes in data.items():
         if not nodes:
-            continue
+          continue
         if isinstance(nodes, Node):
           return {entity: [nodes.to_dict()]}
         else:
