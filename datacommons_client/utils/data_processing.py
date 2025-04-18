@@ -20,7 +20,7 @@ def unpack_arcs(arcs: Dict[ArcLabel, NodeGroup]) -> Any:
   # Single arc: extract first node's data
   for property_data in arcs.values():
     nodes = property_data.nodes
-    if nodes is not None:
+    if nodes:
       return nodes if len(nodes) > 1 else nodes[0]
 
 

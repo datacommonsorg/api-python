@@ -1,5 +1,6 @@
 from concurrent.futures import ThreadPoolExecutor
-from typing import Optional
+from functools import partial
+from typing import Literal, Optional
 
 from datacommons_client.endpoints.base import API
 from datacommons_client.endpoints.base import Endpoint
@@ -8,10 +9,10 @@ from datacommons_client.endpoints.payloads import normalize_properties_to_string
 from datacommons_client.endpoints.response import NodeResponse
 from datacommons_client.models.node import Name
 from datacommons_client.models.node import Node
-from datacommons_client.utils.graph import build_ancestry_map
-from datacommons_client.utils.graph import build_ancestry_tree
-from datacommons_client.utils.graph import fetch_parents_lru
-from datacommons_client.utils.graph import flatten_ancestry
+from datacommons_client.utils.graph import build_graph_map
+from datacommons_client.utils.graph import build_relationship_tree
+from datacommons_client.utils.graph import fetch_relationship_lru
+from datacommons_client.utils.graph import flatten_relationship
 from datacommons_client.utils.names import DEFAULT_NAME_LANGUAGE
 from datacommons_client.utils.names import DEFAULT_NAME_PROPERTY
 from datacommons_client.utils.names import extract_name_from_english_name_property
@@ -252,57 +253,171 @@ class NodeEndpoint(Endpoint):
 
     return names
 
+  def _fetch_contained_in_place(
+      self,
+      node_dcids: str | list[str],
+      out: bool = True,
+      contained_type: Optional[str] = None,
+      as_dict: bool = False,
+  ) -> dict[str, list[Node | dict]]:
+    """Fetches places that contain or are contained in the given nodes. Uses the
+          `containedInPlace` property to fetch parent or child place relationships.
+
+        Args:
+            node_dcids (str | list[str]): One or more DCIDs representing geographic places.
+            out (bool, optional): If True, fetch places contained in the given node(s).
+                If False, fetch places that contain the given node(s). Defaults to True.
+            contained_type (str, optional): Optional type constraint (e.g., 'Country',
+                'Country'). If provided, only fetches places of that type.
+            as_dict (bool, optional): If True, returns the result as a dictionary of
+                lists of dictionaries. If False, returns Node objects. Defaults to False.
+
+        Returns:
+            dict[str, list[dict]] | dict[str, list[Any]]: A dictionary where keys are DCIDs
+            and values are lists of place relationships, either as raw objects or
+            dictionaries (if `as_dict` is True).
+        """
+    data = self.fetch_property_values(
+        node_dcids=node_dcids,
+        properties=("containedInPlace+"
+                    if contained_type else "containedInPlace"),
+        out=out,
+        constraints=f"typeOf:{contained_type}" if contained_type else None,
+    ).get_properties()
+
+    if as_dict:
+      for entity, nodes in data.items():
+        if isinstance(nodes, Node):
+          return {entity: [nodes.to_dict()]}
+        else:
+          return {entity: [node.to_dict() for node in nodes]}
+    return data
+
   def fetch_entity_parents(
       self,
       entity_dcids: str | list[str],
       *,
-      as_dict: bool = True) -> dict[str, list[Node | dict]]:
+      parent_type: Optional[str] = None,
+      as_dict: bool = True,
+  ) -> dict[str, list[Node | dict]]:
     """Fetches the direct parents of one or more entities using the 'containedInPlace' property.
 
         Args:
             entity_dcids (str | list[str]): A single DCID or a list of DCIDs to query.
+            parent_type (str, optional): The type of the parent entities to
+                fetch (e.g., 'Country', 'State', 'IPCCPlace_50'). If None, fetches all child types.
             as_dict (bool): If True, returns a dictionary mapping each input DCID to its
-                immediate parent entities. If False, returns a dictionary of Parent objects (which
-                are dataclasses).
+                immediate parent entities. If False, returns a dictionary of Node objects.
 
         Returns:
-            dict[str, list[Parent | dict]]: A dictionary mapping each input DCID to a list of its
-            immediate parent entities. Each parent is represented as a Parent object (which
-            contains the DCID, name, and type of the parent entity) or as a dictionary with
-            the same data.
+            dict[str, list[Node | dict]]: A dictionary mapping each input DCID to a list of its
+            immediate parent entities. Each parent is represented as a Node object or
+            as a dictionary with the same data.
         """
-    # Fetch property values from the API
-    data = self.fetch_property_values(
+    return self._fetch_contained_in_place(
         node_dcids=entity_dcids,
-        properties="containedInPlace",
-    ).get_properties()
+        out=True,
+        contained_type=parent_type,
+        as_dict=as_dict,
+    )
 
-    if as_dict:
-      return {k: v.to_dict() for k, v in data.items()}
-
-    return data
-
-  def _fetch_parents_cached(self, dcid: str) -> tuple[Node, ...]:
-    """Returns cached parent nodes for a given entity using an LRU cache.
-
-        This private wrapper exists because `@lru_cache` cannot be applied directly
-        to instance methods. By passing the `NodeEndpoint` instance (`self`) as an
-        argument caching is preserved while keeping the implementation modular and testable.
+  def fetch_entity_children(
+      self,
+      entity_dcids: str | list[str],
+      *,
+      children_type: Optional[str] = None,
+      as_dict: bool = True,
+  ) -> dict[str, list[Node | dict]]:
+    """Fetches the direct children of one or more entities using the 'containedInPlace' property.
 
         Args:
-            dcid (str): The DCID of the entity whose parents should be fetched.
+            entity_dcids (str | list[str]): A single DCID or a list of DCIDs to query.
+            children_type (str, optional): The type of the child entities to
+                fetch (e.g., 'Country', 'State', 'IPCCPlace_50'). If None, fetches all child types.
+            as_dict (bool): If True, returns a dictionary mapping each input DCID to its
+                immediate children entities. If False, returns a dictionary of Node objects.
 
         Returns:
-            tuple[Parent, ...]: A tuple of Parent objects representing the entity's immediate parents.
+            dict[str, list[Node | dict]]: A dictionary mapping each input DCID to a list of its
+            immediate children. Each child is represented as a Node object or as a dictionary with
+            the same data.
         """
-    return fetch_parents_lru(self, dcid)
+    return self._fetch_contained_in_place(
+        node_dcids=entity_dcids,
+        out=False,
+        contained_type=children_type,
+        as_dict=as_dict,
+    )
+
+  def _fetch_entity_relationships(
+      self,
+      entity_dcids: str | list[str],
+      as_tree: bool = False,
+      *,
+      contained_type: Optional[str] = None,
+      relationship: Literal["parents", "children"],
+      max_concurrent_requests: Optional[int] = ANCESTRY_MAX_WORKERS,
+  ) -> dict[str, list[dict[str, str]] | dict]:
+    """Fetches a full ancestry/descendancy map per DCID.
+
+        For each input DCID, this method builds the complete graph using a
+        breadth-first traversal and parallel fetching.
+
+        Args:
+            entity_dcids (str | list[str]): One or more DCIDs of the entities whose ancestry
+               will be fetched.
+            as_tree (bool): If True, returns a nested tree structure; otherwise, returns a flat list.
+                Defaults to False.
+            contained_type (Optional[str]): The type of the ancestry to fetch (e.g., 'Country', 'State').
+                If None, fetches all ancestry types.
+            relationship (Literal["parents", "children"]): The type of relationship to fetch.
+            max_concurrent_requests (Optional[int]): The maximum number of concurrent requests to make.
+                Defaults to ANCESTRY_MAX_WORKERS.
+        Returns:
+            dict[str, list[dict[str, str]] | dict]: A dictionary mapping each input DCID to either:
+                - A flat list of Node dictionaries (if `as_tree` is False), or
+                - A nested tree (if `as_tree` is True).
+        """
+
+    if isinstance(entity_dcids, str):
+      entity_dcids = [entity_dcids]
+
+    result = {}
+
+    # Create a partial function to fetch relationships with the current parameters
+    fetch_fn = partial(
+        fetch_relationship_lru,
+        self,
+        contained_type=contained_type,
+        relationship=relationship,
+    )
+
+    # Use a thread pool to fetch ancestry graphs in parallel for each input entity
+    with ThreadPoolExecutor(max_workers=max_concurrent_requests) as executor:
+      futures = [
+          executor.submit(build_graph_map, root=dcid, fetch_fn=fetch_fn)
+          for dcid in entity_dcids
+      ]
+      # Gather ancestry maps and postprocess into flat or nested form
+      for future in futures:
+        dcid, ancestry = future.result()
+        if as_tree:
+          ancestry = build_relationship_tree(root=dcid,
+                                             graph=ancestry,
+                                             relationship_key=relationship)
+        else:
+          ancestry = flatten_relationship(ancestry)
+        result[dcid] = ancestry
+
+    return result
 
   def fetch_entity_ancestry(
       self,
       entity_dcids: str | list[str],
       as_tree: bool = False,
+      ancestry_type: Optional[str] = None,
       *,
-      max_concurrent_requests: Optional[int] = ANCESTRY_MAX_WORKERS
+      max_concurrent_requests: Optional[int] = ANCESTRY_MAX_WORKERS,
   ) -> dict[str, list[dict[str, str]] | dict]:
     """Fetches the full ancestry (flat or nested) for one or more entities.
         For each input DCID, this method builds the complete ancestry graph using a
@@ -315,6 +430,8 @@ class NodeEndpoint(Endpoint):
                will be fetched.
             as_tree (bool): If True, returns a nested tree structure; otherwise, returns a flat list.
                 Defaults to False.
+            ancestry_type (Optional[str]): The type of the ancestry to fetch (e.g., 'Country', 'State').
+                If None, fetches all ancestry types.
             max_concurrent_requests (Optional[int]): The maximum number of concurrent requests to make.
                 Defaults to ANCESTRY_MAX_WORKERS.
         Returns:
@@ -324,27 +441,49 @@ class NodeEndpoint(Endpoint):
                   a dict with 'dcid', 'name', and 'type'.
         """
 
-    if isinstance(entity_dcids, str):
-      entity_dcids = [entity_dcids]
+    return self._fetch_entity_relationships(
+        entity_dcids=entity_dcids,
+        as_tree=as_tree,
+        contained_type=ancestry_type,
+        relationship="parents",
+        max_concurrent_requests=max_concurrent_requests,
+    )
 
-    result = {}
+  def fetch_entity_descendancy(
+      self,
+      entity_dcids: str | list[str],
+      descendants_type: Optional[str] = None,
+      as_tree: bool = False,
+      *,
+      max_concurrent_requests: Optional[int] = ANCESTRY_MAX_WORKERS,
+  ) -> dict[str, list[dict[str, str]] | dict]:
+    """Fetches the full descendants (flat or nested) for one or more entities.
+        For each input DCID, this method builds the complete descendants graph using a
+        breadth-first traversal and parallel fetching.
 
-    # Use a thread pool to fetch ancestry graphs in parallel for each input entity
-    with ThreadPoolExecutor(max_workers=max_concurrent_requests) as executor:
-      futures = [
-          executor.submit(build_ancestry_map,
-                          root=dcid,
-                          fetch_fn=self._fetch_parents_cached)
-          for dcid in entity_dcids
-      ]
+        It returns either a flat list of unique child or a nested tree structure for
+        each entity, depending on the `as_tree` flag.
 
-      # Gather ancestry maps and postprocess into flat or nested form
-      for future in futures:
-        dcid, ancestry = future.result()
-        if as_tree:
-          ancestry = build_ancestry_tree(dcid, ancestry)
-        else:
-          ancestry = flatten_ancestry(ancestry)
-        result[dcid] = ancestry
+        Args:
+            entity_dcids (str | list[str]): One or more DCIDs of the entities whose descendants
+               will be fetched.
+            descendants_type (Optional[str]): The type of the descendants to fetch (e.g., 'Country', 'State').
+                If None, fetches all descendant types.
+            as_tree (bool): If True, returns a nested tree structure; otherwise, returns a flat list.
+                Defaults to False.
+            max_concurrent_requests (Optional[int]): The maximum number of concurrent requests to make.
+                Defaults to ANCESTRY_MAX_WORKERS.
+        Returns:
+            dict[str, list[dict[str, str]] | dict]: A dictionary mapping each input DCID to either:
+                - A flat list of Node dictionaries (if `as_tree` is False), or
+                - A nested ancestry tree (if `as_tree` is True). Each child is represented by
+                  a dict.
+        """
 
-    return result
+    return self._fetch_entity_relationships(
+        entity_dcids=entity_dcids,
+        as_tree=as_tree,
+        contained_type=descendants_type,
+        relationship="children",
+        max_concurrent_requests=max_concurrent_requests,
+    )

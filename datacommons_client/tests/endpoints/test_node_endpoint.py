@@ -327,26 +327,49 @@ def test_fetch_entity_names_no_result(mock_extract_name_lang):
   assert result == {}
 
 
-@patch("datacommons_client.endpoints.node.fetch_parents_lru")
-def test_fetch_parents_cached_delegates_to_lru(mock_fetch_lru):
-  mock_fetch_lru.return_value = (Node("B", "B name", "Region"),)
+@patch("datacommons_client.endpoints.node.flatten_relationship")
+@patch("datacommons_client.endpoints.node.build_graph_map")
+@patch("datacommons_client.endpoints.node.fetch_relationship_lru")
+def test_fetch_entity_relationships_delegates_to_lru(mock_lru, mock_build_map,
+                                                     mock_flatten):
+  """Ensure that the private helper builds a fetch‑function that ultimately
+    calls through to ``fetch_relationship_lru`` for each root DCID."""
+
+  mock_lru.return_value = [Node("B", "B name", ["Region"])]
+
+  def _fake_build_graph_map(root, fetch_fn):
+    # simulate the internal traversal by invoking the provided fetch_fn once
+    fetch_fn(dcid=root)
+    return root, {}
+
+  mock_build_map.side_effect = _fake_build_graph_map
+  mock_flatten.return_value = []
+
   endpoint = NodeEndpoint(api=MagicMock())
+  result = endpoint._fetch_entity_relationships(
+      entity_dcids="X",
+      as_tree=False,
+      contained_type="Region",
+      relationship="parents",
+  )
 
-  result = endpoint._fetch_parents_cached("X")
+  assert result == {"X": []}
+  mock_lru.assert_called_once_with(
+      endpoint,
+      dcid="X",
+      contained_type="Region",
+      relationship="parents",
+  )
 
-  assert isinstance(result, tuple)
-  assert result[0].dcid == "B"
-  mock_fetch_lru.assert_called_once_with(endpoint, "X")
 
-
-@patch("datacommons_client.endpoints.node.flatten_ancestry")
-@patch("datacommons_client.endpoints.node.build_ancestry_map")
+@patch("datacommons_client.endpoints.node.flatten_relationship")
+@patch("datacommons_client.endpoints.node.build_graph_map")
 def test_fetch_entity_ancestry_flat(mock_build_map, mock_flatten):
-  """Test fetch_entity_ancestry with flat structure (as_tree=False)."""
+  """Flat ancestry structure should be derived via ``flatten_relationship``."""
   mock_build_map.return_value = (
       "X",
       {
-          "X": [Node("A", "A name", "Country")],
+          "X": [Node("A", "A name", ["Country"])],
           "A": [],
       },
   )
@@ -364,17 +387,19 @@ def test_fetch_entity_ancestry_flat(mock_build_map, mock_flatten):
   mock_flatten.assert_called_once()
 
 
-@patch("datacommons_client.endpoints.node.build_ancestry_tree")
-@patch("datacommons_client.endpoints.node.build_ancestry_map")
+@patch("datacommons_client.endpoints.node.build_relationship_tree")
+@patch("datacommons_client.endpoints.node.build_graph_map")
 def test_fetch_entity_ancestry_tree(mock_build_map, mock_build_tree):
-  """Test fetch_entity_ancestry with tree structure (as_tree=True)."""
+  """Nested ancestry structure should be derived via
+    ``build_relationship_tree``."""
   mock_build_map.return_value = (
       "Y",
       {
-          "Y": [Node("Z", "Z name", "Region")],
+          "Y": [Node("Z", "Z name", ["Region"])],
           "Z": [],
       },
   )
+
   mock_build_tree.return_value = {
       "dcid":
           "Y",
@@ -397,4 +422,6 @@ def test_fetch_entity_ancestry_tree(mock_build_map, mock_build_tree):
   assert result["Y"]["dcid"] == "Y"
   assert result["Y"]["parents"][0]["dcid"] == "Z"
   mock_build_map.assert_called_once()
-  mock_build_tree.assert_called_once_with("Y", mock_build_map.return_value[1])
+  mock_build_tree.assert_called_once_with(root="Y",
+                                          graph=mock_build_map.return_value[1],
+                                          relationship_key="parents")
