@@ -297,15 +297,12 @@ class NodeEndpoint(Endpoint):
       self,
       entity_dcids: str | list[str],
       *,
-      parent_type: Optional[str] = None,
       as_dict: bool = True,
   ) -> dict[str, list[Node | dict]]:
     """Fetches the direct parents of one or more entities using the 'containedInPlace' property.
 
         Args:
             entity_dcids (str | list[str]): A single DCID or a list of DCIDs to query.
-            parent_type (str, optional): The type of the parent entities to
-                fetch (e.g., 'Country', 'State', 'IPCCPlace_50'). If None, fetches all child types.
             as_dict (bool): If True, returns a dictionary mapping each input DCID to its
                 immediate parent entities. If False, returns a dictionary of Node objects.
 
@@ -317,7 +314,7 @@ class NodeEndpoint(Endpoint):
     return self._fetch_contained_in_place(
         node_dcids=entity_dcids,
         out=True,
-        contained_type=parent_type,
+        contained_type=None,
         as_dict=as_dict,
     )
 
@@ -415,7 +412,6 @@ class NodeEndpoint(Endpoint):
       self,
       entity_dcids: str | list[str],
       as_tree: bool = False,
-      ancestry_type: Optional[str] = None,
       *,
       max_concurrent_requests: Optional[int] = ANCESTRY_MAX_WORKERS,
   ) -> dict[str, list[dict[str, str]] | dict]:
@@ -430,8 +426,6 @@ class NodeEndpoint(Endpoint):
                will be fetched.
             as_tree (bool): If True, returns a nested tree structure; otherwise, returns a flat list.
                 Defaults to False.
-            ancestry_type (Optional[str]): The type of the ancestry to fetch (e.g., 'Country', 'State').
-                If None, fetches all ancestry types.
             max_concurrent_requests (Optional[int]): The maximum number of concurrent requests to make.
                 Defaults to ANCESTRY_MAX_WORKERS.
         Returns:
@@ -444,7 +438,7 @@ class NodeEndpoint(Endpoint):
     return self._fetch_entity_relationships(
         entity_dcids=entity_dcids,
         as_tree=as_tree,
-        contained_type=ancestry_type,
+        contained_type=None,
         relationship="parents",
         max_concurrent_requests=max_concurrent_requests,
     )
