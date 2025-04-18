@@ -1,9 +1,8 @@
-from dataclasses import asdict
 from dataclasses import dataclass
 from dataclasses import field
-import json
 from typing import Any, Dict, List
 
+from datacommons_client.models.base import SerializableMixin
 from datacommons_client.models.node import Arcs
 from datacommons_client.models.node import NextToken
 from datacommons_client.models.node import NodeDCID
@@ -15,42 +14,6 @@ from datacommons_client.models.observation import variableDCID
 from datacommons_client.models.resolve import Entity
 from datacommons_client.utils.data_processing import flatten_properties
 from datacommons_client.utils.data_processing import observations_as_records
-
-
-class SerializableMixin:
-  """Provides serialization methods for the Response dataclasses."""
-
-  def to_dict(self, exclude_none: bool = True) -> Dict[str, Any]:
-    """Converts the instance to a dictionary.
-
-        Args:
-            exclude_none: If True, only include non-empty values in the response.
-
-        Returns:
-            Dict[str, Any]: The dictionary representation of the instance.
-        """
-
-    def _remove_none(data: Any) -> Any:
-      """Recursively removes None or empty values from a dictionary or list."""
-      if isinstance(data, dict):
-        return {k: _remove_none(v) for k, v in data.items() if v is not None}
-      elif isinstance(data, list):
-        return [_remove_none(item) for item in data]
-      return data
-
-    result = asdict(self)
-    return _remove_none(result) if exclude_none else result
-
-  def to_json(self, exclude_none: bool = True) -> str:
-    """Converts the instance to a JSON string.
-
-        Args:
-            exclude_none: If True, only include non-empty values in the response.
-
-        Returns:
-            str: The JSON string representation of the instance.
-        """
-    return json.dumps(self.to_dict(exclude_none=exclude_none), indent=2)
 
 
 @dataclass
@@ -142,14 +105,96 @@ class ObservationResponse(SerializableMixin):
         variable: data.byEntity for variable, data in self.byVariable.items()
     }
 
-  def get_observations_as_records(self) -> List[Dict[str, Any]]:
-    """Converts the observation data into a list of records.
+  def to_observation_records(self) -> List[Dict[str, Any]]:
+    """Returns a flat list of observation records combining date, variable, entity,
+         observation, and facet metadata.
 
-        Returns:
-            List[Dict[str, Any]]: A flattened list of observation records.
+    This method transforms the nested `byVariable` and `facets` data in the ObservationResponse
+    into a flat list of dictionaries. Each dictionary (or "record") represents a single observation
+    for a variable and entity, enriched with its associated facet metadata (e.g., measurement method,
+    observation period, unit).
+
+    This format is suitable for exporting to a DataFrame or serializing to JSON for tabular or analytical use.
+
+    Returns:
+        List[Dict[str, Any]]: A list of observation records, where each record contains the variable,
+        entity, date, value, facetId, and any additional metadata provided by the facet.
         """
     return observations_as_records(data=self.get_data_by_entity(),
                                    facets=self.facets)
+
+  def get_facets_metadata(self) -> Dict[str, Any]:
+    """Extract metadata about StatVars from the response. This data is
+        structured as a dictionary of StatVars, each containing a dictionary of
+        facets with their corresponding metadata.
+
+        Returns:
+            Dict[str, Any]: A dictionary of StatVars with their associated metadata,
+             including earliest and latest observation dates, observation counts,
+             measurementMethod, observationPeriod, and unit, etc.
+        """
+    # Dictionary to store metadata
+    metadata = {}
+
+    # Extract information from byVariable
+    data_by_entity = self.get_data_by_entity()
+
+    # Extract facet information
+    facets_info = self.to_dict().get("facets", {})
+
+    for dcid, variables in data_by_entity.items():
+      metadata[dcid] = {}
+
+      for entity_id, entity in variables.items():
+        for facet in entity.get("orderedFacets", []):
+          facet_metadata = metadata[dcid].setdefault(
+              facet.facetId,
+              {
+                  "earliestDate": {},
+                  "latestDate": {},
+                  "obsCount": {},
+              },
+          )
+
+          facet_metadata["earliestDate"][entity_id] = facet.earliestDate
+          facet_metadata["latestDate"][entity_id] = facet.latestDate
+          facet_metadata["obsCount"][entity_id] = facet.obsCount
+
+          # Merge additional facet details
+          facet_metadata.update(facets_info.get(facet.facetId, {}))
+
+    return metadata
+
+  def find_matching_facet_id(self, property_name: str,
+                             value: str | list[str]) -> list[str]:
+    """Finds facet IDs that match a given property and value.
+
+        Args:
+            property_name (str): The property to match.
+            value (str | list): The value to match. Can be a string, number, or a list of values.
+        Returns:
+            list[str]: A list of facet IDs that match the property and value.
+        """
+    # Initialize an empty list to store matching facet IDs
+    matching_facet_ids = []
+
+    # Iterate over the facets metadata to find matching facet IDs
+    for facet_data in self.get_facets_metadata().values():
+
+      # Iterate over each facet and its associated metadata
+      for facet_id, metadata in facet_data.items():
+
+        # Get the value of the specified property from the data
+        prop_value = metadata.get(property_name)
+
+        # Check if the property value matches the specified value
+        if isinstance(value, list):
+          if prop_value in value:
+            matching_facet_ids.append(facet_id)
+        elif prop_value == value:
+          matching_facet_ids.append(facet_id)
+
+    return matching_facet_ids
 
 
 @dataclass
@@ -177,3 +222,22 @@ class ResolveResponse(SerializableMixin):
     return cls(entities=[
         Entity.from_json(entity) for entity in json_data.get("entities", [])
     ])
+
+  def to_flat_dict(self) -> dict[str, list[str] | str]:
+    """
+      Flattens resolved candidate data into a dictionary where each node maps to its candidates.
+
+      Returns:
+          dict[str, Any]: A dictionary mapping nodes to their candidates.
+          If a node has only one candidate, it maps directly to the candidate instead of a list.
+      """
+    items: dict[str, Any] = {}
+
+    for entity in self.entities:
+      node = entity.node
+      if len(entity.candidates) == 1:
+        items[node] = entity.candidates[0].dcid
+      else:
+        items[node] = [candidate.dcid for candidate in entity.candidates]
+
+    return items

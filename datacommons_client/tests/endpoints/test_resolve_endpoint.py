@@ -2,7 +2,6 @@ from unittest.mock import MagicMock
 
 from datacommons_client.endpoints.base import API
 from datacommons_client.endpoints.resolve import _resolve_correspondence_expression
-from datacommons_client.endpoints.resolve import flatten_resolve_response
 from datacommons_client.endpoints.resolve import ResolveEndpoint
 from datacommons_client.endpoints.response import ResolveResponse
 
@@ -53,8 +52,8 @@ def test_fetch_dcid_by_wikidata_id():
   api_mock = MagicMock(spec=API)
   endpoint = ResolveEndpoint(api=api_mock)
 
-  response = endpoint.fetch_dcid_by_wikidata_id(wikidata_id="Q12345",
-                                                entity_type="Country")
+  response = endpoint.fetch_dcids_by_wikidata_id(wikidata_ids="Q12345",
+                                                 entity_type="Country")
 
   # Check the response
   assert isinstance(response, ResolveResponse)
@@ -63,6 +62,27 @@ def test_fetch_dcid_by_wikidata_id():
   api_mock.post.assert_called_once_with(payload={
       "nodes": ["Q12345"],
       "property": "<-wikidataId{typeOf:Country}->dcid",
+  },
+                                        endpoint="resolve",
+                                        all_pages=True,
+                                        next_token=None)
+
+
+def test_fetch_dcids_list_by_wikidata_id():
+  """Tests the fetch_dcid_by_wikidata_id method."""
+  api_mock = MagicMock(spec=API)
+  endpoint = ResolveEndpoint(api=api_mock)
+
+  response = endpoint.fetch_dcids_by_wikidata_id(
+      wikidata_ids=["Q12345", "Q695660"])
+
+  # Check the response
+  assert isinstance(response, ResolveResponse)
+
+  # Check the post request
+  api_mock.post.assert_called_once_with(payload={
+      "nodes": ["Q12345", "Q695660"],
+      "property": "<-wikidataId->dcid",
   },
                                         endpoint="resolve",
                                         all_pages=True,
@@ -85,30 +105,6 @@ def test_fetch_dcid_by_coordinates():
   api_mock.post.assert_called_once_with(payload={
       "nodes": ["37.7749#-122.4194"],
       "property": "<-geoCoordinate{typeOf:City}->dcid",
-  },
-                                        endpoint="resolve",
-                                        all_pages=True,
-                                        next_token=None)
-
-
-def test_fetch_from_type_to_type():
-  """Tests the fetch_from_type_to_type method."""
-  # Mock the API
-  api_mock = MagicMock(spec=API)
-  endpoint = ResolveEndpoint(api=api_mock)
-
-  response = endpoint.fetch_entity_type_correspondence(entities="Node1",
-                                                       from_type="type1",
-                                                       to_type="type2",
-                                                       entity_type="Place")
-
-  # Check the response
-  assert isinstance(response, ResolveResponse)
-
-  # Check the post request
-  api_mock.post.assert_called_once_with(payload={
-      "nodes": ["Node1"],
-      "property": "<-type1{typeOf:Place}->type2",
   },
                                         endpoint="resolve",
                                         all_pages=True,
@@ -143,7 +139,7 @@ def test_flatten_resolve_response():
   ])
 
   # Call the function
-  result = flatten_resolve_response(mock_data)
+  result = mock_data.to_flat_dict()
 
   # Expected output
   expected = {

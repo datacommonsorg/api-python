@@ -6,6 +6,7 @@ from datacommons_client.endpoints.payloads import ObservationDate
 from datacommons_client.endpoints.payloads import ObservationRequestPayload
 from datacommons_client.endpoints.payloads import ObservationSelect
 from datacommons_client.endpoints.response import ObservationResponse
+from datacommons_client.utils.data_processing import group_variables_by_entity
 
 
 class ObservationEndpoint(Endpoint):
@@ -28,6 +29,8 @@ class ObservationEndpoint(Endpoint):
       select: Optional[list[ObservationSelect | str]] = None,
       entity_dcids: Optional[str | list[str]] = None,
       entity_expression: Optional[str] = None,
+      filter_facet_domains: Optional[str | list[str]] = None,
+      filter_facet_ids: Optional[str | list[str]] = None,
   ) -> ObservationResponse:
     """
         Fetches data from the observation endpoint.
@@ -40,6 +43,8 @@ class ObservationEndpoint(Endpoint):
                 Defaults to ["date", "variable", "entity", "value"].
             entity_dcids (Optional[str | list[str]]): One or more entity IDs to filter the data.
             entity_expression (Optional[str]): A string expression to filter entities.
+            filter_facet_domains (Optional[str | list[str]]): One or more domain names to filter the data.
+            filter_facet_ids (Optional[str | list[str]]): One or more facet IDs to filter the data.
 
         Returns:
             ObservationResponse: The response object containing observations for the specified query.
@@ -51,52 +56,12 @@ class ObservationEndpoint(Endpoint):
         select=select,
         entity_dcids=entity_dcids,
         entity_expression=entity_expression,
+        filter_facet_domains=filter_facet_domains,
+        filter_facet_ids=filter_facet_ids,
     ).to_dict
 
     # Send the request
     return ObservationResponse.from_json(self.post(payload))
-
-  def fetch_latest_observations(
-      self,
-      variable_dcids: str | list[str],
-      entity_dcids: Optional[str | list[str]] = None,
-      entity_expression: Optional[str] = None,
-  ) -> ObservationResponse:
-    """
-        Fetches the latest observations for the given variable and entity.
-
-        Args:
-            variable_dcids (str | list[str]): One or more variable IDs for the data.
-            entity_dcids (Optional[str | list[str]]): One or more entity IDs to filter the data.
-            entity_expression (Optional[str]): A string expression to filter entities.
-
-        Returns:
-            ObservationResponse: The response object containing observations for the specified query.
-        """
-    return self.fetch(
-        variable_dcids=variable_dcids,
-        date=ObservationDate.LATEST,
-        entity_dcids=entity_dcids,
-        entity_expression=entity_expression,
-    )
-
-  def fetch_latest_observations_by_entity(
-      self,
-      variable_dcids: str | list[str],
-      entity_dcids: str | list[str],
-  ) -> ObservationResponse:
-    """Fetches the latest observations for the given variable and entities.
-
-        Args:
-            variable_dcids (str | list[str]): One or more variable IDs for the data.
-            entity_dcids (str | list[str]): One or more entity IDs to filter the data.
-
-        Returns:
-            ObservationResponse: The response object containing observations for the specified query.
-        """
-
-    return self.fetch_latest_observations(variable_dcids=variable_dcids,
-                                          entity_dcids=entity_dcids)
 
   def fetch_observations_by_entity_type(
       self,
@@ -104,6 +69,10 @@ class ObservationEndpoint(Endpoint):
       parent_entity: str,
       entity_type: str,
       variable_dcids: str | list[str],
+      *,
+      select: Optional[list[ObservationSelect | str]] = None,
+      filter_facet_domains: Optional[str | list[str]] = None,
+      filter_facet_ids: Optional[str | list[str]] = None,
   ) -> ObservationResponse:
     """
         Fetches all observations for a given entity type.
@@ -118,6 +87,10 @@ class ObservationEndpoint(Endpoint):
                 For example, "Country" or "Region".
             variable_dcids (str | list[str]): The variable(s) to fetch observations for.
                 This can be a single variable ID or a list of IDs.
+            select (Optional[list[ObservationSelect | str]]): Fields to include in the response.
+                If not provided, defaults to ["date", "variable", "entity", "value"].
+            filter_facet_domains: Optional[str | list[str]: One or more domain names to filter the data.
+            filter_facet_ids: Optional[str | list[str]: One or more facet IDs to filter the data.
 
         Returns:
             ObservationResponse: The response object containing observations for the specified entity type.
@@ -139,16 +112,22 @@ class ObservationEndpoint(Endpoint):
     return self.fetch(
         variable_dcids=variable_dcids,
         date=date,
-        select=[s for s in ObservationSelect],
+        select=[s for s in ObservationSelect] if not select else select,
         entity_expression=
         f"{parent_entity}<-containedInPlace+{{typeOf:{entity_type}}}",
+        filter_facet_domains=filter_facet_domains,
+        filter_facet_ids=filter_facet_ids,
     )
 
-  def fetch_observations_by_entity(
+  def fetch_observations_by_entity_dcid(
       self,
       date: ObservationDate | str,
       entity_dcids: str | list[str],
       variable_dcids: str | list[str],
+      *,
+      select: Optional[list[ObservationSelect | str]] = None,
+      filter_facet_domains: Optional[str | list[str]] = None,
+      filter_facet_ids: Optional[str | list[str]] = None,
   ) -> ObservationResponse:
     """
         Fetches all observations for a given entity type.
@@ -160,6 +139,10 @@ class ObservationEndpoint(Endpoint):
             entity_dcids (str | list[str]): One or more entity IDs to filter the data.
             variable_dcids (str | list[str]): The variable(s) to fetch observations for.
                 This can be a single variable ID or a list of IDs.
+            select (Optional[list[ObservationSelect | str]]): Fields to include in the response.
+                If not provided, defaults to ["date", "variable", "entity", "value"].
+            filter_facet_domains: Optional[str | list[str]: One or more domain names to filter the data.
+            filter_facet_ids: Optional[str | list[str]: One or more facet IDs to filter the data.
 
         Returns:
             ObservationResponse: The response object containing observations for the specified entity type.
@@ -169,7 +152,7 @@ class ObservationEndpoint(Endpoint):
 
             ```python
             api = API()
-            ObservationEndpoint(api).fetch_observations_by_entity(
+            ObservationEndpoint(api).fetch_observations_by_entity_dcid(
                 date="all",
                 entity_dcids="country/NGA",
                 variable_dcids="sdg/SI_POV_DAY1"
@@ -180,6 +163,30 @@ class ObservationEndpoint(Endpoint):
     return self.fetch(
         variable_dcids=variable_dcids,
         date=date,
+        select=[s for s in ObservationSelect] if not select else select,
         entity_dcids=entity_dcids,
-        select=[s for s in ObservationSelect],
+        filter_facet_domains=filter_facet_domains,
+        filter_facet_ids=filter_facet_ids,
     )
+
+  def fetch_available_statistical_variables(
+      self,
+      entity_dcids: str | list[str],
+  ) -> dict[str, list[str]]:
+    """
+        Fetches available statistical variables (which have observations) for given entities.
+        Args:
+            entity_dcids (str | list[str]): One or more entity DCIDs(s) to fetch variables for.
+        Returns:
+            dict[str, list[str]]: A dictionary mapping entity DCIDs to their available statistical variables.
+        """
+
+    # Fetch observations for the given entity DCIDs. If variable is empty list
+    # all available variables are retrieved.
+    data = self.fetch(
+        entity_dcids=entity_dcids,
+        select=[ObservationSelect.VARIABLE, ObservationSelect.ENTITY],
+        variable_dcids=[],
+    ).get_data_by_entity()
+
+    return group_variables_by_entity(data=data)

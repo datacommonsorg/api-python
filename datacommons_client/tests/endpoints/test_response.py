@@ -1,9 +1,12 @@
 import json
+from unittest.mock import MagicMock
 
 from datacommons_client.endpoints.response import DCResponse
 from datacommons_client.endpoints.response import NodeResponse
 from datacommons_client.endpoints.response import ObservationResponse
 from datacommons_client.endpoints.response import ResolveResponse
+from datacommons_client.models.node import Node
+from datacommons_client.models.node import NodeGroup
 from datacommons_client.models.observation import Facet
 from datacommons_client.models.observation import Observation
 from datacommons_client.models.observation import OrderedFacets
@@ -182,26 +185,98 @@ def test_flatten_arcs():
   assert result["dc/03lw9rhpendw5"].value == "191 Peachtree Tower"
 
 
+def test_flatten_multiple_arcs_with_multiple_nodes():
+  """Test that the flatten_properties function correctly flattens the
+  NodeResponse containing multiple property arcs and mutliple nodes within the
+  arcs."""
+
+  # Mocking node data
+  json_data = {
+      "data": {
+          "geoId/06": {
+              "arcs": {
+                  "containedInPlace": {
+                      "nodes": [{
+                          "dcid": "country/USA",
+                          "name": "United States",
+                          "provenanceId": "dc/base/WikidataOtherIdGeos",
+                          "types": ["Country"]
+                      }, {
+                          "dcid": "usc/PacificDivision",
+                          "name": "Pacific Division",
+                          "provenanceId": "dc/base/WikidataOtherIdGeos",
+                          "types": ["CensusDivision"]
+                      }]
+                  },
+                  "name": {
+                      "nodes": [{
+                          "provenanceId": "dc/base/WikidataOtherIdGeos",
+                          "value": "California"
+                      }]
+                  }
+              }
+          }
+      }
+  }
+
+  response = NodeResponse.from_json(json_data)
+  result = flatten_properties(response.data)
+  function_result = response.get_properties()
+
+  assert result == function_result
+  assert "geoId/06" in result
+  assert result["geoId/06"] == {
+      "containedInPlace": [
+          Node(dcid='country/USA',
+               name='United States',
+               provenanceId='dc/base/WikidataOtherIdGeos',
+               types=['Country']),
+          Node(dcid='usc/PacificDivision',
+               name='Pacific Division',
+               provenanceId='dc/base/WikidataOtherIdGeos',
+               types=['CensusDivision'])
+      ],
+      "name": [
+          Node(
+              value='California',
+              provenanceId='dc/base/WikidataOtherIdGeos',
+          )
+      ],
+  }
+
+
+def test_unpack_arcs_missing_nodes_key():
+  """Test that unpack_arcs handles arcs with no 'nodes' key."""
+  arcs = {
+      "prop1": NodeGroup(nodes=[Node(
+          dcid='node1'), Node(dcid='node2')]),
+      "prop2": NodeGroup(),  # No 'nodes' key here
+      "prop3": NodeGroup(nodes=[]),
+  }
+
+  result = unpack_arcs(arcs)
+  assert result == {
+      "prop1": [Node(dcid='node1'), Node(dcid='node2')],
+      "prop2": [],
+      "prop3": [],
+  }
+
+
 def test_unpack_arcs_multiple_properties():
   """Test that _unpack_arcs correctly handles multiple properties with nodes."""
   arcs = {
-      "prop1": {
-          "nodes": ["node1", "node2"]
-      },
-      "prop2": {
-          "nodes": ["node3"]
-      },
-      "prop3": {
-          "nodes": []
-      },  # Empty nodes for completeness
+      "prop1": NodeGroup(nodes=[Node(
+          dcid='node1'), Node(dcid='node2')]),
+      "prop2": NodeGroup(nodes=[Node(dcid='node3')]),
+      "prop3": NodeGroup(nodes=[]),  # Empty nodes for completeness
   }
 
   result = unpack_arcs(arcs)
 
   # Expected output
   expected = {
-      "prop1": ["node1", "node2"],
-      "prop2": ["node3"],
+      "prop1": [Node(dcid='node1'), Node(dcid='node2')],
+      "prop2": [Node(dcid='node3')],
       "prop3": [],
   }
 
@@ -469,7 +544,7 @@ def test_get_observations_as_records():
   response = ObservationResponse(byVariable=mock_data, facets=mock_facets)
 
   # Call the method and get the result
-  result = response.get_observations_as_records()
+  result = response.to_observation_records()
 
   # Expected output
   expected = [
@@ -601,55 +676,63 @@ def test_resolve_response_dict_exclude_none():
   """Test that ResolveResponse.to_dict and json are consistent."""
   # Input dictionary
   input_data = {
-      "entities": [{
-          "node":
-              "entity1",
-          "candidates": [
-              {
-                  "dcid": "dcid1",
-                  "dominantType": "Type1"
-              },
-              {
-                  "dcid": "dcid2",
-                  "dominantType": None
-              },
-          ],
-      }, {
-          "node": "entity2",
-          "candidates": [{
-              "dcid": "dcid3",
-              "dominantType": "Type2"
-          },],
-      }, {
-          "node": "entity3",
-          "candidates": [],
-      }]
+      "entities": [
+          {
+              "node":
+                  "entity1",
+              "candidates": [
+                  {
+                      "dcid": "dcid1",
+                      "dominantType": "Type1"
+                  },
+                  {
+                      "dcid": "dcid2",
+                      "dominantType": None
+                  },
+              ],
+          },
+          {
+              "node": "entity2",
+              "candidates": [{
+                  "dcid": "dcid3",
+                  "dominantType": "Type2"
+              },],
+          },
+          {
+              "node": "entity3",
+              "candidates": [],
+          },
+      ]
   }
 
   # Expected data
   expected_data = {
-      "entities": [{
-          "node":
-              "entity1",
-          "candidates": [
-              {
-                  "dcid": "dcid1",
-                  "dominantType": "Type1"
-              },
-              {
-                  "dcid": "dcid2"
-              },
-          ],
-      }, {
-          "node": "entity2",
-          "candidates": [{
-              "dcid": "dcid3",
-              "dominantType": "Type2"
-          },],
-      }, {
-          "node": "entity3",
-          "candidates": [],
-      }]
+      "entities": [
+          {
+              "node":
+                  "entity1",
+              "candidates": [
+                  {
+                      "dcid": "dcid1",
+                      "dominantType": "Type1"
+                  },
+                  {
+                      "dcid": "dcid2"
+                  },
+              ],
+          },
+          {
+              "node": "entity2",
+              "candidates": [{
+                  "dcid": "dcid3",
+                  "dominantType": "Type2"
+              },],
+          },
+          {
+              "node": "entity3",
+              "candidates": [],
+          },
+      ]
   }
 
   # Create ResolveResponse from the dictionary
@@ -706,3 +789,149 @@ def test_resolve_response_json_string_exclude_none():
 
   # Assert that the resulting dictionary matches the original input
   assert result == expected
+
+
+def test_get_facets_metadata():
+  """Test that get_facets_metadata correctly extracts and structures facet metadata."""
+
+  # Mock facet metadata
+  mock_facets = {
+      "facet1": {
+          "unit": "USD",
+          "importName": "Import Source",
+      },
+      "facet2": {
+          "unit": "Year",
+          "importName": "Another Source",
+      },
+  }
+
+  # Mock data for entities and variables
+  mock_data_by_entity = {
+      "variable1": {
+          "entity1": {
+              "orderedFacets": [
+                  OrderedFacets(
+                      facetId="facet1",
+                      earliestDate="2023",
+                      latestDate="2025",
+                      obsCount=5,
+                  )
+              ]
+          },
+          "entity2": {
+              "orderedFacets": [
+                  OrderedFacets(
+                      facetId="facet2",
+                      earliestDate="2021",
+                      latestDate="2021",
+                      obsCount=3,
+                  )
+              ]
+          },
+      },
+      "variable2": {
+          "entity3": {
+              "orderedFacets": [
+                  OrderedFacets(
+                      facetId="facet1",
+                      earliestDate="2000",
+                      latestDate="2013",
+                      obsCount=7,
+                  )
+              ]
+          }
+      },
+  }
+
+  # Mock ObservationResponse
+  response = ObservationResponse(byVariable={})
+  response.get_data_by_entity = lambda: mock_data_by_entity
+  response.to_dict = lambda: {"facets": mock_facets}
+
+  # Call the method
+  result = response.get_facets_metadata()
+
+  # Expected structure
+  expected = {
+      "variable1": {
+          "facet1": {
+              "earliestDate": {
+                  "entity1": "2023"
+              },
+              "latestDate": {
+                  "entity1": "2025"
+              },
+              "obsCount": {
+                  "entity1": 5
+              },
+              "unit": "USD",
+              "importName": "Import Source",
+          },
+          "facet2": {
+              "earliestDate": {
+                  "entity2": "2021"
+              },
+              "latestDate": {
+                  "entity2": "2021"
+              },
+              "obsCount": {
+                  "entity2": 3
+              },
+              "unit": "Year",
+              "importName": "Another Source",
+          },
+      },
+      "variable2": {
+          "facet1": {
+              "earliestDate": {
+                  "entity3": "2000"
+              },
+              "latestDate": {
+                  "entity3": "2013"
+              },
+              "obsCount": {
+                  "entity3": 7
+              },
+              "unit": "USD",
+              "importName": "Import Source",
+          }
+      },
+  }
+
+  assert result == expected
+
+
+def test_find_matching_facet_id():
+  """Tests that find_matching_facet_id correctly finds facet IDs matching a given property and value."""
+  mock_response = ObservationResponse(byVariable={}, facets={})
+  mock_response.get_facets_metadata = MagicMock(
+      return_value={
+          "statvar1": {
+              "facet1": {
+                  "measurementMethod": "Census"
+              },
+              "facet2": {
+                  "measurementMethod": "Survey"
+              },
+          },
+          "statvar2": {
+              "facet3": {
+                  "unit": "USD"
+              },
+          },
+      })
+
+  result = mock_response.find_matching_facet_id("measurementMethod", "Census")
+  assert result == ["facet1"]
+
+  result = mock_response.find_matching_facet_id("measurementMethod",
+                                                ["Census", "Survey"])
+  assert result == ["facet1", "facet2"]
+
+  result = mock_response.find_matching_facet_id("unit", "USD")
+  assert result == ["facet3"]
+
+  result = mock_response.find_matching_facet_id("measurementMethod",
+                                                "Nonexistent")
+  assert result == []

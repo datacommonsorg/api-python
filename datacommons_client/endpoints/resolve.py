@@ -1,33 +1,9 @@
-from typing import Any, Optional
+from typing import Optional
 
 from datacommons_client.endpoints.base import API
 from datacommons_client.endpoints.base import Endpoint
 from datacommons_client.endpoints.payloads import ResolveRequestPayload
 from datacommons_client.endpoints.response import ResolveResponse
-
-
-def flatten_resolve_response(
-    data: ResolveResponse) -> dict[str, list[str] | str]:
-  """
-    Flattens resolved candidate data into a dictionary where each node maps to its candidates.
-
-    Args:
-        data (ResolveResponse): The response object containing the resolved data.
-
-    Returns:
-        dict[str, Any]: A dictionary mapping nodes to their candidates.
-        If a node has only one candidate, it maps directly to the candidate instead of a list.
-    """
-  items: dict[str, Any] = {}
-
-  for entity in data.entities:
-    node = entity.node
-    if len(entity.candidates) == 1:
-      items[node] = entity.candidates[0].dcid
-    else:
-      items[node] = [candidate.dcid for candidate in entity.candidates]
-
-  return items
 
 
 def _resolve_correspondence_expression(from_type: str,
@@ -105,25 +81,25 @@ class ResolveEndpoint(Endpoint):
 
     return self.fetch(node_ids=names, expression=expression)
 
-  def fetch_dcid_by_wikidata_id(
+  def fetch_dcids_by_wikidata_id(
       self,
-      wikidata_id: str | list[str],
+      wikidata_ids: str | list[str],
       entity_type: Optional[str] = None) -> ResolveResponse:
     """
-        Fetches DCIDs for entities by their Wikidata IDs.
+          Fetches DCIDs for entities by their Wikidata IDs.
 
-        Args:
-            wikidata_id (str | list[str]): One or more Wikidata IDs to resolve.
-            entity_type (Optional[str]): Optional type of the entities.
+          Args:
+              wikidata_ids (str | list[str]): One or more Wikidata IDs to resolve.
+              entity_type (Optional[str]): Optional type of the entities.
 
-        Returns:
-            ResolveResponse: The response object containing the resolved DCIDs.
-        """
+          Returns:
+              ResolveResponse: The response object containing the resolved DCIDs.
+          """
     expression = _resolve_correspondence_expression(from_type="wikidataId",
                                                     to_type="dcid",
                                                     entity_type=entity_type)
 
-    return self.fetch(node_ids=wikidata_id, expression=expression)
+    return self.fetch(node_ids=wikidata_ids, expression=expression)
 
   def fetch_dcid_by_coordinates(
       self,
@@ -161,27 +137,3 @@ class ResolveEndpoint(Endpoint):
                                                     entity_type=entity_type)
     coordinates = f"{latitude}#{longitude}"
     return self.fetch(node_ids=coordinates, expression=expression)
-
-  def fetch_entity_type_correspondence(
-      self,
-      entities: str | list[str],
-      from_type: str,
-      to_type: str,
-      entity_type: str | None = None,
-  ) -> ResolveResponse:
-    """
-        Fetches the correspondence between entities of two types.
-
-        Args:
-            entities (str | list[str]): The entities to resolve.
-            from_type (str): The source entity type.
-            to_type (str): The target entity type.
-            entity_type (Optional[str]): Optional type of the entities.
-
-        Returns:
-            ResolveResponse: The response object containing the resolved correspondence.
-        """
-    expression = _resolve_correspondence_expression(from_type=from_type,
-                                                    to_type=to_type,
-                                                    entity_type=entity_type)
-    return self.fetch(node_ids=entities, expression=expression)
