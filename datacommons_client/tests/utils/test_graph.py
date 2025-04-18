@@ -24,9 +24,10 @@ def test_fetch_parents_uncached_returns_data():
                                         relationship="parents")
   assert isinstance(result, list)
   assert result[0].dcid == "parent1"
-  endpoint.fetch_entity_parents.assert_called_once_with("test_dcid",
-                                                        as_dict=False,
-                                                        parent_type=None)
+  endpoint.fetch_entity_parents.assert_called_once_with(
+      "test_dcid",
+      as_dict=False,
+  )
 
 
 def test_fetch_relationship_lru_caches_results():

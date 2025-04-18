@@ -42,10 +42,7 @@ def _fetch_relationship_uncached(
     """
 
   if relationship == "parents":
-    result = endpoint.fetch_entity_parents(dcid,
-                                           as_dict=False,
-                                           parent_type=contained_type).get(
-                                               dcid, [])
+    result = endpoint.fetch_entity_parents(dcid, as_dict=False).get(dcid, [])
 
   else:
     result = endpoint.fetch_entity_children(dcid,
