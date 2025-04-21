@@ -332,7 +332,7 @@ def test_extract_connected_dcids_select_dcid_and_property():
   }
   response = NodeResponse.from_json(json_data)
   result = response.extract_connected_dcids(subject_dcid='geoId/06',
-                                            property_name='containedInPlace')
+                                            property_dcid='containedInPlace')
   assert result == ['country/USA', 'usc/PacificDivision']
 
 
@@ -355,7 +355,7 @@ def test_extract_connected_dcids_with_nonexistent_dcid():
   }
   response = NodeResponse.from_json(json_data)
   result = response.extract_connected_dcids(subject_dcid='geoId/07',
-                                            property_name='name')
+                                            property_dcid='name')
   assert result == []
 
 
@@ -378,7 +378,7 @@ def test_extract_connected_dcids_with_nonexistent_property():
   }
   response = NodeResponse.from_json(json_data)
   result = response.extract_connected_dcids(subject_dcid='geoId/06',
-                                            property_name='containedInPlace')
+                                            property_dcid='containedInPlace')
   assert result == []
 
 
@@ -401,7 +401,7 @@ def test_extract_connected_dcids_does_not_include_none_for_value_only_nodes():
   }
   response = NodeResponse.from_json(json_data)
   result = response.extract_connected_dcids(subject_dcid='geoId/06',
-                                            property_name='name')
+                                            property_dcid='name')
   assert result == []
 
 
@@ -434,7 +434,7 @@ def test_extract_connected_dcids_with_node_type_filter():
   }
   response = NodeResponse.from_json(json_data)
   result = response.extract_connected_dcids(subject_dcid='geoId/06',
-                                            property_name='relatedPlaces',
+                                            property_dcid='relatedPlaces',
                                             connected_node_types="Country")
   assert result == ['country/USA']
 
@@ -469,7 +469,7 @@ def test_extract_connected_dcids_with_multiple_node_type_filter():
   response = NodeResponse.from_json(json_data)
   result = response.extract_connected_dcids(
       subject_dcid='geoId/06',
-      property_name='relatedPlaces',
+      property_dcid='relatedPlaces',
       connected_node_types=["Country", "City"])
   assert result == ['country/USA', 'node3']
 
@@ -505,7 +505,7 @@ def test_extract_connected_nodes_with_multiple_node_type_filter():
   response = NodeResponse.from_json(json_data)
   result = response.extract_connected_nodes(
       subject_dcid='geoId/06',
-      property_name='relatedPlaces',
+      property_dcid='relatedPlaces',
       connected_node_types=["Country", "City"])
   assert result == [
       Node(dcid="country/USA",
