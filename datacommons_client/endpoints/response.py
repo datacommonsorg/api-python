@@ -1,12 +1,15 @@
 from dataclasses import dataclass
 from dataclasses import field
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 from datacommons_client.models.base import SerializableMixin
 from datacommons_client.models.node import Arcs
 from datacommons_client.models.node import NextToken
+from datacommons_client.models.node import Node
 from datacommons_client.models.node import NodeDCID
+from datacommons_client.models.node import NodeGroup
 from datacommons_client.models.node import Properties
+from datacommons_client.models.node import Property
 from datacommons_client.models.observation import Facet
 from datacommons_client.models.observation import facetID
 from datacommons_client.models.observation import Variable
@@ -67,6 +70,74 @@ class NodeResponse(SerializableMixin):
 
   def get_properties(self) -> Dict:
     return flatten_properties(self.data)
+
+  def extract_connected_nodes(
+      self,
+      subject_dcid: NodeDCID,
+      property_name: Property,
+      connected_node_types: Optional[str | list[str]] = None) -> List[Node]:
+    """Retrieves the connected Node objects in the arcs of the NodeResponse.
+
+    Iterates the nodes in the response for a single dcid-property_name arc and
+    returns a list of Nodes those connected nodes in a flat list.
+
+    Args:
+      subject_dcid: The DCID of the starting node.
+      property_name: The property connecting the subject node to the desired
+        target nodes.
+      connected_node_types: Optional. A type or list of types to filter the
+        connected nodes. If provided, only connected nodes that have at least
+        one of the specified types will be returned. If omitted, all nodes are
+        returned regardless of their type.
+
+    Returns:
+      A list of Node objects that are connected to the subject node via the
+      specified property.
+    """
+    if isinstance(connected_node_types, str):
+      connected_node_types = [connected_node_types]
+
+    nodes = self.get_properties().get(subject_dcid, {}).get(property_name, [])
+
+    connected_nodes = []
+    for node in nodes:
+      if connected_node_types:
+        if not node.types or not any(nt in node.types
+                                     for nt in connected_node_types):
+          continue
+
+      connected_nodes.append(node)
+
+    return connected_nodes
+
+  def extract_connected_dcids(
+      self,
+      subject_dcid: NodeDCID,
+      property_name: Property,
+      connected_node_types: Optional[str | list[str]] = None) -> List[NodeDCID]:
+    """Retrieves the DCIDs of the connected nodes in the arcs of the NodeResponse.
+
+    Iterates the nodes in the response for a single dcid-property_name arc and
+    returns just the dcids of those connected nodes in a flat list.
+
+    Args:
+      subject_dcid: The DCID of the starting node.
+      property_name: The property connecting the subject node to the desired
+        target nodes.
+      connected_node_types: Optional. A type or list of types to filter the
+        connected nodes. If provided, only DCIDs of connected nodes that have at
+        least one of the specified types will be returned. If omitted, DCIDs of
+        all nodes are returned regardless of their type.
+
+    Returns:
+      A list of NodeDCIDs for the nodes connected via the specified property
+      from the subject node.
+    """
+
+    connected_nodes = self.extract_connected_nodes(subject_dcid, property_name,
+                                                   connected_node_types)
+
+    return [node.dcid for node in connected_nodes if node.dcid]
 
 
 @dataclass
