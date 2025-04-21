@@ -182,7 +182,11 @@ def test_flatten_arcs():
   result = flatten_properties(response.data)
 
   assert "dc/03lw9rhpendw5" in result
-  assert result["dc/03lw9rhpendw5"].value == "191 Peachtree Tower"
+  assert result["dc/03lw9rhpendw5"] == {
+      "name": [
+          Node(value="191 Peachtree Tower", provenanceId="dc/base/EIA_860")
+      ]
+  }
 
 
 def test_flatten_multiple_arcs_with_multiple_nodes():
