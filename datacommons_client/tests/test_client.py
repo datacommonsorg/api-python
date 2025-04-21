@@ -70,11 +70,27 @@ def test_observations_dataframe_raises_error_when_entities_all_but_no_entity_typ
   """Tests that ValueError is raised if 'entities' is 'all' but 'entity_type' is not specified."""
   with pytest.raises(
       ValueError,
-      match="When 'entity_dcids' is 'all', 'entity_type' must be specified.",
+      match=
+      "When 'entity_dcids' is 'all', both 'parent_entity' and 'entity_type' must be specified.",
   ):
     mock_client.observations_dataframe(variable_dcids="var1",
                                        date="2024",
-                                       entity_dcids="all")
+                                       entity_dcids="all",
+                                       parent_entity="africa")
+
+
+def test_observations_dataframe_raises_error_when_entities_all_but_no_parent_entity(
+    mock_client,):
+  """Tests that ValueError is raised if 'entities' is 'all' but 'entity_type' is not specified."""
+  with pytest.raises(
+      ValueError,
+      match=
+      "When 'entity_dcids' is 'all', both 'parent_entity' and 'entity_type' must be specified.",
+  ):
+    mock_client.observations_dataframe(variable_dcids="var1",
+                                       date="2024",
+                                       entity_dcids="all",
+                                       entity_type="Country")
 
 
 def test_observations_dataframe_raises_error_when_invalid_entity_type_usage(
