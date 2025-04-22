@@ -277,23 +277,24 @@ class NodeEndpoint(Endpoint):
             and values are lists of place relationships, either as raw objects or
             dictionaries (if `as_dict` is True).
         """
+    if out and contained_type:
+      raise ValueError("When 'out' is True, `contained_type' must be None.")
+
+    prop = "containedInPlace+" if contained_type else "containedInPlace"
+
     data = self.fetch_property_values(
         node_dcids=node_dcids,
-        properties=("containedInPlace+"
-                    if contained_type else "containedInPlace"),
+        properties=prop,
         out=out,
         constraints=f"typeOf:{contained_type}" if contained_type else None,
     ).get_properties()
 
-    if as_dict:
-      for entity, nodes in data.items():
-        if not nodes:
-          continue
-        if isinstance(nodes, Node):
-          return {entity: [nodes.to_dict()]}
-        else:
-          return {entity: [node.to_dict() for node in nodes]}
-    return data
+    result = {}
+    for entity, property_nodes in data.items():
+      nodes = property_nodes.get(prop, [])
+      result[entity] = [node.to_dict() for node in nodes] if as_dict else nodes
+
+    return result
 
   def fetch_entity_parents(
       self,
