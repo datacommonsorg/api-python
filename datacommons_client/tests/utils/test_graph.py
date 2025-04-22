@@ -14,7 +14,7 @@ from datacommons_client.utils.graph import flatten_relationship
 def test_fetch_parents_uncached_returns_data():
   """Test _fetch_parents_uncached delegates to endpoint correctly."""
   endpoint = MagicMock()
-  endpoint.fetch_entity_parents.return_value.get.return_value = [
+  endpoint.fetch_place_parents.return_value.get.return_value = [
       Node(dcid="parent1", name="Parent 1", types=["Country"])
   ]
 
@@ -24,7 +24,7 @@ def test_fetch_parents_uncached_returns_data():
                                         relationship="parents")
   assert isinstance(result, list)
   assert result[0].dcid == "parent1"
-  endpoint.fetch_entity_parents.assert_called_once_with(
+  endpoint.fetch_place_parents.assert_called_once_with(
       "test_dcid",
       as_dict=False,
   )
@@ -33,7 +33,7 @@ def test_fetch_parents_uncached_returns_data():
 def test_fetch_relationship_lru_caches_results():
   """Test fetch_relationship_lru uses LRU cache and returns list."""
   endpoint = MagicMock()
-  endpoint.fetch_entity_parents.return_value.get.return_value = [
+  endpoint.fetch_place_parents.return_value.get.return_value = [
       Node(dcid="parentX", name="Parent X", types=["Region"])
   ]
 
@@ -53,7 +53,7 @@ def test_fetch_relationship_lru_caches_results():
   assert isinstance(result1, list)
   assert result1[0].dcid == "parentX"
   assert result1 == result2
-  assert endpoint.fetch_entity_parents.call_count == 1
+  assert endpoint.fetch_place_parents.call_count == 1
 
 
 def test_build_ancestry_map_linear_tree():

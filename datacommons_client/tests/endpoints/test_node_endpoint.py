@@ -346,12 +346,10 @@ def test_fetch_entity_relationships_delegates_to_lru(mock_lru, mock_build_map,
   mock_flatten.return_value = []
 
   endpoint = NodeEndpoint(api=MagicMock())
-  result = endpoint._fetch_entity_relationships(
-      entity_dcids="X",
-      as_tree=False,
-      contained_type="Region",
-      relationship="parents",
-  )
+  result = endpoint._fetch_place_relationships(place_dcids="X",
+                                               as_tree=False,
+                                               contained_type="Region",
+                                               relationship="parents")
 
   assert result == {"X": []}
   mock_lru.assert_called_once_with(
@@ -380,7 +378,7 @@ def test_fetch_entity_ancestry_flat(mock_build_map, mock_flatten):
   }]
 
   endpoint = NodeEndpoint(api=MagicMock())
-  result = endpoint.fetch_entity_ancestry("X", as_tree=False)
+  result = endpoint.fetch_place_ancestry("X", as_tree=False)
 
   assert result == {"X": [{"dcid": "A", "name": "A name", "type": "Country"}]}
   mock_build_map.assert_called_once()
@@ -416,7 +414,7 @@ def test_fetch_entity_ancestry_tree(mock_build_map, mock_build_tree):
   }
 
   endpoint = NodeEndpoint(api=MagicMock())
-  result = endpoint.fetch_entity_ancestry("Y", as_tree=True)
+  result = endpoint.fetch_place_ancestry("Y", as_tree=True)
 
   assert "Y" in result
   assert result["Y"]["dcid"] == "Y"

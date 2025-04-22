@@ -296,16 +296,16 @@ class NodeEndpoint(Endpoint):
 
     return result
 
-  def fetch_entity_parents(
+  def fetch_place_parents(
       self,
-      entity_dcids: str | list[str],
+      place_dcids: str | list[str],
       *,
       as_dict: bool = True,
   ) -> dict[str, list[Node | dict]]:
     """Fetches the direct parents of one or more entities using the 'containedInPlace' property.
 
         Args:
-            entity_dcids (str | list[str]): A single DCID or a list of DCIDs to query.
+            place_dcids (str | list[str]): A single place DCID or a list of DCIDs to query.
             as_dict (bool): If True, returns a dictionary mapping each input DCID to its
                 immediate parent entities. If False, returns a dictionary of Node objects.
 
@@ -315,15 +315,15 @@ class NodeEndpoint(Endpoint):
             as a dictionary with the same data.
         """
     return self._fetch_contained_in_place(
-        node_dcids=entity_dcids,
+        node_dcids=place_dcids,
         out=True,
         contained_type=None,
         as_dict=as_dict,
     )
 
-  def fetch_entity_children(
+  def fetch_place_children(
       self,
-      entity_dcids: str | list[str],
+      place_dcids: str | list[str],
       *,
       children_type: Optional[str] = None,
       as_dict: bool = True,
@@ -331,7 +331,7 @@ class NodeEndpoint(Endpoint):
     """Fetches the direct children of one or more entities using the 'containedInPlace' property.
 
         Args:
-            entity_dcids (str | list[str]): A single DCID or a list of DCIDs to query.
+            place_dcids (str | list[str]): A single place DCID or a list of DCIDs to query.
             children_type (str, optional): The type of the child entities to
                 fetch (e.g., 'Country', 'State', 'IPCCPlace_50'). If None, fetches all child types.
             as_dict (bool): If True, returns a dictionary mapping each input DCID to its
@@ -343,28 +343,28 @@ class NodeEndpoint(Endpoint):
             the same data.
         """
     return self._fetch_contained_in_place(
-        node_dcids=entity_dcids,
+        node_dcids=place_dcids,
         out=False,
         contained_type=children_type,
         as_dict=as_dict,
     )
 
-  def _fetch_entity_relationships(
+  def _fetch_place_relationships(
       self,
-      entity_dcids: str | list[str],
+      place_dcids: str | list[str],
       as_tree: bool = False,
       *,
       contained_type: Optional[str] = None,
       relationship: Literal["parents", "children"],
       max_concurrent_requests: Optional[int] = ANCESTRY_MAX_WORKERS,
   ) -> dict[str, list[dict[str, str]] | dict]:
-    """Fetches a full ancestry/descendancy map per DCID.
+    """Fetches a full ancestry/descendancy map per place DCID.
 
-        For each input DCID, this method builds the complete graph using a
+        For each input place DCID, this method builds the complete graph using a
         breadth-first traversal and parallel fetching.
 
         Args:
-            entity_dcids (str | list[str]): One or more DCIDs of the entities whose ancestry
+            place_dcids (str | list[str]): One or more DCIDs of the entities whose ancestry
                will be fetched.
             as_tree (bool): If True, returns a nested tree structure; otherwise, returns a flat list.
                 Defaults to False.
@@ -379,8 +379,8 @@ class NodeEndpoint(Endpoint):
                 - A nested tree (if `as_tree` is True).
         """
 
-    if isinstance(entity_dcids, str):
-      entity_dcids = [entity_dcids]
+    if isinstance(place_dcids, str):
+      place_dcids = [place_dcids]
 
     result = {}
 
@@ -396,7 +396,7 @@ class NodeEndpoint(Endpoint):
     with ThreadPoolExecutor(max_workers=max_concurrent_requests) as executor:
       futures = [
           executor.submit(build_graph_map, root=dcid, fetch_fn=fetch_fn)
-          for dcid in entity_dcids
+          for dcid in place_dcids
       ]
       # Gather ancestry maps and postprocess into flat or nested form
       for future in futures:
@@ -411,9 +411,9 @@ class NodeEndpoint(Endpoint):
 
     return result
 
-  def fetch_entity_ancestry(
+  def fetch_place_ancestry(
       self,
-      entity_dcids: str | list[str],
+      place_dcids: str | list[str],
       as_tree: bool = False,
       *,
       max_concurrent_requests: Optional[int] = ANCESTRY_MAX_WORKERS,
@@ -425,7 +425,7 @@ class NodeEndpoint(Endpoint):
         each entity, depending on the `as_tree` flag. The flat list matches the structure
         of the `/api/place/parent` endpoint of the DC website.
         Args:
-            entity_dcids (str | list[str]): One or more DCIDs of the entities whose ancestry
+            place_dcids (str | list[str]): One or more DCIDs of the entities whose ancestry
                will be fetched.
             as_tree (bool): If True, returns a nested tree structure; otherwise, returns a flat list.
                 Defaults to False.
@@ -438,17 +438,17 @@ class NodeEndpoint(Endpoint):
                   a dict with 'dcid', 'name', and 'type'.
         """
 
-    return self._fetch_entity_relationships(
-        entity_dcids=entity_dcids,
+    return self._fetch_place_relationships(
+        place_dcids=place_dcids,
         as_tree=as_tree,
         contained_type=None,
         relationship="parents",
         max_concurrent_requests=max_concurrent_requests,
     )
 
-  def fetch_entity_descendancy(
+  def fetch_place_descendancy(
       self,
-      entity_dcids: str | list[str],
+      place_dcids: str | list[str],
       descendants_type: Optional[str] = None,
       as_tree: bool = False,
       *,
@@ -462,7 +462,7 @@ class NodeEndpoint(Endpoint):
         each entity, depending on the `as_tree` flag.
 
         Args:
-            entity_dcids (str | list[str]): One or more DCIDs of the entities whose descendants
+            place_dcids (str | list[str]): One or more DCIDs of the entities whose descendants
                will be fetched.
             descendants_type (Optional[str]): The type of the descendants to fetch (e.g., 'Country', 'State').
                 If None, fetches all descendant types.
@@ -477,8 +477,8 @@ class NodeEndpoint(Endpoint):
                   a dict.
         """
 
-    return self._fetch_entity_relationships(
-        entity_dcids=entity_dcids,
+    return self._fetch_place_relationships(
+        place_dcids=place_dcids,
         as_tree=as_tree,
         contained_type=descendants_type,
         relationship="children",
