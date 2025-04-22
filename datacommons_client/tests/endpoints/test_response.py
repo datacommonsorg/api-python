@@ -288,7 +288,7 @@ def test_unpack_arcs_multiple_properties():
   assert result == expected
 
 
-def test_extract_connected_dcids_select_dcid_and_property():
+def test_extract_connected_dcids():
   """Test that extract_connected_dcids is successful when multiple dcid and multiple
   properties are in the response."""
   json_data = {
