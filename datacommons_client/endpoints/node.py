@@ -19,7 +19,7 @@ from datacommons_client.utils.names import extract_name_from_english_name_proper
 from datacommons_client.utils.names import extract_name_from_property_with_language
 from datacommons_client.utils.names import NAME_WITH_LANGUAGE_PROPERTY
 
-ANCESTRY_MAX_WORKERS = 10
+PLACES_MAX_WORKERS = 10
 
 
 class NodeEndpoint(Endpoint):
@@ -356,9 +356,9 @@ class NodeEndpoint(Endpoint):
       *,
       contained_type: Optional[str] = None,
       relationship: Literal["parents", "children"],
-      max_concurrent_requests: Optional[int] = ANCESTRY_MAX_WORKERS,
+      max_concurrent_requests: Optional[int] = PLACES_MAX_WORKERS,
   ) -> dict[str, list[dict[str, str]] | dict]:
-    """Fetches a full ancestry/descendancy map per place DCID.
+    """Fetches a full ancestors/descendants map per place DCID.
 
         For each input place DCID, this method builds the complete graph using a
         breadth-first traversal and parallel fetching.
@@ -372,7 +372,7 @@ class NodeEndpoint(Endpoint):
                 If None, fetches all ancestry types.
             relationship (Literal["parents", "children"]): The type of relationship to fetch.
             max_concurrent_requests (Optional[int]): The maximum number of concurrent requests to make.
-                Defaults to ANCESTRY_MAX_WORKERS.
+                Defaults to PLACES_MAX_WORKERS.
         Returns:
             dict[str, list[dict[str, str]] | dict]: A dictionary mapping each input DCID to either:
                 - A flat list of Node dictionaries (if `as_tree` is False), or
@@ -411,12 +411,12 @@ class NodeEndpoint(Endpoint):
 
     return result
 
-  def fetch_place_ancestry(
+  def fetch_place_ancestors(
       self,
       place_dcids: str | list[str],
       as_tree: bool = False,
       *,
-      max_concurrent_requests: Optional[int] = ANCESTRY_MAX_WORKERS,
+      max_concurrent_requests: Optional[int] = PLACES_MAX_WORKERS,
   ) -> dict[str, list[dict[str, str]] | dict]:
     """Fetches the full ancestry (flat or nested) for one or more entities.
         For each input DCID, this method builds the complete ancestry graph using a
@@ -430,7 +430,7 @@ class NodeEndpoint(Endpoint):
             as_tree (bool): If True, returns a nested tree structure; otherwise, returns a flat list.
                 Defaults to False.
             max_concurrent_requests (Optional[int]): The maximum number of concurrent requests to make.
-                Defaults to ANCESTRY_MAX_WORKERS.
+                Defaults to PLACES_MAX_WORKERS.
         Returns:
             dict[str, list[dict[str, str]] | dict]: A dictionary mapping each input DCID to either:
                 - A flat list of parent dictionaries (if `as_tree` is False), or
@@ -446,13 +446,13 @@ class NodeEndpoint(Endpoint):
         max_concurrent_requests=max_concurrent_requests,
     )
 
-  def fetch_place_descendancy(
+  def fetch_place_descendants(
       self,
       place_dcids: str | list[str],
       descendants_type: Optional[str] = None,
       as_tree: bool = False,
       *,
-      max_concurrent_requests: Optional[int] = ANCESTRY_MAX_WORKERS,
+      max_concurrent_requests: Optional[int] = PLACES_MAX_WORKERS,
   ) -> dict[str, list[dict[str, str]] | dict]:
     """Fetches the full descendants (flat or nested) for one or more entities.
         For each input DCID, this method builds the complete descendants graph using a
@@ -469,7 +469,7 @@ class NodeEndpoint(Endpoint):
             as_tree (bool): If True, returns a nested tree structure; otherwise, returns a flat list.
                 Defaults to False.
             max_concurrent_requests (Optional[int]): The maximum number of concurrent requests to make.
-                Defaults to ANCESTRY_MAX_WORKERS.
+                Defaults to PLACES_MAX_WORKERS.
         Returns:
             dict[str, list[dict[str, str]] | dict]: A dictionary mapping each input DCID to either:
                 - A flat list of Node dictionaries (if `as_tree` is False), or

@@ -11,8 +11,8 @@ from datacommons_client.models.node import Node
 GRAPH_MAX_WORKERS = 10
 
 RelationMap: TypeAlias = dict[str, list[Node]]
-AncestryMap = RelationMap
-DescendancyMap = RelationMap
+AncestorsMap = RelationMap
+DescendantsMap = RelationMap
 
 # -- -- Fetch tools -- --
 
