@@ -5,6 +5,7 @@ from datacommons_client.endpoints.response import DCResponse
 from datacommons_client.endpoints.response import NodeResponse
 from datacommons_client.endpoints.response import ObservationResponse
 from datacommons_client.endpoints.response import ResolveResponse
+from datacommons_client.models.node import Arcs
 from datacommons_client.models.node import Node
 from datacommons_client.models.node import NodeGroup
 from datacommons_client.models.observation import Facet
@@ -285,6 +286,234 @@ def test_unpack_arcs_multiple_properties():
   }
 
   assert result == expected
+
+
+def test_extract_connected_dcids():
+  """Test that extract_connected_dcids is successful when multiple dcid and multiple
+  properties are in the response."""
+  json_data = {
+      "data": {
+          "geoId/06": {
+              "arcs": {
+                  "containedInPlace": {
+                      "nodes": [{
+                          "dcid": "country/USA",
+                          "name": "United States",
+                          "provenanceId": "dc/base/WikidataOtherIdGeos",
+                          "types": ["Country"]
+                      }, {
+                          "dcid": "usc/PacificDivision",
+                          "name": "Pacific Division",
+                          "provenanceId": "dc/base/WikidataOtherIdGeos",
+                          "types": ["CensusDivision"]
+                      }]
+                  },
+                  "name": {
+                      "nodes": [{
+                          "provenanceId": "dc/base/WikidataOtherIdGeos",
+                          "value": "California"
+                      }]
+                  }
+              }
+          },
+          "geoId/07": {
+              "arcs": {
+                  "containedInPlace": {
+                      "nodes": [{
+                          "dcid": "country/USA",
+                          "name": "United States",
+                          "provenanceId": "dc/base/WikidataOtherIdGeos",
+                          "types": ["Country"]
+                      }]
+                  },
+              }
+          }
+      }
+  }
+  response = NodeResponse.from_json(json_data)
+  result = response.extract_connected_dcids(subject_dcid='geoId/06',
+                                            property_dcid='containedInPlace')
+  assert result == ['country/USA', 'usc/PacificDivision']
+
+
+def test_extract_connected_dcids_with_nonexistent_dcid():
+  """Test that extract_connected_dcids returns empty when requested dcid is not in the
+  NodeResponse."""
+  json_data = {
+      "data": {
+          "geoId/06": {
+              "arcs": {
+                  "name": {
+                      "nodes": [{
+                          "provenanceId": "dc/base/WikidataOtherIdGeos",
+                          "value": "California"
+                      }]
+                  }
+              }
+          },
+      }
+  }
+  response = NodeResponse.from_json(json_data)
+  result = response.extract_connected_dcids(subject_dcid='geoId/07',
+                                            property_dcid='name')
+  assert result == []
+
+
+def test_extract_connected_dcids_with_nonexistent_property():
+  """Test that extract_connected_dcids returns empty when requested property is not in
+  the NodeResponse."""
+  json_data = {
+      "data": {
+          "geoId/06": {
+              "arcs": {
+                  "name": {
+                      "nodes": [{
+                          "provenanceId": "dc/base/WikidataOtherIdGeos",
+                          "value": "California"
+                      }]
+                  }
+              }
+          },
+      }
+  }
+  response = NodeResponse.from_json(json_data)
+  result = response.extract_connected_dcids(subject_dcid='geoId/06',
+                                            property_dcid='containedInPlace')
+  assert result == []
+
+
+def test_extract_connected_dcids_does_not_include_none_for_value_only_nodes():
+  """Test that extract_connected_dcids does not include None in the returned list
+  when the nodes in the response only contain values and not dcids."""
+  json_data = {
+      "data": {
+          "geoId/06": {
+              "arcs": {
+                  "name": {
+                      "nodes": [{
+                          "provenanceId": "dc/base/WikidataOtherIdGeos",
+                          "value": "California"
+                      }]
+                  }
+              }
+          },
+      }
+  }
+  response = NodeResponse.from_json(json_data)
+  result = response.extract_connected_dcids(subject_dcid='geoId/06',
+                                            property_dcid='name')
+  assert result == []
+
+
+def test_extract_connected_dcids_with_node_type_filter():
+  """Test that extract_connected_dcids returns dcids with the corresponding
+  node_type."""
+
+  json_data = {
+      "data": {
+          "geoId/06": {
+              "arcs": {
+                  "relatedPlaces": {
+                      "nodes": [{
+                          "dcid": "country/USA",
+                          "name": "United States",
+                          "provenanceId": "dc/base/WikidataOtherIdGeos",
+                          "types": ["Country"]
+                      }, {
+                          "dcid": "usc/PacificDivision",
+                          "name": "Pacific Division",
+                          "provenanceId": "dc/base/WikidataOtherIdGeos",
+                          "types": ["CensusDivision"]
+                      }, {
+                          "dcid": "node3",
+                      }]
+                  }
+              }
+          },
+      }
+  }
+  response = NodeResponse.from_json(json_data)
+  result = response.extract_connected_dcids(subject_dcid='geoId/06',
+                                            property_dcid='relatedPlaces',
+                                            connected_node_types="Country")
+  assert result == ['country/USA']
+
+
+def test_extract_connected_dcids_with_multiple_node_type_filter():
+  """Test that extract_connected_dcids returns dcids with the corresponding
+  connected_node_types."""
+  json_data = {
+      "data": {
+          "geoId/06": {
+              "arcs": {
+                  "relatedPlaces": {
+                      "nodes": [{
+                          "dcid": "country/USA",
+                          "name": "United States",
+                          "provenanceId": "dc/base/WikidataOtherIdGeos",
+                          "types": ["Country"]
+                      }, {
+                          "dcid": "usc/PacificDivision",
+                          "name": "Pacific Division",
+                          "provenanceId": "dc/base/WikidataOtherIdGeos",
+                          "types": ["CensusDivision"]
+                      }, {
+                          "dcid": "node3",
+                          "types": ["City"]
+                      }]
+                  }
+              }
+          },
+      }
+  }
+  response = NodeResponse.from_json(json_data)
+  result = response.extract_connected_dcids(
+      subject_dcid='geoId/06',
+      property_dcid='relatedPlaces',
+      connected_node_types=["Country", "City"])
+  assert result == ['country/USA', 'node3']
+
+
+def test_extract_connected_nodes_with_multiple_node_type_filter():
+  """Test that extract_connected_nodes returns only nodes with the corresponding
+  connected_node_types."""
+
+  json_data = {
+      "data": {
+          "geoId/06": {
+              "arcs": {
+                  "relatedPlaces": {
+                      "nodes": [{
+                          "dcid": "country/USA",
+                          "name": "United States",
+                          "provenanceId": "dc/base/WikidataOtherIdGeos",
+                          "types": ["Country"]
+                      }, {
+                          "dcid": "usc/PacificDivision",
+                          "name": "Pacific Division",
+                          "provenanceId": "dc/base/WikidataOtherIdGeos",
+                          "types": ["CensusDivision"]
+                      }, {
+                          "dcid": "node3",
+                          "types": ["City"]
+                      }]
+                  }
+              }
+          },
+      }
+  }
+  response = NodeResponse.from_json(json_data)
+  result = response.extract_connected_nodes(
+      subject_dcid='geoId/06',
+      property_dcid='relatedPlaces',
+      connected_node_types=["Country", "City"])
+  assert result == [
+      Node(dcid="country/USA",
+           name="United States",
+           provenanceId="dc/base/WikidataOtherIdGeos",
+           types=["Country"]),
+      Node(dcid="node3", types=["City"])
+  ]
 
 
 ### ----- Test Observation Response ----- ###
