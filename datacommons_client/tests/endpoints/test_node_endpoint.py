@@ -4,8 +4,10 @@ from unittest.mock import patch
 from datacommons_client.endpoints.base import API
 from datacommons_client.endpoints.node import NodeEndpoint
 from datacommons_client.endpoints.response import NodeResponse
+from datacommons_client.models.node import Arcs
 from datacommons_client.models.node import Name
 from datacommons_client.models.node import Node
+from datacommons_client.models.node import NodeGroup
 from datacommons_client.utils.names import DEFAULT_NAME_PROPERTY
 from datacommons_client.utils.names import NAME_WITH_LANGUAGE_PROPERTY
 
@@ -212,13 +214,11 @@ def test_fetch_entity_names_english(mock_extract_name):
   # Mock the response from fetch_property_values
   endpoint.fetch_property_values = MagicMock(return_value=NodeResponse(
       data={
-          "dc/123": {
-              "properties": {
-                  DEFAULT_NAME_PROPERTY: [{
-                      "value": "Guatemala"
-                  }]
-              }
-          }
+          'dc/123':
+              Arcs(arcs={
+                  DEFAULT_NAME_PROPERTY:
+                      NodeGroup(nodes=[Node(value='Guatemala')])
+              })
       }))
 
   result = endpoint.fetch_entity_names("dc/123")
@@ -233,7 +233,8 @@ def test_fetch_entity_names_english(mock_extract_name):
           )
   }
 
-  mock_extract_name.assert_called_once()
+  mock_extract_name.assert_called_once_with(
+      properties=[Node(value="Guatemala")])
 
 
 @patch(
@@ -247,14 +248,12 @@ def test_fetch_entity_names_non_english(mock_extract_name):
 
   endpoint.fetch_property_values = MagicMock(return_value=NodeResponse(
       data={
-          "dc/123": {
-              "properties": {
-                  NAME_WITH_LANGUAGE_PROPERTY: [{
-                      "value": "Californie",
-                      "lang": "fr"
-                  }]
-              }
-          }
+          'dc/123':
+              Arcs(
+                  arcs={
+                      NAME_WITH_LANGUAGE_PROPERTY:
+                          NodeGroup(nodes=[Node(value='Californie')])
+                  })
       }))
 
   result = endpoint.fetch_entity_names("dc/123", language="fr")
@@ -269,7 +268,10 @@ def test_fetch_entity_names_non_english(mock_extract_name):
           )
   }
 
-  mock_extract_name.assert_called_once()
+  mock_extract_name.assert_called_once_with(
+      properties=[Node(value='Californie')],
+      language='fr',
+      fallback_language=None)
 
 
 @patch(
@@ -283,14 +285,12 @@ def test_fetch_entity_names_with_fallback(mock_extract_name_lang):
 
   endpoint.fetch_property_values = MagicMock(return_value=NodeResponse(
       data={
-          "dc/123": {
-              "properties": {
-                  NAME_WITH_LANGUAGE_PROPERTY: [{
-                      "value": "Chiquimula",
-                      "lang": "en"
-                  }]
-              }
-          }
+          'dc/123':
+              Arcs(
+                  arcs={
+                      NAME_WITH_LANGUAGE_PROPERTY:
+                          NodeGroup(nodes=[Node(value='Chiquimula')])
+                  })
       }))
 
   result = endpoint.fetch_entity_names("dc/123",
@@ -305,6 +305,10 @@ def test_fetch_entity_names_with_fallback(mock_extract_name_lang):
               property=NAME_WITH_LANGUAGE_PROPERTY,
           )
   }
+  mock_extract_name_lang.assert_called_once_with(
+      properties=[Node(value='Chiquimula')],
+      language='fr',
+      fallback_language='en')
 
 
 @patch(
