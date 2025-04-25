@@ -4,78 +4,105 @@ from concurrent.futures import Future
 from concurrent.futures import ThreadPoolExecutor
 from concurrent.futures import wait
 from functools import lru_cache
-from typing import Callable, Optional, TypeAlias
+from typing import Callable, Literal, Optional, TypeAlias
 
 from datacommons_client.models.node import Node
 
-PARENTS_MAX_WORKERS = 10
+GRAPH_MAX_WORKERS = 10
 
-AncestryMap: TypeAlias = dict[str, list[Node]]
+RelationMap: TypeAlias = dict[str, list[Node]]
+AncestorsMap = RelationMap
+DescendantsMap = RelationMap
 
 # -- -- Fetch tools -- --
 
 
-def _fetch_parents_uncached(endpoint, dcid: str) -> list[Node]:
-  """Fetches the immediate parents of a given DCID from the endpoint, without caching.
+def _fetch_relationship_uncached(
+    endpoint,
+    dcid: str,
+    contained_type: str | None,
+    relationship: Literal["parents", "children"],
+) -> list[Node]:
+  """Fetches the immediate parents/children of a given DCID from the endpoint, without caching.
 
     This function performs a direct, uncached call to the API. It exists
-    primarily to serve as the internal, cache-free fetch used by `fetch_parents_lru`, which
-    applies LRU caching on top of this raw access function.
+    primarily to serve as the internal, cache-free fetch use by functions with lru.
 
     By isolating the pure fetch logic here, we ensure that caching is handled separately
-    and cleanly via `@lru_cache` on `fetch_parents_lru`, which requires its wrapped
+    and cleanly via `@lru_cache`, which requires its wrapped
     function to be deterministic and side-effect free.
 
     Args:
-        endpoint: A client object with a `fetch_entity_parents` method.
+        endpoint: A client object with a `fetch_entity_parents` and `fetch_entity_children` method.
         dcid (str): The entity ID for which to fetch parents.
+        contained_type (str): The type of the entity to be fetched.
+        relationship (str): The type of relationship to fetch, either "parents" or "children".
     Returns:
-        A list of parent dictionaries, each containing 'dcid', 'name', and 'type'.
+        A list of Node objects.
     """
-  parents = endpoint.fetch_entity_parents(dcid, as_dict=False).get(dcid, [])
 
-  return parents if isinstance(parents, list) else [parents]
+  if relationship == "parents":
+    result = endpoint.fetch_place_parents(dcid, as_dict=False).get(dcid, [])
+
+  else:
+    result = endpoint.fetch_place_children(dcid,
+                                           children_type=contained_type,
+                                           as_dict=False).get(dcid, [])
+
+  return result if isinstance(result, list) else [result]
 
 
 @lru_cache(maxsize=512)
-def fetch_parents_lru(endpoint, dcid: str) -> tuple[Node, ...]:
+def fetch_relationship_lru(
+    endpoint,
+    dcid: str,
+    contained_type: str | None,
+    relationship: Literal["parents", "children"],
+) -> list[Node]:
   """Fetches parents of a DCID using an LRU cache for improved performance.
     Args:
-        endpoint: A client object with a `fetch_entity_parents` method.
-        dcid (str): The entity ID to fetch parents for.
+        endpoint: A Node client object.
+        dcid (str): The entity ID to fetch parents/children for.
+        contained_type (str): The type of the entity to be fetched.
+        relationship (str): The type of relationship to fetch, either "parents" or "children".
     Returns:
-        A tuple of `Parent` objects corresponding to the entity’s parents.
+        A list of `Node` objects corresponding to the entity's parents or children.
     """
-  parents = _fetch_parents_uncached(endpoint, dcid)
-  return tuple(p for p in parents)
+  return _fetch_relationship_uncached(
+      endpoint=endpoint,
+      dcid=dcid,
+      contained_type=contained_type,
+      relationship=relationship,
+  )
 
 
 # -- -- Ancestry tools -- --
 
 
-def build_ancestry_map(
+def build_graph_map(
     root: str,
-    fetch_fn: Callable[[str], tuple[Node, ...]],
-    max_workers: Optional[int] = PARENTS_MAX_WORKERS,
-) -> tuple[str, AncestryMap]:
-  """Constructs a complete ancestry map for the root node using parallel
+    fetch_fn: Callable[..., tuple[Node, ...]],
+    *,
+    max_workers: Optional[int] = GRAPH_MAX_WORKERS,
+) -> tuple[str, RelationMap]:
+  """Constructs a complete ancestry/descendancy map for the root node using parallel
        Breadth-First Search (BFS).
 
-    Traverses the ancestry graph upward from the root node, discovering all parent
-    relationships by fetching in parallel.
+    Traverses the graph from the root node, discovering all parent/children
+    relationships (depending on the fetch_fn) by fetching in parallel.
 
     Args:
         root (str): The DCID of the root entity to start from.
-        fetch_fn (Callable): A function that takes a DCID and returns a Parent tuple.
+        fetch_fn (Callable): A function that takes a DCID and returns Node tuples.
         max_workers (Optional[int]): Max number of threads to use for parallel fetching.
           Optional, defaults to `PARENTS_MAX_WORKERS`.
 
     Returns:
         A tuple containing:
             - The original root DCID.
-            - A dictionary mapping each DCID to a list of its `Parent`s.
+            - A dictionary mapping each DCID to a Node list.
     """
-  ancestry: AncestryMap = {}
+  graph_map: RelationMap = {}
   visited: set[str] = set()
   in_progress: dict[str, Future] = {}
 
@@ -92,7 +119,7 @@ def build_ancestry_map(
         # Check if the node has already been visited or is in progress
         if dcid not in visited and dcid not in in_progress:
           # Submit the fetch task
-          in_progress[dcid] = executor.submit(fetch_fn, dcid)
+          in_progress[dcid] = executor.submit(fetch_fn, dcid=dcid)
 
       # Check if any futures are still in progress
       if not in_progress:
@@ -109,18 +136,19 @@ def build_ancestry_map(
       # Process completed fetches and enqueue any unseen parents
       for dcid in completed_dcids:
         future = in_progress.pop(dcid)
-        parents = list(future.result())
-        ancestry[dcid] = parents
+        nodes = list(future.result())
+        graph_map[dcid] = nodes
         visited.add(dcid)
 
-        for parent in parents:
-          if parent.dcid not in visited and parent.dcid not in in_progress:
-            queue.append(parent.dcid)
+        for node in nodes:
+          if (node and node.dcid not in visited and
+              node.dcid not in in_progress):
+            queue.append(node.dcid)
 
-  return original_root, ancestry
+  return original_root, graph_map
 
 
-def _postorder_nodes(root: str, ancestry: AncestryMap) -> list[str]:
+def _postorder_nodes(root: str, graph: RelationMap) -> list[str]:
   """Generates a postorder list of all nodes reachable from the root.
 
     Postorder ensures children are processed before their parents. That way the tree
@@ -128,7 +156,7 @@ def _postorder_nodes(root: str, ancestry: AncestryMap) -> list[str]:
 
     Args:
         root (str): The root DCID to start traversal from.
-        ancestry (AncestryMap): The ancestry graph.
+        graph (RelationMap): The ancestry/descendancy map.
     Returns:
         A list of DCIDs in postorder (i.e children before parents).
     """
@@ -143,23 +171,27 @@ def _postorder_nodes(root: str, ancestry: AncestryMap) -> list[str]:
       continue
     seen.add(node)
     postorder.append(node)
-    # Push all unvisited parents onto the stack (i.e climb up the graph, child -> parent)
-    for parent in ancestry.get(node, []):
-      parent_dcid = parent.dcid
-      if parent_dcid not in seen:
-        stack.append(parent_dcid)
+    # Push all unvisited Nodes onto the stack
+    for relation in graph.get(node, []):
+      if not relation:
+        continue
+      relation_dcid = relation.dcid
+      if relation_dcid not in seen:
+        stack.append(relation_dcid)
 
-  # Reverse the list so that parents come after their children (i.e postorder)
+  # Reverse to get postorder relative to the adjacency direction
   return list(reversed(postorder))
 
 
-def _assemble_tree(postorder: list[str], ancestry: AncestryMap) -> dict:
-  """Builds a nested dictionary tree from a postorder node list and ancestry map.
-    Constructs a nested representation of the ancestry graph, ensuring that parents
-    are embedded after their children (which is enabled by postorder).
+def _assemble_tree(postorder: list[str], ancestry: RelationMap,
+                   relationship_key: str) -> dict:
+  """Builds a nested dictionary tree from a Node list and RelationMa[.
+    Constructs a nested representation of the graph, ensuring that parents/children
+    are embedded after their root Node (which is enabled by postorder).
     Args:
         postorder (list[str]): List of node DCIDs in postorder.
-        ancestry (AncestryMap): Map from DCID to list of Parent objects.
+        ancestry (RelationMap): Map from DCID to list of Node objects.
+        relationship_key (str): The key to use for the relationship in the tree.
     Returns:
         A nested dictionary representing the ancestry tree rooted at the last postorder node.
     """
@@ -167,29 +199,31 @@ def _assemble_tree(postorder: list[str], ancestry: AncestryMap) -> dict:
 
   for node in postorder:
     # Initialize the node dictionary.
-    node_dict = {"dcid": node, "name": None, "type": None, "parents": []}
+    node_dict = {"dcid": node, "name": None, "type": None, relationship_key: []}
 
-    # For each parent of the current node, fetch its details and add it to the node_dict.
-    for parent in ancestry.get(node, []):
-      parent_dcid = parent.dcid
-      name = parent.name
-      entity_type = parent.types
+    # For each relationship of the current node, fetch its details and add it to the node_dict.
+    for relationship in ancestry.get(node, []):
+      if not relationship:
+        continue
+      relationship_dcid = relationship.dcid
+      name = relationship.name
+      entity_type = relationship.types
 
-      # If the parent node is not already in the cache, add it.
-      if parent_dcid not in tree_cache:
-        tree_cache[parent_dcid] = {
-            "dcid": parent_dcid,
+      # If the node is not already in the cache, add it.
+      if relationship_dcid not in tree_cache:
+        tree_cache[relationship_dcid] = {
+            "dcid": relationship_dcid,
             "name": name,
             "type": entity_type,
-            "parents": [],
+            relationship_key: [],
         }
 
-      parent_node = tree_cache[parent_dcid]
+      relationship_node = tree_cache[relationship_dcid]
 
       # Ensure name/type are up to date (in case of duplicates)
-      parent_node["name"] = name
-      parent_node["type"] = entity_type
-      node_dict["parents"].append(parent_node)
+      relationship_node["name"] = name
+      relationship_node["type"] = entity_type
+      node_dict[relationship_key].append(relationship_node)
 
     tree_cache[node] = node_dict
 
@@ -197,33 +231,34 @@ def _assemble_tree(postorder: list[str], ancestry: AncestryMap) -> dict:
   return tree_cache[postorder[-1]]
 
 
-def build_ancestry_tree(root: str, ancestry: AncestryMap) -> dict:
+def build_relationship_tree(root: str, graph: RelationMap,
+                            relationship_key: str) -> dict:
   """Builds a nested ancestry tree from an ancestry map.
     Args:
         root (str): The DCID of the root node.
-        ancestry (AncestryMap): A flat ancestry map built from `_build_ancestry_map`.
+        graph (RelationMap): A dictionary mapping DCIDs to lists of Node objects.
+        relationship_key (str): The key to use for the relationship in the tree.
     Returns:
         A nested dictionary tree rooted at the specified DCID.
     """
-  postorder = _postorder_nodes(root, ancestry)
-  return _assemble_tree(postorder, ancestry)
+  postorder = _postorder_nodes(root, graph)
+  return _assemble_tree(postorder, graph, relationship_key=relationship_key)
 
 
-def flatten_ancestry(ancestry: AncestryMap) -> list[dict[str, str]]:
-  """Flattens the ancestry map into a deduplicated list of parent records.
+def flatten_relationship(graph: RelationMap) -> list[dict[str, str]]:
+  """Flattens the RelationMap into a deduplicated list of parent/child records.
     Args:
-        ancestry (AncestryMap): Ancestry mapping of DCIDs to lists of Parent objects.
+        graph (GraphMap): mapping of DCIDs to lists of Node objects.
     Returns:
         A list of dictionaries with keys 'dcid', 'name', and 'type', containing
-        each unique parent in the graph.
+        each unique parent/child in the graph.
     """
 
   flat: list = []
   seen: set[str] = set()
-  for parents in ancestry.values():
-    for parent in parents:
-      if parent.dcid in seen:
-        continue
-      seen.add(parent.dcid)
-      flat.append(parent.to_dict())
+  for relationships in graph.values():
+    for relationship in relationships:
+      if relationship and relationship.dcid not in seen:
+        seen.add(relationship.dcid)
+        flat.append(relationship.to_dict())
   return flat
