@@ -1,7 +1,8 @@
 from unittest.mock import MagicMock
 
 from datacommons_client.endpoints.base import API
-from datacommons_client.endpoints.resolve import _resolve_correspondence_expression
+from datacommons_client.endpoints.resolve import \
+    _resolve_correspondence_expression
 from datacommons_client.endpoints.resolve import ResolveEndpoint
 from datacommons_client.endpoints.response import ResolveResponse
 
