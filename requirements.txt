@@ -3,5 +3,5 @@ mock
 pandas
 pytest
 requests==2.32.0
-typing_extensions==3.10.0.0
+typing_extensions==4.7.1
 yapf==0.40.2
