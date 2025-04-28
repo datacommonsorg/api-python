@@ -15,6 +15,9 @@ def extract_name_from_english_name_property(properties: list | Node) -> str:
     Returns:
         str: The extracted name.
     """
+  if not properties:
+    return ''
+
   if isinstance(properties, Node):
     properties = [properties]
 

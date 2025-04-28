@@ -235,12 +235,15 @@ class NodeEndpoint(Endpoint):
 
     # Iterate through the fetched data and populate the names dictionary.
     for dcid, properties in data.items():
+      if not properties:
+        continue
       if language == "en":
-        name = extract_name_from_english_name_property(properties=properties)
+        name = extract_name_from_english_name_property(
+            properties=properties.get(name_property, []))
         lang_used = "en"
       else:
         name, lang_used = extract_name_from_property_with_language(
-            properties=properties,
+            properties=properties.get(name_property, []),
             language=language,
             fallback_language=fallback_language,
         )
