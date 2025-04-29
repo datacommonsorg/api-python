@@ -1,7 +1,37 @@
 # Changelog
 
-## 2.0.0 [forthcoming]
+## 2.1.0
 
+**Date** - 05/08/2025
+
+**Release Tag** - [py2.1.0](https://github.com/datacommonsorg/api-python/releases/tag/py2.1.0)
+
+**Release Status** - Current head of branch [`master`](https://github.com/datacommonsorg/api-python/tree/master)
+
+Bugs fixed:
+- Remove auto-flattening for unpack_arcs
+- Fix unpack_arcs when multiple arcs are in the node response
+
+Other improvements:
+- Clarify parent_entity requirements for observations_dataframe
+- Updated some tutorials and notebooks to use the v2 client
+- Fix install command and refine documentation
+- Handle empty/malformed REST API node responses
+- Make renamed methods backwards compatible
+
+New features:
+- Add helpers to extract data from NodeResponse arcs
+- Add convenient ways to fetch parents and children of given entities
+
+## 2.0.0
+
+**Date** - 04/08/2025
+
+**Release Tag** - [py2.0.0](https://github.com/datacommonsorg/api-python/releases/tag/py2.0.0)
+
+**Release Status** - Current head of branch [`master`](https://github.com/datacommonsorg/api-python/tree/master)
+
+Initial v2 of the Data Commons API Python client library.
 
 ## 1.4.3
 
