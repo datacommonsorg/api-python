@@ -48,7 +48,8 @@ def flatten_properties(
     properties = getattr(node_data, "properties", None)
 
     processed_arcs = unpack_arcs(arcs) if arcs else None
-    items[node] = processed_arcs if processed_arcs is not None else properties
+    if properties or processed_arcs:
+      items[node] = processed_arcs if processed_arcs is not None else properties
 
   return items
 
