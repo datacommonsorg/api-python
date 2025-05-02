@@ -28,12 +28,12 @@ _DEPRECATED_METHODS: dict[str, dict[str, str | dict[str, str]]] = {
         "new_name": "fetch_place_parents",
         "arg_map": {
             "entity_dcids": "place_dcids"
-        },
-        "fetch_entity_ascendancy": {
-            "new_name": "fetch_place_ancestors",
-            "arg_map": {
-                "entity_dcids": "place_dcids"
-            }
+        }
+    },
+    "fetch_entity_ascendancy": {
+        "new_name": "fetch_place_ancestors",
+        "arg_map": {
+            "entity_dcids": "place_dcids"
         }
     }
 }
