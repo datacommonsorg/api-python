@@ -1,6 +1,8 @@
 from concurrent.futures import ThreadPoolExecutor
 from functools import partial
+from functools import wraps
 from typing import Literal, Optional
+import warnings
 
 from datacommons_client.endpoints.base import API
 from datacommons_client.endpoints.base import Endpoint
@@ -21,6 +23,21 @@ from datacommons_client.utils.names import NAME_WITH_LANGUAGE_PROPERTY
 
 PLACES_MAX_WORKERS = 10
 
+_DEPRECATED_METHODS: dict[str, dict[str, str | dict[str, str]]] = {
+    "fetch_entity_parents": {
+        "new_name": "fetch_place_parents",
+        "arg_map": {
+            "entity_dcids": "place_dcids"
+        }
+    },
+    "fetch_entity_ascendancy": {
+        "new_name": "fetch_place_ancestors",
+        "arg_map": {
+            "entity_dcids": "place_dcids"
+        }
+    }
+}
+
 
 class NodeEndpoint(Endpoint):
   """Initializes the NodeEndpoint with a given API configuration.
@@ -33,6 +50,36 @@ class NodeEndpoint(Endpoint):
   def __init__(self, api: API):
     """Initializes the NodeEndpoint with a given API configuration."""
     super().__init__(endpoint="node", api=api)
+
+  def __getattr__(self, name):
+    if name in _DEPRECATED_METHODS:
+      method_info = _DEPRECATED_METHODS[name]
+      new_name = method_info["new_name"]
+      arg_map = method_info.get("arg_map", {})
+      new_method = getattr(self, new_name)
+
+      @wraps(new_method)
+      def wrapper(*args, **kwargs):
+        for old_arg, new_arg in arg_map.items():
+          if old_arg in kwargs:
+            warnings.warn(
+                f"Argument '{old_arg}' has been renamed and will removed"
+                f" in a future version. Use '{new_arg}' instead.",
+                category=DeprecationWarning,
+                stacklevel=2)
+            if new_arg not in kwargs:
+              kwargs[new_arg] = kwargs.pop(old_arg)
+
+        warnings.warn(
+            f"'{name}' is deprecated and will be removed in a future version. "
+            f"Use '{new_name}' instead.",
+            category=DeprecationWarning,
+            stacklevel=2)
+        return new_method(*args, **kwargs)
+
+      return wrapper
+    raise AttributeError(
+        f"'{self.__class__.__name__}' object has no attribute '{name}'")
 
   def fetch(
       self,
