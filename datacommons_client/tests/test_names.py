@@ -10,6 +10,12 @@ def test_extract_name_from_english_name_property_with_list():
   assert result == "Test Name"
 
 
+def test_extract_name_from_english_empty_list():
+  """Test extracting name from an empty list."""
+  result = extract_name_from_english_name_property([])
+  assert result == ""
+
+
 def test_extract_name_from_english_not_list():
   """Test extracting name from a single Node (not in a list)."""
   property_node = Node(value="Single Node Name")
