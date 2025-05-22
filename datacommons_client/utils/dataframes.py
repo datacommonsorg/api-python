@@ -12,9 +12,9 @@ from datacommons_client.utils.decorators import requires_pandas
 @requires_pandas
 def add_entity_names_to_observations_dataframe(
     endpoint: NodeEndpoint,
-    observations_df: "pd.DataFrame",  # type: ignore[reportInvalidTypeForm]
+    observations_df: pd.DataFrame,
     entity_columns: str | list[str],
-) -> "pd.DataFrame":  # type: ignore[reportInvalidTypeForm]
+) -> pd.DataFrame:
   """
     Adds entity names to the observations DataFrame.
 
