@@ -1,13 +1,12 @@
-from typing import List, Optional, TypeAlias
+from typing import List, Optional
 
 from pydantic import Field
 
 from datacommons_client.models.base import BaseDCModel
 from datacommons_client.models.base import DictLikeRootModel
-
-Query: TypeAlias = str
-DCID: TypeAlias = str
-DominantType: TypeAlias = str
+from datacommons_client.models.base import DominantType
+from datacommons_client.models.base import NodeDCID
+from datacommons_client.models.base import Query
 
 
 class Candidate(BaseDCModel):
@@ -19,7 +18,7 @@ class Candidate(BaseDCModel):
             if available. This represents the primary type associated with the DCID.
     """
 
-  dcid: DCID = Field(default_factory=str)
+  dcid: NodeDCID = Field(default_factory=str)
   dominantType: Optional[DominantType] = None
 
 
@@ -36,5 +35,6 @@ class Entity(BaseDCModel):
 
 
 class FlatCandidateMapping(BaseDCModel,
-                           DictLikeRootModel[dict[Query, list[DCID] | DCID]]):
+                           DictLikeRootModel[dict[Query,
+                                                  list[NodeDCID] | NodeDCID]]):
   """A model to represent a mapping of queries to candidates."""

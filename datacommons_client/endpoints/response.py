@@ -5,12 +5,14 @@ from pydantic import field_validator
 
 from datacommons_client.models.base import BaseDCModel
 from datacommons_client.models.base import facetID
+from datacommons_client.models.base import NextToken
+from datacommons_client.models.base import NodeDCID
+from datacommons_client.models.base import Property
 from datacommons_client.models.node import Arcs
-from datacommons_client.models.node import NextToken
-from datacommons_client.models.node import Node
-from datacommons_client.models.node import NodeDCID
+from datacommons_client.models.node import FlattenedPropertiesMapping
+from datacommons_client.models.node import NodeDCIDList
+from datacommons_client.models.node import NodeList
 from datacommons_client.models.node import Properties
-from datacommons_client.models.node import Property
 from datacommons_client.models.observation import ByVariable
 from datacommons_client.models.observation import Facet
 from datacommons_client.models.observation import ObservationRecords
@@ -46,14 +48,14 @@ class NodeResponse(BaseDCModel):
 
     return {dcid: _parse_data(data) for dcid, data in raw_data.items()}
 
-  def get_properties(self) -> Dict:
+  def get_properties(self) -> FlattenedPropertiesMapping:
     return flatten_properties(self.data)
 
   def extract_connected_nodes(
       self,
       subject_dcid: NodeDCID,
       property_dcid: Property,
-      connected_node_types: Optional[str | list[str]] = None) -> List[Node]:
+      connected_node_types: Optional[str | list[str]] = None) -> NodeList:
     """Retrieves Node objects in the NodeResponse connected to the subject node
     via the specified property.
 
@@ -86,13 +88,13 @@ class NodeResponse(BaseDCModel):
 
       connected_nodes.append(node)
 
-    return connected_nodes
+    return NodeList.model_validate(connected_nodes)
 
   def extract_connected_dcids(
       self,
       subject_dcid: NodeDCID,
       property_dcid: Property,
-      connected_node_types: Optional[str | list[str]] = None) -> List[NodeDCID]:
+      connected_node_types: Optional[str | list[str]] = None) -> NodeDCIDList:
     """Retrieves DCIDs of the Nodes in the NodeResponse connected to the subject
     node via the specified property.
 
@@ -113,7 +115,8 @@ class NodeResponse(BaseDCModel):
     connected_nodes = self.extract_connected_nodes(subject_dcid, property_dcid,
                                                    connected_node_types)
 
-    return [node.dcid for node in connected_nodes if node.dcid]
+    return NodeDCIDList.model_validate(
+        [node.dcid for node in connected_nodes if node.dcid])
 
 
 class ObservationResponse(BaseDCModel):
@@ -135,7 +138,7 @@ class ObservationResponse(BaseDCModel):
         """
     raw_payload = {
         var_dcid: var_model.byEntity
-        for var_dcid, var_model in self.byVariable.root.items()
+        for var_dcid, var_model in self.byVariable.items()
     }
     return VariableByEntity.model_validate(raw_payload)
 
@@ -157,13 +160,13 @@ class ObservationResponse(BaseDCModel):
     return observations_as_records(data=self.get_data_by_entity(),
                                    facets=self.facets)
 
-  def get_facets_metadata(self) -> Dict[str, Any]:
+  def get_facets_metadata(self) -> Dict[str, dict]:
     """Extract metadata about StatVars from the response. This data is
         structured as a dictionary of StatVars, each containing a dictionary of
         facets with their corresponding metadata.
 
         Returns:
-            Dict[str, Any]: A dictionary of StatVars with their associated metadata,
+            Dict[str, dict]: A dictionary of StatVars with their associated metadata,
              including earliest and latest observation dates, observation counts,
              measurementMethod, observationPeriod, and unit, etc.
         """
@@ -174,13 +177,13 @@ class ObservationResponse(BaseDCModel):
     data_by_entity = self.get_data_by_entity()
 
     # Extract facet information
-    facets_info = self.to_dict().get("facets", {})
+    facets_info = self.facets
 
     for dcid, variables in data_by_entity.items():
       metadata[dcid] = {}
 
       for entity_id, entity in variables.items():
-        for facet in entity.get("orderedFacets", []):
+        for facet in entity.orderedFacets:
           facet_metadata = metadata[dcid].setdefault(
               facet.facetId,
               {

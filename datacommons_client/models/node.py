@@ -1,14 +1,14 @@
-from typing import Dict, List, Optional, TypeAlias
+from typing import Optional
 
 from pydantic import Field
 
+from datacommons_client.models.base import ArcLabel
 from datacommons_client.models.base import BaseDCModel
-
-NextToken: TypeAlias = Optional[str]
-NodeDCID: TypeAlias = str
-ArcLabel: TypeAlias = str
-Property: TypeAlias = str
-PropertyList: TypeAlias = list[Property]
+from datacommons_client.models.base import DictLikeRootModel
+from datacommons_client.models.base import ListLikeRootModel
+from datacommons_client.models.base import NodeDCID
+from datacommons_client.models.base import Property
+from datacommons_client.models.base import PropertyList
 
 
 class Node(BaseDCModel):
@@ -49,7 +49,7 @@ class NodeGroup(BaseDCModel):
         nodes: A list of Node objects in the group.
     """
 
-  nodes: List[Node] = Field(default_factory=list)
+  nodes: list[Node] = Field(default_factory=list)
 
 
 class Arcs(BaseDCModel):
@@ -59,7 +59,7 @@ class Arcs(BaseDCModel):
         arcs: A dictionary mapping arc labels to NodeGroup objects.
     """
 
-  arcs: Dict[ArcLabel, NodeGroup] = Field(default_factory=dict)
+  arcs: dict[ArcLabel, NodeGroup] = Field(default_factory=dict)
 
 
 class Properties(BaseDCModel):
@@ -70,3 +70,23 @@ class Properties(BaseDCModel):
     """
 
   properties: Optional[PropertyList] = None
+
+
+class FlattenedPropertiesMapping(BaseDCModel,
+                                 DictLikeRootModel[dict[NodeDCID,
+                                                        PropertyList]]):
+  """A model to represent a mapping of node DCIDs to their properties."""
+
+
+class FlattenedArcsMapping(BaseDCModel,
+                           DictLikeRootModel[dict[NodeDCID, dict[Property,
+                                                                 list[Node]]]]):
+  """A model to represent a mapping of node DCIDs to their arcs."""
+
+
+class NodeList(BaseDCModel, ListLikeRootModel[list[Node]]):
+  """A root model whose value is a list of Node objects."""
+
+
+class NodeDCIDList(BaseDCModel, ListLikeRootModel[list[NodeDCID]]):
+  """A root model whose value is a list of NodeDCID strings."""

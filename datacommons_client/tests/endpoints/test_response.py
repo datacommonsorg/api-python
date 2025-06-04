@@ -639,7 +639,7 @@ def test_observation_response_model_validation():
   response = ObservationResponse.model_validate(json_data)
 
   assert "var1" in response.byVariable
-  assert "entity1" in response.byVariable["var1"]["byEntity"]
+  assert "entity1" in response.byVariable["var1"].byEntity
   assert "facet1" in response.facets
   assert response.facets["facet1"].unit == "GTQ"
 
@@ -1003,73 +1003,60 @@ def test_resolve_response_json_string_exclude_none():
   assert result == expected
 
 
-def test_get_facets_metadata(monkeypatch):
+def test_get_facets_metadata():
   """Test that get_facets_metadata correctly extracts and structures facet metadata."""
-
-  # Mock facet metadata
-  mock_facets = {
-      "facet1": {
-          "unit": "USD",
-          "importName": "Import Source",
+  payload = {
+      "byVariable": {
+          "variable1": {
+              "byEntity": {
+                  "entity1": {
+                      "orderedFacets": [{
+                          "facetId": "facet1",
+                          "earliestDate": "2023",
+                          "latestDate": "2025",
+                          "obsCount": 5,
+                          "observations": []
+                      }]
+                  },
+                  "entity2": {
+                      "orderedFacets": [{
+                          "facetId": "facet2",
+                          "earliestDate": "2021",
+                          "latestDate": "2021",
+                          "obsCount": 3,
+                          "observations": []
+                      }]
+                  },
+              }
+          },
+          "variable2": {
+              "byEntity": {
+                  "entity3": {
+                      "orderedFacets": [{
+                          "facetId": "facet1",
+                          "earliestDate": "2000",
+                          "latestDate": "2013",
+                          "obsCount": 7,
+                          "observations": []
+                      }]
+                  }
+              }
+          },
       },
-      "facet2": {
-          "unit": "Year",
-          "importName": "Another Source",
+      "facets": {
+          "facet1": {
+              "unit": "USD",
+              "importName": "Import Source"
+          },
+          "facet2": {
+              "unit": "Year",
+              "importName": "Another Source"
+          },
       },
   }
 
-  # Mock data for entities and variables
-  mock_data_by_entity = {
-      "variable1": {
-          "entity1": {
-              "orderedFacets": [
-                  OrderedFacet(
-                      facetId="facet1",
-                      earliestDate="2023",
-                      latestDate="2025",
-                      obsCount=5,
-                  )
-              ]
-          },
-          "entity2": {
-              "orderedFacets": [
-                  OrderedFacet(
-                      facetId="facet2",
-                      earliestDate="2021",
-                      latestDate="2021",
-                      obsCount=3,
-                  )
-              ]
-          },
-      },
-      "variable2": {
-          "entity3": {
-              "orderedFacets": [
-                  OrderedFacet(
-                      facetId="facet1",
-                      earliestDate="2000",
-                      latestDate="2013",
-                      obsCount=7,
-                  )
-              ]
-          }
-      },
-  }
-
-  # Patch *methods on the class*
-  monkeypatch.setattr(
-      ObservationResponse,
-      "get_data_by_entity",
-      lambda self: mock_data_by_entity,
-  )
-  monkeypatch.setattr(
-      ObservationResponse,
-      "to_dict",
-      lambda self: {"facets": mock_facets},
-  )
-
-  # Mock ObservationResponse
-  response = ObservationResponse(byVariable={})
+  # build ObservationResponse
+  response = ObservationResponse.model_validate(payload)
 
   # Call the method
   result = response.get_facets_metadata()
@@ -1089,6 +1076,9 @@ def test_get_facets_metadata(monkeypatch):
               },
               "unit": "USD",
               "importName": "Import Source",
+              "measurementMethod": None,
+              "observationPeriod": None,
+              "provenanceUrl": None,
           },
           "facet2": {
               "earliestDate": {
@@ -1102,6 +1092,9 @@ def test_get_facets_metadata(monkeypatch):
               },
               "unit": "Year",
               "importName": "Another Source",
+              "measurementMethod": None,
+              "observationPeriod": None,
+              "provenanceUrl": None,
           },
       },
       "variable2": {
@@ -1117,6 +1110,9 @@ def test_get_facets_metadata(monkeypatch):
               },
               "unit": "USD",
               "importName": "Import Source",
+              "measurementMethod": None,
+              "observationPeriod": None,
+              "provenanceUrl": None,
           }
       },
   }
