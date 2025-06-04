@@ -16,6 +16,7 @@ from datacommons_client.models.observation import Facet
 from datacommons_client.models.observation import ObservationRecords
 from datacommons_client.models.observation import VariableByEntity
 from datacommons_client.models.resolve import Entity
+from datacommons_client.models.resolve import FlatCandidateMapping
 from datacommons_client.utils.data_processing import flatten_properties
 from datacommons_client.utils.data_processing import observations_as_records
 
@@ -238,9 +239,9 @@ class ResolveResponse(BaseDCModel):
             containing the query node and its associated candidates.
     """
 
-  entities: List[Entity] = Field(default_factory=list)
+  entities: list[Entity] = Field(default_factory=list)
 
-  def to_flat_dict(self) -> dict[str, list[str] | str]:
+  def to_flat_dict(self) -> FlatCandidateMapping:
     """
       Flattens resolved candidate data into a dictionary where each node maps to its candidates.
 
@@ -248,7 +249,7 @@ class ResolveResponse(BaseDCModel):
           dict[str, Any]: A dictionary mapping nodes to their candidates.
           If a node has only one candidate, it maps directly to the candidate instead of a list.
       """
-    items: dict[str, Any] = {}
+    items = {}
 
     for entity in self.entities:
       node = entity.node
@@ -256,5 +257,7 @@ class ResolveResponse(BaseDCModel):
         items[node] = entity.candidates[0].dcid
       else:
         items[node] = [candidate.dcid for candidate in entity.candidates]
+
+    items = FlatCandidateMapping.model_validate(items)
 
     return items

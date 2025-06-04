@@ -1,3 +1,4 @@
+from collections.abc import Mapping, MutableSequence
 from typing import Annotated, Any, Iterable, TypeAlias
 
 from pydantic import BaseModel
@@ -54,7 +55,7 @@ class BaseDCModel(BaseModel):
     return self.model_dump_json(exclude_none=exclude_none, indent=2)
 
 
-class DictLikeRootModel(RootModel):
+class DictLikeRootModel(Mapping, RootModel):
   """A base class for models that can be treated as dictionaries."""
 
   def __getitem__(self, key: str) -> Any:
@@ -66,56 +67,22 @@ class DictLikeRootModel(RootModel):
   def __len__(self) -> int:
     return len(self.root)
 
-  def __contains__(self, key: str) -> bool:
-    return key in self.root
 
-  def keys(self) -> Iterable[str]:
-    """Returns the keys of the root dictionary."""
-    return self.root.keys()
-
-  def items(self) -> Iterable[tuple[str, Any]]:
-    """Returns the items of the root dictionary."""
-    return self.root.items()
-
-  def values(self) -> Iterable[Any]:
-    """Returns the values of the root dictionary."""
-    return self.root.values()
-
-  def get(self, key: variableDCID, default: Any = None) -> Any:
-    return self.root.get(key, default)
-
-
-class ListLikeRootModel(RootModel):
+class ListLikeRootModel(MutableSequence, RootModel):
   """A base class for models that can be treated as lists."""
 
   def __getitem__(self, index: int) -> Any:
     return self.root[index]
 
-  def __iter__(self) -> Iterable[Any]:
-    return iter(self.root)
+  def __setitem__(self, index: int, value: Any) -> None:
+    self.root[index] = value
+
+  def __delitem__(self, index: int) -> None:
+    del self.root[index]
 
   def __len__(self) -> int:
     return len(self.root)
 
-  def __contains__(self, item: Any) -> bool:
-    return item in self.root
-
-  def append(self, item: Any) -> None:
-    """Appends an item to the root list."""
-    self.root.append(item)
-
-  def extend(self, items: Iterable[Any]) -> None:
-    """Extends the root list with items from an iterable."""
-    self.root.extend(items)
-
-  def sort(self, *args, **kwargs) -> None:
-    """Sorts the root list in place."""
-    self.root.sort(*args, **kwargs)
-
-  def reverse(self) -> None:
-    """"Reverses the root list in place."""
-    self.root.reverse()
-
-  def to_list(self) -> list:
-    """Converts the root model to a list."""
-    return list(self.root)
+  def insert(self, index: int, item: Any) -> None:
+    """Inserts an item at a specified index in the root list."""
+    self.root.insert(index, item)

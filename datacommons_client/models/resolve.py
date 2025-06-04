@@ -3,6 +3,7 @@ from typing import List, Optional, TypeAlias
 from pydantic import Field
 
 from datacommons_client.models.base import BaseDCModel
+from datacommons_client.models.base import DictLikeRootModel
 
 Query: TypeAlias = str
 DCID: TypeAlias = str
@@ -32,3 +33,8 @@ class Entity(BaseDCModel):
 
   node: Query
   candidates: list[Candidate] = Field(default_factory=list)
+
+
+class FlatCandidateMapping(BaseDCModel,
+                           DictLikeRootModel[dict[Query, list[DCID] | DCID]]):
+  """A model to represent a mapping of queries to candidates."""

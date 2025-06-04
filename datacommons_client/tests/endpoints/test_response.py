@@ -639,7 +639,7 @@ def test_observation_response_model_validation():
   response = ObservationResponse.model_validate(json_data)
 
   assert "var1" in response.byVariable
-  assert "entity1" in response.byVariable["var1"].byEntity
+  assert "entity1" in response.byVariable["var1"]["byEntity"]
   assert "facet1" in response.facets
   assert response.facets["facet1"].unit == "GTQ"
 

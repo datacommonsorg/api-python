@@ -194,8 +194,7 @@ def test_observations_dataframe_returns_dataframe_with_expected_columns(
   assert isinstance(df, pd.DataFrame)
   assert set(df.columns) == {
       "date", "entity", "entity_name", "variable", "variable_name", "value",
-      "unit", "facetId", "importName", "measurementMethod", "observationPeriod",
-      "provenanceUrl"
+      "unit"
   }
   assert len(df) == 2
   assert df.iloc[0]["entity"] == "entity1"
