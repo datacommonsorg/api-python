@@ -184,7 +184,8 @@ class DataCommonsClient:
           filter_facet_ids=facets)
 
     # Convert the observations to a DataFrame
-    df = pd.DataFrame(observations.to_observation_records())
+    df = pd.DataFrame(
+        observations.to_observation_records().model_dump(mode="python"))
 
     # Add entity names to the DataFrame
     df = add_entity_names_to_observations_dataframe(

@@ -97,7 +97,7 @@ class Observation(BaseDCModel):
         value (float): Optional. The value of the observation.
     """
 
-  date: str
+  date: Optional[str] = None
   value: Optional[float] = None
 
 
@@ -122,7 +122,7 @@ class OrderedFacet(BaseDCModel):
 class OrderedFacets(BaseDCModel):
   """Represents a list of ordered facets.
   """
-  orderedFacets: list[OrderedFacet] = Field(default_factory=OrderedFacet)
+  orderedFacets: list[OrderedFacet] = Field(default_factory=list)
 
 
 class Variable(BaseDCModel):

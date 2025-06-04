@@ -60,8 +60,10 @@ class ObservationEndpoint(Endpoint):
         filter_facet_ids=filter_facet_ids,
     ).to_dict()
 
+    response = self.post(payload)
+
     # Send the request
-    return ObservationResponse.model_validate(self.post(payload))
+    return ObservationResponse.model_validate(response)
 
   def fetch_observations_by_entity_type(
       self,
