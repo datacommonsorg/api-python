@@ -1,41 +1,26 @@
-from dataclasses import dataclass
-from dataclasses import field
 from typing import Any, Dict, List, Optional
 
-from datacommons_client.models.base import SerializableMixin
+from pydantic import Field
+from pydantic import field_validator
+
+from datacommons_client.models.base import BaseDCModel
+from datacommons_client.models.base import facetID
 from datacommons_client.models.node import Arcs
 from datacommons_client.models.node import NextToken
 from datacommons_client.models.node import Node
 from datacommons_client.models.node import NodeDCID
-from datacommons_client.models.node import NodeGroup
 from datacommons_client.models.node import Properties
 from datacommons_client.models.node import Property
+from datacommons_client.models.observation import ByVariable
 from datacommons_client.models.observation import Facet
-from datacommons_client.models.observation import facetID
-from datacommons_client.models.observation import Variable
-from datacommons_client.models.observation import variableDCID
+from datacommons_client.models.observation import ObservationRecords
+from datacommons_client.models.observation import VariableByEntity
 from datacommons_client.models.resolve import Entity
 from datacommons_client.utils.data_processing import flatten_properties
 from datacommons_client.utils.data_processing import observations_as_records
 
 
-@dataclass
-class DCResponse(SerializableMixin):
-  """Represents a structured response from the Data Commons API."""
-
-  json: Dict[str, Any] = field(default_factory=dict)
-
-  def __repr__(self) -> str:
-    """Returns a string with the name of the object,"""
-    return f"<Raw Data Commons API response>"
-
-  @property
-  def next_token(self):
-    return self.json.get("nextToken")
-
-
-@dataclass
-class NodeResponse(SerializableMixin):
+class NodeResponse(BaseDCModel):
   """Represents a response from the Node endpoint of the Data Commons API.
 
     Attributes:
@@ -43,30 +28,22 @@ class NodeResponse(SerializableMixin):
         nextToken: A token for pagination, if present.
     """
 
-  data: Dict[NodeDCID, Arcs | Properties] = field(default_factory=dict)
+  data: Dict[NodeDCID, Arcs | Properties] = Field(default_factory=dict)
   nextToken: NextToken = None
 
-  @classmethod
-  def from_json(cls, json_data: Dict[str, Any]) -> "NodeResponse":
-    """Parses a dictionary of nodes from JSON.
+  @field_validator("data", mode="before")
+  def _discriminate_data(cls, raw_data):
+    """Discriminates between Arcs and Properties based on the presence of 'arcs' key."""
 
-        Args:
-            json_data: The raw JSON data from the API response.
-
-        Returns:
-            A NodeResponse instance.
-        """
-
-    def parse_data(data: Dict[str, Any]) -> Arcs | Properties:
+    def _parse_data(
+        data: Arcs | Properties | dict[str, Any]) -> Arcs | Properties:
+      if isinstance(data, (Arcs, Properties)):
+        return data
       if "arcs" in data:
-        return Arcs.from_json(data["arcs"])
-      return Properties.from_json(data)
+        return Arcs.model_validate(data)
+      return Properties.model_validate(data)
 
-    parsed_data = {
-        dcid: parse_data(data)
-        for dcid, data in json_data.get("data", {}).items()
-    }
-    return cls(data=parsed_data, nextToken=json_data.get("nextToken"))
+    return {dcid: _parse_data(data) for dcid, data in raw_data.items()}
 
   def get_properties(self) -> Dict:
     return flatten_properties(self.data)
@@ -138,8 +115,7 @@ class NodeResponse(SerializableMixin):
     return [node.dcid for node in connected_nodes if node.dcid]
 
 
-@dataclass
-class ObservationResponse(SerializableMixin):
+class ObservationResponse(BaseDCModel):
   """Represents a response from the Observation endpoint of the Data Commons API.
 
     Attributes:
@@ -147,34 +123,22 @@ class ObservationResponse(SerializableMixin):
          facets: A dictionary of facet IDs and their corresponding data.
     """
 
-  byVariable: Dict[variableDCID, Any] = field(default_factory=dict)
-  facets: Dict[facetID, Any] = field(default_factory=dict)
+  byVariable: ByVariable = Field(default_factory=ByVariable)
+  facets: Dict[facetID, Facet] = Field(default_factory=dict)
 
-  @classmethod
-  def from_json(cls, json_data: Dict[str, Any]) -> "ObservationResponse":
-    """Parses the data from the API response."""
-    return cls(
-        byVariable={
-            variable: Variable.from_json(data)
-            for variable, data in json_data.get("byVariable", {}).items()
-        },
-        facets={
-            facet: Facet.from_json(data)
-            for facet, data in json_data.get("facets", {}).items()
-        },
-    )
-
-  def get_data_by_entity(self) -> Dict:
+  def get_data_by_entity(self) -> VariableByEntity:
     """Unpacks the data for each entity, for each variable.
 
         Returns:
             Dict: The variables object from the response.
         """
-    return {
-        variable: data.byEntity for variable, data in self.byVariable.items()
+    raw_payload = {
+        var_dcid: var_model.byEntity
+        for var_dcid, var_model in self.byVariable.root.items()
     }
+    return VariableByEntity.model_validate(raw_payload)
 
-  def to_observation_records(self) -> List[Dict[str, Any]]:
+  def to_observation_records(self) -> ObservationRecords:
     """Returns a flat list of observation records combining date, variable, entity,
          observation, and facet metadata.
 
@@ -186,7 +150,7 @@ class ObservationResponse(SerializableMixin):
     This format is suitable for exporting to a DataFrame or serializing to JSON for tabular or analytical use.
 
     Returns:
-        List[Dict[str, Any]]: A list of observation records, where each record contains the variable,
+        ObservationRecord: A list of observation records, where each record contains the variable,
         entity, date, value, facetId, and any additional metadata provided by the facet.
         """
     return observations_as_records(data=self.get_data_by_entity(),
@@ -266,8 +230,7 @@ class ObservationResponse(SerializableMixin):
     return matching_facet_ids
 
 
-@dataclass
-class ResolveResponse(SerializableMixin):
+class ResolveResponse(BaseDCModel):
   """Represents a response from the Resolve endpoint of the Data Commons API.
 
     Attributes:
@@ -275,22 +238,7 @@ class ResolveResponse(SerializableMixin):
             containing the query node and its associated candidates.
     """
 
-  entities: List[Entity] = field(default_factory=list)
-
-  @classmethod
-  def from_json(cls, json_data: Dict[str, Any]) -> "ResolveResponse":
-    """Parses a ResolveResponse instance from JSON data.
-
-        Args:
-            json_data (Dict[str, Any]): A dictionary containing the API response
-                data, with keys like "entities".
-
-        Returns:
-            ResolveResponse: A populated instance of the ResolveResponse class.
-        """
-    return cls(entities=[
-        Entity.from_json(entity) for entity in json_data.get("entities", [])
-    ])
+  entities: List[Entity] = Field(default_factory=list)
 
   def to_flat_dict(self) -> dict[str, list[str] | str]:
     """

@@ -7,7 +7,7 @@ import warnings
 from datacommons_client.endpoints.base import API
 from datacommons_client.endpoints.base import Endpoint
 from datacommons_client.endpoints.payloads import NodeRequestPayload
-from datacommons_client.endpoints.payloads import normalize_properties_to_string
+from datacommons_client.endpoints.payloads import normalize_list_to_string
 from datacommons_client.endpoints.response import NodeResponse
 from datacommons_client.models.node import Name
 from datacommons_client.models.node import Node
@@ -115,10 +115,10 @@ class NodeEndpoint(Endpoint):
 
     # Create the payload
     payload = NodeRequestPayload(node_dcids=node_dcids,
-                                 expression=expression).to_dict
+                                 expression=expression).to_dict()
 
     # Make the request and return the response.
-    return NodeResponse.from_json(
+    return NodeResponse.model_validate(
         self.post(payload, all_pages=all_pages, next_token=next_token))
 
   def fetch_property_labels(
@@ -199,7 +199,7 @@ class NodeEndpoint(Endpoint):
         """
 
     # Normalize the input to a string (if it's a list), otherwise use the string as is.
-    properties = normalize_properties_to_string(properties)
+    properties = normalize_list_to_string(properties)
 
     # Construct the expression based on the direction and constraints.
     direction = "->" if out else "<-"

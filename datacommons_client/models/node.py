@@ -1,8 +1,8 @@
-from dataclasses import dataclass
-from dataclasses import field
-from typing import Any, Dict, List, Optional, TypeAlias
+from typing import Dict, List, Optional, TypeAlias
 
-from datacommons_client.models.base import SerializableMixin
+from pydantic import Field
+
+from datacommons_client.models.base import BaseDCModel
 
 NextToken: TypeAlias = Optional[str]
 NodeDCID: TypeAlias = str
@@ -11,8 +11,7 @@ Property: TypeAlias = str
 PropertyList: TypeAlias = list[Property]
 
 
-@dataclass
-class Node(SerializableMixin):
+class Node(BaseDCModel):
   """Represents an individual node in the Data Commons knowledge graph.
 
     Attributes:
@@ -22,26 +21,14 @@ class Node(SerializableMixin):
         types: The types associated with the node.
         value: The value of the node.
     """
-
-  dcid: str = None
+  dcid: Optional[str] = None
   name: Optional[str] = None
-  provenanceId: Optional[str] = None
+  provenanceId: Optional[str | list[str]] = None
   types: Optional[list[str]] = None
   value: Optional[str] = None
 
-  @classmethod
-  def from_json(cls, json_data: Dict[str, Any]) -> "Node":
-    return cls(
-        dcid=json_data.get("dcid"),
-        name=json_data.get("name"),
-        provenanceId=json_data.get("provenanceId"),
-        types=json_data.get("types"),
-        value=json_data.get("value"),
-    )
 
-
-@dataclass
-class Name(SerializableMixin):
+class Name(BaseDCModel):
   """Represents a name associated with an Entity (node).
 
     Attributes:
@@ -55,73 +42,31 @@ class Name(SerializableMixin):
   property: str
 
 
-@dataclass
-class NodeGroup:
+class NodeGroup(BaseDCModel):
   """Represents a group of nodes in the Data Commons knowledge graph.
 
     Attributes:
         nodes: A list of Node objects in the group.
     """
 
-  nodes: List[Node] = field(default_factory=list)
-
-  @classmethod
-  def from_json(cls, json_data: Dict[str, Any]) -> "NodeGroup":
-    """Parses a dictionary of lists of nodes from the response data.
-
-        Args:
-            json_data: The raw JSON data containing node information.
-
-        Returns:
-            A NodeGroup instance.
-        """
-    return cls(
-        nodes=[Node.from_json(node) for node in json_data.get("nodes", [])])
+  nodes: List[Node] = Field(default_factory=list)
 
 
-@dataclass
-class Arcs:
+class Arcs(BaseDCModel):
   """Represents arcs in the Data Commons knowledge graph.
 
     Attributes:
         arcs: A dictionary mapping arc labels to NodeGroup objects.
     """
 
-  arcs: Dict[ArcLabel, NodeGroup] = field(default_factory=dict)
-
-  @classmethod
-  def from_json(cls, json_data: Dict[str, Any]) -> "Arcs":
-    """Parses a dictionary of arcs from JSON.
-
-        Args:
-            json_data: The raw JSON data containing arc information.
-
-        Returns:
-            An Arcs instance.
-        """
-    return cls(arcs={
-        label: NodeGroup.from_json(nodes) for label, nodes in json_data.items()
-    })
+  arcs: Dict[ArcLabel, NodeGroup] = Field(default_factory=dict)
 
 
-@dataclass
-class Properties:
+class Properties(BaseDCModel):
   """Represents a group of properties in the Data Commons knowledge graph.
 
     Attributes:
         properties: A list of property strings.
     """
 
-  properties: List[Property] = field(default_factory=PropertyList)
-
-  @classmethod
-  def from_json(cls, json_data: Dict[str, Any]) -> "Properties":
-    """Parses a list of properties from JSON.
-
-        Args:
-            json_data: The raw JSON data containing property information.
-
-        Returns:
-            A Properties instance.
-        """
-    return cls(properties=json_data.get("properties", []))
+  properties: Optional[PropertyList] = None

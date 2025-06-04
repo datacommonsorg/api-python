@@ -2,6 +2,7 @@ from dataclasses import asdict
 import json
 from typing import Any, Dict, List
 
+from datacommons_client.models.base import facetID
 from datacommons_client.models.node import ArcLabel
 from datacommons_client.models.node import Arcs
 from datacommons_client.models.node import Name
@@ -10,6 +11,12 @@ from datacommons_client.models.node import NodeDCID
 from datacommons_client.models.node import NodeGroup
 from datacommons_client.models.node import Properties
 from datacommons_client.models.node import Property
+from datacommons_client.models.observation import Facet
+from datacommons_client.models.observation import ObservationRecord
+from datacommons_client.models.observation import ObservationRecords
+from datacommons_client.models.observation import OrderedFacet
+from datacommons_client.models.observation import OrderedFacets
+from datacommons_client.models.observation import VariableByEntity
 
 
 def unpack_arcs(arcs: Dict[ArcLabel, NodeGroup]) -> Dict[Property, List[Node]]:
@@ -54,53 +61,62 @@ def flatten_properties(
   return items
 
 
-def extract_observations(variable: str, entity: str, entity_data: dict,
-                         facet_metadata: dict) -> list[dict]:
+def extract_observations(
+    variable: str, entity: str, entity_data: OrderedFacets,
+    facet_metadata: dict[facetID, Facet]) -> list[ObservationRecord]:
   """
     Extracts observations for a given variable, entity, and its data.
 
     Args:
         variable (str): The variable name.
         entity (str): The entity name.
-        entity_data (dict): Data for the entity, including ordered facets.
-        facet_metadata (dict): Metadata for facets.
+        entity_data (OrderedFacets): Data for the entity, including ordered facets.
+        facet_metadata (dict[facetID, Facet]): Metadata for facets.
 
     Returns:
         list[dict]: A list of observation records.
     """
-  return [{
-      "date": observation.date,
-      "entity": entity,
-      "variable": variable,
-      "value": observation.value,
-      "facetId": facet.facetId,
-      **asdict(facet_metadata.get(facet.facetId, {})),
-  }
-          for facet in entity_data.get("orderedFacets", [])
-          for observation in facet.observations]
+  observations = []
+  for facet in entity_data.orderedFacets:
+    for observation in facet.observations:
+      observations.append(
+          ObservationRecord.model_validate({
+              "date": observation.date,
+              "entity": entity,
+              "variable": variable,
+              "value": observation.value,
+              "facetId": facet.facetId,
+              **facet_metadata.get(facet.facetId, Facet()).to_dict(),
+          }))
+
+  return observations
 
 
-def observations_as_records(data: dict, facets: dict) -> list[dict]:
+def observations_as_records(data: VariableByEntity,
+                            facets: dict[facetID, Facet]) -> ObservationRecords:
   """
     Converts observation data into a list of records.
 
     Args:
-        data (dict): A mapping of variables to entities and their data.
+        data (VariableByEntity): A mapping of variables to entities and their data.
         facets (dict): Facet metadata for the observations.
 
     Returns:
-        list[dict]: A flattened list of observation records.
+        ObservationRecrods: A flattened list of observation records.
     """
-  return [
-      record for variable, entities in data.items()
-      for entity, entity_data in entities.items()
+
+  records = []
+  for variable, entities in data.items():
+    for entity, entity_data in entities.items():
       for record in extract_observations(
           variable=variable,
           entity=entity,
           entity_data=entity_data,
           facet_metadata=facets,
-      )
-  ]
+      ):
+        records.append(record)
+
+  return ObservationRecords.model_validate(records)
 
 
 def group_variables_by_entity(

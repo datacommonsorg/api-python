@@ -4,11 +4,14 @@ from datacommons_client.endpoints.base import API
 from datacommons_client.endpoints.resolve import _resolve_correspondence_expression
 from datacommons_client.endpoints.resolve import ResolveEndpoint
 from datacommons_client.endpoints.response import ResolveResponse
+from datacommons_client.models.resolve import Candidate
+from datacommons_client.models.resolve import Entity
 
 
 def test_fetch():
   """Tests the fetch method of ResolveEndpoint."""
   api_mock = MagicMock(spec=API)
+  api_mock.post = MagicMock(return_value={})
   endpoint = ResolveEndpoint(api=api_mock)
 
   response = endpoint.fetch(node_ids="Node1", expression="some_expression")
@@ -29,6 +32,7 @@ def test_fetch():
 def test_fetch_dcid_by_name():
   """Tests the fetch_dcid_by_name method."""
   api_mock = MagicMock(spec=API)
+  api_mock.post = MagicMock(return_value={})
   endpoint = ResolveEndpoint(api=api_mock)
 
   response = endpoint.fetch_dcids_by_name(names=["Entity1"],
@@ -50,6 +54,7 @@ def test_fetch_dcid_by_name():
 def test_fetch_dcid_by_wikidata_id():
   """Tests the fetch_dcid_by_wikidata_id method."""
   api_mock = MagicMock(spec=API)
+  api_mock.post = MagicMock(return_value={})
   endpoint = ResolveEndpoint(api=api_mock)
 
   response = endpoint.fetch_dcids_by_wikidata_id(wikidata_ids="Q12345",
@@ -71,6 +76,7 @@ def test_fetch_dcid_by_wikidata_id():
 def test_fetch_dcids_list_by_wikidata_id():
   """Tests the fetch_dcid_by_wikidata_id method."""
   api_mock = MagicMock(spec=API)
+  api_mock.post = MagicMock(return_value={})
   endpoint = ResolveEndpoint(api=api_mock)
 
   response = endpoint.fetch_dcids_by_wikidata_id(
@@ -92,6 +98,7 @@ def test_fetch_dcids_list_by_wikidata_id():
 def test_fetch_dcid_by_coordinates():
   """Tests the fetch_dcid_by_coordinates method."""
   api_mock = MagicMock(spec=API)
+  api_mock.post = MagicMock(return_value={})
   endpoint = ResolveEndpoint(api=api_mock)
 
   response = endpoint.fetch_dcid_by_coordinates(latitude="37.7749",
@@ -127,15 +134,13 @@ def test_flatten_resolve_response():
   """Tests the flatten_resolve_response function."""
   # Mock ResolveResponse with multiple entities
   mock_data = ResolveResponse(entities=[
-      MagicMock(node="Node1", candidates=[MagicMock(dcid="Candidate1")]),
-      MagicMock(
-          node="Node2",
-          candidates=[
-              MagicMock(dcid="Candidate2"),
-              MagicMock(dcid="Candidate3"),
-          ],
-      ),
-      MagicMock(node="Node3", candidates=[]),  # No candidates
+      Entity(node="Node1", candidates=[Candidate(dcid="Candidate1")]),
+      Entity(node="Node2",
+             candidates=[
+                 Candidate(dcid="Candidate2"),
+                 Candidate(dcid="Candidate3")
+             ]),
+      Entity(node="Node3", candidates=[])  # No candidates
   ])
 
   # Call the function

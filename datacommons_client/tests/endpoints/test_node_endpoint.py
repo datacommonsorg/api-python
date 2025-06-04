@@ -24,15 +24,7 @@ def test_node_endpoint_initialization():
 def test_node_endpoint_fetch():
   """Test the fetch method of NodeEndpoint."""
   api_mock = MagicMock(spec=API)
-  api_mock.post.return_value = {
-      "data": {
-          "test_node": {
-              "properties": {
-                  "name": "Test"
-              }
-          }
-      }
-  }
+  api_mock.post.return_value = {"data": {"test_node": {"properties": ["name"]}}}
 
   endpoint = NodeEndpoint(api=api_mock)
   response = endpoint.fetch(node_dcids="test_node", expression="name")
@@ -56,7 +48,7 @@ def test_node_endpoint_fetch_property_labels():
   endpoint = NodeEndpoint(api=api_mock)
   endpoint.fetch = MagicMock(return_value=NodeResponse(
       data={"node1": {
-          "properties": {}
+          "properties": []
       }}))
 
   response = endpoint.fetch_property_labels(node_dcids="node1", out=False)
@@ -72,15 +64,7 @@ def test_node_endpoint_fetch_property_values_out():
   """Test fetch_property_values method with constraints and direction (out)"""
 
   api_mock = MagicMock(spec=API)
-  api_mock.post.return_value = {
-      "data": {
-          "node1": {
-              "properties": {
-                  "name": "Test"
-              }
-          }
-      }
-  }
+  api_mock.post.return_value = {"data": {"node1": {"properties": ["name"]}}}
 
   endpoint = NodeEndpoint(api=api_mock)
   response = endpoint.fetch_property_values(node_dcids="node1",
@@ -106,15 +90,7 @@ def test_node_endpoint_fetch_property_values_in():
   """Test fetch_property_values method with constraints and direction (in)"""
 
   api_mock = MagicMock(spec=API)
-  api_mock.post.return_value = {
-      "data": {
-          "node1": {
-              "properties": {
-                  "name": "Test"
-              }
-          }
-      }
-  }
+  api_mock.post.return_value = {"data": {"node1": {"properties": ["name"]}}}
 
   endpoint = NodeEndpoint(api=api_mock)
   response = endpoint.fetch_property_values(node_dcids="node1",
@@ -160,15 +136,7 @@ def test_node_endpoint_fetch_all_classes():
 def test_node_endpoint_fetch_property_values_string_vs_list():
   """Test fetch_property_values with string and list expressions."""
   api_mock = MagicMock(spec=API)
-  api_mock.post.return_value = {
-      "data": {
-          "node1": {
-              "properties": {
-                  "name": "Test"
-              }
-          }
-      }
-  }
+  api_mock.post.return_value = {"data": {"node1": {"properties": ["name"]}}}
 
   endpoint = NodeEndpoint(api=api_mock)
 
@@ -322,7 +290,7 @@ def test_fetch_entity_names_no_result(mock_extract_name_lang):
 
   endpoint.fetch_property_values = MagicMock(return_value=NodeResponse(
       data={"dc/999": {
-          "properties": {}
+          "properties": []
       }}))
 
   result = endpoint.fetch_entity_names("dc/999",
@@ -339,7 +307,7 @@ def test_fetch_entity_relationships_delegates_to_lru(mock_lru, mock_build_map,
   """Ensure that the private helper builds a fetch‑function that ultimately
     calls through to ``fetch_relationship_lru`` for each root DCID."""
 
-  mock_lru.return_value = [Node("B", "B name", ["Region"])]
+  mock_lru.return_value = [Node(dcid="B", name="B name", types=["Region"])]
 
   def _fake_build_graph_map(root, fetch_fn):
     # simulate the internal traversal by invoking the provided fetch_fn once
@@ -371,7 +339,7 @@ def test_fetch_entity_ancestry_flat(mock_build_map, mock_flatten):
   mock_build_map.return_value = (
       "X",
       {
-          "X": [Node("A", "A name", ["Country"])],
+          "X": [Node(dcid="A", name="A name", types=["Country"])],
           "A": [],
       },
   )
@@ -397,7 +365,7 @@ def test_fetch_entity_ancestry_tree(mock_build_map, mock_build_tree):
   mock_build_map.return_value = (
       "Y",
       {
-          "Y": [Node("Z", "Z name", ["Region"])],
+          "Y": [Node(dcid="Z", name="Z name", types=["Region"])],
           "Z": [],
       },
   )
