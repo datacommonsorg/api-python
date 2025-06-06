@@ -61,8 +61,8 @@ def test_build_ancestry_map_linear_tree():
 
   def fetch_mock(dcid):
     return {
-        "C": [Node("B", "Node B", ["Type"])],
-        "B": [Node("A", "Node A", ["Type"])],
+        "C": [Node(dcid="B", name="Node B", types=["Type"])],
+        "B": [Node(dcid="A", name="Node A", types=["Type"])],
         "A": [],
     }.get(dcid, [])
 
@@ -89,11 +89,17 @@ def test_build_ancestry_map_branching_graph():
 
   def fetch_mock(dcid):
     return {
-        "A": (Node("B", "Node B", "Type"), Node("C", "Node C", "Type")),
-        "B": (Node("D", "Node D", "Type"),),
-        "C": (Node("D", "Node D", "Type"), Node("E", "Node E", "Type")),
-        "D": (Node("F", "Node F", "Type"),),
-        "E": (Node("F", "Node F", "Type"),),
+        "A": (Node(dcid="B", name="Node B",
+                   types=["Type"]), Node(dcid="C",
+                                         name="Node C",
+                                         types=["Type"])),
+        "B": (Node(dcid="D", name="Node D", types=["Type"]),),
+        "C": (Node(dcid="D", name="Node D",
+                   types=["Type"]), Node(dcid="E",
+                                         name="Node E",
+                                         types=["Type"])),
+        "D": (Node(dcid="F", name="Node F", types=["Type"]),),
+        "E": (Node(dcid="F", name="Node F", types=["Type"]),),
         "F": tuple(),
     }.get(dcid, tuple())
 
@@ -121,9 +127,9 @@ def test_build_ancestry_map_cycle_detection():
   def fetch_mock(dcid):
     call_count[dcid] += 1
     return {
-        "A": (Node("B", "B", "Type"),),
-        "B": (Node("C", "C", "Type"),),
-        "C": (Node("A", "A", "Type"),),  # Cycle back to A
+        "A": (Node(dcid="B", name="B", types=["Type"]),),
+        "B": (Node(dcid="C", name="C", types=["Type"]),),
+        "C": (Node(dcid="A", name="A", types=["Type"]),),  # Cycle back to A
     }.get(dcid, tuple())
 
   root, ancestry = build_graph_map("A", fetch_mock, max_workers=2)
@@ -144,8 +150,8 @@ def test_build_ancestry_map_cycle_detection():
 def test_postorder_nodes_simple_graph():
   """Test postorder traversal on a simple graph."""
   ancestry = {
-      "C": [Node("B", "B", "Type")],
-      "B": [Node("A", "A", "Type")],
+      "C": [Node(dcid="B", name="B", types=["Type"])],
+      "B": [Node(dcid="A", name="A", types=["Type"])],
       "A": [],
   }
 
@@ -163,10 +169,10 @@ def test_postorder_nodes_ignores_disconnected():
         D (disconnected)
     """
   graph = {
-      "A": [Node("B", "B", ["Type"])],
-      "B": [Node("C", "C", ["Type"])],
+      "A": [Node(dcid="B", name="B", types=["Type"])],
+      "B": [Node(dcid="C", name="C", types=["Type"])],
       "C": [],
-      "D": [Node("Z", "Z", ["Type"])],
+      "D": [Node(dcid="Z", name="Z", types=["Type"])],
   }
   order = _postorder_nodes("A", graph)
   assert order == ["C", "B", "A"]
@@ -176,8 +182,8 @@ def test_postorder_nodes_ignores_disconnected():
 def test_assemble_tree_creates_nested_structure():
   """Test _assemble_tree creates a nested structure."""
   ancestry = {
-      "C": [Node("B", "Node B", "Type")],
-      "B": [Node("A", "Node A", "Type")],
+      "C": [Node(dcid="B", name="Node B", types=["Type"])],
+      "B": [Node(dcid="A", name="Node A", types=["Type"])],
       "A": [],
   }
   postorder = ["A", "B", "C"]
@@ -195,10 +201,10 @@ def test_postorder_nodes_ignores_unreachable_nodes():
     Ancestry map also includes D (unconnected)
     """
   ancestry = {
-      "A": [Node("B", "B", "Type")],
-      "B": [Node("C", "C", "Type")],
+      "A": [Node(dcid="B", name="B", types=["Type"])],
+      "B": [Node(dcid="C", name="C", types=["Type"])],
       "C": [],
-      "D": [Node("X", "X", "Type")],
+      "D": [Node(dcid="X", name="X", types=["Type"])],
   }
 
   postorder = _postorder_nodes("A", ancestry)
@@ -217,8 +223,8 @@ def test_assemble_tree_shared_parent_not_duplicated():
     """
 
   ancestry = {
-      "A": [Node("C", "C name", "City")],
-      "B": [Node("C", "C name", "City")],
+      "A": [Node(dcid="C", name="C name", types=["City"])],
+      "B": [Node(dcid="C", name="C name", types=["City"])],
       "C": [],
   }
 
@@ -237,8 +243,8 @@ def test_assemble_tree_shared_parent_not_duplicated():
 def test_build_ancestry_tree_nested_output():
   """Test build_ancestry_tree creates a nested structure."""
   ancestry = {
-      "C": [Node("B", "B", "Type")],
-      "B": [Node("A", "A", "Type")],
+      "C": [Node(dcid="B", name="B", types=["Type"])],
+      "B": [Node(dcid="A", name="A", types=["Type"])],
       "A": [],
   }
 
@@ -253,9 +259,11 @@ def test_flatten_ancestry_deduplicates():
   """Test flatten_ancestry deduplicates parents."""
 
   ancestry = {
-      "X": [Node("A", "A", types=["Country"])],
-      "Y": [Node("A", "A", types=["Country"]),
-            Node("B", "B", types=["City"])],
+      "X": [Node(dcid="A", name="A", types=["Country"])],
+      "Y": [
+          Node(dcid="A", name="A", types=["Country"]),
+          Node(dcid="B", name="B", types=["City"])
+      ],
   }
 
   flat = flatten_relationship(ancestry)

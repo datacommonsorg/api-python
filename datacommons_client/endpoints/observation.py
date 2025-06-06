@@ -2,10 +2,10 @@ from typing import Optional
 
 from datacommons_client.endpoints.base import API
 from datacommons_client.endpoints.base import Endpoint
-from datacommons_client.endpoints.payloads import ObservationDate
 from datacommons_client.endpoints.payloads import ObservationRequestPayload
-from datacommons_client.endpoints.payloads import ObservationSelect
 from datacommons_client.endpoints.response import ObservationResponse
+from datacommons_client.models.observation import ObservationDate
+from datacommons_client.models.observation import ObservationSelect
 from datacommons_client.utils.data_processing import group_variables_by_entity
 
 
@@ -58,10 +58,12 @@ class ObservationEndpoint(Endpoint):
         entity_expression=entity_expression,
         filter_facet_domains=filter_facet_domains,
         filter_facet_ids=filter_facet_ids,
-    ).to_dict
+    ).to_dict()
+
+    response = self.post(payload)
 
     # Send the request
-    return ObservationResponse.from_json(self.post(payload))
+    return ObservationResponse.model_validate(response)
 
   def fetch_observations_by_entity_type(
       self,

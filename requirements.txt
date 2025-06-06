@@ -5,3 +5,4 @@ pytest
 requests==2.32.0
 typing_extensions==4.7.1
 yapf==0.40.2
+pydantic>=2.11

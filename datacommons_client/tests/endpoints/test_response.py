@@ -1,41 +1,25 @@
 import json
-from unittest.mock import MagicMock
 
-from datacommons_client.endpoints.response import DCResponse
 from datacommons_client.endpoints.response import NodeResponse
 from datacommons_client.endpoints.response import ObservationResponse
 from datacommons_client.endpoints.response import ResolveResponse
-from datacommons_client.models.node import Arcs
 from datacommons_client.models.node import Node
 from datacommons_client.models.node import NodeGroup
+from datacommons_client.models.observation import ByVariable
 from datacommons_client.models.observation import Facet
 from datacommons_client.models.observation import Observation
+from datacommons_client.models.observation import OrderedFacet
 from datacommons_client.models.observation import OrderedFacets
 from datacommons_client.models.observation import Variable
 from datacommons_client.utils.data_processing import extract_observations
 from datacommons_client.utils.data_processing import flatten_properties
 from datacommons_client.utils.data_processing import unpack_arcs
 
-### ----- Test DCResponse ----- ###
-
-
-def test_next_token():
-  """Test that the next_token property returns the correct value."""
-  response = DCResponse(json={"nextToken": "abc123"})
-  assert response.next_token == "abc123"
-
-
-def test_empty_next_token():
-  """Test that the next_token property returns None when the key is not present."""
-  response = DCResponse(json={})
-  assert response.next_token is None
-
-
 ### ----- Test Node Response ----- ###
 
 
-def test_node_response_from_json():
-  """Test that the NodeResponse.from_json method correctly parses JSON data."""
+def test_node_response_model_validation():
+  """Test that NodeResponse.model_validate correctly parses JSON data."""
 
   # Mocking JSON data
   json_data = {
@@ -53,7 +37,7 @@ def test_node_response_from_json():
       "nextToken": "token123",
   }
 
-  response = NodeResponse.from_json(json_data)
+  response = NodeResponse.model_validate(json_data)
 
   assert response.nextToken == "token123"
   assert response.data["geoId/06"].properties == [
@@ -83,7 +67,7 @@ def test_node_as_dict():
       "nextToken": "token123",
   }
 
-  response = NodeResponse.from_json(json_data)
+  response = NodeResponse.model_validate(json_data)
   result = response.to_dict()
 
   assert result == json_data
@@ -107,7 +91,7 @@ def test_node_as_dict_exclude_none():
       "nextToken": "token123",
   }
 
-  response = NodeResponse.from_json(json_data)
+  response = NodeResponse.model_validate(json_data)
   result = response.to_dict(exclude_none=True)
 
   assert result == expected
@@ -124,7 +108,7 @@ def test_node_as_dict_include_none():
       "nextToken": "token123",
   }
 
-  response = NodeResponse.from_json(json_data)
+  response = NodeResponse.model_validate(json_data)
   result = response.to_dict(exclude_none=False)
 
   assert result == json_data
@@ -148,7 +132,7 @@ def test_flatten_properties():
       }
   }
 
-  response = NodeResponse.from_json(json_data)
+  response = NodeResponse.model_validate(json_data)
   result = flatten_properties(response.data)
   function_result = response.get_properties()
 
@@ -179,7 +163,7 @@ def test_flatten_arcs():
           }
       }
   }
-  response = NodeResponse.from_json(json_data)
+  response = NodeResponse.model_validate(json_data)
   result = flatten_properties(response.data)
 
   assert "dc/03lw9rhpendw5" in result
@@ -224,7 +208,7 @@ def test_flatten_multiple_arcs_with_multiple_nodes():
       }
   }
 
-  response = NodeResponse.from_json(json_data)
+  response = NodeResponse.model_validate(json_data)
   result = flatten_properties(response.data)
   function_result = response.get_properties()
 
@@ -330,7 +314,7 @@ def test_extract_connected_dcids():
           }
       }
   }
-  response = NodeResponse.from_json(json_data)
+  response = NodeResponse.model_validate(json_data)
   result = response.extract_connected_dcids(subject_dcid='geoId/06',
                                             property_dcid='containedInPlace')
   assert result == ['country/USA', 'usc/PacificDivision']
@@ -353,7 +337,7 @@ def test_extract_connected_dcids_with_nonexistent_dcid():
           },
       }
   }
-  response = NodeResponse.from_json(json_data)
+  response = NodeResponse.model_validate(json_data)
   result = response.extract_connected_dcids(subject_dcid='geoId/07',
                                             property_dcid='name')
   assert result == []
@@ -376,7 +360,7 @@ def test_extract_connected_dcids_with_nonexistent_property():
           },
       }
   }
-  response = NodeResponse.from_json(json_data)
+  response = NodeResponse.model_validate(json_data)
   result = response.extract_connected_dcids(subject_dcid='geoId/06',
                                             property_dcid='containedInPlace')
   assert result == []
@@ -399,7 +383,7 @@ def test_extract_connected_dcids_does_not_include_none_for_value_only_nodes():
           },
       }
   }
-  response = NodeResponse.from_json(json_data)
+  response = NodeResponse.model_validate(json_data)
   result = response.extract_connected_dcids(subject_dcid='geoId/06',
                                             property_dcid='name')
   assert result == []
@@ -432,7 +416,7 @@ def test_extract_connected_dcids_with_node_type_filter():
           },
       }
   }
-  response = NodeResponse.from_json(json_data)
+  response = NodeResponse.model_validate(json_data)
   result = response.extract_connected_dcids(subject_dcid='geoId/06',
                                             property_dcid='relatedPlaces',
                                             connected_node_types="Country")
@@ -466,7 +450,7 @@ def test_extract_connected_dcids_with_multiple_node_type_filter():
           },
       }
   }
-  response = NodeResponse.from_json(json_data)
+  response = NodeResponse.model_validate(json_data)
   result = response.extract_connected_dcids(
       subject_dcid='geoId/06',
       property_dcid='relatedPlaces',
@@ -502,7 +486,7 @@ def test_extract_connected_nodes_with_multiple_node_type_filter():
           },
       }
   }
-  response = NodeResponse.from_json(json_data)
+  response = NodeResponse.model_validate(json_data)
   result = response.extract_connected_nodes(
       subject_dcid='geoId/06',
       property_dcid='relatedPlaces',
@@ -539,7 +523,7 @@ def test_get_data_by_entity():
               },
           }),
   }
-  response = ObservationResponse(byVariable=mock_data)
+  response = ObservationResponse.model_validate({"byVariable": mock_data})
 
   result = response.get_data_by_entity()
 
@@ -560,7 +544,7 @@ def test_get_data_by_entity():
       },
   }
 
-  assert result == expected
+  assert result.to_dict() == expected
 
 
 def test_observation_as_dict():
@@ -586,7 +570,7 @@ def test_observation_as_dict():
   }
 
   # Parsing JSON data
-  response = ObservationResponse.from_json(json_data)
+  response = ObservationResponse.model_validate(json_data)
 
   # Getting it back as a dictionary
   result = response.to_dict()
@@ -620,7 +604,7 @@ def test_observation_as_dict_exclude_none():
   }
 
   # Parsing JSON data
-  response = ObservationResponse.from_json(json_data)
+  response = ObservationResponse.model_validate(json_data)
 
   # Getting it back as a dictionary
   result = response.to_dict(exclude_none=True)
@@ -629,8 +613,8 @@ def test_observation_as_dict_exclude_none():
           ["entity1"]["orderedFacets"][0])
 
 
-def test_observation_response_from_json():
-  """Test that the ObservationResponse.from_json method parses JSON correctly."""
+def test_observation_response_model_validation():
+  """Test that ObservationResponse.model_validate parses JSON correctly."""
   json_data = {
       "byVariable": {
           "var1": {
@@ -652,7 +636,7 @@ def test_observation_response_from_json():
   }
 
   # Parsing JSON data
-  response = ObservationResponse.from_json(json_data)
+  response = ObservationResponse.model_validate(json_data)
 
   assert "var1" in response.byVariable
   assert "entity1" in response.byVariable["var1"].byEntity
@@ -680,7 +664,7 @@ def test_get_data_by_entity_from_method():
               },
           }),
   }
-  response = ObservationResponse(byVariable=mock_data)
+  response = ObservationResponse.model_validate({"byVariable": mock_data})
 
   result = response.get_data_by_entity()
 
@@ -701,7 +685,7 @@ def test_get_data_by_entity_from_method():
       },
   }
 
-  assert result == expected
+  assert result.to_dict() == expected
 
 
 def test_extract_observations():
@@ -709,10 +693,10 @@ def test_extract_observations():
   variable = "var1"
   entity = "entity1"
 
-  # Mocking OrderedFacets and Observations
-  entity_data = {
+  # Mocking OrderedFacet and Observations
+  entity_data = OrderedFacets.model_validate({
       "orderedFacets": [
-          OrderedFacets(
+          OrderedFacet(
               facetId="facet1",
               earliestDate="2023-01-01",
               latestDate="2023-01-31",
@@ -723,7 +707,7 @@ def test_extract_observations():
               ],
           )
       ]
-  }
+  })
 
   # Mocking facet metadata
   facet_metadata = {
@@ -738,28 +722,31 @@ def test_extract_observations():
   }
 
   # Extracting observations
-  result = extract_observations(variable, entity, entity_data, facet_metadata)
+  result = extract_observations(variable=variable,
+                                entity=entity,
+                                entity_data=entity_data,
+                                facet_metadata=facet_metadata)
 
   # Assertions
   assert len(result) == 2, "There should be two observation records."
-  assert result[0]["date"] == "2023-01-01"
-  assert result[0]["value"] == 10.0
-  assert result[0]["facetId"] == "facet1"
-  assert result[0]["importName"] == "Example Import"
-  assert result[1]["date"] == "2023-01-15"
-  assert result[1]["value"] == 15.0
+  assert result[0].date == "2023-01-01"
+  assert result[0].value == 10.0
+  assert result[0].facetId == "facet1"
+  assert result[0].importName == "Example Import"
+  assert result[1].date == "2023-01-15"
+  assert result[1].value == 15.0
 
 
 def test_get_observations_as_records():
   """Test that get_observations_as_records correctly converts data into records."""
   # Minimal input setup for byVariable and facets
-  mock_data = {
+  mock_data = ByVariable.model_validate({
       "variable1":
           Variable(
               byEntity={
                   "entity1": {
                       "orderedFacets": [
-                          OrderedFacets(
+                          OrderedFacet(
                               facetId="facet1",
                               observations=[
                                   Observation(date="2023-01-01", value=10.0),
@@ -769,9 +756,9 @@ def test_get_observations_as_records():
                       ]
                   }
               })
-  }
+  })
 
-  mock_facets = {"facet1": Facet(importName="ImportName",)}
+  mock_facets = {"facet1": Facet(importName="ImportName")}
 
   # Create an ObservationResponse instance
   response = ObservationResponse(byVariable=mock_data, facets=mock_facets)
@@ -788,10 +775,6 @@ def test_get_observations_as_records():
           "value": 10.0,
           "facetId": "facet1",
           "importName": "ImportName",
-          "measurementMethod": "",
-          "observationPeriod": "",
-          "provenanceUrl": "",
-          "unit": "",
       },
       {
           "date": "2023-01-15",
@@ -800,22 +783,18 @@ def test_get_observations_as_records():
           "value": 15.0,
           "facetId": "facet1",
           "importName": "ImportName",
-          "measurementMethod": "",
-          "observationPeriod": "",
-          "provenanceUrl": "",
-          "unit": "",
       },
   ]
 
   # Assert the results
-  assert result == expected
+  assert result.model_dump(exclude_none=True) == expected
 
 
 ### ----- Test Resolve Response ----- ###
 
 
-def test_resolve_response_from_json():
-  """Test that ResolveResponse.from_json correctly parses entities and candidates."""
+def test_resolve_response_model_validation():
+  """Test that ResolveResponse.model_validate parses entities and candidates."""
   # Mock input JSON
   json_data = {
       "entities": [
@@ -844,7 +823,7 @@ def test_resolve_response_from_json():
   }
 
   # Parse the response
-  response = ResolveResponse.from_json(json_data)
+  response = ResolveResponse.model_validate(json_data)
 
   # Assert the number of entities
   assert len(response.entities) == 2
@@ -896,7 +875,7 @@ def test_resolve_response_dict():
   }
 
   # Create ResolveResponse from the dictionary
-  response = ResolveResponse.from_json(input_data)
+  response = ResolveResponse.model_validate(input_data)
 
   # Convert back to dictionary using the json property
   result = response.to_dict(exclude_none=False)
@@ -969,7 +948,7 @@ def test_resolve_response_dict_exclude_none():
   }
 
   # Create ResolveResponse from the dictionary
-  response = ResolveResponse.from_json(input_data)
+  response = ResolveResponse.model_validate(input_data)
 
   # Convert back to dictionary using the json property
   result = response.to_dict(exclude_none=True)
@@ -1015,7 +994,7 @@ def test_resolve_response_json_string_exclude_none():
   expected = json.dumps(input_data, indent=2)
 
   # Create ResolveResponse from the dictionary
-  response = ResolveResponse.from_json(input_data)
+  response = ResolveResponse.model_validate(input_data)
 
   # Convert back to dictionary using the json property
   result = response.to_json(exclude_none=False)
@@ -1026,61 +1005,58 @@ def test_resolve_response_json_string_exclude_none():
 
 def test_get_facets_metadata():
   """Test that get_facets_metadata correctly extracts and structures facet metadata."""
-
-  # Mock facet metadata
-  mock_facets = {
-      "facet1": {
-          "unit": "USD",
-          "importName": "Import Source",
+  payload = {
+      "byVariable": {
+          "variable1": {
+              "byEntity": {
+                  "entity1": {
+                      "orderedFacets": [{
+                          "facetId": "facet1",
+                          "earliestDate": "2023",
+                          "latestDate": "2025",
+                          "obsCount": 5,
+                          "observations": []
+                      }]
+                  },
+                  "entity2": {
+                      "orderedFacets": [{
+                          "facetId": "facet2",
+                          "earliestDate": "2021",
+                          "latestDate": "2021",
+                          "obsCount": 3,
+                          "observations": []
+                      }]
+                  },
+              }
+          },
+          "variable2": {
+              "byEntity": {
+                  "entity3": {
+                      "orderedFacets": [{
+                          "facetId": "facet1",
+                          "earliestDate": "2000",
+                          "latestDate": "2013",
+                          "obsCount": 7,
+                          "observations": []
+                      }]
+                  }
+              }
+          },
       },
-      "facet2": {
-          "unit": "Year",
-          "importName": "Another Source",
+      "facets": {
+          "facet1": {
+              "unit": "USD",
+              "importName": "Import Source"
+          },
+          "facet2": {
+              "unit": "Year",
+              "importName": "Another Source"
+          },
       },
   }
 
-  # Mock data for entities and variables
-  mock_data_by_entity = {
-      "variable1": {
-          "entity1": {
-              "orderedFacets": [
-                  OrderedFacets(
-                      facetId="facet1",
-                      earliestDate="2023",
-                      latestDate="2025",
-                      obsCount=5,
-                  )
-              ]
-          },
-          "entity2": {
-              "orderedFacets": [
-                  OrderedFacets(
-                      facetId="facet2",
-                      earliestDate="2021",
-                      latestDate="2021",
-                      obsCount=3,
-                  )
-              ]
-          },
-      },
-      "variable2": {
-          "entity3": {
-              "orderedFacets": [
-                  OrderedFacets(
-                      facetId="facet1",
-                      earliestDate="2000",
-                      latestDate="2013",
-                      obsCount=7,
-                  )
-              ]
-          }
-      },
-  }
-
-  # Mock ObservationResponse
-  response = ObservationResponse(byVariable={})
-  response.get_data_by_entity = lambda: mock_data_by_entity
-  response.to_dict = lambda: {"facets": mock_facets}
+  # build ObservationResponse
+  response = ObservationResponse.model_validate(payload)
 
   # Call the method
   result = response.get_facets_metadata()
@@ -1100,6 +1076,9 @@ def test_get_facets_metadata():
               },
               "unit": "USD",
               "importName": "Import Source",
+              "measurementMethod": None,
+              "observationPeriod": None,
+              "provenanceUrl": None,
           },
           "facet2": {
               "earliestDate": {
@@ -1113,6 +1092,9 @@ def test_get_facets_metadata():
               },
               "unit": "Year",
               "importName": "Another Source",
+              "measurementMethod": None,
+              "observationPeriod": None,
+              "provenanceUrl": None,
           },
       },
       "variable2": {
@@ -1128,6 +1110,9 @@ def test_get_facets_metadata():
               },
               "unit": "USD",
               "importName": "Import Source",
+              "measurementMethod": None,
+              "observationPeriod": None,
+              "provenanceUrl": None,
           }
       },
   }
@@ -1135,25 +1120,29 @@ def test_get_facets_metadata():
   assert result == expected
 
 
-def test_find_matching_facet_id():
+def test_find_matching_facet_id(monkeypatch):
   """Tests that find_matching_facet_id correctly finds facet IDs matching a given property and value."""
   mock_response = ObservationResponse(byVariable={}, facets={})
-  mock_response.get_facets_metadata = MagicMock(
-      return_value={
-          "statvar1": {
-              "facet1": {
-                  "measurementMethod": "Census"
-              },
-              "facet2": {
-                  "measurementMethod": "Survey"
-              },
+  mock_metadata = {
+      "statvar1": {
+          "facet1": {
+              "measurementMethod": "Census"
           },
-          "statvar2": {
-              "facet3": {
-                  "unit": "USD"
-              },
+          "facet2": {
+              "measurementMethod": "Survey"
           },
-      })
+      },
+      "statvar2": {
+          "facet3": {
+              "unit": "USD"
+          },
+      },
+  }
+  monkeypatch.setattr(
+      ObservationResponse,
+      "get_facets_metadata",
+      lambda self: mock_metadata,
+  )
 
   result = mock_response.find_matching_facet_id("measurementMethod", "Census")
   assert result == ["facet1"]
