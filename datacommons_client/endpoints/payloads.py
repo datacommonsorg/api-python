@@ -43,7 +43,7 @@ class ObservationRequestPayload(BaseDCModel):
         date (str): The date for which data is being requested.
         variable_dcids (str | list[str]): One or more variable IDs for the data.
         select (list[ObservationSelect]): Fields to include in the response.
-          Defaults to [“date”, “variable”, “entity”, “value”].
+          Defaults to ["date", "variable", "entity", "value"].
         entity_dcids (Optional[str | list[str]]): One or more entity IDs to filter the data.
         entity_expression (Optional[str]): A string expression to filter entities.
         filter_facet_domains (Optional[str | list[str]]): One or more domain names to filter the data.
