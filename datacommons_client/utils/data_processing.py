@@ -110,7 +110,7 @@ def observations_as_records(data: VariableByEntity,
         facets (dict): Facet metadata for the observations.
 
     Returns:
-        ObservationRecrods: A flattened list of observation records.
+        ObservationRecords: A flattened list of observation records.
     """
 
   records = []
