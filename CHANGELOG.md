@@ -1,5 +1,15 @@
 # Changelog
 
+## 2.1.1
+
+**Date** - 06/10/2025
+
+**Release Tag** - [py2.1.1](https://github.com/datacommonsorg/api-python/releases/tag/py2.1.1)
+
+**Release Status** - Current head of branch [`master`](https://github.com/datacommonsorg/api-python/tree/master)
+
+This is an under-the-hood update to use `pydantic` for data models.
+
 ## 2.1.0
 
 **Date** - 05/08/2025
