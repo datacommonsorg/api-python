@@ -10,6 +10,8 @@ from datacommons_client.endpoints.node import NodeEndpoint
 from datacommons_client.endpoints.observation import ObservationEndpoint
 from datacommons_client.endpoints.resolve import ResolveEndpoint
 from datacommons_client.models.node import Name
+from datacommons_client.models.observation import ObservationRecord
+from datacommons_client.models.observation import ObservationRecords
 from datacommons_client.utils.error_handling import NoDataForPropertyError
 
 
@@ -113,7 +115,7 @@ def test_observations_dataframe_calls_fetch_observations_by_entity_type(
     mock_client):
   """Tests that fetch_observations_by_entity_type is called with correct parameters."""
   mock_client.observation.fetch_observations_by_entity_type.return_value.to_observation_records.return_value = (
-      [])
+      ObservationRecords.model_validate([]))
 
   df = mock_client.observations_dataframe(
       variable_dcids=["var1", "var2"],
@@ -139,7 +141,7 @@ def test_observations_dataframe_calls_fetch_observations_by_entity(mock_client):
   """Tests that fetch_observations_by_entity is called with correct parameters."""
 
   mock_client.observation.fetch_observations_by_entity_dcid.return_value.to_observation_records.return_value = (
-      [])
+      ObservationRecords([]))
 
   df = mock_client.observations_dataframe(variable_dcids="var1",
                                           date="latest",
@@ -159,22 +161,23 @@ def test_observations_dataframe_calls_fetch_observations_by_entity(mock_client):
 def test_observations_dataframe_returns_dataframe_with_expected_columns(
     mock_client):
   """Tests that the method returns a DataFrame with expected columns."""
-  mock_client.observation.fetch_observations_by_entity_dcid.return_value.to_observation_records.return_value = [
-      {
-          "date": "2024",
-          "entity": "entity1",
-          "variable": "var1",
-          "value": 100,
-          "unit": "unit1",
-      },
-      {
-          "date": "2024",
-          "entity": "entity2",
-          "variable": "var2",
-          "value": 200,
-          "unit": "unit2",
-      },
-  ]
+  mock_client.observation.fetch_observations_by_entity_dcid.return_value.to_observation_records.return_value = ObservationRecords.model_validate(
+      [
+          {
+              "date": "2024",
+              "entity": "entity1",
+              "variable": "var1",
+              "value": 100,
+              "unit": "unit1",
+          },
+          {
+              "date": "2024",
+              "entity": "entity2",
+              "variable": "var2",
+              "value": 200,
+              "unit": "unit2",
+          },
+      ])
 
   # Mock entity name lookup to prevent API calls
   mock_client.node.fetch_entity_names = MagicMock(return_value={
@@ -255,7 +258,7 @@ def test_observations_dataframe_filters_by_facet_ids(mock_client):
       return_value=["facet_1", "facet_2"])
 
   mock_client.observation.fetch_observations_by_entity_dcid.return_value.to_observation_records.return_value = (
-      [])
+      ObservationRecords.model_validate([]))
 
   df = mock_client.observations_dataframe(
       variable_dcids="var1",

@@ -1,257 +1,136 @@
-from abc import ABC
-from abc import abstractmethod
-from dataclasses import dataclass
-from dataclasses import field
-from enum import Enum
 from typing import Optional
 
-from datacommons_client.utils.error_handling import InvalidObservationSelectError
+from pydantic import Field
+from pydantic import field_serializer
+from pydantic import field_validator
+from pydantic import model_serializer
+from pydantic import model_validator
+
+from datacommons_client.models.base import BaseDCModel
+from datacommons_client.models.base import ListOrStr
+from datacommons_client.models.observation import ObservationDate
+from datacommons_client.models.observation import ObservationSelect
+from datacommons_client.models.observation import ObservationSelectList
 
 
-def normalize_properties_to_string(properties: str | list[str]) -> str:
+def normalize_list_to_string(value: str | list[str]) -> str:
   """Converts a list of properties to a string."""
 
-  if isinstance(properties, list):
-    return f"[{', '.join(properties)}]"
+  if isinstance(value, list):
+    return f"[{', '.join(value)}]"
 
-  return properties
+  return value
 
 
-@dataclass
-class EndpointRequestPayload(ABC):
+class NodeRequestPayload(BaseDCModel):
   """
-    Abstract base class for payload dataclasses.
-    Defines the required interface for all payload dataclasses.
-    """
-
-  @abstractmethod
-  def normalize(self) -> None:
-    """Normalize the payload for consistent internal representation."""
-    pass
-
-  @abstractmethod
-  def validate(self) -> None:
-    """Validate the payload to ensure its structure and contents are correct."""
-    pass
-
-  @property
-  @abstractmethod
-  def to_dict(self) -> dict:
-    """Convert the payload into a dictionary format for API requests."""
-    pass
-
-
-@dataclass
-class NodeRequestPayload(EndpointRequestPayload):
-  """
-    A dataclass to structure, normalize, and validate the payload for a Node V2 API request.
+    A Pydantic model to structure, normalize, and validate the payload for a Node V2 API request.
 
     Attributes:
         node_dcids (str | list[str]): The DCID(s) of the nodes to query.
         expression (str): The property or relation expression(s) to query.
     """
 
-  node_dcids: str | list[str]
-  expression: str
-
-  def __post_init__(self):
-    self.normalize()
-    self.validate()
-
-  def normalize(self):
-    if isinstance(self.node_dcids, str):
-      self.node_dcids = [self.node_dcids]
-
-    self.expression = normalize_properties_to_string(self.expression)
-
-  def validate(self):
-    if not isinstance(self.expression, str):
-      raise ValueError("Expression must be a string.")
-
-  @property
-  def to_dict(self) -> dict:
-    return {"nodes": self.node_dcids, "property": self.expression}
+  node_dcids: ListOrStr = Field(..., serialization_alias="nodes")
+  expression: list | str = Field(..., serialization_alias="property")
 
 
-class ObservationSelect(str, Enum):
-  DATE = "date"
-  VARIABLE = "variable"
-  ENTITY = "entity"
-  VALUE = "value"
-  FACET = "facet"
-
-  @classmethod
-  def _missing_(cls, value):
-    """Handle missing enum values by raising a custom error."""
-    valid_values = [member.value for member in cls]
-    message = f"Invalid `select` field: '{value}'. Only {', '.join(valid_values)} are allowed."
-    raise InvalidObservationSelectError(message=message)
-
-
-class ObservationDate(str, Enum):
-  LATEST = "LATEST"
-  ALL = ""
-
-
-@dataclass
-class ObservationRequestPayload(EndpointRequestPayload):
+class ObservationRequestPayload(BaseDCModel):
   """
-    A dataclass to structure, normalize, and validate the payload for an Observation V2 API request.
+    A Pydantic model to structure, normalize, and validate the payload for an Observation V2 API request.
 
     Attributes:
         date (str): The date for which data is being requested.
         variable_dcids (str | list[str]): One or more variable IDs for the data.
         select (list[ObservationSelect]): Fields to include in the response.
-            Defaults to ["date", "variable", "entity", "value"].
+          Defaults to ["date", "variable", "entity", "value"].
         entity_dcids (Optional[str | list[str]]): One or more entity IDs to filter the data.
         entity_expression (Optional[str]): A string expression to filter entities.
         filter_facet_domains (Optional[str | list[str]]): One or more domain names to filter the data.
         filter_facet_ids (Optional[str | list[str]]): One or more facet IDs to filter the data.
     """
 
-  date: ObservationDate | str = ""
-  variable_dcids: str | list[str] = field(default_factory=list)
-  select: Optional[list[ObservationSelect | str]] = None
-  entity_dcids: Optional[str | list[str]] = None
-  entity_expression: Optional[str] = None
-  filter_facet_domains: Optional[str | list[str]] = None
-  filter_facet_ids: Optional[str | list[str]] = None
+  date: ObservationDate | str = Field(default_factory=str,
+                                      validate_default=True)
+  variable_dcids: Optional[ListOrStr] = Field(default=None,
+                                              serialization_alias="variable")
+  select: Optional[list[str]] = None
+  entity_dcids: Optional[ListOrStr] = None
+  entity_expression: Optional[str | list[str]] = None
+  filter_facet_domains: Optional[ListOrStr] = None
+  filter_facet_ids: Optional[ListOrStr] = None
 
-  def __post_init__(self):
-    """
-        Initializes the payload, performing validation and normalization.
+  @field_validator("date", mode="before")
+  def _validate_date(cls, v):
+    try:
+      return ObservationDate(v)
+    except ValueError:
+      return v
 
-        Raises:
-            ValueError: If validation rules are violated.
-        """
-    if self.select is None:
-      self.select = [
-          ObservationSelect.DATE,
-          ObservationSelect.VARIABLE,
-          ObservationSelect.ENTITY,
-          ObservationSelect.VALUE,
-      ]
+  @field_validator("select", mode="before")
+  def _coerce_select(cls, v):
+    return ObservationSelectList.model_validate(v).select
 
-    self.RequiredSelect = {"variable", "entity"}
-    self.normalize()
-    self.validate()
+  @field_validator("entity_expression", mode="before")
+  def _coerce_expr(cls, v):
+    if v is None:
+      return v
+    if isinstance(v, list):
+      return normalize_list_to_string(v)
+    if isinstance(v, str):
+      return v
+    raise TypeError("expression must be a string or list[str]")
 
-  def normalize(self):
-    """
-        Normalizes the payload for consistent internal representation.
-        - Converts `variable_dcids`, `entity_dcids`, `filter_facet_domains` and `filter_facet_ids`
-         to lists if they are passed as strings.
-        - Normalizes the `date` field to ensure it is in the correct format.
-        """
-    # Normalize variable
-    if isinstance(self.variable_dcids, str):
-      self.variable_dcids = [self.variable_dcids]
+  @field_serializer("variable_dcids", "entity_dcids", when_used="unless-none")
+  def _serialise_dcids_fields(self, v):
+    return {"dcids": v}
 
-    # Normalize entity
-    if isinstance(self.entity_dcids, str):
-      self.entity_dcids = [self.entity_dcids]
+  @field_serializer("entity_expression", when_used="unless-none")
+  def _serialise_expression_field(self, v):
+    return {"expression": v}
 
-    # Normalize date field
-    if self.date.upper() == "ALL":
-      self.date = ObservationDate.ALL
-    elif (self.date.upper() == "LATEST") or (self.date == ""):
-      self.date = ObservationDate.LATEST
-
-    # Normalize filter_facet_domains
-    if isinstance(self.filter_facet_domains, str):
-      self.filter_facet_domains = [self.filter_facet_domains]
-
-    # Normalize filter_facet_ids
-    if isinstance(self.filter_facet_ids, str):
-      self.filter_facet_ids = [self.filter_facet_ids]
-
-  def validate(self):
-    """
-        Validates the payload to ensure consistency and correctness.
-
-        Raises:
-            ValueError: If both `entity_dcids` and `entity_expression` are set,
-                        if neither is set, or if required fields are missing from `select`.
-        """
-
-    # Validate mutually exclusive entity fields
+  @model_validator(mode="after")
+  def _check_one(self):
     if bool(self.entity_dcids) == bool(self.entity_expression):
-      raise ValueError(
-          "Exactly one of 'entity_dcids' or 'entity_expression' must be set.")
+      raise ValueError("Exactly one of dcids or expression must be set")
+    return self
 
-    # Check if all required fields are present
-    missing_fields = self.RequiredSelect - set(self.select)
-    if missing_fields:
-      raise ValueError(
-          f"The 'select' field must include at least the following: {', '.join(self.RequiredSelect)} "
-          f"(missing: {', '.join(missing_fields)})")
+  @model_serializer(mode="wrap")
+  def _wrap_filter(self, handler):
+    # Normal dump
+    data = handler(self)
 
-    # Check all select fields are valid
-    [ObservationSelect(select_field) for select_field in self.select]
+    # pull out entity dcid or expression
+    entity = data.pop("entity_dcids", None) or data.pop("entity_expression",
+                                                        None)
 
-  @property
-  def to_dict(self) -> dict:
-    """
-        Converts the payload into a dictionary format for API requests.
+    # add entity to the data dictionary
+    data["entity"] = entity
 
-        Returns:
-            dict: The normalized and validated payload.
-        """
+    # pull out the two filter keys if present
+    domains = data.pop("filter_facet_domains", None)
+    ids = data.pop("filter_facet_ids", None)
 
-    # Create the payload dictionary
-    payload = {
-        "date": self.date,
-        "variable": {
-            "dcids": self.variable_dcids
-        },
-        "entity": ({
-            "dcids": self.entity_dcids
-        } if self.entity_dcids else {
-            "expression": self.entity_expression
-        }),
-        "select": self.select,
-    }
+    # only add "filter" if at least one is set
+    if domains or ids:
+      filter_dict = {}
+      if domains is not None:
+        filter_dict["domains"] = domains
+      if ids is not None:
+        filter_dict["facet_ids"] = ids
+      data["filter"] = filter_dict
 
-    # Create a filter dictionary with only non-empty values
-    filters = {
-        k: v for k, v in {
-            "domains": self.filter_facet_domains,
-            "facet_ids": self.filter_facet_ids,
-        }.items() if v
-    }
-
-    # Only add filter if it's not empty
-    if filters:
-      payload["filter"] = filters
-
-    return payload
+    return data
 
 
-@dataclass
-class ResolveRequestPayload(EndpointRequestPayload):
+class ResolveRequestPayload(BaseDCModel):
   """
-    A dataclass to structure, normalize, and validate the payload for a Resolve V2 API request.
+    A Pydantic model to structure, normalize, and validate the payload for a Resolve V2 API request.
 
     Attributes:
         node_dcids (str | list[str]): The DCID(s) of the nodes to query.
         expression (str): The relation expression to query.
     """
 
-  node_dcids: str | list[str]
-  expression: str
-
-  def __post_init__(self):
-    self.normalize()
-    self.validate()
-
-  def normalize(self):
-    if isinstance(self.node_dcids, str):
-      self.node_dcids = [self.node_dcids]
-
-  def validate(self):
-    if not isinstance(self.expression, str):
-      raise ValueError("Expression must be a string.")
-
-  @property
-  def to_dict(self) -> dict:
-    return {"nodes": self.node_dcids, "property": self.expression}
+  node_dcids: ListOrStr = Field(..., serialization_alias="nodes")
+  expression: str | list[str] = Field(..., serialization_alias="property")
