@@ -1,43 +1,107 @@
-from dataclasses import dataclass
-from dataclasses import field
-from typing import Any, Dict, TypeAlias
+from enum import Enum
+from typing import List, Optional
 
-variableDCID: TypeAlias = str
-facetID: TypeAlias = str
+from pydantic import Field
+from pydantic import field_validator
+from pydantic import model_serializer
+from pydantic import RootModel
 
-orderedFacetsLabel: TypeAlias = str
+from datacommons_client.models.base import BaseDCModel
+from datacommons_client.models.base import DictLikeRootModel
+from datacommons_client.models.base import entityDCID
+from datacommons_client.models.base import facetID
+from datacommons_client.models.base import ListLikeRootModel
+from datacommons_client.models.base import variableDCID
+from datacommons_client.utils.error_handling import InvalidObservationSelectError
 
 
-@dataclass
-class Observation:
+class ObservationDate(str, Enum):
+  LATEST = "LATEST"
+  ALL = ""
+
+  @classmethod
+  def _missing_(cls, value):
+    if isinstance(value, str):
+      u = value.strip().upper()
+      if u == "LATEST":
+        return cls.LATEST
+      if u in ("ALL", ""):
+        return cls.ALL
+    raise ValueError(f"Invalid date value: '{value}'. Only 'LATEST' or"
+                     f" '' (empty string) are allowed.")
+
+
+class ObservationSelect(str, Enum):
+  DATE = "date"
+  VARIABLE = "variable"
+  ENTITY = "entity"
+  VALUE = "value"
+  FACET = "facet"
+
+  @classmethod
+  def valid_values(cls):
+    """Returns a list of valid enum values."""
+    return sorted(cls._value2member_map_.keys())
+
+  @classmethod
+  def _missing_(cls, value):
+    """Handle missing enum values by raising a custom error."""
+    message = f"Invalid `select` Field: '{value}'. Only {', '.join(cls.valid_values())} are allowed."
+    raise InvalidObservationSelectError(message=message)
+
+
+class ObservationSelectList(RootModel[list[ObservationSelect]]):
+  """A model to represent a list of ObservationSelect values.
+
+    Attributes:
+        select (List[ObservationSelect]): A list of ObservationSelect enum values.
+    """
+
+  root: Optional[list[ObservationSelect | str]] = None
+
+  @field_validator("root", mode="before")
+  def _validate_select(cls, v):
+    if v is None:
+      select = [
+          ObservationSelect.DATE,
+          ObservationSelect.VARIABLE,
+          ObservationSelect.ENTITY,
+          ObservationSelect.VALUE,
+      ]
+    else:
+      select = v
+
+    select = [ObservationSelect(s).value for s in select]
+
+    required_select = {"variable", "entity"}
+
+    missing_fields = required_select - set(select)
+    if missing_fields:
+      raise InvalidObservationSelectError(message=(
+          f"The 'select' field must include at least the following: {', '.join(required_select)} "
+          f"(missing: {', '.join(missing_fields)})"))
+
+    return select
+
+  @property
+  def select(self) -> list[str]:
+    """Return select values directly as list"""
+    return self.root or []
+
+
+class Observation(BaseDCModel):
   """Represents an observation with a date and value.
 
     Attributes:
         date (str): The date of the observation.
-        value (float): The value of the observation.
+        value (float): Optional. The value of the observation.
     """
 
-  date: str
-  value: float
-
-  @classmethod
-  def from_json(cls, json_data: Dict[str, Any]) -> "Observation":
-    """Creates an Observation instance from the response data.
-
-        Args:
-            json_data: A dictionary containing observation data.
-
-        Returns:
-            An Observation instance.
-        """
-    return cls(
-        date=json_data.get("date"),
-        value=json_data.get("value"),
-    )
+  date: Optional[str] = None
+  value: Optional[float] = None
 
 
-@dataclass
-class OrderedFacets:
+class OrderedFacet(BaseDCModel):
   """Represents ordered facets of observations.
 
     Attributes:
@@ -48,69 +112,31 @@ class OrderedFacets:
         observations (List[Observation]): A list of observations associated with the facet.
     """
 
-  earliestDate: str = field(default_factory=str)
-  facetId: str = field(default_factory=str)
-  latestDate: str = field(default_factory=str)
-  obsCount: int = field(default_factory=int)
-  observations: list[Observation] = field(default_factory=list)
-
-  @classmethod
-  def from_json(cls, json_data: Dict[str, Any]) -> "OrderedFacets":
-    """Creates an OrderedFacets instance from the response data.
-
-        Args:
-            json_data (Dict[str, Any]): A dictionary containing ordered facets data.
-
-        Returns:
-            OrderedFacets: An instance of the OrderedFacets class.
-        """
-    return cls(
-        earliestDate=json_data.get("earliestDate"),
-        facetId=json_data.get("facetId"),
-        latestDate=json_data.get("latestDate"),
-        obsCount=json_data.get("obsCount"),
-        observations=[
-            Observation.from_json(observation)
-            for observation in json_data.get("observations", [])
-        ],
-    )
+  earliestDate: Optional[str] = None
+  facetId: Optional[str] = None
+  latestDate: Optional[str] = None
+  obsCount: Optional[int] = None
+  observations: list[Observation] = Field(default_factory=list)
 
 
-@dataclass
-class Variable:
+class OrderedFacets(BaseDCModel):
+  """Represents a list of ordered facets.
+  """
+  orderedFacets: list[OrderedFacet] = Field(default_factory=list)
+
+
+class Variable(BaseDCModel):
   """Represents a variable with data grouped by entity.
 
     Attributes:
-        byEntity (Dict[str, Dict[orderedFacetsLabel, List[OrderedFacets]]]): A dictionary mapping
+        byEntity (dict[entityDCID, OrderedFacets]): A dictionary mapping
             entities to their ordered facets.
     """
 
-  byEntity: Dict[str, Dict[orderedFacetsLabel,
-                           list[OrderedFacets]]] = field(default_factory=dict)
-
-  @classmethod
-  def from_json(cls, json_data: Dict[str, Any]) -> "Variable":
-    """Creates a Variable instance from the response data.
-
-        Args:
-            json_data (Dict[str, Any]): A dictionary containing variable data.
-
-        Returns:
-            Variable: An instance of the Variable class.
-        """
-    return cls(
-        byEntity={
-            entity: {
-                "orderedFacets": [
-                    OrderedFacets.from_json(facet_data)
-                    for facet_data in entity_data.get("orderedFacets", {})
-                ]
-            } for entity, entity_data in json_data.get("byEntity", {}).items()
-        })
+  byEntity: dict[entityDCID, OrderedFacets] = Field(default_factory=dict)
 
 
-@dataclass
-class Facet:
+class Facet(BaseDCModel):
   """Represents metadata for a facet.
 
     Attributes:
@@ -121,25 +147,62 @@ class Facet:
         unit (str): The unit of the observations.
     """
 
-  importName: str = field(default_factory=str)
-  measurementMethod: str = field(default_factory=str)
-  observationPeriod: str = field(default_factory=str)
-  provenanceUrl: str = field(default_factory=str)
-  unit: str = field(default_factory=str)
+  importName: Optional[str] = None
+  measurementMethod: Optional[str] = None
+  observationPeriod: Optional[str] = None
+  provenanceUrl: Optional[str] = None
+  unit: Optional[str] = None
 
-  @classmethod
-  def from_json(cls, json_data: Dict[str, Any]) -> "Facet":
+
+class ByVariable(BaseDCModel, DictLikeRootModel[dict[variableDCID, Variable]]):
+  """A root model whose value is a dict mapping variableDCID to Variable."""
+
+
+class VariableByEntity(BaseDCModel,
+                       DictLikeRootModel[dict[variableDCID,
+                                              dict[entityDCID,
+                                                   OrderedFacets]]]):
+  """A root model whose value is a dict mapping entityDCID to Variable."""
+
+
+class ObservationRecord(Observation, Facet):
+  """Represents a record of observations for a specific variable and entity.
+
+    Attributes:
+        date (str): The date of the observation.
+        value (float): The value of the observation.
     """
-        Args:
-            json_data (Dict[str, Any]): A dictionary containing facet data.
 
-        Returns:
-            Facet: An instance of the Facet class.
-        """
-    return cls(
-        importName=json_data.get("importName"),
-        measurementMethod=json_data.get("measurementMethod"),
-        observationPeriod=json_data.get("observationPeriod"),
-        provenanceUrl=json_data.get("provenanceUrl"),
-        unit=json_data.get("unit"),
-    )
+  entity: Optional[entityDCID] = None
+  variable: Optional[variableDCID] = None
+  facetId: Optional[facetID] = None
+
+  _order = [
+      "date", "entity", "variable", "facetId", "importName",
+      "measurementMethod", "observationPeriod", "provenanceUrl", "unit", "value"
+  ]
+
+  @model_serializer(mode="wrap")
+  def _reorder(self, helper):
+    """Reorders the fields for serialization."""
+    data = helper(self)
+    ordered = {}
+
+    # Ensure the order of fields matches the specified order
+    for key in self._order:
+      if key in data:
+        ordered[key] = data.pop(key)
+
+    # Add any remaining fields that were not in the order list
+    ordered.update(data)
+
+    # Ensure the 'value' field is always at the end
+    if "value" in ordered:
+      ordered["value"] = ordered.pop("value")
+
+    return ordered
+
+
+class ObservationRecords(BaseDCModel,
+                         ListLikeRootModel[list[ObservationRecord]]):
+  """A root model whose value is a list of ObservationRecord."""

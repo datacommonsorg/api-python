@@ -13,7 +13,8 @@ maintainers = [
 license = { file = "LICENSE" }
 dependencies = [
 "requests>=2.32",
-"typing_extensions"
+"typing_extensions",
+"pydantic>=2.11"
 ]
 requires-python = ">=3.10"
 keywords = ["data commons", "api", "data", "development"]

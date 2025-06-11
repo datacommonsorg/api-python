@@ -56,10 +56,10 @@ class ResolveEndpoint(Endpoint):
 
     # Construct the payload
     payload = ResolveRequestPayload(node_dcids=node_ids,
-                                    expression=expression).to_dict
+                                    expression=expression).to_dict()
 
     # Send the request and return the response
-    return ResolveResponse.from_json(self.post(payload))
+    return ResolveResponse.model_validate(self.post(payload))
 
   def fetch_dcids_by_name(self,
                           names: str | list[str],

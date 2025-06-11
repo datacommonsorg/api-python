@@ -3,8 +3,8 @@ from typing import Literal, Optional
 from datacommons_client.endpoints.base import API
 from datacommons_client.endpoints.node import NodeEndpoint
 from datacommons_client.endpoints.observation import ObservationEndpoint
-from datacommons_client.endpoints.payloads import ObservationDate
 from datacommons_client.endpoints.resolve import ResolveEndpoint
+from datacommons_client.models.observation import ObservationDate
 from datacommons_client.utils.dataframes import add_entity_names_to_observations_dataframe
 from datacommons_client.utils.decorators import requires_pandas
 from datacommons_client.utils.error_handling import NoDataForPropertyError
@@ -184,7 +184,7 @@ class DataCommonsClient:
           filter_facet_ids=facets)
 
     # Convert the observations to a DataFrame
-    df = pd.DataFrame(observations.to_observation_records())
+    df = pd.DataFrame(observations.to_observation_records().model_dump())
 
     # Add entity names to the DataFrame
     df = add_entity_names_to_observations_dataframe(
