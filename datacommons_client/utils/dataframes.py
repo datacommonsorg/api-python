@@ -32,6 +32,7 @@ def add_entity_names_to_observations_dataframe(
     entity_columns = [entity_columns]
 
   for entity_column in entity_columns:
+    if entity_column not in observations_df.columns:
       raise ValueError(
           "The specified entity column does not exist in the DataFrame.")
 
