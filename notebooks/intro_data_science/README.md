@@ -1,0 +1,1 @@
+All notebooks have been updated to use the V2 Python APIs and are found in the `v2/intro_data_science` directory.
