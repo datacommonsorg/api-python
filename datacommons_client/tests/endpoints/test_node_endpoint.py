@@ -8,6 +8,7 @@ from datacommons_client.models.node import Arcs
 from datacommons_client.models.node import Name
 from datacommons_client.models.node import Node
 from datacommons_client.models.node import NodeGroup
+from datacommons_client.models.node import StatVarConstraints
 from datacommons_client.utils.names import DEFAULT_NAME_PROPERTY
 from datacommons_client.utils.names import NAME_WITH_LANGUAGE_PROPERTY
 
@@ -395,3 +396,110 @@ def test_fetch_entity_ancestry_tree(mock_build_map, mock_build_tree):
   mock_build_tree.assert_called_once_with(root="Y",
                                           graph=mock_build_map.return_value[1],
                                           relationship_key="parents")
+
+
+def test__fetch_property_id_names_flattens_to_dcid_and_name():
+  """Private helper should return only dcid and name per target node."""
+  api_mock = MagicMock(spec=API)
+  endpoint = NodeEndpoint(api=api_mock)
+
+  # Simulate fetch_property_values response with Arcs, NodeGroup, Node
+  endpoint.fetch_property_values = MagicMock(return_value=NodeResponse(
+      data={
+          "sv/1":
+              Arcs(
+                  arcs={
+                      "constraintProperties":
+                          NodeGroup(nodes=[
+                              Node(dcid="p1", name="Prop One"),
+                              Node(dcid="p2", name="Prop Two"),
+                          ])
+                  })
+      }))
+
+  result = endpoint._fetch_property_id_names("sv/1", "constraintProperties")
+
+  assert result == {
+      "sv/1": {
+          "constraintProperties": [
+              {
+                  "dcid": "p1",
+                  "name": "Prop One",
+              },
+              {
+                  "dcid": "p2",
+                  "name": "Prop Two",
+              },
+          ]
+      }
+  }
+  endpoint.fetch_property_values.assert_called_once_with(
+      node_dcids="sv/1", properties="constraintProperties")
+
+
+def test_fetch_statvar_constraints_builds_constraints_and_values():
+  """fetch_statvar_constraints should combine constraint properties and values."""
+  endpoint = NodeEndpoint(api=MagicMock())
+
+  # First call returns constraint property ids and names
+  constraints_map = {
+      "sv/1": {
+          "constraintProperties": [
+              {
+                  "dcid": "p1",
+                  "name": "Prop One"
+              },
+              {
+                  "dcid": "p2",
+                  "name": "Prop Two"
+              },
+          ]
+      }
+  }
+
+  # Second call returns values for those properties
+  values_map = {
+      "sv/1": {
+          "p1": [{
+              "dcid": "v1",
+              "name": "Val One"
+          }],
+          "p2": [{
+              "dcid": "v2",
+              "name": "Val Two"
+          }],
+      }
+  }
+
+  with patch.object(endpoint,
+                    "_fetch_property_id_names",
+                    side_effect=[constraints_map, values_map]) as mock_helper:
+    result = endpoint.fetch_statvar_constraints(["sv/1"])
+
+  # Ensure helper called twice (once for constraintProperties, once for values)
+  assert mock_helper.call_count == 2
+  assert isinstance(result, StatVarConstraints)
+  assert "sv/1" in result
+  # Two constraints returned
+  assert len(result["sv/1"]) == 2
+  ids = {(c.constraint_id, c.value_id) for c in result["sv/1"]}
+  assert ids == {("p1", "v1"), ("p2", "v2")}
+
+
+def test_fetch_statvar_constraints_handles_string_input_and_no_constraints():
+  """Single sv input and empty constraints should yield empty list for that sv."""
+  endpoint = NodeEndpoint(api=MagicMock())
+
+  # No constraintProperties for sv/empty
+  constraints_map = {"sv/empty": {"constraintProperties": []}}
+  # Second call won't be used but provide empty map
+  values_map = {"sv/empty": {}}
+
+  with patch.object(endpoint,
+                    "_fetch_property_id_names",
+                    side_effect=[constraints_map, values_map]):
+    # string input
+    result = endpoint.fetch_statvar_constraints("sv/empty")
+
+  assert isinstance(result, StatVarConstraints)
+  assert result["sv/empty"] == []
