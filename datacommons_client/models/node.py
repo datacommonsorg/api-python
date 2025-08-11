@@ -90,3 +90,20 @@ class NodeList(BaseDCModel, ListLikeRootModel[list[Node]]):
 
 class NodeDCIDList(BaseDCModel, ListLikeRootModel[list[NodeDCID]]):
   """A root model whose value is a list of NodeDCID strings."""
+
+
+class StatVarConstraint(BaseDCModel):
+  """Represents a constraint for a statistical variable."""
+
+  constraint_id: NodeDCID
+  constraint_name: Optional[str] = None
+  value_id: NodeDCID
+  value_name: Optional[str] = None
+
+
+class StatVarConstraints(BaseDCModel,
+                         DictLikeRootModel[dict[NodeDCID,
+                                                list[StatVarConstraint]]]):
+  """A root model whose value is a dictionary of statvar ids - a list of StatVarConstraint objects.
+    This model is used to represent constraints associated with statistical variables.
+    """
