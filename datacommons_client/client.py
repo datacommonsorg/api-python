@@ -143,7 +143,8 @@ class DataCommonsClient:
         property_filters (Optional[dict[str, str | list[str]]): An optional dictionary used to filter
             the data by using observation properties like `measurementMethod`, `unit`, or `observationPeriod`.
         include_constraints_metadata (bool): If True, includes the dcid and name of any constraint
-            properties associated with the variable DCIDs in the returned DataFrame. Defaults to False.
+            properties associated with the variable DCIDs (based on the `constraintProperties` property)
+            in the returned DataFrame. Defaults to False.
 
         Returns:
             pd.DataFrame: A DataFrame containing the requested observations.

@@ -25,6 +25,8 @@ from datacommons_client.utils.names import NAME_WITH_LANGUAGE_PROPERTY
 
 PLACES_MAX_WORKERS = 10
 
+CONSTRAINT_PROPERTY: str = "constraintProperties"
+
 _DEPRECATED_METHODS: dict[str, dict[str, str | dict[str, str]]] = {
     "fetch_entity_parents": {
         "new_name": "fetch_place_parents",
@@ -567,7 +569,8 @@ class NodeEndpoint(Endpoint):
 
   def fetch_statvar_constraints(
       self, variable_dcids: str | list[str]) -> StatVarConstraints:
-    """Fetch constraint property/value pairs for statistical variables.
+    """Fetch constraint property/value pairs for statistical variables, using
+        the `constraintProperties` property.
 
         This returns, for each StatisticalVariable, the constraints that define it.
 
@@ -595,7 +598,7 @@ class NodeEndpoint(Endpoint):
 
     # Get constraints for the given variable DCIDs.
     constraints_mapping = self._fetch_property_id_names(
-        node_dcids=variable_dcids, properties=["constraintProperties"])
+        node_dcids=variable_dcids, properties=[CONSTRAINT_PROPERTY])
 
     # Per statvar mapping of dcid - name
     per_sv_constraint_names = {}
@@ -605,7 +608,7 @@ class NodeEndpoint(Endpoint):
     for sv in variable_dcids:
       # Get the constraint properties for this statvar
       prop_entries = constraints_mapping.get(sv,
-                                             {}).get("constraintProperties", [])
+                                             {}).get(CONSTRAINT_PROPERTY, [])
       # Map the constraint properties to their names
       id_to_name = {entry["dcid"]: entry.get("name") for entry in prop_entries}
       # Add an entry for this statvar to the constraint names mapping
