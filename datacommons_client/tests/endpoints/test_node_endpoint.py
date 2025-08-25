@@ -514,9 +514,7 @@ def test__fetch_property_id_names_handles_literal_values():
   endpoint.fetch_property_values = MagicMock(return_value=NodeResponse(
       data={
           "sv/1":
-              Arcs(arcs={
-                  "p1": NodeGroup(nodes=[Node(value="LiteralValue")])
-              })
+              Arcs(arcs={"p1": NodeGroup(nodes=[Node(value="LiteralValue")])})
       }))
 
   result = endpoint._fetch_property_id_names("sv/1", "p1")
@@ -553,15 +551,7 @@ def test_fetch_statvar_constraints_skips_missing_constraint_values():
   }
 
   # p1 has a value, p2 is missing/empty
-  values_map = {
-      "sv/1": {
-          "p1": [{
-              "dcid": "v1",
-              "name": "Val One"
-          }],
-          "p2": []
-      }
-  }
+  values_map = {"sv/1": {"p1": [{"dcid": "v1", "name": "Val One"}], "p2": []}}
 
   with patch.object(endpoint,
                     "_fetch_property_id_names",
