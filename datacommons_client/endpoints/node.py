@@ -564,7 +564,10 @@ class NodeEndpoint(Endpoint):
       for prop, metadata in props.items():
         dest = result[node].setdefault(prop, [])
         for n in metadata:
-          dest.append({"dcid": n.dcid, "name": n.name})
+          # Prefer 'dcid', but if property is terminal, fall back to 'value'.
+          dcid = n.dcid or n.value
+          name = n.name or n.value
+          dest.append({"dcid": dcid, "name": name})
     return result
 
   def fetch_statvar_constraints(
@@ -631,6 +634,9 @@ class NodeEndpoint(Endpoint):
 
       for constraint_id, constraint_name in constraint_names.items():
         values = sv_values.get(constraint_id, [])
+        # Continue if the stat var doesn't actually define a value for one of its constraintProperties.
+        if not values:
+          continue
 
         # Build the StatVarConstraint object
         result[sv].append(

@@ -503,3 +503,74 @@ def test_fetch_statvar_constraints_handles_string_input_and_no_constraints():
 
   assert isinstance(result, StatVarConstraints)
   assert result["sv/empty"] == []
+
+
+def test__fetch_property_id_names_handles_literal_values():
+  """_fetch_property_id_names should handle string literal values gracefully."""
+  api_mock = MagicMock(spec=API)
+  endpoint = NodeEndpoint(api=api_mock)
+
+  # Simulate a response where the target value is a literal string (no dcid)
+  endpoint.fetch_property_values = MagicMock(return_value=NodeResponse(
+      data={
+          "sv/1":
+              Arcs(arcs={
+                  "p1": NodeGroup(nodes=[Node(value="LiteralValue")])
+              })
+      }))
+
+  result = endpoint._fetch_property_id_names("sv/1", "p1")
+
+  assert result == {
+      "sv/1": {
+          "p1": [{
+              "dcid": "LiteralValue",
+              "name": "LiteralValue"
+          }]
+      }
+  }
+  endpoint.fetch_property_values.assert_called_once_with(node_dcids="sv/1",
+                                                         properties="p1")
+
+
+def test_fetch_statvar_constraints_skips_missing_constraint_values():
+  """If a constraintProperty has no value for a SV, skip it without error."""
+  endpoint = NodeEndpoint(api=MagicMock())
+
+  constraints_map = {
+      "sv/1": {
+          "constraintProperties": [
+              {
+                  "dcid": "p1",
+                  "name": "Prop One"
+              },
+              {
+                  "dcid": "p2",
+                  "name": "Prop Two"
+              },
+          ]
+      }
+  }
+
+  # p1 has a value, p2 is missing/empty
+  values_map = {
+      "sv/1": {
+          "p1": [{
+              "dcid": "v1",
+              "name": "Val One"
+          }],
+          "p2": []
+      }
+  }
+
+  with patch.object(endpoint,
+                    "_fetch_property_id_names",
+                    side_effect=[constraints_map, values_map]):
+    result = endpoint.fetch_statvar_constraints(["sv/1"])
+
+  assert isinstance(result, StatVarConstraints)
+  assert "sv/1" in result
+  # Only one well-formed constraint should be included (p1)
+  assert len(result["sv/1"]) == 1
+  assert result["sv/1"][0].constraint_id == "p1"
+  assert result["sv/1"][0].value_id == "v1"
