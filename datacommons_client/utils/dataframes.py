@@ -86,10 +86,10 @@ def add_property_constraints_to_observations_dataframe(
     for constraint in constraints:
       # Fill the columns with the corresponding values
       observations_df.loc[observations_df.variable == statvar,
-                          constraint.constraint_id] = constraint.value_id
+                          constraint.constraintId] = constraint.valueId
 
       observations_df.loc[observations_df.variable == statvar,
-                          constraint.constraint_id +
-                          "_name"] = constraint.value_name
+                          constraint.constraintId +
+                          "_name"] = constraint.valueName
 
   return observations_df

@@ -241,18 +241,18 @@ def test_observations_dataframe_includes_constraints_metadata(mock_client):
       return_value=StatVarConstraints.model_validate({
           "sv/A": [
               StatVarConstraint(
-                  constraint_id="DevelopmentFinanceScheme",
-                  constraint_name="Development Finance Scheme",
-                  value_id="ODAGrants",
-                  value_name="Official Development Assistance Grants",
+                  constraintId="DevelopmentFinanceScheme",
+                  constraintName="Development Finance Scheme",
+                  valueId="ODAGrants",
+                  valueName="Official Development Assistance Grants",
               )
           ],
           "sv/B": [
               StatVarConstraint(
-                  constraint_id="sex",
-                  constraint_name="Sex",
-                  value_id="Female",
-                  value_name="Female",
+                  constraintId="sex",
+                  constraintName="Sex",
+                  valueId="Female",
+                  valueName="Female",
               )
           ],
       }))

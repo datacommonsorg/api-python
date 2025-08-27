@@ -34,24 +34,24 @@ def test_add_property_constraints_to_observations_dataframe_adds_columns():
       {
           "sv/A": [
               StatVarConstraint(
-                  constraint_id="DevelopmentFinanceScheme",
-                  constraint_name="Development Finance Scheme",
-                  value_id="ODAGrants",
-                  value_name="Official Development Assistance Grants",
+                  constraintId="DevelopmentFinanceScheme",
+                  constraintName="Development Finance Scheme",
+                  valueId="ODAGrants",
+                  valueName="Official Development Assistance Grants",
               ),
               StatVarConstraint(
-                  constraint_id="DevelopmentFinanceRecipient",
-                  constraint_name="Development Finance Recipient",
-                  value_id="country/GTM",
-                  value_name="Guatemala",
+                  constraintId="DevelopmentFinanceRecipient",
+                  constraintName="Development Finance Recipient",
+                  valueId="country/GTM",
+                  valueName="Guatemala",
               ),
           ],
           "sv/B": [
               StatVarConstraint(
-                  constraint_id="sex",
-                  constraint_name="Sex",
-                  value_id="Female",
-                  value_name="Female",
+                  constraintId="sex",
+                  constraintName="Sex",
+                  valueId="Female",
+                  valueName="Female",
               )
           ],
       })

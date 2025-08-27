@@ -632,8 +632,8 @@ class NodeEndpoint(Endpoint):
       constraint_names = per_sv_constraint_names.get(sv, {})
       sv_values = values_map.get(sv, {})
 
-      for constraint_id, constraint_name in constraint_names.items():
-        values = sv_values.get(constraint_id, [])
+      for constraintId, constraintName in constraint_names.items():
+        values = sv_values.get(constraintId, [])
         # Continue if the stat var doesn't actually define a value for one of its constraintProperties.
         if not values:
           continue
@@ -641,10 +641,10 @@ class NodeEndpoint(Endpoint):
         # Build the StatVarConstraint object
         result[sv].append(
             StatVarConstraint(
-                constraint_id=constraint_id,
-                constraint_name=constraint_name,
-                value_id=values[0]["dcid"],
-                value_name=values[0].get("name"),
+                constraintId=constraintId,
+                constraintName=constraintName,
+                valueId=values[0]["dcid"],
+                valueName=values[0].get("name"),
             ))
 
     return StatVarConstraints.model_validate(result)

@@ -95,10 +95,10 @@ class NodeDCIDList(BaseDCModel, ListLikeRootModel[list[NodeDCID]]):
 class StatVarConstraint(BaseDCModel):
   """Represents a constraint for a statistical variable."""
 
-  constraint_id: NodeDCID
-  constraint_name: Optional[str] = None
-  value_id: NodeDCID
-  value_name: Optional[str] = None
+  constraintId: NodeDCID
+  constraintName: Optional[str] = None
+  valueId: NodeDCID
+  valueName: Optional[str] = None
 
 
 class StatVarConstraints(BaseDCModel,

@@ -482,7 +482,7 @@ def test_fetch_statvar_constraints_builds_constraints_and_values():
   assert "sv/1" in result
   # Two constraints returned
   assert len(result["sv/1"]) == 2
-  ids = {(c.constraint_id, c.value_id) for c in result["sv/1"]}
+  ids = {(c.constraintId, c.valueId) for c in result["sv/1"]}
   assert ids == {("p1", "v1"), ("p2", "v2")}
 
 
@@ -562,5 +562,5 @@ def test_fetch_statvar_constraints_skips_missing_constraint_values():
   assert "sv/1" in result
   # Only one well-formed constraint should be included (p1)
   assert len(result["sv/1"]) == 1
-  assert result["sv/1"][0].constraint_id == "p1"
-  assert result["sv/1"][0].value_id == "v1"
+  assert result["sv/1"][0].constraintId == "p1"
+  assert result["sv/1"][0].valueId == "v1"

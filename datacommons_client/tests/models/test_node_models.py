@@ -115,17 +115,17 @@ def test_properties_model_validation_empty():
 def test_statvarconstraint_model_validation():
   """Test StatVarConstraint.model_validate parses data correctly."""
   data = {
-      "constraint_id": "DevelopmentFinanceScheme",
-      "constraint_name": "Development Finance Scheme",
-      "value_id": "ODAGrants",
-      "value_name": "Official Development Assistance Grants",
+      "constraintId": "DevelopmentFinanceScheme",
+      "constraintName": "Development Finance Scheme",
+      "valueId": "ODAGrants",
+      "valueName": "Official Development Assistance Grants",
   }
   constraint = StatVarConstraint.model_validate(data)
 
-  assert constraint.constraint_id == "DevelopmentFinanceScheme"
-  assert constraint.constraint_name == "Development Finance Scheme"
-  assert constraint.value_id == "ODAGrants"
-  assert constraint.value_name == "Official Development Assistance Grants"
+  assert constraint.constraintId == "DevelopmentFinanceScheme"
+  assert constraint.constraintName == "Development Finance Scheme"
+  assert constraint.valueId == "ODAGrants"
+  assert constraint.valueName == "Official Development Assistance Grants"
 
 
 def test_statvarconstraints_model_validation():
@@ -133,16 +133,16 @@ def test_statvarconstraints_model_validation():
   constraints = StatVarConstraints.model_validate({
       "sv/1": [
           {
-              "constraint_id": "DevelopmentFinanceScheme",
-              "constraint_name": "Development Finance Scheme",
-              "value_id": "ODAGrants",
-              "value_name": "Official Development Assistance Grants",
+              "constraintId": "DevelopmentFinanceScheme",
+              "constraintName": "Development Finance Scheme",
+              "valueId": "ODAGrants",
+              "valueName": "Official Development Assistance Grants",
           },
           {
-              "constraint_id": "DevelopmentFinanceRecipient",
-              "constraint_name": "Development Finance Recipient",
-              "value_id": "country/GTM",
-              "value_name": "Guatemala",
+              "constraintId": "DevelopmentFinanceRecipient",
+              "constraintName": "Development Finance Recipient",
+              "valueId": "country/GTM",
+              "valueName": "Guatemala",
           },
       ],
       "sv/2": [],
