@@ -10,6 +10,8 @@ from datacommons_client.endpoints.node import NodeEndpoint
 from datacommons_client.endpoints.observation import ObservationEndpoint
 from datacommons_client.endpoints.resolve import ResolveEndpoint
 from datacommons_client.models.node import Name
+from datacommons_client.models.node import StatVarConstraint
+from datacommons_client.models.node import StatVarConstraints
 from datacommons_client.models.observation import ObservationRecord
 from datacommons_client.models.observation import ObservationRecords
 from datacommons_client.utils.error_handling import NoDataForPropertyError
@@ -209,6 +211,72 @@ def test_observations_dataframe_returns_dataframe_with_expected_columns(
   assert df.iloc[1]["variable_name"] == "Variable Two"
   assert df.iloc[1]["value"] == 200
   assert df.iloc[1]["unit"] == "unit2"
+
+
+def test_observations_dataframe_includes_constraints_metadata(mock_client):
+  """When include_constraints_metadata=True, DataFrame includes constraint columns."""
+  # Two observations with different variables
+  mock_client.observation.fetch_observations_by_entity_dcid.return_value.to_observation_records.return_value = ObservationRecords.model_validate(
+      [
+          {
+              "date": "2021",
+              "entity": "geo/1",
+              "variable": "sv/A",
+              "value": 1,
+              "unit": "Count",
+          },
+          {
+              "date": "2021",
+              "entity": "geo/2",
+              "variable": "sv/B",
+              "value": 2,
+              "unit": "Count",
+          },
+      ])
+
+  # Avoid name lookups
+  mock_client.node.fetch_entity_names = MagicMock(return_value={})
+
+  mock_client.node.fetch_statvar_constraints = MagicMock(
+      return_value=StatVarConstraints.model_validate({
+          "sv/A": [
+              StatVarConstraint(
+                  constraintId="DevelopmentFinanceScheme",
+                  constraintName="Development Finance Scheme",
+                  valueId="ODAGrants",
+                  valueName="Official Development Assistance Grants",
+              )
+          ],
+          "sv/B": [
+              StatVarConstraint(
+                  constraintId="sex",
+                  constraintName="Sex",
+                  valueId="Female",
+                  valueName="Female",
+              )
+          ],
+      }))
+
+  df = mock_client.observations_dataframe(
+      variable_dcids=["sv/A", "sv/B"],
+      date="2021",
+      entity_dcids=["geo/1", "geo/2"],
+      include_constraints_metadata=True,
+  )
+
+  # Check presence and correctness of constraint columns
+  assert "DevelopmentFinanceScheme" in df.columns
+  assert "DevelopmentFinanceScheme_name" in df.columns
+  assert "sex" in df.columns and "sex_name" in df.columns
+
+  row_a = df[df["variable"] == "sv/A"].iloc[0]
+  assert row_a["DevelopmentFinanceScheme"] == "ODAGrants"
+  assert (row_a["DevelopmentFinanceScheme_name"] ==
+          "Official Development Assistance Grants")
+
+  row_b = df[df["variable"] == "sv/B"].iloc[0]
+  assert row_b["sex"] == "Female"
+  assert row_b["sex_name"] == "Female"
 
 
 @patch(

@@ -11,6 +11,8 @@ from datacommons_client.endpoints.payloads import normalize_list_to_string
 from datacommons_client.endpoints.response import NodeResponse
 from datacommons_client.models.node import Name
 from datacommons_client.models.node import Node
+from datacommons_client.models.node import StatVarConstraint
+from datacommons_client.models.node import StatVarConstraints
 from datacommons_client.utils.graph import build_graph_map
 from datacommons_client.utils.graph import build_relationship_tree
 from datacommons_client.utils.graph import fetch_relationship_lru
@@ -22,6 +24,8 @@ from datacommons_client.utils.names import extract_name_from_property_with_langu
 from datacommons_client.utils.names import NAME_WITH_LANGUAGE_PROPERTY
 
 PLACES_MAX_WORKERS = 10
+
+CONSTRAINT_PROPERTY: str = "constraintProperties"
 
 _DEPRECATED_METHODS: dict[str, dict[str, str | dict[str, str]]] = {
     "fetch_entity_parents": {
@@ -534,3 +538,113 @@ class NodeEndpoint(Endpoint):
         relationship="children",
         max_concurrent_requests=max_concurrent_requests,
     )
+
+  def _fetch_property_id_names(self, node_dcids: str | list[str],
+                               properties: str | list[str]):
+    """Fetch target nodes for given properties and return only (dcid, name).
+
+        For each input node and each requested property, returns the list of target
+        nodes as dictionaries with ``dcid`` and ``name``.
+
+        Args:
+            node_dcids: A single DCID or a list of DCIDs to query.
+            properties: A property string or list of property strings.
+
+        Returns:
+            A mapping:
+            `{ node_dcid: { property: [ {dcid, name}, ... ], ... }, ... }`.
+        """
+    data = self.fetch_property_values(node_dcids=node_dcids,
+                                      properties=properties).get_properties()
+
+    result: dict[str, dict[str, list[dict]]] = {}
+
+    for node, props in data.items():
+      result.setdefault(node, {})
+      for prop, metadata in props.items():
+        dest = result[node].setdefault(prop, [])
+        for n in metadata:
+          # Prefer 'dcid', but if property is terminal, fall back to 'value'.
+          dcid = n.dcid or n.value
+          name = n.name or n.value
+          dest.append({"dcid": dcid, "name": name})
+    return result
+
+  def fetch_statvar_constraints(
+      self, variable_dcids: str | list[str]) -> StatVarConstraints:
+    """Fetch constraint property/value pairs for statistical variables, using
+        the `constraintProperties` property.
+
+        This returns, for each StatisticalVariable, the constraints that define it.
+
+        Args:
+            variable_dcids: One or more StatisticalVariable DCIDs.
+
+        Returns:
+            StatVarConstraints:
+            ``{
+                <sv_dcid>: [
+                    {
+                        "constraint_id": <constraint_property_dcid>,
+                        "constraint_name": <constraint_property_name>,
+                        "value_id": <value_node_dcid>,
+                        "value_name": <value_node_name>,
+                    },
+                    ...
+                ],
+                ...
+            }``
+        """
+    # Ensure variable_dcids is a list
+    if isinstance(variable_dcids, str):
+      variable_dcids = [variable_dcids]
+
+    # Get constraints for the given variable DCIDs.
+    constraints_mapping = self._fetch_property_id_names(
+        node_dcids=variable_dcids, properties=[CONSTRAINT_PROPERTY])
+
+    # Per statvar mapping of dcid - name
+    per_sv_constraint_names = {}
+    # Global set of all constraint property IDs
+    all_constraint_prop_ids = set()
+
+    for sv in variable_dcids:
+      # Get the constraint properties for this statvar
+      prop_entries = constraints_mapping.get(sv,
+                                             {}).get(CONSTRAINT_PROPERTY, [])
+      # Map the constraint properties to their names
+      id_to_name = {entry["dcid"]: entry.get("name") for entry in prop_entries}
+      # Add an entry for this statvar to the constraint names mapping
+      per_sv_constraint_names[sv] = id_to_name
+      # Update the global set of all constraint property IDs
+      all_constraint_prop_ids.update(id_to_name.keys())
+
+    # In a single request, fetch all values for all the constraints, for all statvars.
+    values_map = self._fetch_property_id_names(
+        node_dcids=variable_dcids,
+        properties=sorted(all_constraint_prop_ids),
+    )
+
+    # Build structured response. This will include vars with no constraints (empty dicts).
+    result = {sv: [] for sv in variable_dcids}
+
+    for sv in variable_dcids:
+      constraint_names = per_sv_constraint_names.get(sv, {})
+      sv_values = values_map.get(sv, {})
+
+      for constraintId, constraintName in constraint_names.items():
+        values = sv_values.get(constraintId, [])
+        # Continue if the stat var doesn't actually define a value for one of its constraintProperties.
+        if not values:
+          continue
+
+        # Build the StatVarConstraint object
+        result[sv].append(
+            StatVarConstraint(
+                constraintId=constraintId,
+                constraintName=constraintName,
+                valueId=values[0]["dcid"],
+                valueName=values[0].get("name"),
+            ))
+
+    return StatVarConstraints.model_validate(result)

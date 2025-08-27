@@ -59,3 +59,37 @@ def add_entity_names_to_observations_dataframe(
       )
 
   return observations_df
+
+
+@requires_pandas
+def add_property_constraints_to_observations_dataframe(
+    endpoint: NodeEndpoint,
+    observations_df: "pd.DataFrame",  # type: ignore[reportInvalidTypeForm]
+) -> "pd.DataFrame":  # type: ignore[reportInvalidTypeForm]
+  """
+    Adds property constraint dcids and names to the observations DataFrame.
+
+    Args:
+        endpoint (NodeEndpoint): The NodeEndpoint instance for fetching entity names.
+        observations_df (dict): The DataFrame containing observations.
+    """
+
+  # Guard against empty DataFrame
+  if observations_df.empty:
+    return observations_df
+
+  # Get constraints
+  constraints_data = endpoint.fetch_statvar_constraints(
+      variable_dcids=observations_df.variable.unique().tolist())
+
+  for statvar, constraints in constraints_data.items():
+    for constraint in constraints:
+      # Fill the columns with the corresponding values
+      observations_df.loc[observations_df.variable == statvar,
+                          constraint.constraintId] = constraint.valueId
+
+      observations_df.loc[observations_df.variable == statvar,
+                          constraint.constraintId +
+                          "_name"] = constraint.valueName
+
+  return observations_df

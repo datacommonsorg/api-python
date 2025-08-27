@@ -6,6 +6,7 @@ from datacommons_client.endpoints.observation import ObservationEndpoint
 from datacommons_client.endpoints.resolve import ResolveEndpoint
 from datacommons_client.models.observation import ObservationDate
 from datacommons_client.utils.dataframes import add_entity_names_to_observations_dataframe
+from datacommons_client.utils.dataframes import add_property_constraints_to_observations_dataframe
 from datacommons_client.utils.decorators import requires_pandas
 from datacommons_client.utils.error_handling import NoDataForPropertyError
 
@@ -92,7 +93,8 @@ class DataCommonsClient:
           date=date,
           entity_dcids=entity_dcids,
           variable_dcids=variable_dcids,
-          select=["variable", "entity", "facet"])
+          select=["variable", "entity", "facet"],
+      )
     else:
       observations = self.observation.fetch_observations_by_entity_type(
           date=date,
@@ -120,6 +122,7 @@ class DataCommonsClient:
       entity_type: Optional[str] = None,
       parent_entity: Optional[str] = None,
       property_filters: Optional[dict[str, str | list[str]]] = None,
+      include_constraints_metadata: bool = False,
   ):
     """
         Fetches statistical observations and returns them as a Pandas DataFrame.
@@ -139,6 +142,9 @@ class DataCommonsClient:
             Required if `entity_dcids="all"`. Defaults to None.
         property_filters (Optional[dict[str, str | list[str]]): An optional dictionary used to filter
             the data by using observation properties like `measurementMethod`, `unit`, or `observationPeriod`.
+        include_constraints_metadata (bool): If True, includes the dcid and name of any constraint
+            properties associated with the variable DCIDs (based on the `constraintProperties` property)
+            in the returned DataFrame. Defaults to False.
 
         Returns:
             pd.DataFrame: A DataFrame containing the requested observations.
@@ -181,7 +187,8 @@ class DataCommonsClient:
           date=date,
           entity_dcids=entity_dcids,
           variable_dcids=variable_dcids,
-          filter_facet_ids=facets)
+          filter_facet_ids=facets,
+      )
 
     # Convert the observations to a DataFrame
     df = pd.DataFrame(observations.to_observation_records().model_dump())
@@ -192,5 +199,11 @@ class DataCommonsClient:
         observations_df=df,
         entity_columns=["entity", "variable"],
     )
+
+    if include_constraints_metadata:
+      df = add_property_constraints_to_observations_dataframe(
+          endpoint=self.node,
+          observations_df=df,
+      )
 
     return df

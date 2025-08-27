@@ -2,6 +2,8 @@ from datacommons_client.models.node import Arcs
 from datacommons_client.models.node import Node
 from datacommons_client.models.node import NodeGroup
 from datacommons_client.models.node import Properties
+from datacommons_client.models.node import StatVarConstraint
+from datacommons_client.models.node import StatVarConstraints
 
 
 def test_node_model_validation():
@@ -108,3 +110,44 @@ def test_properties_model_validation_empty():
   json_data = {}
   properties = Properties.model_validate(json_data)
   assert properties.properties is None
+
+
+def test_statvarconstraint_model_validation():
+  """Test StatVarConstraint.model_validate parses data correctly."""
+  data = {
+      "constraintId": "DevelopmentFinanceScheme",
+      "constraintName": "Development Finance Scheme",
+      "valueId": "ODAGrants",
+      "valueName": "Official Development Assistance Grants",
+  }
+  constraint = StatVarConstraint.model_validate(data)
+
+  assert constraint.constraintId == "DevelopmentFinanceScheme"
+  assert constraint.constraintName == "Development Finance Scheme"
+  assert constraint.valueId == "ODAGrants"
+  assert constraint.valueName == "Official Development Assistance Grants"
+
+
+def test_statvarconstraints_model_validation():
+  """Test StatVarConstraints root model validates mapping properly."""
+  constraints = StatVarConstraints.model_validate({
+      "sv/1": [
+          {
+              "constraintId": "DevelopmentFinanceScheme",
+              "constraintName": "Development Finance Scheme",
+              "valueId": "ODAGrants",
+              "valueName": "Official Development Assistance Grants",
+          },
+          {
+              "constraintId": "DevelopmentFinanceRecipient",
+              "constraintName": "Development Finance Recipient",
+              "valueId": "country/GTM",
+              "valueName": "Guatemala",
+          },
+      ],
+      "sv/2": [],
+  })
+
+  assert "sv/1" in constraints and "sv/2" in constraints
+  assert len(constraints["sv/1"]) == 2
+  assert constraints["sv/2"] == []
