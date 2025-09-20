@@ -31,6 +31,7 @@ class ObservationEndpoint(Endpoint):
       entity_expression: Optional[str] = None,
       filter_facet_domains: Optional[str | list[str]] = None,
       filter_facet_ids: Optional[str | list[str]] = None,
+      metadata_source: Optional[str] = None
   ) -> ObservationResponse:
     """
         Fetches data from the observation endpoint.
@@ -60,7 +61,7 @@ class ObservationEndpoint(Endpoint):
         filter_facet_ids=filter_facet_ids,
     ).to_dict()
 
-    response = self.post(payload)
+    response = self.post(payload, metadata_source)
 
     # Send the request
     return ObservationResponse.model_validate(response)
