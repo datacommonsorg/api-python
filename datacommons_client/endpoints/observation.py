@@ -75,6 +75,7 @@ class ObservationEndpoint(Endpoint):
       select: Optional[list[ObservationSelect | str]] = None,
       filter_facet_domains: Optional[str | list[str]] = None,
       filter_facet_ids: Optional[str | list[str]] = None,
+      metadata_source: Optional[str] = None
   ) -> ObservationResponse:
     """
         Fetches all observations for a given entity type.
@@ -93,6 +94,8 @@ class ObservationEndpoint(Endpoint):
                 If not provided, defaults to ["date", "variable", "entity", "value"].
             filter_facet_domains: Optional[str | list[str]: One or more domain names to filter the data.
             filter_facet_ids: Optional[str | list[str]: One or more facet IDs to filter the data.
+            metadata_source: Optional[str]: indicates which DC surface (MCP server, etc.) makes a call to the client 
+                if the call originated internally, otherwise null and we pass in "clientlib-python-new" as the surface header
 
         Returns:
             ObservationResponse: The response object containing observations for the specified entity type.
@@ -119,6 +122,7 @@ class ObservationEndpoint(Endpoint):
         f"{parent_entity}<-containedInPlace+{{typeOf:{entity_type}}}",
         filter_facet_domains=filter_facet_domains,
         filter_facet_ids=filter_facet_ids,
+        metadata_source=metadata_source
     )
 
   def fetch_observations_by_entity_dcid(

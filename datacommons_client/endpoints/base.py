@@ -67,6 +67,7 @@ class API:
       *,
       all_pages: bool = True,
       next_token: Optional[str] = None,
+      metadata_source: Optional[str] = None
   ) -> Dict[str, Any]:
     """Makes a POST request using the configured API environment.
 
@@ -91,9 +92,14 @@ class API:
       raise ValueError("Payload must be a dictionary.")
 
     url = (self.base_url if endpoint is None else f"{self.base_url}/{endpoint}")
+    headers = self.headers
+    # if this call originates from another DC product (MCP server, DataGemma, etc.), we indicate that to Mixer
+    if(metadata_source):
+      headers["x-surface"] = metadata_source
+      
     return post_request(url=url,
                         payload=payload,
-                        headers=self.headers,
+                        headers=headers,
                         all_pages=all_pages,
                         next_token=next_token)
 
@@ -133,7 +139,8 @@ class Endpoint:
   def post(self,
            payload: dict[str, Any],
            all_pages: bool = True,
-           next_token: Optional[str] = None) -> Dict[str, Any]:
+           next_token: Optional[str] = None,
+           metadata_source: Optional[str] = None) -> Dict[str, Any]:
     """Makes a POST request to the specified endpoint using the API instance.
 
     Args:
@@ -153,4 +160,5 @@ class Endpoint:
     return self.api.post(payload=payload,
                          endpoint=self.endpoint,
                          all_pages=all_pages,
-                         next_token=next_token)
+                         next_token=next_token,
+                         metadata_source=metadata_source)
