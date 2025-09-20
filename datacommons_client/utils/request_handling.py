@@ -86,6 +86,7 @@ def build_headers(api_key: str | None = None) -> dict[str, str]:
   headers = {"Content-Type": "application/json"}
   if api_key:
     headers["X-API-Key"] = api_key
+    headers["x-surface"] = "clientlib-python-new"
   return headers
 
 
