@@ -95,6 +95,10 @@ class API:
     headers = self.headers
     # if this call originates from another DC product (MCP server, DataGemma, etc.), we indicate that to Mixer
     if(metadata_source):
+      # makes it clearer to public users that this is a tag specific to other DataCommons features
+      if(metadata_source != "mcp" and metadata_source != "datagemma"):
+        raise ValueError("Metadata Source should only be passed in to indicate a call made in the DataCommons MCP server or DataGemma.")
+
       headers["x-surface"] = metadata_source
 
     return post_request(url=url,
