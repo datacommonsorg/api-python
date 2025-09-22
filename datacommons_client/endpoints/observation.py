@@ -47,7 +47,7 @@ class ObservationEndpoint(Endpoint):
             filter_facet_domains (Optional[str | list[str]]): One or more domain names to filter the data.
             filter_facet_ids (Optional[str | list[str]]): One or more facet IDs to filter the data.
             metadata_source (Optional[str]): indicates which DC surface (MCP server, etc.) makes a call to the client 
-                if the call originated internally, otherwise null and we pass in "clientlib-python-new" as the surface header
+                if the call originated internally, otherwise null and we pass in "clientlib-python" as the surface header
 
         Returns:
             ObservationResponse: The response object containing observations for the specified query.
@@ -98,7 +98,7 @@ class ObservationEndpoint(Endpoint):
             filter_facet_domains: Optional[str | list[str]: One or more domain names to filter the data.
             filter_facet_ids: Optional[str | list[str]: One or more facet IDs to filter the data.
             metadata_source: Optional[str]: indicates which DC surface (MCP server, etc.) makes a call to the client 
-                if the call originated internally, otherwise null and we pass in "clientlib-python-new" as the surface header
+                if the call originated internally, otherwise null and we pass in "clientlib-python" as the surface header
 
         Returns:
             ObservationResponse: The response object containing observations for the specified entity type.
@@ -154,7 +154,7 @@ class ObservationEndpoint(Endpoint):
             filter_facet_domains: Optional[str | list[str]: One or more domain names to filter the data.
             filter_facet_ids: Optional[str | list[str]: One or more facet IDs to filter the data.
             metadata_source: Optional[str]: indicates which DC surface (MCP server, etc.) makes a call to the client 
-                if the call originated internally, otherwise null and we pass in "clientlib-python-new" as the surface header
+                if the call originated internally, otherwise null and we pass in "clientlib-python" as the surface header
 
         Returns:
             ObservationResponse: The response object containing observations for the specified entity type.
