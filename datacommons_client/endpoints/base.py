@@ -3,7 +3,6 @@ from typing import Any, Dict, Optional
 
 from datacommons_client.utils.error_handling import InvalidSurfaceHeaderValueError
 from datacommons_client.utils.error_handling import VALID_SURFACE_HEADER_VALUES
-from datacommons_client.utils.request_handling import build_headers
 from datacommons_client.utils.request_handling import check_instance_is_valid
 from datacommons_client.utils.request_handling import post_request
 from datacommons_client.utils.request_handling import resolve_instance_url
@@ -46,7 +45,7 @@ class API:
     if not dc_instance and not url:
       dc_instance = "datacommons.org"
 
-    self.headers = build_headers(api_key)
+    self.api_key = api_key if api_key else None
 
     if url is not None:
       # Use the given URL directly (strip trailing slash)
@@ -62,7 +61,7 @@ class API:
           for pattern in VALID_SURFACE_HEADER_VALUES):
         raise InvalidSurfaceHeaderValueError
     
-    self.surface_header_value = surface_header_value if surface_header_value else None
+    self.headers = self.build_headers(surface_header_value)
 
   def __repr__(self) -> str:
     """Returns a readable representation of the API object.
@@ -104,17 +103,37 @@ class API:
       raise ValueError("Payload must be a dictionary.")
 
     url = (self.base_url if endpoint is None else f"{self.base_url}/{endpoint}")
-    headers = self.headers
     # if this call originates from another DC product (MCP server, DataGemma, etc.), we indicate that to Mixer
     # we use patterns
-    if self.surface_header_value:
-      headers["x-surface"] = self.surface_header_value
-
+    
     return post_request(url=url,
                         payload=payload,
-                        headers=headers,
+                        headers=self.headers,
                         all_pages=all_pages,
                         next_token=next_token)
+
+  def build_headers(self, surface_header_value: Optional[str]) -> dict[str, str]:
+    """Build request headers for API requests.
+
+    Includes JSON content type. If an API key is provided, add it as `X-API-Key`.
+
+    Args:
+        self: the API, which includes API key and surface header if available
+
+    Returns:
+        A dictionary of headers for the request.
+    """
+    headers = {
+        "Content-Type": "application/json",
+        "x-surface": "clientlib-python"
+    }
+    if self.api_key:
+      headers["X-API-Key"] = self.api_key
+
+    if surface_header_value:
+        headers["x-surface"] = surface_header_value
+
+    return headers
 
 
 class Endpoint:

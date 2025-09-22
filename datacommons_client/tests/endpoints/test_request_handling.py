@@ -13,7 +13,6 @@ from datacommons_client.utils.request_handling import _fetch_with_pagination
 from datacommons_client.utils.request_handling import _merge_values
 from datacommons_client.utils.request_handling import _recursively_merge_dicts
 from datacommons_client.utils.request_handling import _send_post_request
-from datacommons_client.utils.request_handling import build_headers
 from datacommons_client.utils.request_handling import check_instance_is_valid
 from datacommons_client.utils.request_handling import post_request
 from datacommons_client.utils.request_handling import resolve_instance_url
@@ -109,21 +108,6 @@ def test_send_post_request_other_http_error(mock_post):
 
   with pytest.raises(APIError):
     _send_post_request("https://api.test.com", {}, {})
-
-
-def test_build_headers_with_api_key():
-  """Tests building headers with an API key."""
-  headers = build_headers("test-api-key")
-  assert headers["Content-Type"] == "application/json"
-  assert headers["X-API-Key"] == "test-api-key"
-
-
-def test_build_headers_without_api_key():
-  """Tests building headers without an API key."""
-  headers = build_headers()
-  assert headers["Content-Type"] == "application/json"
-  assert "X-API-Key" not in headers
-
 
 @patch("requests.post")
 def test_send_post_request_success(mock_post):
