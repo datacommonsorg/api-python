@@ -21,23 +21,19 @@ def test_api_initialization_default(mock_check_instance, mock_resolve_instance):
   api = API()
 
   assert api.base_url == "https://api.datacommons.org/v2"
-  assert api.headers == {"Content-Type": "application/json"}
+  assert api.headers == {"Content-Type": "application/json", "x-surface": "clientlib-python"}
   mock_resolve_instance.assert_called_once_with("datacommons.org")
 
 
 @patch(
-    "datacommons_client.endpoints.base.build_headers",
-    return_value={"Content-Type": "application/json"},
-)
-@patch(
     "datacommons_client.endpoints.base.check_instance_is_valid",
     return_value="https://custom_instance.api/v2",
 )
-def test_api_initialization_with_url(mock_check_instance, mock_build_headers):
+def test_api_initialization_with_url(mock_check_instance):
   """Tests API initialization with a fully qualified URL."""
   api = API(url="https://custom_instance.api/v2")
   assert api.base_url == "https://custom_instance.api/v2"
-  assert api.headers == {"Content-Type": "application/json"}
+  assert api.headers == {"Content-Type": "application/json", "x-surface": "clientlib-python"}
   mock_check_instance.assert_called_once_with("https://custom_instance.api/v2")
 
 
@@ -45,17 +41,12 @@ def test_api_initialization_with_url(mock_check_instance, mock_build_headers):
     "datacommons_client.endpoints.base.resolve_instance_url",
     return_value="https://custom-instance/api/v2",
 )
-@patch(
-    "datacommons_client.endpoints.base.build_headers",
-    return_value={"Content-Type": "application/json"},
-)
-def test_api_initialization_with_dc_instance(mock_build_headers,
-                                             mock_resolve_instance_url):
+def test_api_initialization_with_dc_instance(mock_resolve_instance_url):
   """Tests API initialization with a custom Data Commons instance."""
   api = API(dc_instance="custom-instance")
 
   assert api.base_url == "https://custom-instance/api/v2"
-  assert api.headers == {"Content-Type": "application/json"}
+  assert api.headers == {"Content-Type": "application/json", "x-surface": "clientlib-python"}
   mock_resolve_instance_url.assert_called_once_with("custom-instance")
 
 @patch(
@@ -65,7 +56,7 @@ def test_api_initialization_with_dc_instance(mock_build_headers,
 def test_api_initialization_with_surface_header(mock_url):
   """Tests API initialization with an invalid surface header raises an InvalidSurfaceHeaderValueError."""
   api = API(dc_instance="custom-instance", surface_header_value="mcp-1.1.0")
-  assert api.headers["x-surface"] == "mcp-1.1.0"
+  assert api.headers == {"Content-Type": "application/json", "x-surface": "mcp-1.1.0"}
 
 
 def test_api_initialization_invalid_args():
@@ -104,7 +95,12 @@ def test_build_headers_with_api_key_no_surface(mock_url):
   assert api.headers["Content-Type"] == "application/json"
   assert api.headers["X-API-Key"] == "test_key"
 
-def test_build_headers_with_api_key_and_surface():
+
+@patch(
+    "datacommons_client.endpoints.base.resolve_instance_url",
+    return_value="https://custom-instance/api/v2",
+)
+def test_build_headers_with_api_key_and_surface(mock_url):
   """Tests building headers with an API key and a surface header."""
   api = API(dc_instance="custom-instance", api_key="test_key", surface_header_value="mcp-1.0")
   assert api.headers["Content-Type"] == "application/json"
@@ -262,14 +258,10 @@ def test_endpoint_post_request_invalid_payload(mock_check_instance):
 
 
 @patch(
-    "datacommons_client.endpoints.base.build_headers",
-    side_effect=lambda api_key: {"X-API-Key": api_key} if api_key else {},
-)
-@patch(
     "datacommons_client.endpoints.base.check_instance_is_valid",
     return_value="https://custom.api/v2",
 )
-def test_api_repr(mock_check_instance, mock_build_headers):
+def test_api_repr(mock_check_instance):
   """Tests the __repr__ method of the API class."""
   # Without API key
   api = API(url="https://custom.api/v2")
@@ -280,19 +272,12 @@ def test_api_repr(mock_check_instance, mock_build_headers):
   assert (
       repr(api_with_key) == "<API at https://custom.api/v2 (Authenticated)>")
 
-  mock_build_headers.assert_any_call(None)
-  mock_build_headers.assert_any_call("test_key")
 
-
-@patch(
-    "datacommons_client.endpoints.base.build_headers",
-    return_value={"Content-Type": "application/json"},
-)
 @patch(
     "datacommons_client.endpoints.base.check_instance_is_valid",
     return_value="https://custom.api/v2",
 )
-def test_endpoint_repr(mock_check_instance, mock_build_headers):
+def test_endpoint_repr(mock_check_instance):
   """Tests the __repr__ method of the Endpoint class."""
   api = API(url="https://custom.api/v2")
   endpoint = Endpoint(endpoint="node", api=api)

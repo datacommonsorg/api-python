@@ -34,12 +34,7 @@ def mock_client():
     "datacommons_client.utils.request_handling.check_instance_is_valid",
     return_value="https://datacommons.org",
 )
-@patch(
-    "datacommons_client.utils.request_handling.build_headers",
-    return_value={"X-API-Key": "test_key"},
-)
-def test_datacommons_client_initialization(mock_build_headers,
-                                           mock_check_instance,
+def test_datacommons_client_initialization(mock_check_instance,
                                            mock_resolve_instance_url):
   """Tests that DataCommonsClient initializes correctly with API and endpoints, using a fake address."""
   client = DataCommonsClient(api_key="test_key", dc_instance="test_instance")
