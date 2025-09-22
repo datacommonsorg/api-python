@@ -23,7 +23,7 @@ function setup_python {
   python3 -m pip install --upgrade pip hatch
   # here temporarily while there is an incompatibility with hatch and the newest click version
   # see https://github.com/pypa/hatch/pull/2051 for status updates from Hatch
-  pip uninstall click
+  pip uninstall click -y
   pip install click==8.2.1
   hatch env create
 }
