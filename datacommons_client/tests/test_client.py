@@ -48,7 +48,7 @@ def test_datacommons_client_initialization(mock_build_headers,
   assert client.api.headers == {
       "Content-Type": "application/json",
       "X-API-Key": "test_key",
-      "x-surface": 'clientlib-python'
+      "x-surface": "clientlib-python"
   }
 
   assert isinstance(client.node, NodeEndpoint)

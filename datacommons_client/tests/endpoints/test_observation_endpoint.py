@@ -133,7 +133,7 @@ def test_fetch_available_statistical_variables_single_entity():
       entity_dcids="ent1",
       select=[ObservationSelect.VARIABLE, ObservationSelect.ENTITY],
       variable_dcids=[],
-      metadata_source=None
+      surface_header_value=None
   )
 
 

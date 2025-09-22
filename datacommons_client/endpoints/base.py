@@ -1,10 +1,11 @@
+import re
 from typing import Any, Dict, Optional
 
 from datacommons_client.utils.request_handling import build_headers
 from datacommons_client.utils.request_handling import check_instance_is_valid
 from datacommons_client.utils.request_handling import post_request
 from datacommons_client.utils.request_handling import resolve_instance_url
-
+from datacommons_client.utils.error_handling import InvalidSurfaceHeaderValueError, VALID_SURFACE_HEADER_VALUES
 
 class API:
   """Represents a configured API interface to the Data Commons API.
@@ -67,7 +68,7 @@ class API:
       *,
       all_pages: bool = True,
       next_token: Optional[str] = None,
-      metadata_source: Optional[str] = None
+      surface_header_value: Optional[str] = None
   ) -> Dict[str, Any]:
     """Makes a POST request using the configured API environment.
 
@@ -81,7 +82,7 @@ class API:
             Defaults to True. Set to False to only fetch the first page. In that case, a
             `next_token` key in the response will indicate if more pages are available.
             That token can be used to fetch the next page.
-        metadata_source: indicates which DC surface (MCP server, etc.) makes a call to the client 
+        surface_header_value: indicates which DC surface (MCP server, etc.) makes a call to the client 
                 if the call originated internally, otherwise null and we pass in "clientlib-python" as the surface header
 
     Returns:
@@ -96,12 +97,13 @@ class API:
     url = (self.base_url if endpoint is None else f"{self.base_url}/{endpoint}")
     headers = self.headers
     # if this call originates from another DC product (MCP server, DataGemma, etc.), we indicate that to Mixer
-    if(metadata_source):
-      # makes it clearer to public users that this is a tag specific to other DataCommons features
-      if(metadata_source != "mcp" and metadata_source != "datagemma"):
-        raise ValueError("Metadata Source should only be passed in to indicate a call made in the DataCommons MCP server or DataGemma.")
+    # we use patterns 
+    if surface_header_value:
+      # use patterns to support tages like mcp-{VERSION}
+      if not any(re.fullmatch(pattern, surface_header_value) for pattern in VALID_SURFACE_HEADER_VALUES):
+        raise InvalidSurfaceHeaderValueError
 
-      headers["x-surface"] = metadata_source
+      headers["x-surface"] = surface_header_value
 
     return post_request(url=url,
                         payload=payload,
