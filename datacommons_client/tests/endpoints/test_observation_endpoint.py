@@ -20,7 +20,6 @@ def test_fetch():
                             entity_dcids="dc/EntityID",
                             filter_facet_domains="domain1",
                             filter_facet_ids="facet1")
-
   # Check the response
   assert isinstance(response, ObservationResponse)
 
@@ -133,6 +132,7 @@ def test_fetch_available_statistical_variables_single_entity():
       entity_dcids="ent1",
       select=[ObservationSelect.VARIABLE, ObservationSelect.ENTITY],
       variable_dcids=[],
+      metadata_source=None
   )
 
 

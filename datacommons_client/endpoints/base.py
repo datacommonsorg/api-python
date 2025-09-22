@@ -49,6 +49,9 @@ class API:
       # Resolve from dc_instance
       self.base_url = resolve_instance_url(dc_instance)
 
+    # fake for testing
+    self.base_url = "http://127.0.0.1:8081/v2"
+
   def __repr__(self) -> str:
     """Returns a readable representation of the API object.
 
@@ -93,6 +96,7 @@ class API:
 
     url = (self.base_url if endpoint is None else f"{self.base_url}/{endpoint}")
     headers = self.headers
+    print("headers: ", headers)
     # if this call originates from another DC product (MCP server, DataGemma, etc.), we indicate that to Mixer
     if(metadata_source):
       # makes it clearer to public users that this is a tag specific to other DataCommons features
