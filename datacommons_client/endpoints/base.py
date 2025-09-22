@@ -82,7 +82,7 @@ class API:
             `next_token` key in the response will indicate if more pages are available.
             That token can be used to fetch the next page.
         metadata_source: indicates which DC surface (MCP server, etc.) makes a call to the client 
-                if the call originated internally, otherwise null and we pass in "clientlib-python-new" as the surface header
+                if the call originated internally, otherwise null and we pass in "clientlib-python" as the surface header
 
     Returns:
         A dictionary containing the merged response data.
