@@ -70,7 +70,7 @@ def _send_request(req_url,
   Returns:
     The payload returned by sending the POST/GET request formatted as a dict.
   """
-  headers = {'Content-Type': 'application/json', 'x-surface': 'clientlib-python-old'}
+  headers = {'Content-Type': 'application/json'}
 
   # Pass along API key if provided
   if os.environ.get(_ENV_VAR_API_KEY):
