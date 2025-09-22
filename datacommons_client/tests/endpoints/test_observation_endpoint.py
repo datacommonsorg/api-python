@@ -20,7 +20,7 @@ def test_fetch():
                             entity_dcids="dc/EntityID",
                             filter_facet_domains="domain1",
                             filter_facet_ids="facet1")
-  
+
   # Check the response
   assert isinstance(response, ObservationResponse)
 

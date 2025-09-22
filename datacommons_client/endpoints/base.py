@@ -49,9 +49,6 @@ class API:
       # Resolve from dc_instance
       self.base_url = resolve_instance_url(dc_instance)
 
-    # fake for testing
-    self.base_url = "http://127.0.0.1:8081/v2"
-
   def __repr__(self) -> str:
     """Returns a readable representation of the API object.
 
@@ -84,6 +81,8 @@ class API:
             Defaults to True. Set to False to only fetch the first page. In that case, a
             `next_token` key in the response will indicate if more pages are available.
             That token can be used to fetch the next page.
+        metadata_source: indicates which DC surface (MCP server, etc.) makes a call to the client 
+                if the call originated internally, otherwise null and we pass in "clientlib-python-new" as the surface header
 
     Returns:
         A dictionary containing the merged response data.
@@ -96,7 +95,6 @@ class API:
 
     url = (self.base_url if endpoint is None else f"{self.base_url}/{endpoint}")
     headers = self.headers
-    print("headers: ", headers)
     # if this call originates from another DC product (MCP server, DataGemma, etc.), we indicate that to Mixer
     if(metadata_source):
       # makes it clearer to public users that this is a tag specific to other DataCommons features
