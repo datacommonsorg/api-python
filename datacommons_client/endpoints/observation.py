@@ -22,17 +22,15 @@ class ObservationEndpoint(Endpoint):
     """Initializes the ObservationEndpoint instance."""
     super().__init__(endpoint="observation", api=api)
 
-  def fetch(
-      self,
-      variable_dcids: str | list[str],
-      date: ObservationDate | str = ObservationDate.LATEST,
-      select: Optional[list[ObservationSelect | str]] = None,
-      entity_dcids: Optional[str | list[str]] = None,
-      entity_expression: Optional[str] = None,
-      filter_facet_domains: Optional[str | list[str]] = None,
-      filter_facet_ids: Optional[str | list[str]] = None,
-      surface_header_value: Optional[str] = None
-  ) -> ObservationResponse:
+  def fetch(self,
+            variable_dcids: str | list[str],
+            date: ObservationDate | str = ObservationDate.LATEST,
+            select: Optional[list[ObservationSelect | str]] = None,
+            entity_dcids: Optional[str | list[str]] = None,
+            entity_expression: Optional[str] = None,
+            filter_facet_domains: Optional[str | list[str]] = None,
+            filter_facet_ids: Optional[str | list[str]] = None,
+            surface_header_value: Optional[str] = None) -> ObservationResponse:
     """
         Fetches data from the observation endpoint.
 
@@ -63,7 +61,8 @@ class ObservationEndpoint(Endpoint):
         filter_facet_ids=filter_facet_ids,
     ).to_dict()
 
-    response = self.post(payload, surface_header_value)
+    response = self.post(payload=payload,
+                         surface_header_value=surface_header_value)
 
     # Send the request
     return ObservationResponse.model_validate(response)
@@ -78,8 +77,7 @@ class ObservationEndpoint(Endpoint):
       select: Optional[list[ObservationSelect | str]] = None,
       filter_facet_domains: Optional[str | list[str]] = None,
       filter_facet_ids: Optional[str | list[str]] = None,
-      surface_header_value: Optional[str] = None
-  ) -> ObservationResponse:
+      surface_header_value: Optional[str] = None) -> ObservationResponse:
     """
         Fetches all observations for a given entity type.
 
@@ -125,8 +123,7 @@ class ObservationEndpoint(Endpoint):
         f"{parent_entity}<-containedInPlace+{{typeOf:{entity_type}}}",
         filter_facet_domains=filter_facet_domains,
         filter_facet_ids=filter_facet_ids,
-        surface_header_value=surface_header_value
-    )
+        surface_header_value=surface_header_value)
 
   def fetch_observations_by_entity_dcid(
       self,
@@ -137,8 +134,7 @@ class ObservationEndpoint(Endpoint):
       select: Optional[list[ObservationSelect | str]] = None,
       filter_facet_domains: Optional[str | list[str]] = None,
       filter_facet_ids: Optional[str | list[str]] = None,
-      surface_header_value: Optional[str] = None
-  ) -> ObservationResponse:
+      surface_header_value: Optional[str] = None) -> ObservationResponse:
     """
         Fetches all observations for a given entity type.
 
@@ -179,8 +175,7 @@ class ObservationEndpoint(Endpoint):
         entity_dcids=entity_dcids,
         filter_facet_domains=filter_facet_domains,
         filter_facet_ids=filter_facet_ids,
-        surface_header_value=surface_header_value
-    )
+        surface_header_value=surface_header_value)
 
   def fetch_available_statistical_variables(
       self,

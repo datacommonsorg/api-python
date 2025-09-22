@@ -88,7 +88,10 @@ class NoDataForPropertyError(DataCommonsError):
 
   default_message = "No available data for the specified property filters."
 
+
 VALID_SURFACE_HEADER_VALUES = ["mcp", r"mcp-\d+", "datagemma"]
+
+
 class InvalidSurfaceHeaderValueError(DataCommonsError):
   """ 
     Raised when a surface_header_value is passed in that is not a valid Data Commons surface.

@@ -26,7 +26,8 @@ def test_fetch():
   },
                                         endpoint="resolve",
                                         all_pages=True,
-                                        next_token=None)
+                                        next_token=None,
+                                        surface_header_value=None)
 
 
 def test_fetch_dcid_by_name():
@@ -48,7 +49,8 @@ def test_fetch_dcid_by_name():
   },
                                         endpoint="resolve",
                                         all_pages=True,
-                                        next_token=None)
+                                        next_token=None,
+                                        surface_header_value=None)
 
 
 def test_fetch_dcid_by_wikidata_id():
@@ -70,7 +72,8 @@ def test_fetch_dcid_by_wikidata_id():
   },
                                         endpoint="resolve",
                                         all_pages=True,
-                                        next_token=None)
+                                        next_token=None,
+                                        surface_header_value=None)
 
 
 def test_fetch_dcids_list_by_wikidata_id():
@@ -92,7 +95,8 @@ def test_fetch_dcids_list_by_wikidata_id():
   },
                                         endpoint="resolve",
                                         all_pages=True,
-                                        next_token=None)
+                                        next_token=None,
+                                        surface_header_value=None)
 
 
 def test_fetch_dcid_by_coordinates():
@@ -115,7 +119,8 @@ def test_fetch_dcid_by_coordinates():
   },
                                         endpoint="resolve",
                                         all_pages=True,
-                                        next_token=None)
+                                        next_token=None,
+                                        surface_header_value=None)
 
 
 def test_resolve_correspondence_expression():
