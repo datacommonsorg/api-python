@@ -22,6 +22,9 @@ class API:
       api_key: Optional[str] = None,
       dc_instance: Optional[str] = None,
       url: Optional[str] = None,
+      # indicates which DC surface (MCP server, etc.) makes a call to the client 
+      # if the call originated internally, otherwise null and we pass in "clientlib-python" as the surface header
+      surface_header_value: Optional[str] = None,
   ):
     """
     Initializes the API instance.
@@ -52,6 +55,15 @@ class API:
       # Resolve from dc_instance
       self.base_url = resolve_instance_url(dc_instance)
 
+    if surface_header_value:
+      # use patterns to support tages like mcp-{VERSION}
+      if not any(
+          re.fullmatch(pattern, surface_header_value)
+          for pattern in VALID_SURFACE_HEADER_VALUES):
+        raise InvalidSurfaceHeaderValueError
+    
+    self.surface_header_value = surface_header_value if surface_header_value else None
+
   def __repr__(self) -> str:
     """Returns a readable representation of the API object.
 
@@ -68,8 +80,7 @@ class API:
            endpoint: Optional[str] = None,
            *,
            all_pages: bool = True,
-           next_token: Optional[str] = None,
-           surface_header_value: Optional[str] = None) -> Dict[str, Any]:
+           next_token: Optional[str] = None) -> Dict[str, Any]:
     """Makes a POST request using the configured API environment.
 
     If `endpoint` is provided, it will be appended to the base_url. Otherwise,
@@ -82,8 +93,6 @@ class API:
             Defaults to True. Set to False to only fetch the first page. In that case, a
             `next_token` key in the response will indicate if more pages are available.
             That token can be used to fetch the next page.
-        surface_header_value: indicates which DC surface (MCP server, etc.) makes a call to the client 
-                if the call originated internally, otherwise null and we pass in "clientlib-python" as the surface header
 
     Returns:
         A dictionary containing the merged response data.
@@ -98,14 +107,8 @@ class API:
     headers = self.headers
     # if this call originates from another DC product (MCP server, DataGemma, etc.), we indicate that to Mixer
     # we use patterns
-    if surface_header_value:
-      # use patterns to support tages like mcp-{VERSION}
-      if not any(
-          re.fullmatch(pattern, surface_header_value)
-          for pattern in VALID_SURFACE_HEADER_VALUES):
-        raise InvalidSurfaceHeaderValueError
-
-      headers["x-surface"] = surface_header_value
+    if self.surface_header_value:
+      headers["x-surface"] = self.surface_header_value
 
     return post_request(url=url,
                         payload=payload,
@@ -149,8 +152,7 @@ class Endpoint:
   def post(self,
            payload: dict[str, Any],
            all_pages: bool = True,
-           next_token: Optional[str] = None,
-           surface_header_value: Optional[str] = None) -> Dict[str, Any]:
+           next_token: Optional[str] = None) -> Dict[str, Any]:
     """Makes a POST request to the specified endpoint using the API instance.
 
     Args:
@@ -160,8 +162,6 @@ class Endpoint:
             `next_token` key in the response will indicate if more pages are available.
             That token can be used to fetch the next page.
         next_token: Optionally, the token to fetch the next page of results. Defaults to None.
-        surface_header_value: indicates which DC surface (MCP server, etc.) makes a call to the client 
-                if the call originated internally, otherwise null and we pass in "clientlib-python" as the surface header
 
     Returns:
         A dictionary with the merged API response data.
@@ -172,5 +172,4 @@ class Endpoint:
     return self.api.post(payload=payload,
                          endpoint=self.endpoint,
                          all_pages=all_pages,
-                         next_token=next_token,
-                         surface_header_value=surface_header_value)
+                         next_token=next_token)

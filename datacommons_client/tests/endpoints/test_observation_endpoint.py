@@ -41,8 +41,7 @@ def test_fetch():
   },
                                         endpoint="observation",
                                         all_pages=True,
-                                        next_token=None,
-                                        surface_header_value=None)
+                                        next_token=None)
 
 
 def test_fetch_observations_by_entity_type():
@@ -74,8 +73,7 @@ def test_fetch_observations_by_entity_type():
   },
                                         endpoint="observation",
                                         all_pages=True,
-                                        next_token=None,
-                                        surface_header_value=None)
+                                        next_token=None)
 
 
 def test_fetch_observations_facets_by_entity_type():
@@ -108,8 +106,7 @@ def test_fetch_observations_facets_by_entity_type():
   },
                                         endpoint="observation",
                                         all_pages=True,
-                                        next_token=None,
-                                        surface_header_value=None)
+                                        next_token=None)
 
 
 def test_fetch_available_statistical_variables_single_entity():
@@ -135,8 +132,7 @@ def test_fetch_available_statistical_variables_single_entity():
   endpoint.fetch.assert_called_once_with(
       entity_dcids="ent1",
       select=[ObservationSelect.VARIABLE, ObservationSelect.ENTITY],
-      variable_dcids=[],
-      surface_header_value=None)
+      variable_dcids=[])
 
 
 def test_fetch_available_statistical_variables_multiple_entities():

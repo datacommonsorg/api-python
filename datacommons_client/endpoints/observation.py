@@ -61,8 +61,7 @@ class ObservationEndpoint(Endpoint):
         filter_facet_ids=filter_facet_ids,
     ).to_dict()
 
-    response = self.post(payload=payload,
-                         surface_header_value=surface_header_value)
+    response = self.post(payload=payload)
 
     # Send the request
     return ObservationResponse.model_validate(response)
@@ -122,8 +121,7 @@ class ObservationEndpoint(Endpoint):
         entity_expression=
         f"{parent_entity}<-containedInPlace+{{typeOf:{entity_type}}}",
         filter_facet_domains=filter_facet_domains,
-        filter_facet_ids=filter_facet_ids,
-        surface_header_value=surface_header_value)
+        filter_facet_ids=filter_facet_ids)
 
   def fetch_observations_by_entity_dcid(
       self,
@@ -174,8 +172,7 @@ class ObservationEndpoint(Endpoint):
         select=[s for s in ObservationSelect] if not select else select,
         entity_dcids=entity_dcids,
         filter_facet_domains=filter_facet_domains,
-        filter_facet_ids=filter_facet_ids,
-        surface_header_value=surface_header_value)
+        filter_facet_ids=filter_facet_ids)
 
   def fetch_available_statistical_variables(
       self,
@@ -196,8 +193,7 @@ class ObservationEndpoint(Endpoint):
     data = self.fetch(
         entity_dcids=entity_dcids,
         select=[ObservationSelect.VARIABLE, ObservationSelect.ENTITY],
-        variable_dcids=[],
-        surface_header_value=surface_header_value,
+        variable_dcids=[]
     ).get_data_by_entity()
 
     return group_variables_by_entity(data=data)

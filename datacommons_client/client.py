@@ -38,6 +38,7 @@ class DataCommonsClient:
       *,
       dc_instance: Optional[str] = "datacommons.org",
       url: Optional[str] = None,
+      surface_header_value: Optional[str] = None
   ):
     """
         Initializes the DataCommonsClient.
@@ -54,7 +55,7 @@ class DataCommonsClient:
       dc_instance = None
 
     # Create an instance of the API class which will be injected to the endpoints
-    self.api = API(api_key=api_key, dc_instance=dc_instance, url=url)
+    self.api = API(api_key=api_key, dc_instance=dc_instance, url=url, surface_header_value=surface_header_value)
 
     # Create instances of the endpoints
     self.node = NodeEndpoint(api=self.api)

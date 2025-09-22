@@ -36,8 +36,7 @@ def test_node_endpoint_fetch():
   },
                                         endpoint="node",
                                         all_pages=True,
-                                        next_token=None,
-                                        surface_header_value=None)
+                                        next_token=None)
   assert isinstance(response, NodeResponse)
   assert "test_node" in response.data
 
@@ -79,8 +78,7 @@ def test_node_endpoint_fetch_property_values_out():
   },
                                         endpoint="node",
                                         all_pages=True,
-                                        next_token=None,
-                                        surface_header_value=None)
+                                        next_token=None)
   assert isinstance(response, NodeResponse)
   assert "node1" in response.data
 
@@ -104,8 +102,7 @@ def test_node_endpoint_fetch_property_values_in():
   },
                                         endpoint="node",
                                         all_pages=True,
-                                        next_token=None,
-                                        surface_header_value=None)
+                                        next_token=None)
   assert isinstance(response, NodeResponse)
   assert "node1" in response.data
 
@@ -149,8 +146,7 @@ def test_node_endpoint_fetch_property_values_string_vs_list():
   },
                                    endpoint="node",
                                    all_pages=True,
-                                   next_token=None,
-                                   surface_header_value=None)
+                                   next_token=None)
 
   # List input
   response = endpoint.fetch_property_values(node_dcids="node1",
@@ -163,8 +159,7 @@ def test_node_endpoint_fetch_property_values_string_vs_list():
   },
                                    endpoint="node",
                                    all_pages=True,
-                                   next_token=None,
-                                   surface_header_value=None)
+                                   next_token=None)
 
 
 @patch(
