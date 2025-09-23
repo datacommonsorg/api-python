@@ -54,6 +54,7 @@ def test_datacommons_client_initialization(mock_check_instance,
   assert client.observation.api is client.api
   assert client.resolve.api is client.api
 
+
 @patch(
     "datacommons_client.endpoints.base.check_instance_is_valid",
     return_value="https://test.url",

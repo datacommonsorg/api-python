@@ -45,8 +45,6 @@ class API:
     if not dc_instance and not url:
       dc_instance = "datacommons.org"
 
-    self.api_key = api_key if api_key else None
-
     if url is not None:
       # Use the given URL directly (strip trailing slash)
       self.base_url = check_instance_is_valid(url.rstrip("/"))
@@ -63,7 +61,8 @@ class API:
           for pattern in VALID_SURFACE_HEADER_VALUES):
         raise InvalidSurfaceHeaderValueError
 
-    self.headers = self.build_headers(surface_header_value)
+    self.headers = self.build_headers(surface_header_value=surface_header_value,
+                                      api_key=api_key)
 
   def __repr__(self) -> str:
     """Returns a readable representation of the API object.
@@ -113,7 +112,8 @@ class API:
                         next_token=next_token)
 
   def build_headers(self,
-                    surface_header_value: Optional[str]) -> dict[str, str]:
+                    surface_header_value: Optional[str],
+                    api_key: Optional[str] = None) -> dict[str, str]:
     """Build request headers for API requests.
 
     Includes JSON content type. If an API key is provided, add it as `X-API-Key`.
@@ -128,8 +128,8 @@ class API:
         "Content-Type": "application/json",
         "x-surface": "clientlib-python"
     }
-    if self.api_key:
-      headers["X-API-Key"] = self.api_key
+    if api_key:
+      headers["X-API-Key"] = api_key
 
     if surface_header_value:
       headers["x-surface"] = surface_header_value
