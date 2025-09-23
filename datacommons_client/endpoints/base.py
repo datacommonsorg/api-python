@@ -21,8 +21,6 @@ class API:
       api_key: Optional[str] = None,
       dc_instance: Optional[str] = None,
       url: Optional[str] = None,
-      # indicates which DC surface (MCP server, etc.) makes a call to the client
-      # if the call originated internally, otherwise null and we pass in "clientlib-python" as the surface header
       surface_header_value: Optional[str] = None,
   ):
     """
@@ -35,6 +33,8 @@ class API:
         url: A fully qualified URL for the base API. This may be useful if more granular control
             of the API is required (for local development, for example). If provided, dc_instance`
              should not be provided.
+        surface_header_value: indicates which DC surface (MCP server, etc.) makes a call to the python library.
+            If the call originated internally, this is null and we pass in "clientlib-python" as the surface header 
 
     Raises:
         ValueError: If both `dc_instance` and `url` are provided.
