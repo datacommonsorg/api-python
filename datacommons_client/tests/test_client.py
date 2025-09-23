@@ -66,6 +66,7 @@ def test_datacommons_client_initialization(mock_check_instance,
 def test_datacommons_client_initialization_with_surface_header(
     mock_check_instance, mock_resolve_instance_url):
   """Tests that DataCommonsClient initializes correctly with a surface header value."""
+
   client = DataCommonsClient(api_key="test_key",
                              dc_instance="test_instance",
                              surface_header_value="mcp-1.0")
@@ -394,6 +395,7 @@ def test_observations_dataframe_raises_error_when_no_facet_match(mock_client):
 def test_client_end_to_end_surface_header_propagation_observation(
     mock_check_instance, mock_post):
   """Tests that the surface_header_value is propagated from client to the final request via the observation endpoint."""
+  
   # Mock the response from requests.post
   mock_response = MagicMock()
   mock_response.status_code = 200
