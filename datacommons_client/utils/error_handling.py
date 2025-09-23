@@ -94,7 +94,7 @@ VALID_SURFACE_HEADER_VALUES = ["mcp", r"mcp-[\d\.]+", "datagemma"]
 
 class InvalidSurfaceHeaderValueError(DataCommonsError):
   """ 
-    Raised when a surface_header_value is passed in that is not a valid Data Commons surface.
-    This value is used in the DC usage logs in Mixer
+    The surface header value must be a surface known to the Data Commons team.
+    This value is used in the DC usage logs in Mixer.
   """
   default_message = "The surface header value should only to indicate a call made from Data Commons surfaces like the MCP server or DataGemma."

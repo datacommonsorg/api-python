@@ -54,8 +54,10 @@ class API:
       # Resolve from dc_instance
       self.base_url = resolve_instance_url(dc_instance)
 
+    # if this call originates from another DC product (MCP server, DataGemma, etc.), we indicate that to Mixer
+    # otherwise, the 'x-surface' header is 'clientlib-python'
     if surface_header_value:
-      # use patterns to support tages like mcp-{VERSION}
+      # use patterns to support tags like mcp-{VERSION}
       if not any(
           re.fullmatch(pattern, surface_header_value)
           for pattern in VALID_SURFACE_HEADER_VALUES):
@@ -103,8 +105,6 @@ class API:
       raise ValueError("Payload must be a dictionary.")
 
     url = (self.base_url if endpoint is None else f"{self.base_url}/{endpoint}")
-    # if this call originates from another DC product (MCP server, DataGemma, etc.), we indicate that to Mixer
-    # we use patterns
 
     return post_request(url=url,
                         payload=payload,

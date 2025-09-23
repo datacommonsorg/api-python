@@ -22,15 +22,16 @@ class ObservationEndpoint(Endpoint):
     """Initializes the ObservationEndpoint instance."""
     super().__init__(endpoint="observation", api=api)
 
-  def fetch(self,
-            variable_dcids: str | list[str],
-            date: ObservationDate | str = ObservationDate.LATEST,
-            select: Optional[list[ObservationSelect | str]] = None,
-            entity_dcids: Optional[str | list[str]] = None,
-            entity_expression: Optional[str] = None,
-            filter_facet_domains: Optional[str | list[str]] = None,
-            filter_facet_ids: Optional[str | list[str]] = None,
-            surface_header_value: Optional[str] = None) -> ObservationResponse:
+  def fetch(
+      self,
+      variable_dcids: str | list[str],
+      date: ObservationDate | str = ObservationDate.LATEST,
+      select: Optional[list[ObservationSelect | str]] = None,
+      entity_dcids: Optional[str | list[str]] = None,
+      entity_expression: Optional[str] = None,
+      filter_facet_domains: Optional[str | list[str]] = None,
+      filter_facet_ids: Optional[str | list[str]] = None
+  ) -> ObservationResponse:
     """
         Fetches data from the observation endpoint.
 
@@ -44,8 +45,6 @@ class ObservationEndpoint(Endpoint):
             entity_expression (Optional[str]): A string expression to filter entities.
             filter_facet_domains (Optional[str | list[str]]): One or more domain names to filter the data.
             filter_facet_ids (Optional[str | list[str]]): One or more facet IDs to filter the data.
-            surface_header_value (Optional[str]): indicates which DC surface (MCP server, etc.) makes a call to the client 
-                if the call originated internally, otherwise null and we pass in "clientlib-python" as the surface header
 
         Returns:
             ObservationResponse: The response object containing observations for the specified query.
@@ -75,8 +74,8 @@ class ObservationEndpoint(Endpoint):
       *,
       select: Optional[list[ObservationSelect | str]] = None,
       filter_facet_domains: Optional[str | list[str]] = None,
-      filter_facet_ids: Optional[str | list[str]] = None,
-      surface_header_value: Optional[str] = None) -> ObservationResponse:
+      filter_facet_ids: Optional[str | list[str]] = None
+  ) -> ObservationResponse:
     """
         Fetches all observations for a given entity type.
 
@@ -94,8 +93,6 @@ class ObservationEndpoint(Endpoint):
                 If not provided, defaults to ["date", "variable", "entity", "value"].
             filter_facet_domains: Optional[str | list[str]: One or more domain names to filter the data.
             filter_facet_ids: Optional[str | list[str]: One or more facet IDs to filter the data.
-            surface_header_value: Optional[str]: indicates which DC surface (MCP server, etc.) makes a call to the client 
-                if the call originated internally, otherwise null and we pass in "clientlib-python" as the surface header
 
         Returns:
             ObservationResponse: The response object containing observations for the specified entity type.
@@ -131,8 +128,8 @@ class ObservationEndpoint(Endpoint):
       *,
       select: Optional[list[ObservationSelect | str]] = None,
       filter_facet_domains: Optional[str | list[str]] = None,
-      filter_facet_ids: Optional[str | list[str]] = None,
-      surface_header_value: Optional[str] = None) -> ObservationResponse:
+      filter_facet_ids: Optional[str | list[str]] = None
+  ) -> ObservationResponse:
     """
         Fetches all observations for a given entity type.
 
@@ -147,8 +144,6 @@ class ObservationEndpoint(Endpoint):
                 If not provided, defaults to ["date", "variable", "entity", "value"].
             filter_facet_domains: Optional[str | list[str]: One or more domain names to filter the data.
             filter_facet_ids: Optional[str | list[str]: One or more facet IDs to filter the data.
-            surface_header_value: Optional[str]: indicates which DC surface (MCP server, etc.) makes a call to the client 
-                if the call originated internally, otherwise null and we pass in "clientlib-python" as the surface header
 
         Returns:
             ObservationResponse: The response object containing observations for the specified entity type.
@@ -177,13 +172,11 @@ class ObservationEndpoint(Endpoint):
   def fetch_available_statistical_variables(
       self,
       entity_dcids: str | list[str],
-      surface_header_value: Optional[str] = None,
   ) -> dict[str, list[str]]:
     """
         Fetches available statistical variables (which have observations) for given entities.
         Args:
             entity_dcids (str | list[str]): One or more entity DCIDs(s) to fetch variables for.
-            surface_header_value (Optional[str]): flag to pass into mixer call if this fetch originated in another DC product (MCP server, etc.)
         Returns:
             dict[str, list[str]]: A dictionary mapping entity DCIDs to their available statistical variables.
         """
