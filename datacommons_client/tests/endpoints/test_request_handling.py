@@ -131,6 +131,26 @@ def test_send_post_request_success(mock_post):
 
 
 @patch("requests.post")
+def test_send_post_request_surface_header(mock_post):
+  """Tests a successful POST request with a surface header."""
+  mock_response = MagicMock()
+  mock_response.status_code = 200
+  mock_response.json.return_value = {"success": True}
+  mock_post.return_value = mock_response
+
+  # Mock the POST request
+  url = "https://api.test.com"
+  payload = {"key": "value"}
+  headers = {
+      "Content-Type": "application/json",
+      "x-surface": "mcp-1.0"
+  }
+
+  _send_post_request(url, payload, headers)
+  mock_post.assert_called_once_with(url, json=payload, headers=headers)
+
+
+@patch("requests.post")
 def test_send_post_request_http_error(mock_post):
   """Tests handling an HTTP error during a POST request."""
   # Create a mock response object with a 401 status code
