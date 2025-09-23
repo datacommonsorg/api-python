@@ -109,6 +109,7 @@ def test_send_post_request_other_http_error(mock_post):
   with pytest.raises(APIError):
     _send_post_request("https://api.test.com", {}, {})
 
+
 @patch("requests.post")
 def test_send_post_request_success(mock_post):
   """Tests a successful POST request."""

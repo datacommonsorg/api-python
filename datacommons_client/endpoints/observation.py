@@ -193,7 +193,6 @@ class ObservationEndpoint(Endpoint):
     data = self.fetch(
         entity_dcids=entity_dcids,
         select=[ObservationSelect.VARIABLE, ObservationSelect.ENTITY],
-        variable_dcids=[]
-    ).get_data_by_entity()
+        variable_dcids=[]).get_data_by_entity()
 
     return group_variables_by_entity(data=data)

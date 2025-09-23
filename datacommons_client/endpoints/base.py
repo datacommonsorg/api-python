@@ -21,7 +21,7 @@ class API:
       api_key: Optional[str] = None,
       dc_instance: Optional[str] = None,
       url: Optional[str] = None,
-      # indicates which DC surface (MCP server, etc.) makes a call to the client 
+      # indicates which DC surface (MCP server, etc.) makes a call to the client
       # if the call originated internally, otherwise null and we pass in "clientlib-python" as the surface header
       surface_header_value: Optional[str] = None,
   ):
@@ -60,7 +60,7 @@ class API:
           re.fullmatch(pattern, surface_header_value)
           for pattern in VALID_SURFACE_HEADER_VALUES):
         raise InvalidSurfaceHeaderValueError
-    
+
     self.headers = self.build_headers(surface_header_value)
 
   def __repr__(self) -> str:
@@ -105,14 +105,15 @@ class API:
     url = (self.base_url if endpoint is None else f"{self.base_url}/{endpoint}")
     # if this call originates from another DC product (MCP server, DataGemma, etc.), we indicate that to Mixer
     # we use patterns
-    
+
     return post_request(url=url,
                         payload=payload,
                         headers=self.headers,
                         all_pages=all_pages,
                         next_token=next_token)
 
-  def build_headers(self, surface_header_value: Optional[str]) -> dict[str, str]:
+  def build_headers(self,
+                    surface_header_value: Optional[str]) -> dict[str, str]:
     """Build request headers for API requests.
 
     Includes JSON content type. If an API key is provided, add it as `X-API-Key`.
@@ -131,7 +132,7 @@ class API:
       headers["X-API-Key"] = self.api_key
 
     if surface_header_value:
-        headers["x-surface"] = surface_header_value
+      headers["x-surface"] = surface_header_value
 
     return headers
 

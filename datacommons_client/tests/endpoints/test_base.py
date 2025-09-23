@@ -4,7 +4,6 @@ import pytest
 
 from datacommons_client.endpoints.base import API
 from datacommons_client.endpoints.base import Endpoint
-
 from datacommons_client.utils.error_handling import InvalidSurfaceHeaderValueError
 
 
@@ -21,7 +20,10 @@ def test_api_initialization_default(mock_check_instance, mock_resolve_instance):
   api = API()
 
   assert api.base_url == "https://api.datacommons.org/v2"
-  assert api.headers == {"Content-Type": "application/json", "x-surface": "clientlib-python"}
+  assert api.headers == {
+      "Content-Type": "application/json",
+      "x-surface": "clientlib-python"
+  }
   mock_resolve_instance.assert_called_once_with("datacommons.org")
 
 
@@ -33,7 +35,10 @@ def test_api_initialization_with_url(mock_check_instance):
   """Tests API initialization with a fully qualified URL."""
   api = API(url="https://custom_instance.api/v2")
   assert api.base_url == "https://custom_instance.api/v2"
-  assert api.headers == {"Content-Type": "application/json", "x-surface": "clientlib-python"}
+  assert api.headers == {
+      "Content-Type": "application/json",
+      "x-surface": "clientlib-python"
+  }
   mock_check_instance.assert_called_once_with("https://custom_instance.api/v2")
 
 
@@ -46,8 +51,12 @@ def test_api_initialization_with_dc_instance(mock_resolve_instance_url):
   api = API(dc_instance="custom-instance")
 
   assert api.base_url == "https://custom-instance/api/v2"
-  assert api.headers == {"Content-Type": "application/json", "x-surface": "clientlib-python"}
+  assert api.headers == {
+      "Content-Type": "application/json",
+      "x-surface": "clientlib-python"
+  }
   mock_resolve_instance_url.assert_called_once_with("custom-instance")
+
 
 @patch(
     "datacommons_client.endpoints.base.resolve_instance_url",
@@ -56,13 +65,17 @@ def test_api_initialization_with_dc_instance(mock_resolve_instance_url):
 def test_api_initialization_with_surface_header(mock_url):
   """Tests API initialization with an invalid surface header raises an InvalidSurfaceHeaderValueError."""
   api = API(dc_instance="custom-instance", surface_header_value="mcp-1.1.0")
-  assert api.headers == {"Content-Type": "application/json", "x-surface": "mcp-1.1.0"}
+  assert api.headers == {
+      "Content-Type": "application/json",
+      "x-surface": "mcp-1.1.0"
+  }
 
 
 def test_api_initialization_invalid_args():
   """Tests API initialization with both `dc_instance` and `url` raises a ValueError."""
   with pytest.raises(ValueError):
     API(dc_instance="custom-instance", url="https://custom.api/v2")
+
 
 @patch(
     "datacommons_client.endpoints.base.resolve_instance_url",
@@ -102,7 +115,9 @@ def test_build_headers_with_api_key_no_surface(mock_url):
 )
 def test_build_headers_with_api_key_and_surface(mock_url):
   """Tests building headers with an API key and a surface header."""
-  api = API(dc_instance="custom-instance", api_key="test_key", surface_header_value="mcp-1.0")
+  api = API(dc_instance="custom-instance",
+            api_key="test_key",
+            surface_header_value="mcp-1.0")
   assert api.headers["Content-Type"] == "application/json"
   assert api.headers["X-API-Key"] == "test_key"
   assert api.headers["x-surface"] == "mcp-1.0"
