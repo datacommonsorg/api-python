@@ -13,7 +13,6 @@ from datacommons_client.utils.request_handling import _fetch_with_pagination
 from datacommons_client.utils.request_handling import _merge_values
 from datacommons_client.utils.request_handling import _recursively_merge_dicts
 from datacommons_client.utils.request_handling import _send_post_request
-from datacommons_client.utils.request_handling import build_headers
 from datacommons_client.utils.request_handling import check_instance_is_valid
 from datacommons_client.utils.request_handling import post_request
 from datacommons_client.utils.request_handling import resolve_instance_url
@@ -111,20 +110,6 @@ def test_send_post_request_other_http_error(mock_post):
     _send_post_request("https://api.test.com", {}, {})
 
 
-def test_build_headers_with_api_key():
-  """Tests building headers with an API key."""
-  headers = build_headers("test-api-key")
-  assert headers["Content-Type"] == "application/json"
-  assert headers["X-API-Key"] == "test-api-key"
-
-
-def test_build_headers_without_api_key():
-  """Tests building headers without an API key."""
-  headers = build_headers()
-  assert headers["Content-Type"] == "application/json"
-  assert "X-API-Key" not in headers
-
-
 @patch("requests.post")
 def test_send_post_request_success(mock_post):
   """Tests a successful POST request."""
@@ -143,6 +128,24 @@ def test_send_post_request_success(mock_post):
   response = _send_post_request(url, payload, headers)
   assert response.status_code == 200
   assert response.json() == {"success": True}
+
+
+@patch("requests.post")
+def test_send_post_request_surface_header(mock_post):
+  """Tests a successful POST request with a surface header."""
+
+  mock_response = MagicMock()
+  mock_response.status_code = 200
+  mock_response.json.return_value = {"success": True}
+  mock_post.return_value = mock_response
+
+  # Mock the POST request
+  url = "https://api.test.com"
+  payload = {"key": "value"}
+  headers = {"Content-Type": "application/json", "x-surface": "mcp-1.0"}
+
+  _send_post_request(url, payload, headers)
+  mock_post.assert_called_once_with(url, json=payload, headers=headers)
 
 
 @patch("requests.post")

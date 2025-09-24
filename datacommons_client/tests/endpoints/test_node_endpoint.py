@@ -30,15 +30,13 @@ def test_node_endpoint_fetch():
   endpoint = NodeEndpoint(api=api_mock)
   response = endpoint.fetch(node_dcids="test_node", expression="name")
 
-  api_mock.post.assert_called_once_with(
-      payload={
-          "nodes": ["test_node"],
-          "property": "name"
-      },
-      endpoint="node",
-      all_pages=True,
-      next_token=None,
-  )
+  api_mock.post.assert_called_once_with(payload={
+      "nodes": ["test_node"],
+      "property": "name"
+  },
+                                        endpoint="node",
+                                        all_pages=True,
+                                        next_token=None)
   assert isinstance(response, NodeResponse)
   assert "test_node" in response.data
 
@@ -74,15 +72,13 @@ def test_node_endpoint_fetch_property_values_out():
                                             out=True)
 
   expected_expression = "->name{typeOf:City}"
-  api_mock.post.assert_called_once_with(
-      payload={
-          "nodes": ["node1"],
-          "property": expected_expression
-      },
-      endpoint="node",
-      all_pages=True,
-      next_token=None,
-  )
+  api_mock.post.assert_called_once_with(payload={
+      "nodes": ["node1"],
+      "property": expected_expression
+  },
+                                        endpoint="node",
+                                        all_pages=True,
+                                        next_token=None)
   assert isinstance(response, NodeResponse)
   assert "node1" in response.data
 
@@ -100,15 +96,13 @@ def test_node_endpoint_fetch_property_values_in():
                                             out=False)
 
   expected_expression = "<-name{typeOf:City}"
-  api_mock.post.assert_called_once_with(
-      payload={
-          "nodes": ["node1"],
-          "property": expected_expression
-      },
-      endpoint="node",
-      all_pages=True,
-      next_token=None,
-  )
+  api_mock.post.assert_called_once_with(payload={
+      "nodes": ["node1"],
+      "property": expected_expression
+  },
+                                        endpoint="node",
+                                        all_pages=True,
+                                        next_token=None)
   assert isinstance(response, NodeResponse)
   assert "node1" in response.data
 
@@ -146,30 +140,26 @@ def test_node_endpoint_fetch_property_values_string_vs_list():
                                             properties="name",
                                             constraints=None,
                                             out=True)
-  api_mock.post.assert_called_with(
-      payload={
-          "nodes": ["node1"],
-          "property": "->name"
-      },
-      endpoint="node",
-      all_pages=True,
-      next_token=None,
-  )
+  api_mock.post.assert_called_with(payload={
+      "nodes": ["node1"],
+      "property": "->name"
+  },
+                                   endpoint="node",
+                                   all_pages=True,
+                                   next_token=None)
 
   # List input
   response = endpoint.fetch_property_values(node_dcids="node1",
                                             properties=["name", "typeOf"],
                                             constraints=None,
                                             out=True)
-  api_mock.post.assert_called_with(
-      payload={
-          "nodes": ["node1"],
-          "property": "->[name, typeOf]"
-      },
-      endpoint="node",
-      all_pages=True,
-      next_token=None,
-  )
+  api_mock.post.assert_called_with(payload={
+      "nodes": ["node1"],
+      "property": "->[name, typeOf]"
+  },
+                                   endpoint="node",
+                                   all_pages=True,
+                                   next_token=None)
 
 
 @patch(
