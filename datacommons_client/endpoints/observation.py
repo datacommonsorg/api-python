@@ -30,7 +30,7 @@ class ObservationEndpoint(Endpoint):
       entity_dcids: Optional[str | list[str]] = None,
       entity_expression: Optional[str] = None,
       filter_facet_domains: Optional[str | list[str]] = None,
-      filter_facet_ids: Optional[str | list[str]] = None,
+      filter_facet_ids: Optional[str | list[str]] = None
   ) -> ObservationResponse:
     """
         Fetches data from the observation endpoint.
@@ -60,7 +60,7 @@ class ObservationEndpoint(Endpoint):
         filter_facet_ids=filter_facet_ids,
     ).to_dict()
 
-    response = self.post(payload)
+    response = self.post(payload=payload)
 
     # Send the request
     return ObservationResponse.model_validate(response)
@@ -74,7 +74,7 @@ class ObservationEndpoint(Endpoint):
       *,
       select: Optional[list[ObservationSelect | str]] = None,
       filter_facet_domains: Optional[str | list[str]] = None,
-      filter_facet_ids: Optional[str | list[str]] = None,
+      filter_facet_ids: Optional[str | list[str]] = None
   ) -> ObservationResponse:
     """
         Fetches all observations for a given entity type.
@@ -118,8 +118,7 @@ class ObservationEndpoint(Endpoint):
         entity_expression=
         f"{parent_entity}<-containedInPlace+{{typeOf:{entity_type}}}",
         filter_facet_domains=filter_facet_domains,
-        filter_facet_ids=filter_facet_ids,
-    )
+        filter_facet_ids=filter_facet_ids)
 
   def fetch_observations_by_entity_dcid(
       self,
@@ -129,7 +128,7 @@ class ObservationEndpoint(Endpoint):
       *,
       select: Optional[list[ObservationSelect | str]] = None,
       filter_facet_domains: Optional[str | list[str]] = None,
-      filter_facet_ids: Optional[str | list[str]] = None,
+      filter_facet_ids: Optional[str | list[str]] = None
   ) -> ObservationResponse:
     """
         Fetches all observations for a given entity type.
@@ -168,8 +167,7 @@ class ObservationEndpoint(Endpoint):
         select=[s for s in ObservationSelect] if not select else select,
         entity_dcids=entity_dcids,
         filter_facet_domains=filter_facet_domains,
-        filter_facet_ids=filter_facet_ids,
-    )
+        filter_facet_ids=filter_facet_ids)
 
   def fetch_available_statistical_variables(
       self,
@@ -188,7 +186,6 @@ class ObservationEndpoint(Endpoint):
     data = self.fetch(
         entity_dcids=entity_dcids,
         select=[ObservationSelect.VARIABLE, ObservationSelect.ENTITY],
-        variable_dcids=[],
-    ).get_data_by_entity()
+        variable_dcids=[]).get_data_by_entity()
 
     return group_variables_by_entity(data=data)

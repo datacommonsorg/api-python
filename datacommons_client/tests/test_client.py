@@ -34,12 +34,7 @@ def mock_client():
     "datacommons_client.utils.request_handling.check_instance_is_valid",
     return_value="https://datacommons.org",
 )
-@patch(
-    "datacommons_client.utils.request_handling.build_headers",
-    return_value={"X-API-Key": "test_key"},
-)
-def test_datacommons_client_initialization(mock_build_headers,
-                                           mock_check_instance,
+def test_datacommons_client_initialization(mock_check_instance,
                                            mock_resolve_instance_url):
   """Tests that DataCommonsClient initializes correctly with API and endpoints, using a fake address."""
   client = DataCommonsClient(api_key="test_key", dc_instance="test_instance")
@@ -48,6 +43,7 @@ def test_datacommons_client_initialization(mock_build_headers,
   assert client.api.headers == {
       "Content-Type": "application/json",
       "X-API-Key": "test_key",
+      "x-surface": "clientlib-python"
   }
 
   assert isinstance(client.node, NodeEndpoint)
@@ -57,6 +53,30 @@ def test_datacommons_client_initialization(mock_build_headers,
   assert client.node.api is client.api
   assert client.observation.api is client.api
   assert client.resolve.api is client.api
+
+
+@patch(
+    "datacommons_client.endpoints.base.check_instance_is_valid",
+    return_value="https://test.url",
+)
+@patch(
+    "datacommons_client.endpoints.base.resolve_instance_url",
+    return_value="https://datacommons.org",
+)
+def test_datacommons_client_initialization_with_surface_header(
+    mock_check_instance, mock_resolve_instance_url):
+  """Tests that DataCommonsClient initializes correctly with a surface header value."""
+
+  client = DataCommonsClient(api_key="test_key",
+                             dc_instance="test_instance",
+                             surface_header_value="mcp-1.0")
+
+  assert isinstance(client.api, API)
+  assert client.api.headers == {
+      "Content-Type": "application/json",
+      "X-API-Key": "test_key",
+      "x-surface": "mcp-1.0"
+  }
 
 
 def test_datacommons_client_raises_error_when_both_url_and_instance_are_provided(
@@ -365,3 +385,37 @@ def test_observations_dataframe_raises_error_when_no_facet_match(mock_client):
         entity_dcids=["entity1"],
         property_filters={"measurementMethodX": "Nonexistent"},
     )
+
+
+@patch("datacommons_client.utils.request_handling.requests.post")
+@patch(
+    "datacommons_client.utils.request_handling.check_instance_is_valid",
+    return_value="https://datacommons.org",
+)
+def test_client_end_to_end_surface_header_propagation_observation(
+    mock_check_instance, mock_post):
+  """Tests that the surface_header_value is propagated from client to the final request via the observation endpoint."""
+
+  # Mock the response from requests.post
+  mock_response = MagicMock()
+  mock_response.status_code = 200
+  mock_response.json.return_value = {"byVariable": {}, "facets": {}}
+  mock_post.return_value = mock_response
+
+  # Initialize the client with a surface header value
+  client = DataCommonsClient(api_key="test_key",
+                             surface_header_value="datagemma")
+
+  # Call a method on the observation endpoint that will trigger a post request
+  client.observation.fetch_observations_by_entity_dcid(
+      entity_dcids=["country/USA"],
+      variable_dcids=["Count_Person"],
+      date="2021")
+
+  # Check that requests.post was called with the correct headers
+  mock_post.assert_called_once()
+  _, kwargs = mock_post.call_args
+  headers = kwargs.get("headers")
+  assert headers is not None
+  assert headers.get("x-surface") == "datagemma"
+  assert headers.get("X-API-Key") == "test_key"

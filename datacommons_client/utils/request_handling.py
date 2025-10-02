@@ -72,23 +72,6 @@ def resolve_instance_url(dc_instance: str) -> str:
   return check_instance_is_valid(url)
 
 
-def build_headers(api_key: str | None = None) -> dict[str, str]:
-  """Build request headers for API requests.
-
-    Includes JSON content type. If an API key is provided, add it as `X-API-Key`.
-
-    Args:
-        api_key: Optional API key string for authenticated requests.
-
-    Returns:
-        A dictionary of headers for the request.
-    """
-  headers = {"Content-Type": "application/json"}
-  if api_key:
-    headers["X-API-Key"] = api_key
-  return headers
-
-
 def _send_post_request(url: str, payload: dict[str, Any],
                        headers: dict[str, str]) -> Response:
   """Send a POST request and handle common HTTP errors with custom exceptions.

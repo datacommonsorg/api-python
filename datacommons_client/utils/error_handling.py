@@ -87,3 +87,14 @@ class NoDataForPropertyError(DataCommonsError):
   """Raised when there is no data that meets the specified property filters."""
 
   default_message = "No available data for the specified property filters."
+
+
+VALID_SURFACE_HEADER_VALUES = ["mcp", r"mcp-[\d\.]+", "datagemma"]
+
+
+class InvalidSurfaceHeaderValueError(DataCommonsError):
+  """ 
+    The surface header value must be a surface known to the Data Commons team.
+    This value is used in the DC usage logs in Mixer.
+  """
+  default_message = "The surface header value should only to indicate a call made from Data Commons surfaces like the MCP server or DataGemma."
