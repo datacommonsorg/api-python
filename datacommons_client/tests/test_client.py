@@ -395,7 +395,7 @@ def test_observations_dataframe_raises_error_when_no_facet_match(mock_client):
 def test_client_end_to_end_surface_header_propagation_observation(
     mock_check_instance, mock_post):
   """Tests that the surface_header_value is propagated from client to the final request via the observation endpoint."""
-  
+
   # Mock the response from requests.post
   mock_response = MagicMock()
   mock_response.status_code = 200
