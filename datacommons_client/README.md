@@ -21,10 +21,7 @@ Once the package is installed, import `datacommons_client`.
 import datacommons_client as dc
 ```
 
-For more detail on getting started with the API, please visit our
-[API Overview](https://docs.datacommons.org/api/).
-
-**Note:** This package uses the V2 REST API and is in Beta. All of the existing Python and Pandas tutorials and samples use V1. We will be updating all the documentation during this Beta.
+For more detail on getting started with the API, please visit <https://docs.datacommons.org/api/python/v2/>.
 
 ## About Data Commons
 
@@ -39,6 +36,4 @@ Apache 2.0
 
 ## Support
 
-For general questions or issues about the API, please open an issue on our
-[issues](https://github.com/google/datacommons/issues) page. For all other
-questions, please send an email to `support@datacommons.org`.
+For questions, please send an email to `support@datacommons.org`.
