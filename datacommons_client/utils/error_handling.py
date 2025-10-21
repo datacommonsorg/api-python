@@ -87,6 +87,3 @@ class NoDataForPropertyError(DataCommonsError):
   """Raised when there is no data that meets the specified property filters."""
 
   default_message = "No available data for the specified property filters."
-
-
-VALID_SURFACE_HEADER_VALUES = ["mcp", r"mcp-[\d\.]+", "datagemma"]
