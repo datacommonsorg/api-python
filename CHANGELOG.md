@@ -1,5 +1,15 @@
 # Changelog
 
+## 2.1.3
+
+**Date** - 10/21/2025
+
+**Release Tag** - [py2.1.3](https://github.com/datacommonsorg/api-python/releases/tag/py2.1.3)
+
+**Release Status** - Current head of branch [`master`](https://github.com/datacommonsorg/api-python/tree/master)
+
+This is a minor fix that removes text validation on the `surface_header_value` parameter so that additional Data Commons surfaces can be added without re-releasing the package. This is only used by Data Commons to track usage across its platforms, and does not change the behavior of the client.
+
 ## 2.1.2
 
 **Date** - 09/23/2025
