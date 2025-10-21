@@ -1,7 +1,6 @@
 import re
 from typing import Any, Dict, Optional
 
-from datacommons_client.utils.error_handling import VALID_SURFACE_HEADER_VALUES
 from datacommons_client.utils.request_handling import check_instance_is_valid
 from datacommons_client.utils.request_handling import post_request
 from datacommons_client.utils.request_handling import resolve_instance_url
