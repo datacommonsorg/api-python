@@ -1,8 +1,6 @@
 import re
 from typing import Any, Dict, Optional
 
-from datacommons_client.utils.error_handling import InvalidSurfaceHeaderValueError
-from datacommons_client.utils.error_handling import VALID_SURFACE_HEADER_VALUES
 from datacommons_client.utils.request_handling import check_instance_is_valid
 from datacommons_client.utils.request_handling import post_request
 from datacommons_client.utils.request_handling import resolve_instance_url
@@ -51,15 +49,6 @@ class API:
     else:
       # Resolve from dc_instance
       self.base_url = resolve_instance_url(dc_instance)
-
-    # if this call originates from another DC product (MCP server, DataGemma, etc.), we indicate that to Mixer
-    # otherwise, the 'x-surface' header is 'clientlib-python'
-    if surface_header_value:
-      # use patterns to support tags like mcp-{VERSION}
-      if not any(
-          re.fullmatch(pattern, surface_header_value)
-          for pattern in VALID_SURFACE_HEADER_VALUES):
-        raise InvalidSurfaceHeaderValueError
 
     self.headers = self.build_headers(surface_header_value=surface_header_value,
                                       api_key=api_key)

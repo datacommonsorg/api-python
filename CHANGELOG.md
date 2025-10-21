@@ -12,7 +12,7 @@ This is a minor fix that removes text validation on the `surface_header_value` p
 
 ## 2.1.2
 
-**Date** - 09/23/2025
+**Date** - 10/16/2025
 
 **Release Tag** - [py2.1.2](https://github.com/datacommonsorg/api-python/releases/tag/py2.1.2)
 
