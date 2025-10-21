@@ -1,4 +1,4 @@
-__version__ = "2.1.2rc1"
+__version__ = "2.1.2"
 """
 Data Commons Client Package
 

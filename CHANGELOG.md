@@ -2,7 +2,7 @@
 
 ## 2.1.2
 
-**Date** - 09/23/2025
+**Date** - 10/16/2025
 
 **Release Tag** - [py2.1.2](https://github.com/datacommonsorg/api-python/releases/tag/py2.1.2)
 
