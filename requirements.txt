@@ -2,7 +2,7 @@ isort==5.13.2
 mock
 pandas
 pytest
-requests==2.32.0
+requests==2.32.4
 typing_extensions==4.7.1
 yapf==0.40.2
 pydantic>=2.11
