@@ -14,15 +14,19 @@ BASE_DC_V2: str = "https://api.datacommons.org/v2"
 CUSTOM_DC_V2: str = "/core/api/v2"
 
 
-def check_instance_is_valid(instance_url: str) -> str:
+def check_instance_is_valid(instance_url: str,
+                            api_key: str | None = None) -> str:
   """Check that the given instance URL points to a valid Data Commons instance.
 
     This function attempts a GET request against a known node in Data Commons to
     validate the given instance URL. If the node is found and the response has the
     expected data, the URL is considered valid.
+    
+    If an api_key is provided, it will be included in the request headers.
 
     Args:
         instance_url: The Data Commons instance URL to validate.
+        api_key: Optional API key for authentication.
 
     Returns:
         The validated instance URL.
@@ -34,8 +38,12 @@ def check_instance_is_valid(instance_url: str) -> str:
   # Test URL for a known node in Data Commons
   test_url = f"{instance_url}/node?nodes=country%2FGTM&property=->name"
 
+  headers = {}
+  if api_key:
+    headers["X-API-Key"] = api_key
+
   try:
-    response = requests.get(test_url)
+    response = requests.get(test_url, headers=headers)
     response.raise_for_status()
   except requests.exceptions.RequestException as exc:
     raise InvalidDCInstanceError(exc.response) from exc
