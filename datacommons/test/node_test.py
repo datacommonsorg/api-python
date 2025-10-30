@@ -24,17 +24,74 @@ class TestProperties(unittest.TestCase):
   def test_with_data(self, _post):
 
     def side_effect(path, data):
-      if path == "/v1/bulk/properties/out" and data == {"nodes": ["City"]}:
+      if path == "/v2/node" and data == {
+          "nodes": ["City", "Count_Person", "foo"],
+          "property": "->"
+      }:
         return {
-            "data": [{
-                "node": "City",
-                "properties": ["name", "provenance", "subClassOf", "typeOf"]
-            }]
+            "data": {
+                "City": {
+                    "properties": [
+                        "name", "provenance", "subClassOf", "typeOf"
+                    ]
+                },
+                "Count_Person": {
+                    "properties": [
+                        "description", "measuredProperty", "memberOf", "name",
+                        "populationType", "provenance", "statType", "typeOf"
+                    ]
+                },
+                "foo": {}
+            }
         }
 
     _post.side_effect = side_effect
-    response = datacommons.properties(["City"])
-    assert response == {"City": ["name", "provenance", "subClassOf", "typeOf"]}
+    response = datacommons.properties(["City", "Count_Person", "foo"])
+    assert response == {
+        "City": ["name", "provenance", "subClassOf", "typeOf"],
+        "Count_Person": [
+            "description", "measuredProperty", "memberOf", "name",
+            "populationType", "provenance", "statType", "typeOf"
+        ],
+        "foo": []
+    }
+
+  @patch("datacommons.node._post")
+  def test_with_direction(self, _post):
+
+    def side_effect(path, data):
+      if path == "/v2/node" and data == {
+          "nodes": ["City", "Count_Person", "foo"],
+          "property": "<-"
+      }:
+        return {
+            "data": {
+                "City": {
+                    "properties": [
+                        "placeType", "rangeIncludes", "schoolLocationType",
+                        "typeOf"
+                    ]
+                },
+                "Count_Person": {
+                    "properties": [
+                        "measurementDenominator", "outputProperty",
+                        "relevantVariable"
+                    ]
+                },
+                "foo": {}
+            }
+        }
+
+    _post.side_effect = side_effect
+    response = datacommons.properties(["City", "Count_Person", "foo"],
+                                      is_out=False)
+    assert response == {
+        "City": ["placeType", "rangeIncludes", "schoolLocationType", "typeOf"],
+        "Count_Person": [
+            "measurementDenominator", "outputProperty", "relevantVariable"
+        ],
+        "foo": []
+    }
 
 
 class TestPropertyValues(unittest.TestCase):
