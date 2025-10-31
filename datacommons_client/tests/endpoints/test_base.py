@@ -38,7 +38,8 @@ def test_api_initialization_with_url(mock_check_instance):
       "Content-Type": "application/json",
       "x-surface": "clientlib-python"
   }
-  mock_check_instance.assert_called_once_with("https://custom_instance.api/v2")
+  mock_check_instance.assert_called_once_with("https://custom_instance.api/v2",
+                                              api_key=None)
 
 
 @patch(
