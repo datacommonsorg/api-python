@@ -17,6 +17,7 @@
 from typing import Dict, List
 
 from datacommons.requests import _post
+from datacommons.utils import _get_arrow
 from datacommons.utils import _get_direction
 
 
@@ -31,12 +32,10 @@ def properties(nodes: List[str], is_out: bool = True) -> Dict[str, List[str]]:
       A dict keyed by node DCID, with the values being a list of properties
       for the queried node.
   """
-  resp = _post(f'/v1/bulk/properties/{_get_direction(is_out)}', {
-      'nodes': nodes,
-  })
+  resp = _post('/v2/node', {'nodes': nodes, 'property': _get_arrow(is_out)})
   result = {}
-  for item in resp.get('data', []):
-    node, properties = item['node'], item.get('properties', [])
+  for node, item in resp.get('data', {}).items():
+    properties = item.get('properties', [])
     result[node] = properties
   return result
 

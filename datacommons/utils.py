@@ -124,3 +124,14 @@ def _format_expand_payload(payload, new_key, must_exist=[]):
 
 def _get_direction(out: bool):
   return "out" if out else "in"
+
+
+def _get_arrow(out: bool):
+  """Returns the arrow syntax for an arc direction.
+
+  Args:
+      out: Whether the arc direction is out.
+  Returns:
+      The corresponding arrow syntax.
+  """
+  return "->" if out else "<-"
