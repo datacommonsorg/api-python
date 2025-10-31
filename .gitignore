@@ -128,3 +128,10 @@ datacommons.RCheck
 
 ## JetBrains
 .idea/
+
+# Gemini
+GEMINI.md
+.gemini/
+
+# Temp files
+tmp/

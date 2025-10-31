@@ -45,7 +45,7 @@ class API:
 
     if url is not None:
       # Use the given URL directly (strip trailing slash)
-      self.base_url = check_instance_is_valid(url.rstrip("/"))
+      self.base_url = check_instance_is_valid(url.rstrip("/"), api_key=api_key)
     else:
       # Resolve from dc_instance
       self.base_url = resolve_instance_url(dc_instance)

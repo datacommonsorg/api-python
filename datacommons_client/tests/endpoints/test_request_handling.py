@@ -69,7 +69,27 @@ def test_check_instance_is_valid_valid(mock_get):
   # Assert that the instance URL is returned if it is valid
   assert check_instance_is_valid(instance_url) == instance_url
   mock_get.assert_called_once_with(
-      f"{instance_url}/node?nodes=country%2FGTM&property=->name")
+      f"{instance_url}/node?nodes=country%2FGTM&property=->name", headers={})
+
+
+@patch("requests.get")
+def test_check_instance_is_valid_with_key_valid(mock_get):
+  """Tests that a valid instance URL is correctly validated."""
+
+  # Create a mock response object with the expected JSON data and status code
+  mock_response = MagicMock()
+  mock_response.json.return_value = {"data": {"country/GTM": {}}}
+  mock_response.status_code = 200
+  mock_get.return_value = mock_response
+
+  # Mock the instance URL to test
+  instance_url = "https://valid-instance"
+  api_key = "test-api-key"
+  # Assert that the instance URL is returned if it is valid
+  assert check_instance_is_valid(instance_url, api_key=api_key) == instance_url
+  mock_get.assert_called_once_with(
+      f"{instance_url}/node?nodes=country%2FGTM&property=->name",
+      headers={"X-API-Key": api_key})
 
 
 @patch("requests.get")
