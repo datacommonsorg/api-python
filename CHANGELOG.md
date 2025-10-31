@@ -8,7 +8,7 @@
 
 **Release Status** - Current head of branch [`master`](https://github.com/datacommonsorg/api-python/tree/master)
 
-This is a minor update that allows the client to use an API key, if specified, for instance validation when a URL is provided during initialization. This is useful for validating against non-production environments or custom Data Commons instances that require authentication.
+This is a patch update that allows the client to use an API key, if specified, for instance validation when a URL is provided during initialization. This is useful for validating against non-production environments or custom Data Commons instances that require authentication.
 
 ## 2.1.3
 
