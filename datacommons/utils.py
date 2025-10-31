@@ -127,10 +127,10 @@ def _get_direction(out: bool):
 
 
 def _get_arrow(out: bool):
-  """Returns the arrow syntax for an input direction.
+  """Returns the arrow syntax for an arc direction.
 
   Args:
-      out: Whether the direction it out.
+      out: Whether the arc direction is out.
   Returns:
       The corresponding arrow syntax.
   """
