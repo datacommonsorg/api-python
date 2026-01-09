@@ -10,6 +10,7 @@ from datacommons_client.endpoints.base import API
 from datacommons_client.endpoints.node import NodeEndpoint
 from datacommons_client.endpoints.observation import ObservationEndpoint
 from datacommons_client.endpoints.resolve import ResolveEndpoint
+from datacommons_client.utils.context import use_api_key
 
 __all__ = [
     "DataCommonsClient",
@@ -17,4 +18,5 @@ __all__ = [
     "NodeEndpoint",
     "ObservationEndpoint",
     "ResolveEndpoint",
+    "use_api_key",
 ]

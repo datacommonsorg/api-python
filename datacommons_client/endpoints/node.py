@@ -447,9 +447,11 @@ class NodeEndpoint(Endpoint):
     )
 
     # Use a thread pool to fetch ancestry graphs in parallel for each input entity
+    import contextvars
+    ctx = contextvars.copy_context()
     with ThreadPoolExecutor(max_workers=max_concurrent_requests) as executor:
       futures = [
-          executor.submit(build_graph_map, root=dcid, fetch_fn=fetch_fn)
+          executor.submit(ctx.run, build_graph_map, root=dcid, fetch_fn=fetch_fn)
           for dcid in place_dcids
       ]
       # Gather ancestry maps and postprocess into flat or nested form
