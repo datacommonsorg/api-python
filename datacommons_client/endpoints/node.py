@@ -1,4 +1,5 @@
 from concurrent.futures import ThreadPoolExecutor
+import contextvars
 from functools import partial
 from functools import wraps
 from typing import Literal, Optional
@@ -447,7 +448,6 @@ class NodeEndpoint(Endpoint):
     )
 
     # Use a thread pool to fetch ancestry graphs in parallel for each input entity
-    import contextvars
     ctx = contextvars.copy_context()
     with ThreadPoolExecutor(max_workers=max_concurrent_requests) as executor:
       futures = [
