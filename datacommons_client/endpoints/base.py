@@ -1,10 +1,10 @@
 import re
 from typing import Any, Dict, Optional
 
+from datacommons_client.utils.context import _API_KEY_CONTEXT_VAR
 from datacommons_client.utils.request_handling import check_instance_is_valid
 from datacommons_client.utils.request_handling import post_request
 from datacommons_client.utils.request_handling import resolve_instance_url
-from datacommons_client.utils.context import _API_KEY_CONTEXT_VAR
 
 
 class API:

@@ -4,8 +4,8 @@ from unittest.mock import patch
 import pandas as pd
 import pytest
 
-from datacommons_client.client import DataCommonsClient
 from datacommons_client import use_api_key
+from datacommons_client.client import DataCommonsClient
 from datacommons_client.endpoints.base import API
 from datacommons_client.endpoints.node import NodeEndpoint
 from datacommons_client.endpoints.observation import ObservationEndpoint
@@ -422,29 +422,28 @@ def test_client_end_to_end_surface_header_propagation_observation(
   assert headers.get("X-API-Key") == "test_key"
 
 
-
 @patch("datacommons_client.endpoints.base.post_request")
 def test_use_api_key_with_observation_fetch(mock_post_request):
   """Test use_api_key override for observation fetches (non-threaded)."""
-  
+
   # Setup client with default key
   client = DataCommonsClient(api_key="default-key")
-  
+
   # Configure mock to return valid response structure
   mock_post_request.return_value = {"byVariable": {}, "facets": {}}
-  
+
   # Default usage
   client.observation.fetch(variable_dcids="sv1", entity_dcids=["geo1"])
   mock_post_request.assert_called()
   _, kwargs = mock_post_request.call_args
   assert kwargs["headers"]["X-API-Key"] == "default-key"
-  
+
   # Context override
   with use_api_key("context-key"):
-      client.observation.fetch(variable_dcids="sv1", entity_dcids=["geo1"])
-      _, kwargs = mock_post_request.call_args
-      assert kwargs["headers"]["X-API-Key"] == "context-key"
-      
+    client.observation.fetch(variable_dcids="sv1", entity_dcids=["geo1"])
+    _, kwargs = mock_post_request.call_args
+    assert kwargs["headers"]["X-API-Key"] == "context-key"
+
   # Back to default
   client.observation.fetch(variable_dcids="sv1", entity_dcids=["geo1"])
   _, kwargs = mock_post_request.call_args
@@ -454,9 +453,9 @@ def test_use_api_key_with_observation_fetch(mock_post_request):
 @patch("datacommons_client.endpoints.base.post_request")
 def test_use_api_key_with_node_fetch_place_ancestors(mock_post_request):
   """Test use_api_key propagation for node graph methods (threaded)."""
-  
+
   client = DataCommonsClient(api_key="default-key")
-  
+
   # Configure mock. fetch_place_ancestors expects a dict response or list of nodes.
   # NodeResponse.data is a dict.
   mock_post_request.return_value = {"data": {}}
@@ -468,9 +467,7 @@ def test_use_api_key_with_node_fetch_place_ancestors(mock_post_request):
 
   # Context override
   with use_api_key("context-key"):
-      # Use a different DCID to avoid hitting fetch_relationship_lru cache
-      client.node.fetch_place_ancestors(place_dcids=["geoId/07"])
-      _, kwargs = mock_post_request.call_args
-      assert kwargs["headers"]["X-API-Key"] == "context-key"
-
-
+    # Use a different DCID to avoid hitting fetch_relationship_lru cache
+    client.node.fetch_place_ancestors(place_dcids=["geoId/07"])
+    _, kwargs = mock_post_request.call_args
+    assert kwargs["headers"]["X-API-Key"] == "context-key"

@@ -3,9 +3,9 @@ from concurrent.futures import FIRST_COMPLETED
 from concurrent.futures import Future
 from concurrent.futures import ThreadPoolExecutor
 from concurrent.futures import wait
+import contextvars
 from functools import lru_cache
 from typing import Callable, Literal, Optional, TypeAlias
-import contextvars
 
 from datacommons_client.models.node import Node
 

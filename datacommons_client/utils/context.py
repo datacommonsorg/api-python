@@ -12,17 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from contextvars import ContextVar
 from contextlib import contextmanager
 from contextvars import ContextVar
-from contextlib import contextmanager
 from typing import Generator
 
-_API_KEY_CONTEXT_VAR: ContextVar[str | None] = ContextVar("api_key", default=None)
+_API_KEY_CONTEXT_VAR: ContextVar[str | None] = ContextVar("api_key",
+                                                          default=None)
+
 
 @contextmanager
 def use_api_key(api_key: str | None) -> Generator[None, None, None]:
-    """Context manager to set the API key for the current execution context.
+  """Context manager to set the API key for the current execution context.
 
     If api_key is None or empty, this context manager does nothing, allowing
     the underlying client to use its default API key.
@@ -43,12 +43,12 @@ def use_api_key(api_key: str | None) -> Generator[None, None, None]:
         # Back to "default-key"
         client.observation.fetch(...)
     """
-    if not api_key:
-        yield
-        return
+  if not api_key:
+    yield
+    return
 
-    token = _API_KEY_CONTEXT_VAR.set(api_key)
-    try:
-        yield
-    finally:
-        _API_KEY_CONTEXT_VAR.reset(token)
+  token = _API_KEY_CONTEXT_VAR.set(api_key)
+  try:
+    yield
+  finally:
+    _API_KEY_CONTEXT_VAR.reset(token)
