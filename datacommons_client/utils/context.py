@@ -14,17 +14,39 @@
 
 from contextvars import ContextVar
 from contextlib import contextmanager
-from typing import Optional, Generator
+from contextvars import ContextVar
+from contextlib import contextmanager
+from typing import Generator
 
-_API_KEY_CONTEXT_VAR: ContextVar[Optional[str]] = ContextVar("api_key", default=None)
+_API_KEY_CONTEXT_VAR: ContextVar[str | None] = ContextVar("api_key", default=None)
 
 @contextmanager
-def use_api_key(api_key: str) -> Generator[None, None, None]:
+def use_api_key(api_key: str | None) -> Generator[None, None, None]:
     """Context manager to set the API key for the current execution context.
 
+    If api_key is None or empty, this context manager does nothing, allowing
+    the underlying client to use its default API key.
+
     Args:
-        api_key: The API key to use.
+        api_key: The API key to use. If None or empty, no change is made.
+
+    Example:
+        client = DataCommonsClient(api_key="default-key")
+
+        # Uses "default-key"
+        client.observation.fetch(...)
+
+        with use_api_key("temp-key"):
+            # Uses "temp-key"
+            client.observation.fetch(...)
+
+        # Back to "default-key"
+        client.observation.fetch(...)
     """
+    if not api_key:
+        yield
+        return
+
     token = _API_KEY_CONTEXT_VAR.set(api_key)
     try:
         yield

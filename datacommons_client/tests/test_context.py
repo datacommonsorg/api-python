@@ -34,3 +34,12 @@ class TestContext(unittest.TestCase):
                 self.assertEqual(_API_KEY_CONTEXT_VAR.get(), "inner")
             self.assertEqual(_API_KEY_CONTEXT_VAR.get(), "outer")
         self.assertIsNone(_API_KEY_CONTEXT_VAR.get())
+
+    def test_use_api_key_none(self):
+        """Test that use_api_key with None/empty does not set the variable."""
+        self.assertIsNone(_API_KEY_CONTEXT_VAR.get())
+        with use_api_key(None):
+            self.assertIsNone(_API_KEY_CONTEXT_VAR.get())
+        with use_api_key(""):
+            self.assertIsNone(_API_KEY_CONTEXT_VAR.get())
+
