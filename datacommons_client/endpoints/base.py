@@ -4,6 +4,7 @@ from typing import Any, Dict, Optional
 from datacommons_client.utils.request_handling import check_instance_is_valid
 from datacommons_client.utils.request_handling import post_request
 from datacommons_client.utils.request_handling import resolve_instance_url
+from datacommons_client.utils.context import _API_KEY_CONTEXT_VAR
 
 
 class API:
@@ -94,9 +95,15 @@ class API:
 
     url = (self.base_url if endpoint is None else f"{self.base_url}/{endpoint}")
 
+    headers = self.headers
+    ctx_api_key = _API_KEY_CONTEXT_VAR.get()
+    if ctx_api_key:
+      headers = self.headers.copy()
+      headers["X-API-Key"] = ctx_api_key
+
     return post_request(url=url,
                         payload=payload,
-                        headers=self.headers,
+                        headers=headers,
                         all_pages=all_pages,
                         next_token=next_token)
 
