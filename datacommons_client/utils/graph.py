@@ -3,6 +3,7 @@ from concurrent.futures import FIRST_COMPLETED
 from concurrent.futures import Future
 from concurrent.futures import ThreadPoolExecutor
 from concurrent.futures import wait
+import contextvars
 from functools import lru_cache
 from typing import Callable, Literal, Optional, TypeAlias
 
@@ -108,6 +109,7 @@ def build_graph_map(
 
   original_root = root
 
+  ctx = contextvars.copy_context()
   with ThreadPoolExecutor(max_workers=max_workers) as executor:
     queue = deque([root])
 
@@ -119,7 +121,7 @@ def build_graph_map(
         # Check if the node has already been visited or is in progress
         if dcid not in visited and dcid not in in_progress:
           # Submit the fetch task
-          in_progress[dcid] = executor.submit(fetch_fn, dcid=dcid)
+          in_progress[dcid] = executor.submit(ctx.run, fetch_fn, dcid=dcid)
 
       # Check if any futures are still in progress
       if not in_progress:
