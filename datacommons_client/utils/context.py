@@ -31,6 +31,8 @@ def use_api_key(api_key: str | None) -> Generator[None, None, None]:
         api_key: The API key to use. If None or empty, no change is made.
 
     Example:
+        from datacommons_client import use_api_key
+        # ...
         client = DataCommonsClient(api_key="default-key")
 
         # Uses "default-key"

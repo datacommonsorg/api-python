@@ -98,6 +98,7 @@ class API:
     headers = self.headers
     ctx_api_key = _API_KEY_CONTEXT_VAR.get()
     if ctx_api_key:
+      # Copy headers to avoid mutating the shared client state
       headers = self.headers.copy()
       headers["X-API-Key"] = ctx_api_key
 
