@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.0.4
+
+**Date** - 01/12/2026
+
+**Release Tag** - [pd.0.0.4](https://github.com/datacommonsorg/api-python/releases/tag/pd0.0.4)
+
+**Release Status** - Current head of branch [`master`](https://github.com/datacommonsorg/api-python/tree/master)
+
+Added deprecation notice to legacy `datacommons_pandas` package.
+
 ## 0.0.3
 
 **Date** - 11/10/2020

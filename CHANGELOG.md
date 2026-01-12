@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.4.4
+
+**Date** - 01/12/2026
+
+**Release Tag** - [py1.4.4](https://github.com/datacommonsorg/api-python/releases/tag/py1.4.4)
+
+**Release Status** - Current head of branch [`master`](https://github.com/datacommonsorg/api-python/tree/master)
+
+Added deprecation notice to legacy `datacommons` package.
+
 ## 2.1.5
 
 **Date** - 01/12/2026
