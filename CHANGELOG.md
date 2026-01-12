@@ -4,7 +4,7 @@
 
 **Date** - 01/12/2026
 
-**Release Tag** - [py2.1.5](https://github.com/datacommonsorg/api-python/releases/tag/py2.1.5)
+**Release Tag** - [v2.1.5](https://github.com/datacommonsorg/api-python/releases/tag/v2.1.5)
 
 **Release Status** - Current head of branch [`master`](https://github.com/datacommonsorg/api-python/tree/master)
 
