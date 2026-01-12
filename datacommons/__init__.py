@@ -17,8 +17,9 @@
 import warnings
 
 warnings.warn(
-    "\n\n'datacommons' is deprecated and will no longer be updated. "
-    "Please migrate to the 'datacommons_client' package. "
+    "\n\n'datacommons' is deprecated and will no longer be updated.\n"
+    "Please migrate to the 'datacommons_client' package.\n"
+    "Migration guide: https://docs.datacommons.org/api/python/v2/migration.html\n"
     "Contact support@datacommons.org with any questions.\n",
     category=DeprecationWarning,
     stacklevel=2)
