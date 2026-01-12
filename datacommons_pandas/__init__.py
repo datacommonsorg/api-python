@@ -14,6 +14,15 @@
 
 # isort: skip_file
 
+import warnings
+
+warnings.warn(
+    "\n\n'datacommons_pandas' is deprecated and will no longer be updated. "
+    "Please migrate to the 'datacommons_client' package. "
+    "Contact support@datacommons.org with any questions.\n",
+    category=DeprecationWarning,
+    stacklevel=2)
+
 from datacommons_pandas.df_builder import build_time_series, build_time_series_dataframe, build_multivariate_dataframe
 
 ################################ SYMLINK FILES ################################

@@ -27,7 +27,7 @@ URL = 'https://github.com/datacommonsorg/api-python'
 EMAIL = 'support@datacommons.org'
 AUTHOR = 'datacommons.org'
 REQUIRES_PYTHON = '>=3.7'
-VERSION = '0.0.3'
+VERSION = '0.0.4'
 REQUIRED = ['pandas', 'six', 'requests']
 PACKAGES = ['datacommons_pandas']
 
@@ -48,6 +48,7 @@ setup(
     include_package_data=True,
     license='Apache 2.0',
     classifiers=[
+        'Development Status :: 7 - Inactive',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: Apache Software License',
         'Programming Language :: Python',

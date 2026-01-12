@@ -1,3 +1,5 @@
+**DEPRECATED: This library is no longer maintained. Please migrate to the [datacommons_client](https://pypi.org/project/datacommons-client/) library. For help on translating your requests, see the [Migration guide](https://docs.datacommons.org/api/python/v2/migration.html).**
+
 # Data Commons Python API
 
 This is a Python library for accessing data in the Data Commons Graph.
