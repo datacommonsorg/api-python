@@ -133,4 +133,7 @@ class ResolveRequestPayload(BaseDCModel):
     """
 
   node_dcids: ListOrStr = Field(..., serialization_alias="nodes")
-  expression: str | list[str] = Field(..., serialization_alias="property")
+  expression: str | list[str] | None = Field(default=None,
+                                             serialization_alias="property")
+  resolver: str | None = Field(default=None, serialization_alias="resolver")
+  target: str | None = Field(default=None, serialization_alias="target")
