@@ -20,6 +20,8 @@ class Candidate(BaseDCModel):
 
   dcid: NodeDCID = Field(default_factory=str)
   dominantType: Optional[DominantType] = None
+  metadata: dict[str, str] | None = None
+  typeOf: list[str] | None = None
 
 
 class Entity(BaseDCModel):

@@ -856,11 +856,15 @@ def test_resolve_response_dict():
               "candidates": [
                   {
                       "dcid": "dcid1",
-                      "dominantType": "Type1"
+                      "dominantType": "Type1",
+                      "metadata": None,
+                      "typeOf": None,
                   },
                   {
                       "dcid": "dcid2",
-                      "dominantType": None
+                      "dominantType": None,
+                      "metadata": None,
+                      "typeOf": None,
                   },
               ],
           },
@@ -868,7 +872,9 @@ def test_resolve_response_dict():
               "node": "entity2",
               "candidates": [{
                   "dcid": "dcid3",
-                  "dominantType": "Type2"
+                  "dominantType": "Type2",
+                  "metadata": None,
+                  "typeOf": None,
               },],
           },
       ]
@@ -968,11 +974,15 @@ def test_resolve_response_json_string_exclude_none():
               "candidates": [
                   {
                       "dcid": "dcid1",
-                      "dominantType": "Type1"
+                      "dominantType": "Type1",
+                      "metadata": None,
+                      "typeOf": None,
                   },
                   {
                       "dcid": "dcid2",
-                      "dominantType": None
+                      "dominantType": None,
+                      "metadata": None,
+                      "typeOf": None,
                   },
               ],
           },
@@ -980,7 +990,9 @@ def test_resolve_response_json_string_exclude_none():
               "node": "entity2",
               "candidates": [{
                   "dcid": "dcid3",
-                  "dominantType": "Type2"
+                  "dominantType": "Type2",
+                  "metadata": None,
+                  "typeOf": None,
               },],
           },
           {
