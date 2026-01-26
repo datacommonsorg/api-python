@@ -163,7 +163,8 @@ def test_fetch_indicators_calls_endpoints_correctly():
   # Mock response data structure
   mock_response_data = {
       "entities": [{
-          "node": "population",
+          "node":
+              "population",
           "candidates": [{
               "dcid": "Count_Person",
               "dominantType": "StatisticalVariable",

@@ -869,7 +869,8 @@ def test_resolve_response_dict():
               ],
           },
           {
-              "node": "entity2",
+              "node":
+                  "entity2",
               "candidates": [{
                   "dcid": "dcid3",
                   "dominantType": "Type2",
@@ -987,7 +988,8 @@ def test_resolve_response_json_string_exclude_none():
               ],
           },
           {
-              "node": "entity2",
+              "node":
+                  "entity2",
               "candidates": [{
                   "dcid": "dcid3",
                   "dominantType": "Type2",
