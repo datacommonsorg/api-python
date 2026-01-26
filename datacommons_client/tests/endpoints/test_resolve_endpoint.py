@@ -155,3 +155,72 @@ def test_flatten_resolve_response():
 
   # Assertions
   assert result == expected
+
+
+def test_fetch_indicators_calls_endpoints_correctly():
+  """Tests the fetch_indicators method."""
+  api_mock = MagicMock()
+  # Mock response data structure
+  mock_response_data = {
+      "entities": [{
+          "node": "population",
+          "candidates": [{
+              "dcid": "Count_Person",
+              "dominantType": "StatisticalVariable",
+              "metadata": {
+                  "score": "0.9",
+                  "sentence": "population count"
+              },
+              "typeOf": ["StatisticalVariable"]
+          }]
+      }]
+  }
+  api_mock.post = MagicMock(return_value=mock_response_data)
+  endpoint = ResolveEndpoint(api=api_mock)
+
+  # Call the method
+  response = endpoint.fetch_indicators(queries=["population"],
+                                       target="custom_only")
+
+  # Verify post was called with correct payload
+  api_mock.post.assert_called_once_with(payload={
+      "nodes": ["population"],
+      "resolver": "indicator",
+      "target": "custom_only"
+  },
+                                        endpoint="resolve",
+                                        all_pages=True,
+                                        next_token=None)
+
+  # Verify response parsing
+  expected = ResolveResponse(entities=[
+      Entity(node="population",
+             candidates=[
+                 Candidate(dcid="Count_Person",
+                           dominantType="StatisticalVariable",
+                           metadata={
+                               "score": "0.9",
+                               "sentence": "population count"
+                           },
+                           typeOf=["StatisticalVariable"])
+             ])
+  ])
+  assert response == expected
+
+
+def test_fetch_still_works_with_expression():
+  """Tests that fetch still works with expression (regression test)."""
+  api_mock = MagicMock()
+  mock_response_data = {"entities": []}
+  api_mock.post = MagicMock(return_value=mock_response_data)
+  endpoint = ResolveEndpoint(api=api_mock)
+
+  endpoint.fetch(node_ids=["geoId/06"], expression="<-containedInPlace")
+
+  api_mock.post.assert_called_once_with(payload={
+      "nodes": ["geoId/06"],
+      "property": "<-containedInPlace"
+  },
+                                        endpoint="resolve",
+                                        all_pages=True,
+                                        next_token=None)
