@@ -37,8 +37,11 @@ class ResolveEndpoint(Endpoint):
     """Initializes the ResolveEndpoint instance."""
     super().__init__(endpoint="resolve", api=api)
 
-  def fetch(self, node_ids: str | list[str],
-            expression: str | list[str]) -> ResolveResponse:
+  def fetch(self,
+            node_ids: str | list[str],
+            expression: str | list[str] | None = None,
+            resolver: str | None = None,
+            target: str | None = None) -> ResolveResponse:
     """
         Fetches resolved data for the given nodes and expressions, identified by name,
          coordinates, or wiki ID.
@@ -46,6 +49,8 @@ class ResolveEndpoint(Endpoint):
         Args:
             node_ids (str | list[str]): One or more node IDs to resolve.
             expression (str): The relation expression to query.
+            resolver (str | None): The resolver type to use (e.g., "indicator").
+            target (str | None): The resolution target (e.g., "custom_only").
 
         Returns:
             ResolveResponse: The response object containing the resolved data.
@@ -56,10 +61,27 @@ class ResolveEndpoint(Endpoint):
 
     # Construct the payload
     payload = ResolveRequestPayload(node_dcids=node_ids,
-                                    expression=expression).to_dict()
+                                    expression=expression,
+                                    resolver=resolver,
+                                    target=target).to_dict()
 
     # Send the request and return the response
     return ResolveResponse.model_validate(self.post(payload))
+
+  def fetch_indicators(self,
+                       queries: str | list[str],
+                       target: str | None = None) -> ResolveResponse:
+    """
+      Fetches resolved indicators (StatisticalVariables or Topics) for the given queries.
+
+      Args:
+          queries (str | list[str]): One or more queries (e.g. "population", "gdp").
+          target (str | None): Optional target for resolution (e.g., "base_only", "custom_only", "base_and_custom").
+
+      Returns:
+          ResolveResponse: The response object containing the resolved indicators.
+      """
+    return self.fetch(node_ids=queries, resolver="indicator", target=target)
 
   def fetch_dcids_by_name(self,
                           names: str | list[str],
