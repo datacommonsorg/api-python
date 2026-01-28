@@ -1,5 +1,15 @@
 # Changelog
 
+## 2.1.6
+
+**Date** - 01/28/2026
+
+**Release Tag** - [v2.1.6](https://github.com/datacommonsorg/api-python/releases/tag/v2.1.6)
+
+**Release Status** - Current head of branch [`master`](https://github.com/datacommonsorg/api-python/tree/master)
+
+This is a patch update that adds support for resolving indicators (StatisticalVariables and Topics) from natural language queries via the `resolve` endpoint. It introduces a new `fetch_indicators` method and updates the `Candidate` model to include match scores and types.
+
 ## 2.1.5
 
 **Date** - 01/12/2026
