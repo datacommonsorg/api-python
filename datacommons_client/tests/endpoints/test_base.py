@@ -23,7 +23,7 @@ def test_api_initialization_default(mock_check_instance, mock_resolve_instance):
       "Content-Type": "application/json",
       "x-surface": "clientlib-python"
   }
-  mock_resolve_instance.assert_called_once_with("datacommons.org")
+  mock_resolve_instance.assert_called_once_with("datacommons.org", api_key=None)
 
 
 @patch(
@@ -55,7 +55,8 @@ def test_api_initialization_with_dc_instance(mock_resolve_instance_url):
       "Content-Type": "application/json",
       "x-surface": "clientlib-python"
   }
-  mock_resolve_instance_url.assert_called_once_with("custom-instance")
+  mock_resolve_instance_url.assert_called_once_with("custom-instance",
+                                                    api_key=None)
 
 
 @patch(
@@ -289,3 +290,34 @@ def test_endpoint_repr(mock_check_instance):
 
   expected_repr = "<Node Endpoint using <API at https://custom.api/v2>>"
   assert repr(endpoint) == expected_repr
+
+
+@patch("datacommons_client.endpoints.base.check_instance_is_valid")
+def test_api_initialization_validate_instance_false_with_url(
+    mock_check_instance):
+  """Tests that validate_instance=False skips check_instance_is_valid and merges custom headers."""
+  api = API(
+      url="https://custom.example.com/core/api/v2/",
+      headers={"Authorization": "Bearer test-token"},
+      validate_instance=False,
+  )
+  assert api.base_url == "https://custom.example.com/core/api/v2"
+  assert api.headers["Authorization"] == "Bearer test-token"
+  assert repr(api) == (
+      "<API at https://custom.example.com/core/api/v2 (Authenticated)>")
+  mock_check_instance.assert_not_called()
+
+
+@patch("datacommons_client.endpoints.base.resolve_instance_url")
+def test_api_initialization_validate_instance_false_with_dc_instance(
+    mock_resolve_instance_url):
+  """Tests that validate_instance=False with custom dc_instance constructs the URL without network validation."""
+  api = API(
+      dc_instance="https://custom.example.com/",
+      headers={"authorization": "Bearer test-token"},
+      validate_instance=False,
+  )
+  assert api.base_url == "https://custom.example.com/core/api/v2"
+  assert repr(api) == (
+      "<API at https://custom.example.com/core/api/v2 (Authenticated)>")
+  mock_resolve_instance_url.assert_not_called()

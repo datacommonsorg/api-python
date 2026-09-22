@@ -14,8 +14,11 @@ BASE_DC_V2: str = "https://api.datacommons.org/v2"
 CUSTOM_DC_V2: str = "/core/api/v2"
 
 
-def check_instance_is_valid(instance_url: str,
-                            api_key: str | None = None) -> str:
+def check_instance_is_valid(
+    instance_url: str,
+    api_key: str | None = None,
+    headers: Optional[Dict[str, str]] = None,
+) -> str:
   """Check that the given instance URL points to a valid Data Commons instance.
 
     This function attempts a GET request against a known node in Data Commons to
@@ -27,6 +30,7 @@ def check_instance_is_valid(instance_url: str,
     Args:
         instance_url: The Data Commons instance URL to validate.
         api_key: Optional API key for authentication.
+        headers: Optional additional HTTP headers to include in the validation request.
 
     Returns:
         The validated instance URL.
@@ -38,12 +42,12 @@ def check_instance_is_valid(instance_url: str,
   # Test URL for a known node in Data Commons
   test_url = f"{instance_url}/node?nodes=country%2FGTM&property=->name"
 
-  headers = {}
+  request_headers = dict(headers) if headers else {}
   if api_key:
-    headers["X-API-Key"] = api_key
+    request_headers["X-API-Key"] = api_key
 
   try:
-    response = requests.get(test_url, headers=headers)
+    response = requests.get(test_url, headers=request_headers)
     response.raise_for_status()
   except requests.exceptions.RequestException as exc:
     raise InvalidDCInstanceError(exc.response) from exc
@@ -56,7 +60,11 @@ def check_instance_is_valid(instance_url: str,
   return instance_url
 
 
-def resolve_instance_url(dc_instance: str) -> str:
+def resolve_instance_url(
+    dc_instance: str,
+    api_key: str | None = None,
+    headers: Optional[Dict[str, str]] = None,
+) -> str:
   """Resolve the base API URL for a given Data Commons instance.
 
     If the instance is `datacommons.org`, the default URL is returned. Otherwise,
@@ -64,12 +72,15 @@ def resolve_instance_url(dc_instance: str) -> str:
 
     Args:
         dc_instance: The identifier or domain of the Data Commons instance.
+        api_key: Optional API key for authentication during instance validation.
+        headers: Optional additional HTTP headers for instance validation.
 
     Returns:
         The resolved base API URL.
     """
   # if https or http included in the string, remove it
-  dc_instance = dc_instance.replace("https://", "").replace("http://", "")
+  dc_instance = (dc_instance.replace("https://", "").replace("http://",
+                                                             "").rstrip("/"))
 
   # If the instance is the default, return the base URL
   if dc_instance == "datacommons.org":
@@ -77,6 +88,10 @@ def resolve_instance_url(dc_instance: str) -> str:
 
   # Otherwise, validate the custom instance URL
   url = f"https://{dc_instance}{CUSTOM_DC_V2}"
+  if headers:
+    return check_instance_is_valid(url, api_key=api_key, headers=headers)
+  if api_key is not None:
+    return check_instance_is_valid(url, api_key=api_key)
   return check_instance_is_valid(url)
 
 

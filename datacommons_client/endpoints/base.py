@@ -1,8 +1,10 @@
+from collections.abc import Mapping
 import re
 from typing import Any, Dict, Optional
 
 from datacommons_client.utils.context import _API_KEY_CONTEXT_VAR
 from datacommons_client.utils.request_handling import check_instance_is_valid
+from datacommons_client.utils.request_handling import CUSTOM_DC_V2
 from datacommons_client.utils.request_handling import post_request
 from datacommons_client.utils.request_handling import resolve_instance_url
 
@@ -21,6 +23,9 @@ class API:
       dc_instance: Optional[str] = None,
       url: Optional[str] = None,
       surface_header_value: Optional[str] = None,
+      *,
+      headers: Optional[Mapping[str, str]] = None,
+      validate_instance: bool = True,
   ):
     """
     Initializes the API instance.
@@ -33,7 +38,9 @@ class API:
             of the API is required (for local development, for example). If provided, dc_instance`
              should not be provided.
         surface_header_value: indicates which DC surface (MCP server, etc.) makes a call to the python library.
-            If the call originated internally, this is null and we pass in "clientlib-python" as the surface header 
+            If the call originated internally, this is null and we pass in "clientlib-python" as the surface header
+        headers: Optional additional HTTP headers (e.g. Authorization bearer tokens) to include in requests.
+        validate_instance: Whether to probe the instance URL during initialization. Defaults to True.
 
     Raises:
         ValueError: If both `dc_instance` and `url` are provided.
@@ -45,14 +52,33 @@ class API:
       dc_instance = "datacommons.org"
 
     if url is not None:
-      # Use the given URL directly (strip trailing slash)
-      self.base_url = check_instance_is_valid(url.rstrip("/"), api_key=api_key)
+      clean_url = url.rstrip("/")
+      if not validate_instance:
+        self.base_url = clean_url
+      elif headers:
+        self.base_url = check_instance_is_valid(clean_url,
+                                                api_key=api_key,
+                                                headers=dict(headers))
+      else:
+        self.base_url = check_instance_is_valid(clean_url, api_key=api_key)
     else:
-      # Resolve from dc_instance
-      self.base_url = resolve_instance_url(dc_instance)
+      clean_dc = (dc_instance.replace("https://", "").replace("http://",
+                                                              "").rstrip("/"))
+      if not validate_instance:
+        if clean_dc == "datacommons.org":
+          self.base_url = resolve_instance_url("datacommons.org")
+        else:
+          self.base_url = f"https://{clean_dc}{CUSTOM_DC_V2}"
+      elif headers:
+        self.base_url = resolve_instance_url(dc_instance,
+                                             api_key=api_key,
+                                             headers=dict(headers))
+      else:
+        self.base_url = resolve_instance_url(dc_instance, api_key=api_key)
 
     self.headers = self.build_headers(surface_header_value=surface_header_value,
-                                      api_key=api_key)
+                                      api_key=api_key,
+                                      custom_headers=headers)
 
   def __repr__(self) -> str:
     """Returns a readable representation of the API object.
@@ -62,7 +88,9 @@ class API:
     Returns:
         str: A string representation of the API object.
     """
-    has_auth = " (Authenticated)" if "X-API-Key" in self.headers else ""
+    has_auth = (" (Authenticated)" if any(
+        k.lower() in ("x-api-key", "authorization") for k in self.headers) else
+                "")
     return f"<API at {self.base_url}{has_auth}>"
 
   def post(self,
@@ -108,15 +136,21 @@ class API:
                         all_pages=all_pages,
                         next_token=next_token)
 
-  def build_headers(self,
-                    surface_header_value: Optional[str],
-                    api_key: Optional[str] = None) -> dict[str, str]:
+  def build_headers(
+      self,
+      surface_header_value: Optional[str],
+      api_key: Optional[str] = None,
+      custom_headers: Optional[Mapping[str, str]] = None,
+  ) -> dict[str, str]:
     """Build request headers for API requests.
 
     Includes JSON content type. If an API key is provided, add it as `X-API-Key`.
 
     Args:
         self: the API, which includes API key and surface header if available
+        surface_header_value: Optional surface header identifier.
+        api_key: Optional API key for X-API-Key header.
+        custom_headers: Optional custom headers to merge into the request headers.
 
     Returns:
         A dictionary of headers for the request.
@@ -130,6 +164,9 @@ class API:
 
     if surface_header_value:
       headers["x-surface"] = surface_header_value
+
+    if custom_headers:
+      headers.update(custom_headers)
 
     return headers
 

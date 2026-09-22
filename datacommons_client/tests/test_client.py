@@ -471,3 +471,15 @@ def test_use_api_key_with_node_fetch_place_ancestors(mock_post_request):
     client.node.fetch_place_ancestors(place_dcids=["geoId/07"])
     _, kwargs = mock_post_request.call_args
     assert kwargs["headers"]["X-API-Key"] == "context-key"
+
+
+def test_datacommons_client_with_custom_headers_and_validate_instance_false():
+  """Tests DataCommonsClient initialization with custom headers and validate_instance=False."""
+  client = DataCommonsClient(
+      url="https://dc-service-xyz.run.app/core/api/v2",
+      headers={"Authorization": "Bearer tok"},
+      validate_instance=False,
+  )
+  assert client.api.base_url == "https://dc-service-xyz.run.app/core/api/v2"
+  assert client.api.headers["Authorization"] == "Bearer tok"
+  assert client.sdmx.base_url == "https://dc-service-xyz.run.app"

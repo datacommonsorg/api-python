@@ -1,9 +1,11 @@
+from collections.abc import Mapping
 from typing import Literal, Optional
 
 from datacommons_client.endpoints.base import API
 from datacommons_client.endpoints.node import NodeEndpoint
 from datacommons_client.endpoints.observation import ObservationEndpoint
 from datacommons_client.endpoints.resolve import ResolveEndpoint
+from datacommons_client.endpoints.sdmx import SdmxEndpoint
 from datacommons_client.models.observation import ObservationDate
 from datacommons_client.utils.dataframes import add_entity_names_to_observations_dataframe
 from datacommons_client.utils.dataframes import add_property_constraints_to_observations_dataframe
@@ -20,7 +22,8 @@ class DataCommonsClient:
   """
     A client for interacting with the Data Commons API.
 
-    This class provides convenient access to the V2 Data Commons API endpoints.
+    This class provides convenient access to the V2 Data Commons API endpoints
+    and the SDMX 3.0 Data and Availability APIs.
 
     Attributes:
         api (API): An instance of the API class that handles requests.
@@ -29,6 +32,7 @@ class DataCommonsClient:
         observation (ObservationEndpoint): Handles observation-related queries, allowing retrieval of
             statistical observations associated with entities, variables, and dates (e.g., GDP of California in 2010).
         resolve (ResolveEndpoint): Manages resolution queries to find different DCIDs for entities.
+        sdmx (SdmxEndpoint): Queries the SDMX 3.0 Data and Availability REST APIs.
 
     """
 
@@ -37,7 +41,9 @@ class DataCommonsClient:
                *,
                dc_instance: Optional[str] = "datacommons.org",
                url: Optional[str] = None,
-               surface_header_value: Optional[str] = None):
+               surface_header_value: Optional[str] = None,
+               headers: Optional[Mapping[str, str]] = None,
+               validate_instance: bool = True):
     """
         Initializes the DataCommonsClient.
 
@@ -46,6 +52,9 @@ class DataCommonsClient:
                 custom DC instances do not currently require an API key.
             dc_instance (Optional[str]): The Data Commons instance to use. Defaults to "datacommons.org".
             url (Optional[str]): A custom, fully resolved URL for the Data Commons API. Defaults to None.
+            surface_header_value (Optional[str]): Optional Data Commons surface header identifier.
+            headers (Optional[Mapping[str, str]]): Optional additional HTTP headers (e.g. Authorization bearer token).
+            validate_instance (bool): Whether to validate the target instance URL during initialization. Defaults to True.
         """
     # If a fully resolved URL is provided, and the default dc_instance is used,
     # ignore that default value
@@ -56,12 +65,15 @@ class DataCommonsClient:
     self.api = API(api_key=api_key,
                    dc_instance=dc_instance,
                    url=url,
-                   surface_header_value=surface_header_value)
+                   surface_header_value=surface_header_value,
+                   headers=headers,
+                   validate_instance=validate_instance)
 
     # Create instances of the endpoints
     self.node = NodeEndpoint(api=self.api)
     self.observation = ObservationEndpoint(api=self.api)
     self.resolve = ResolveEndpoint(api=self.api)
+    self.sdmx = SdmxEndpoint(api=self.api)
 
   def _find_filter_facet_ids(
       self,

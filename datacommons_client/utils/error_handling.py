@@ -87,3 +87,41 @@ class NoDataForPropertyError(DataCommonsError):
   """Raised when there is no data that meets the specified property filters."""
 
   default_message = "No available data for the specified property filters."
+
+
+class SdmxClientError(APIError):
+  """Base exception for SDMX client operations."""
+
+  default_message = "An error occurred while querying the SDMX API."
+
+  def __init__(
+      self,
+      message: Optional[str] = None,
+      response: Optional[Response] = None,
+  ) -> None:
+    resolved_message = message or self.default_message
+    super().__init__(response=response, message=resolved_message)
+    self.message = resolved_message
+
+  def __str__(self) -> str:
+    return str(self.args[0])
+
+
+class SdmxAPIError(SdmxClientError):
+  """Raised when an SDMX endpoint returns an HTTP error status."""
+
+  def __init__(
+      self,
+      status_code: int,
+      message: str,
+      response: Optional[Response] = None,
+  ) -> None:
+    super().__init__(
+        message=f"SDMX API returned HTTP {status_code}: {message}",
+        response=response,
+    )
+    self.status_code = status_code
+    self.message = message
+
+  def __reduce__(self):
+    return (self.__class__, (self.status_code, self.message, self.response))
